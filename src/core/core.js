@@ -2990,6 +2990,38 @@ var Mura=(function(){
 		}
 	}
 
+	function throttle(func, limit) {
+		var lastFunc
+		var lastRan
+		return function() {
+			var context = this
+			var args = arguments
+			if (!lastRan) {
+				func.apply(context, args)
+				lastRan = Date.now()
+			} else {
+				clearTimeout(lastFunc)
+				lastFunc = setTimeout(function() {
+				if ((Date.now() - lastRan) >= limit) {
+					func.apply(context, args)
+					lastRan = Date.now()
+				}
+				}, limit - (Date.now() - lastRan))
+			}
+		}
+	}
+
+	function debounce(func, delay){
+		var inDebounce
+		return function() {
+			var context = this
+			var args = arguments
+			clearTimeout(inDebounce)
+			inDebounce = setTimeout(function(){func.apply(context, args)}, delay)
+		}
+	}
+	  
+
 	function init(config) {
 
 		if(typeof config.content != 'undefined'){
@@ -3262,6 +3294,8 @@ var Mura=(function(){
 			processAsyncObject: processAsyncObject,
 			resetAsyncObject: resetAsyncObject,
 			setLowerCaseKeys: setLowerCaseKeys,
+			throttle:throttle,
+			debounce:debounce,
 			noSpam: noSpam,
 			addLoadEvent: addLoadEvent,
 			loader: loader,
