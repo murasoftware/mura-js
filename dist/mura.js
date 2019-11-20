@@ -3260,15 +3260,18 @@ var Mura=(function(){
 		}
 	}
 
-	function debounce(func, delay){
-		var inDebounce
-		return function() {
-			var context = this
-			var args = arguments
-			clearTimeout(inDebounce)
-			inDebounce = setTimeout(function(){func.apply(context, args)}, delay)
+	function debounce (func, interval) {
+		var timeout;
+		return function () {
+		  var context = this, args = arguments;
+		  var later = function () {
+			timeout = null;
+			func.apply(context, args);
+		  };
+		  clearTimeout(timeout);
+		  timeout = setTimeout(later, interval || 200);
 		}
-	}
+	  }
 	  
 
 	function init(config) {
