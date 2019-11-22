@@ -1826,10 +1826,21 @@ var Mura=(function(){
 				},
 
 				function() {
-
-					if (Mura.handleObjectClick == 'function') {
-						find('.mura-object, .frontEndToolsModal').on('click',Mura.handleObjectClick);
+					if(typeof Mura.lmv && Mura.lmv=="7.1"){
+						if (typeof openFrontEndToolsModal == 'function') {
+							find(".frontEndToolsModal").on('click',
+								function(event) {
+									event.preventDefault();
+									openFrontEndToolsModal(this);
+								}
+							);
+						}
+					} else {
+						if (Mura.handleObjectClick == 'function') {
+							find('.mura-object, .frontEndToolsModal').on('click',Mura.handleObjectClick);
+						}
 					}
+					
 
 					if (typeof window !='undefined' && typeof window.document != 'undefined'	&& window.MuraInlineEditor
 							&& window.MuraInlineEditor.checkforImageCroppers) {
@@ -2164,6 +2175,7 @@ var Mura=(function(){
 							obj.html(Mura.templates.content({html:''}));
 							obj.prepend(Mura.templates.meta(context));
 							context.targetEl = obj.children('.mura-object-content').node;
+							context.targetEl.innerHTML='test';
 							Mura.displayObjectInstances[obj.data('instanceid')]=new Mura.DisplayObject[template](context);
 							Mura.displayObjectInstances[obj.data('instanceid')].trigger('beforeRender');
 							Mura.displayObjectInstances[obj.data('instanceid')].renderClient();
@@ -2240,7 +2252,7 @@ var Mura=(function(){
 		if (Mura.layoutmanager && Mura.editing) {
 			if (obj.hasClass('mura-body-object') || obj.is('div.mura-object[data-targetattr]')) {
 				obj.children('.frontEndToolsModal').remove();
-				obj.prepend(layoutmanagertoolbar);
+				obj.prepend(Mura.layoutmanagertoolbar);
 				if(obj.data('objectname')){
 					obj.children('.frontEndToolsModal').children('.mura-edit-label').html(obj.data('objectname'));
 				} else {
@@ -2266,7 +2278,7 @@ var Mura=(function(){
 							)
 						) {
 						obj.children('.frontEndToolsModal').remove();
-						obj.prepend(layoutmanagertoolbar);
+						obj.prepend(Mura.layoutmanagertoolbar);
 						if(obj.data('objectname')){
 							obj.children('.frontEndToolsModal').children('.mura-edit-label').html(obj.data('objectname'));
 						} else {
@@ -2299,7 +2311,7 @@ var Mura=(function(){
 
 							if (MuraInlineEditor && (MuraInlineEditor.objectHasConfigurator(obj) || (!Mura.layoutmanager && MuraInlineEditor.objectHasEditor(objectData)))) {
 								obj.children('.frontEndToolsModal').remove();
-								obj.prepend(layoutmanagertoolbar);
+								obj.prepend(Mura.layoutmanagertoolbar);
 								if(obj.data('objectname')){
 									obj.children('.frontEndToolsModal').children('.mura-edit-label').html(obj.data('objectname'));
 								} else {
@@ -2340,7 +2352,7 @@ var Mura=(function(){
 								);
 								obj.data('notconfigurable',true);
 								obj.children('.frontEndToolsModal').remove();
-								obj.prepend(window.Mura.layoutmanagertoolbar);
+								obj.prepend(Mura.layoutmanagertoolbar);
 								if(obj.data('objectname')){
 									obj.children('.frontEndToolsModal').children('.mura-edit-label').html(obj.data('objectname'));
 								} else {
@@ -2350,8 +2362,19 @@ var Mura=(function(){
 									obj.children('.frontEndToolsModal').children('.mura-edit-label').addClass(obj.data('objecticonclass'));
 								}
 
-								obj.off('click',Mura.handleObjectClick).on('click',Mura.handleObjectClick);
-
+								if(typeof Mura.lmv && Mura.lmv=="7.1"){
+									var openToolbar=function(event){
+										event.preventDefault();
+										openFrontEndToolsModal(this);
+									};
+	
+									obj.find(".frontEndToolsModal").each(function(){
+										Mura(this).off('click',openToolbar).on('click',openToolbar);
+									})
+								} else {
+									obj.off('click',Mura.handleObjectClick).on('click',Mura.handleObjectClick);
+								}
+								
 								obj.find("img").each(function(){MuraInlineEditor.checkforImageCroppers(this);});
 
 								obj
@@ -2375,7 +2398,7 @@ var Mura=(function(){
 		}
 
 		obj.hide().show();
-
+		
 		processMarkup(obj.node);
 
 		obj.find('a[href="javascript:history.back();"]').each(function() {
@@ -2567,8 +2590,6 @@ var Mura=(function(){
 					}
 				}
 
-				var forms = obj.find('form');
-
 				obj.find('form').each(function() {
 					var form = Mura(this);
 					if(form.closest('.mura-object').data('instanceid')==obj.data('instanceid')) {
@@ -2600,7 +2621,7 @@ var Mura=(function(){
 
 			});
 		}
-
+	
 		return new Promise(function(resolve, reject) {
 			var data = deepExtend(setLowerCaseKeys(getData(self)),
 				urlparams, {
@@ -2633,53 +2654,55 @@ var Mura=(function(){
 			} else {
 				if (!obj.data('async') && obj.data('render') == 'client') {
 					wireUpObject(obj);
-					if (typeof resolve == 'function') {
-						if(typeof resolve.call == 'undefined'){
-							resolve(obj);
+						if (typeof resolve == 'function') {
+							if(typeof resolve.call == 'undefined'){
+								resolve(obj);
+							} else {
+								resolve.call(obj.node, obj);
+							}
+						}
+				} else {
+					//console.log(data);
+					if(usePreloaderMarkup){
+						if(typeof data.preloadermarkup != 'undefined'){
+							self.innerHTML = data.preloadermarkup;
+							delete data.preloadermarkup;
 						} else {
-							resolve.call(obj.node, obj);
+							self.innerHTML = Mura.preloaderMarkup;
 						}
 					}
-				} else {
-						//console.log(data);
-						if(usePreloaderMarkup){
-							if(typeof data.preloadermarkup != 'undefined'){
-								self.innerHTML = data.preloadermarkup;
-								delete data.preloadermarkup;
-							} else {
-								self.innerHTML = Mura.preloaderMarkup;
-							}
-						}
 
-						var requestType='get';
-						var requestData=filterUnwantedParams(data);
-						var postCheck=new RegExp(/<\/?[a-z][\s\S]*>/i);
+					var requestType='get';
+					var requestData=filterUnwantedParams(data);
+					var postCheck=new RegExp(/<\/?[a-z][\s\S]*>/i);
 
-						for(var p in requestData){
-							if(requestData.hasOwnProperty(p) 
-								&& requestData[p]
-								&& postCheck.test(requestData[p])
-							){
-								requestType='post';
-								break;
-							}
+					for(var p in requestData){
+						if(requestData.hasOwnProperty(p) 
+							&& requestData[p]
+							&& postCheck.test(requestData[p])
+						){
+							requestType='post';
+							break;
 						}
-						ajax({
-							url: Mura.apiEndpoint + '?method=processAsyncObject',
-							type: requestType,
-							data: requestData,
-							success: function(resp) {
-								handleResponse(obj,resp);
-								if (typeof resolve =='function') {
-									if(typeof resolve.call == 'undefined'){
-										resolve(obj);
-									} else {
-										resolve.call(obj.node, obj);
-									}
+					}
+				
+					ajax({
+						url: Mura.apiEndpoint + '?method=processAsyncObject',
+						type: requestType,
+						data: requestData,
+						success: function(resp) {
+							obj=Mura('[data-instanceid="' + obj.data('instanceid') + '"]');
+							handleResponse(obj,resp);
+							if (typeof resolve =='function') {
+								if(typeof resolve.call == 'undefined'){
+									resolve(obj);
+								} else {
+									resolve.call(obj.node, obj);
 								}
 							}
-						});
-					}
+						}
+					});
+				}
 
 			}
 		});
@@ -3224,7 +3247,9 @@ var Mura=(function(){
 
 					Mura(window).on('hashchange', handleHashChange);
 
-					processMarkup(document);
+					if(!Mura.inAdmin){
+						processMarkup(document);
+					}
 
 					Mura.markupInitted=true;
 
@@ -3363,7 +3388,9 @@ var Mura=(function(){
 			firstToUpperCase:firstToUpperCase,
 			normalizeRequestHandler:normalizeRequestHandler,
 			getStyleSheet:getStyleSheet,
-			getBreakpoint:getBreakpoint
+			getBreakpoint:getBreakpoint,
+			lmv:"10",
+			inAdmin:false
 		}
 	);
 
