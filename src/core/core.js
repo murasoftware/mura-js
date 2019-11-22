@@ -1826,7 +1826,7 @@ var Mura=(function(){
 				},
 
 				function() {
-					if(typeof Mura.lmv && Mura.lmv=="7.1"){
+					if(Mura.lmv==1){
 						if (typeof openFrontEndToolsModal == 'function') {
 							find(".frontEndToolsModal").on('click',
 								function(event) {
@@ -2362,7 +2362,7 @@ var Mura=(function(){
 									obj.children('.frontEndToolsModal').children('.mura-edit-label').addClass(obj.data('objecticonclass'));
 								}
 
-								if(typeof Mura.lmv && Mura.lmv=="7.1"){
+								if(Mura.lmv==1){
 									var openToolbar=function(event){
 										event.preventDefault();
 										openFrontEndToolsModal(this);
@@ -3389,8 +3389,8 @@ var Mura=(function(){
 			normalizeRequestHandler:normalizeRequestHandler,
 			getStyleSheet:getStyleSheet,
 			getBreakpoint:getBreakpoint,
-			lmv:"10",
-			inAdmin:false
+			inAdmin:false,
+			lmv:2
 		}
 	);
 
