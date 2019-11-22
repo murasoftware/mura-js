@@ -1414,7 +1414,7 @@ Mura.DOMSelection = Mura.Core.extend(
 				}
 			}
 
-			if(Mura.lmv==1){
+			if(Mura.lmv>1){
 				var left=obj.css('marginLeft');
 				var right=obj.css('marginRight')
 				
