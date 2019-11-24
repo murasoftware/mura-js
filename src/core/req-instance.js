@@ -1,6 +1,9 @@
 
 var Mura=require('./core');
 
+(function(Mura){
+"use strict";	
+
 /**
 * Creates a new Mura.Request
 * @name	Mura.Request
@@ -30,17 +33,18 @@ Mura.Request=Mura.Core.extend(
 		* @return {Promise}
 		*/
 		execute: function(params) {
+			
 			if (!('type' in params)) {
-					params.type = 'GET';
+				params.type = 'GET';
 			}
 			if (!('success' in params)) {
-					params.success = function() {};
+				params.success = function() {};
 			}
 			if (!('data' in params)) {
-					params.data = {};
+				params.data = {};
 			}
 			if (!('headers' in params)) {
-					params.headers = {};
+				params.headers = {};
 			}
 			if(typeof XMLHttpRequest == 'undefined'){
 				this.nodeRequest(params);
@@ -268,14 +272,14 @@ Mura.Request=Mura.Core.extend(
 				}
 				if (typeof error == 'undefined' || ( typeof httpResponse != 'undefined' && httpResponse.statusCode >= 200 && httpResponse.statusCode < 400)) {
 					try {
-						var data = JSON.parse(body);
+						var data = JSON.parse.call(null,uybody);
 					} catch (e) {
 						var data = body;
 					}
 					params.success(data, httpResponse);
 				} else if (typeof error == 'undefined') {
 					try {
-						var data = JSON.parse(body);
+						var data = JSON.parse.call(null,body);
 					} catch (e) {
 						var data = body;
 					}
@@ -286,7 +290,7 @@ Mura.Request=Mura.Core.extend(
 					}
 				} else {
 					try {
-						var data = JSON.parse(body);
+						var data = JSON.parse.call(null,body);
 					} catch (e) {
 						var data = body;
 					}
@@ -346,12 +350,12 @@ Mura.Request=Mura.Core.extend(
 				params.type=params.data.httpmethod;
 				delete params.data.httpmethod;
 			}
-
+			
 			params.progress=params.progress || params.onProgress || params.onUploadProgress || function(){};
 			params.abort=params.abort || params.onAbort|| function(){};
 			params.success=params.success || params.onSuccess || function(){};
 			params.error=params.error || params.onError || function(){};
-
+			
 			if(typeof req.addEventListener != 'undefined'){
 				if(typeof params.progress == 'function'){
 					req.addEventListener("progress", params.progress);
@@ -360,17 +364,18 @@ Mura.Request=Mura.Core.extend(
 				if(typeof params.abort == 'function'){
 					req.addEventListener("abort", params.abort);
 				}
-			}
-
+			}			
+			
 			req.onreadystatechange = function() {
 				if (req.readyState == 4) {
 					//IE9 doesn't appear to return the request status
 					if (typeof req.status == 'undefined' || (req.status >= 200 && req.status < 400)) {
-						try {
-							var data = JSON.parse(req.responseText);
+						try {	
+							var data=JSON.parse.call(null,req.responseText);
 						} catch (e) {
-							var data = req.responseText;
+							var data = req.response;
 						}
+						
 						params.success(data, req);
 					} else {
 						if(debug && typeof req.responseText != 'undefined'){
@@ -378,7 +383,7 @@ Mura.Request=Mura.Core.extend(
 						}
 						if(typeof params.error == 'function'){
 							try {
-								var data = JSON.parse(req.responseText);
+								var data = JSON.parse.call(null,req.responseText);
 							} catch (e) {
 								var data = req.responseText;
 							}
@@ -393,7 +398,7 @@ Mura.Request=Mura.Core.extend(
 				req.open(params.type.toUpperCase(), params.url, params.async);
 				for (var p in params.xhrFields) {
 						if (p in req) {
-								req[p] = params.xhrFields[p];
+							req[p] = params.xhrFields[p];
 						}
 				}
 				for (var h in params.headers) {
@@ -405,7 +410,7 @@ Mura.Request=Mura.Core.extend(
 					} catch(e){
 						if(typeof params.error == 'function'){
 							try {
-								var data = JSON.parse(req.responseText);
+								var data = JSON.parse.call(null,req.responseText);
 							} catch (e) {
 								var data = req.responseText;
 							}
@@ -433,7 +438,7 @@ Mura.Request=Mura.Core.extend(
 						} catch(e){
 							if(typeof params.error == 'function'){
 								try {
-									var data = JSON.parse(req.responseText);
+									var data = JSON.parse.call(null,req.responseText);
 								} catch (e) {
 									var data = req.responseText;
 								}
@@ -456,6 +461,7 @@ Mura.Request=Mura.Core.extend(
 					query.push('muraPointInTime=' + Mura.escape(Mura.pointInTime));
 				}
 				query = query.join('&');
+
 				req.open(params.type.toUpperCase(), params.url + '&' + query, params.async);
 				for (var p in params.xhrFields) {
 					if (p in req) {
@@ -472,7 +478,7 @@ Mura.Request=Mura.Core.extend(
 						if(typeof params.error == 'function'){
 							if(typeof req.responseText != 'undefined'){
 								try {
-									var data = JSON.parse(req.responseText);
+									var data = JSON.parse.call(null,req.responseText);
 								} catch (e) {
 									var data = req.responseText;
 								}
@@ -519,3 +525,4 @@ Mura.Request=Mura.Core.extend(
 		}
 	}
 );
+})(Mura);

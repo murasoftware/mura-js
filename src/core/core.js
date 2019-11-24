@@ -10,7 +10,7 @@
  */
 
 var Mura=(function(){
-
+	"use strict";
 
 	/**
 	 * login - Logs user into Mura
@@ -813,7 +813,7 @@ var Mura=(function(){
 		var field, s = {};
 		if (typeof form == 'object' && form.nodeName == "FORM") {
 			var len = form.elements.length;
-			for (i = 0; i < len; i++) {
+			for (var i = 0; i < len; i++) {
 				field = form.elements[i];
 				if (field.name && !field.disabled && field.type !=
 					'file' && field.type != 'reset' && field.type !=
@@ -1695,8 +1695,6 @@ var Mura=(function(){
 				scope = select(scope);
 			}
 
-			var self = scope;
-
 			function find(selector) {
 				return scope.find(selector);
 			}
@@ -1946,7 +1944,8 @@ var Mura=(function(){
 				type: 'POST',
 				data: data,
 				success: function(resp) {
-					handleResponse(obj, resp);
+					//obj=Mura('div[data-instanceid="' + obj.data('instanceid') + '"]');
+					setTimeout(function(){handleResponse(obj, resp)},0);
 				}
 			}
 
@@ -1987,7 +1986,8 @@ var Mura=(function(){
 				type: 'POST',
 				data: data,
 				success: function(resp) {
-					handleResponse(obj, resp);
+					//obj=Mura('div[data-instanceid="' + obj.data('instanceid') + '"]');
+					setTimeout(function(){handleResponse(obj, resp)},0);
 				}
 			}
 		}
@@ -2063,7 +2063,7 @@ var Mura=(function(){
 	}
 
 	function processAsyncObject(el,usePreloaderMarkup) {
-			obj = Mura(el);
+			var obj = Mura(el);
 			if (obj.data('async') === null) {
 					obj.data('async', true);
 			}
@@ -2109,18 +2109,7 @@ var Mura=(function(){
 		attempt= attempt || 0;
 		attempt++;
 
-		function validateFormAjax(frm) {
-			validateForm(frm,
-				function(frm) {
-					submitForm(frm, obj);
-				}
-			);
-
-			return false;
-		}
-
 		obj = (obj.node) ? obj : Mura(obj);
-		var self = obj.node;
 
 		obj.data('inited', true);
 
@@ -2163,7 +2152,6 @@ var Mura=(function(){
 							obj.html(Mura.templates.content({html:''}));
 							obj.prepend(Mura.templates.meta(context));
 							context.targetEl = obj.children('.mura-object-content').node;
-							context.targetEl.innerHTML='test';
 							Mura.displayObjectInstances[obj.data('instanceid')]=new Mura.DisplayObject[template](context);
 							Mura.displayObjectInstances[obj.data('instanceid')].trigger('beforeRender');
 							Mura.displayObjectInstances[obj.data('instanceid')].renderClient();
@@ -2221,7 +2209,7 @@ var Mura=(function(){
 					if(attempt < 1000){
 						setTimeout(
 							function(){
-									wireUpObject(obj,response,attempt);
+								wireUpObject(obj,response,attempt);
 							},
 							1
 						);
@@ -2235,7 +2223,7 @@ var Mura=(function(){
 
 		obj.calculateDisplayObjectStyles();
 
-		//obj.hide().show();
+		obj.hide().show();
 
 		if (Mura.layoutmanager && Mura.editing) {
 			if (obj.hasClass('mura-body-object') || obj.is('div.mura-object[data-targetattr]')) {
@@ -2285,14 +2273,14 @@ var Mura=(function(){
 								Mura.initDraggableObject_hoverin
 							);
 
-						Mura.initDraggableObject(self);
+						Mura.initDraggableObject(obj.node);
 					}
 				} else {
 					var lcaseObject=obj.data('object');
 					if(typeof lcaseObject=='string'){
 						lcaseObject=lcaseObject.toLowerCase();
 					}
-					var region = Mura(self).closest(".mura-region-local");
+					var region = Mura(obj.node).closest(".mura-region-local");
 					if (region && region.length) {
 						if (region.data('perm')) {
 							var objectData = obj.data();
@@ -2325,7 +2313,7 @@ var Mura=(function(){
 										}
 									);
 
-								Mura.initDraggableObject(self);
+								Mura.initDraggableObject(obj.node);
 							}
 						}
 					} else if (lcaseObject=='form' || lcaseObject=='component'){
@@ -2380,35 +2368,39 @@ var Mura=(function(){
 
 		obj.find('a[href="javascript:history.back();"]').each(function() {
 			Mura(this).off("click").on("click", function(e) {
-				if (self.prevInnerHTML) {
+				if (obj.node.prevInnerHTML) {
 					e.preventDefault();
-					wireUpObject(obj, self.prevInnerHTML);
+					wireUpObject(obj, obj.node.prevInnerHTML);
 
-					if (self.prevData) {
-						for (var p in self.prevData) {
-							select('[name="' + p + '"]').val(self.prevData[p]);
+					if (obj.node.prevData) {
+						for (var p in obj.node.prevData) {
+							select('[name="' + p + '"]').val(obj.node.prevData[p]);
 						}
 					}
-					self.prevInnerHTML = false;
-					self.prevData = false;
+					obj.node.prevInnerHTML = false;
+					obj.node.prevData = false;
 				}
 			});
 		});
-
-
-		obj.find('FORM').each(function() {
+		
+		obj.find('form').each(function() {
 			var form = Mura(this);
-			var self = this;
-
-			if(form.closest('.mura-object').data('instanceid')==obj.data('instanceid')) {
+			if(form.closest('.mura-object').data('instanceid')==obj.data('instanceid')) {		
 				if(form.data('async') || !(form.hasData('async') &&
 					!form.data('async')) && !(form.hasData(
 					'autowire') && !form.data('autowire')) && !
 					form.attr('action') && !form.attr('onsubmit') &&
 					!form.attr('onSubmit')) {
-					self.onsubmit = function() {
-							return validateFormAjax(this);
-					};
+					form.on('submit', function(e) {
+						e.preventDefault();
+						validateForm(this,
+							function(frm) {
+								submitForm(frm,obj);
+							}
+						);
+
+						return false;
+					});
 				}
 			}
 		});
@@ -2417,10 +2409,9 @@ var Mura=(function(){
 			obj.find('.mura-next-n a').each(function() {
 				Mura(this).on('click', function(e) {
 					e.preventDefault();
-					var a = this.getAttribute('href').split(
-							'?');
+					var a = this.getAttribute('href').split('?');
 					if (a.length == 2) {
-							location.hash = a[1];
+						location.hash = a[1];
 					}
 				});
 			})
@@ -2431,7 +2422,6 @@ var Mura=(function(){
 	}
 
 	function handleResponse(obj, resp) {
-
 		obj = (obj.node) ? obj : Mura(obj);
 
 		// handle HTML response
@@ -2490,13 +2480,11 @@ var Mura=(function(){
 			}
 		}
 
-		el = el.node || el;
-		var self = el;
 		var rendered = (rerender) ? false : obj.children('.mura-object-content').length
-
+		
 		queue = (queue == null || rendered) ? false : queue;
-
-		if (document.createEvent && queue && !isScrolledIntoView(el)) {
+		
+		if (document.createEvent && queue && !isScrolledIntoView(obj.node)) {
 			if (!resolveFn) {
 				return new Promise(function(resolve, reject) {
 
@@ -2504,14 +2492,14 @@ var Mura=(function(){
 
 					setTimeout(
 						function() {
-							processDisplayObject(el, true, false, resolve, usePreloaderMarkup);
+							processDisplayObject(obj.node, true, false, resolve, usePreloaderMarkup);
 						}, 10
 					);
 				});
 			} else {
 				setTimeout(
 					function() {
-						var resp = processDisplayObject(el, true, false, resolveFn, usePreloaderMarkup);
+						var resp = processDisplayObject(obj.node, true, false, resolveFn, usePreloaderMarkup);
 						if (typeof resp == 'object' && typeof resolveFn == 'function') {
 							resp.then(resolveFn);
 						}
@@ -2522,8 +2510,8 @@ var Mura=(function(){
 			}
 		}
 
-		if (!self.getAttribute('data-instanceid')) {
-			self.setAttribute('data-instanceid', createUUID());
+		if (!obj.node.getAttribute('data-instanceid')) {
+			obj.node.setAttribute('data-instanceid', createUUID());
 		}
 
 		//if(obj.data('async')){
@@ -2587,7 +2575,7 @@ var Mura=(function(){
 									);
 
 									return false;
-							});
+								});
 						}
 					}
 				});
@@ -2600,7 +2588,7 @@ var Mura=(function(){
 		}
 	
 		return new Promise(function(resolve, reject) {
-			var data = deepExtend(setLowerCaseKeys(getData(self)),
+			var data = deepExtend(setLowerCaseKeys(obj.data()),
 				urlparams, {
 					siteid: Mura.siteid,
 					contentid: Mura.contentid,
@@ -2608,11 +2596,11 @@ var Mura=(function(){
 				});
 
 			if (obj.data('contentid')) {
-				data.contentid = self.getAttribute('data-contentid');
+				data.contentid = obj.node.getAttribute('data-contentid');
 			}
 
 			if (obj.data('contenthistid')) {
-				data.contenthistid = self.getAttribute('data-contenthistid');
+				data.contenthistid = obj.node.getAttribute('data-contenthistid');
 			}
 
 			if ('objectparams' in data) {
@@ -2642,10 +2630,10 @@ var Mura=(function(){
 					//console.log(data);
 					if(usePreloaderMarkup){
 						if(typeof data.preloadermarkup != 'undefined'){
-							self.innerHTML = data.preloadermarkup;
+							obj.node.innerHTML = data.preloadermarkup;
 							delete data.preloadermarkup;
 						} else {
-							self.innerHTML = Mura.preloaderMarkup;
+							obj.node.innerHTML = Mura.preloaderMarkup;
 						}
 					}
 
@@ -2668,16 +2656,19 @@ var Mura=(function(){
 						type: requestType,
 						data: requestData,
 						success: function(resp) {
-							obj=Mura('div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]');
-							handleResponse(obj,resp);
-							if (typeof resolve =='function') {
-								if(typeof resolve.call == 'undefined'){
-									resolve(obj);
-								} else {
-									resolve.call(obj.node, obj);
+							//obj=Mura('div[data-instanceid="' + obj.data('instanceid') + '"]');
+							setTimeout(function(){
+								handleResponse(obj, resp)
+								if (typeof resolve =='function') {
+									if(typeof resolve.call == 'undefined'){
+										resolve(obj);
+									} else {
+										resolve.call(obj.node, obj);
+									}
 								}
-							}
+							},0)
 						}
+							
 					});
 				}
 
@@ -3220,7 +3211,6 @@ var Mura=(function(){
 								Mura(this).data(hashparams);
 						});
 					}
-
 
 					Mura(window).on('hashchange', handleHashChange);
 

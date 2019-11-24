@@ -1,6 +1,9 @@
 
 var Mura=require('./core');
 
+(function(Mura){
+"use strict";
+	
 /**
  * Creates a new Mura.DOMSelection
  * @name	Mura.DOMSelection
@@ -429,7 +432,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @return {Mura.DOMSelection}						 Self
 	 */
 	trigger: function(eventName, eventDetail) {
-		eventDetails = eventDetail || {};
+		eventDetail = eventDetail || {};
 		this.each(function(el) {
 			Mura.trigger(el, eventName,eventDetail);
 		});
@@ -2040,3 +2043,4 @@ Mura.DOMSelection = Mura.Core.extend(
 		return this.appendDisplayObject(data);
 	}
 });
+})(Mura);
