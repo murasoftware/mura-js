@@ -913,7 +913,7 @@ var Mura=(function(){
  			var expires = "";
  		}
  		if(typeof location != 'undefined' && location.protocol == 'https:'){
- 			var secure='; secure';
+ 			var secure='; secure; samesite=None';
  		} else {
  			var secure='';
  		}
@@ -1767,7 +1767,7 @@ var Mura=(function(){
 								).each(function(el) {
 									var self =	el;
 
-									MuraCheckForReCaptcha =
+									window.MuraCheckForReCaptcha =
 									function() {
 											if (
 												typeof grecaptcha ==	'object'
@@ -1791,14 +1791,14 @@ var Mura=(function(){
 										} else {
 											setTimeout(
 													function() {
-															MuraCheckForReCaptcha();
+														window.MuraCheckForReCaptcha();
 													},
 													10
 											);
 										}
 									}
 
-									MuraCheckForReCaptcha();
+									window.MuraCheckForReCaptcha();
 
 								});
 							}
