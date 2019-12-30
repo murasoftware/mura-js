@@ -44,6 +44,7 @@ Mura.templates['image']=function(context){
 	context.src=context.src||'';
 	context.alt=context.alt||'';
 	context.caption=context.caption||'';
+	context.imagelink=context.imagelink||'';
 
 	var source='';
 
@@ -52,6 +53,9 @@ Mura.templates['image']=function(context){
 	}
 
 	source='<img src="' + Mura.escapeHTML(context.src) + '" alt="' + Mura.escapeHTML(context.alt) + '" />';
+	if(context.imagelink){
+		source='<a href="' +  Mura.escapeHTML(context.imagelink) + '"/>' + source + '</a>';
+	}
 	if(context.caption && context.caption != '<p></p>'){
 		source+='<figcaption>' + context.caption + '</figcaption>';
 	}
