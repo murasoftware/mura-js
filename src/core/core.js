@@ -2322,8 +2322,8 @@ var Mura=(function(){
 					} else if (lcaseObject=='form' || lcaseObject=='component'){
 
 						if(obj.data('perm')){
-							objectParams=obj.data();
-							if(window.MuraInlineEditor.objectHasConfigurator(obj) || (!window.Mura.layoutmanager && window.MuraInlineEditor.objectHasEditor(objectParams)) ){
+							var objectData=obj.data();
+							if(window.MuraInlineEditor.objectHasConfigurator(obj) || (!window.Mura.layoutmanager && window.MuraInlineEditor.objectHasEditor(objectData)) ){
 								obj.addClass('mura-active');
 								obj.hover(
 									Mura.initDraggableObject_hoverin,
@@ -2483,8 +2483,8 @@ var Mura=(function(){
 			}
 		}
 
-		var rendered = (rerender) ? false : obj.children('.mura-object-content').length
-		
+		var rendered = (rerender && !obj.data('async')) ? false : obj.children('.mura-object-content').length
+
 		queue = (queue == null || rendered) ? false : queue;
 		
 		if (document.createEvent && queue && !isScrolledIntoView(obj.node)) {
@@ -2530,12 +2530,14 @@ var Mura=(function(){
 			});
 		}
 
-		if (rendered) {
+		if (rendered && !obj.data('async')) {
+			
 			return new Promise(function(resolve, reject) {
 
 				obj.calculateDisplayObjectStyles();
 
 				if(!rerender && obj.data('render')=='client' && obj.children('.mura-object-content').length){
+					
 					var context=filterUnwantedParams(obj.data());
 					if(typeof context.instanceid != 'undefined' && typeof Mura.hydrationData[context.instanceid] != 'undefined'){
 						Mura.extend(context,Mura.hydrationData[context.instanceid]);
@@ -2582,7 +2584,7 @@ var Mura=(function(){
 						}
 					}
 				});
-
+	
 				if (typeof resolve == 'function') {
 					resolve(obj);
 				}
@@ -2591,6 +2593,7 @@ var Mura=(function(){
 		}
 	
 		return new Promise(function(resolve, reject) {
+			
 			var data = deepExtend(setLowerCaseKeys(obj.data()),
 				urlparams, {
 					siteid: Mura.siteid,
