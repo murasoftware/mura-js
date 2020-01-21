@@ -3391,8 +3391,8 @@ var Mura=(function(){
 		Mura.trackingMetadata={};
 		Mura.hydrationData={}
 
-		if(typeof config.content != 'undefined' && config.content.get('displayregions')){
-		for(var r in config.content.properties.displayregions){
+		if(typeof config.content != 'undefined' && typeof config.content.get != 'undefined'  && config.content.get('displayregions')){
+			for(var r in config.content.properties.displayregions){
 				if( config.content.properties.displayregions.hasOwnProperty(r)){
 					var data=config.content.properties.displayregions[r];
 					if(typeof data.inherited != 'undefined' && typeof data.inherited.items != 'undefined'){
@@ -13993,7 +13993,7 @@ Mura.Request=Mura.Core.extend(
 				}
 				if (typeof error == 'undefined' || ( typeof httpResponse != 'undefined' && httpResponse.statusCode >= 200 && httpResponse.statusCode < 400)) {
 					try {
-						var data = JSON.parse.call(null,uybody);
+						var data = JSON.parse.call(null,body);
 					} catch (e) {
 						var data = body;
 					}
