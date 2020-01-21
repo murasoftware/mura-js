@@ -13807,7 +13807,7 @@ Mura.Request=Mura.Core.extend(
 		},
 		nodeRequest:function(params){
 			var debug=typeof Mura.debug != 'undefined' && Mura.debug;
-			self=this;
+			var self=this;
 			if(typeof this.requestObject != 'undefined'){
 				params.headers['User-Agent']='MuraJS';
 				if(typeof this.requestObject.headers['cookie'] != 'undefined'){
