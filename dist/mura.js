@@ -1388,7 +1388,7 @@ var Mura=(function(){
 				if (typeof(Mura.returnURL) != "undefined") {
 					ru = Mura.returnURL;
 				} else if (typeof(Mura.returnurl) != "undefined") {
-					ru = Mura.returnURL;
+					ru = Mura.returnurl;
 				} else {
 					ru = location.href;
 				}
@@ -2778,9 +2778,7 @@ var Mura=(function(){
 
 		if (obj.data('object') == 'container') {
 			obj.html(Mura.templates.content(obj.data()));
-			if(obj.html() != '<p></p>'){
-				obj.children('p').remove();
-			}
+
 			obj.find('.mura-object').each(function() {
 				this.innerHTML=obj.data('preloadermarkup') || Mura.preloaderMarkup;
 				this.setAttribute('data-instanceid', createUUID());
