@@ -2506,11 +2506,7 @@ var Mura=(function(){
 			} else {
 				if (Mura.type == 'Variation') {
 					var objectData = obj.data();
-					if (MuraInlineEditor
-						&& (MuraInlineEditor.objectHasConfigurator(obj)
-							|| (!Mura.layoutmanager && MuraInlineEditor.objectHasEditor(objectParams))
-							)
-						) {
+					if (MuraInlineEditor && (MuraInlineEditor.objectHasConfigurator(obj) || (!Mura.layoutmanager && MuraInlineEditor.objectHasEditor(objectData)))) {
 						obj.children('.frontEndToolsModal').remove();
 						obj.prepend(Mura.layoutmanagertoolbar);
 						if(obj.data('objectname')){
@@ -2527,8 +2523,15 @@ var Mura=(function(){
 						obj
 							.addClass('mura-active')
 							.hover(
-								Mura.initDraggableObject_hoverin,
-								Mura.initDraggableObject_hoverin
+								function(e) {
+									e.stopPropagation();
+									Mura('.mura-active-target').removeClass('mura-active-target');
+									Mura(this).addClass('mura-active-target');
+								},
+								function(e) {
+									e.stopPropagation();
+									Mura(this).removeClass('mura-active-target');
+								}
 							);
 
 						Mura.initDraggableObject(obj.node);
