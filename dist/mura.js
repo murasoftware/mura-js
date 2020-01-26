@@ -2520,6 +2520,10 @@ var Mura=(function(){
 
 						MuraInlineEditor.setAnchorSaveChecks(obj.node);
 
+						obj.off('click',Mura.handleObjectClick).on('click',Mura.handleObjectClick);
+							
+						obj.find("img").each(function(){MuraInlineEditor.checkforImageCroppers(this);});
+						
 						obj
 							.addClass('mura-active')
 							.hover(
@@ -2557,6 +2561,10 @@ var Mura=(function(){
 								if(obj.data('objecticonclass')){
 									obj.children('.frontEndToolsModal').children('.mura-edit-label').addClass(obj.data('objecticonclass'));
 								}
+
+								obj.off('click',Mura.handleObjectClick).on('click',Mura.handleObjectClick);
+							
+								obj.find("img").each(function(){MuraInlineEditor.checkforImageCroppers(this);});
 
 								MuraInlineEditor.setAnchorSaveChecks(obj.node);
 
