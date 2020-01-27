@@ -21330,7 +21330,12 @@ Mura.templates['image']=function(context){
 
 	source='<img src="' + Mura.escapeHTML(context.src) + '" alt="' + Mura.escapeHTML(context.alt) + '" />';
 	if(context.imagelink){
-		source='<a href="' +  Mura.escapeHTML(context.imagelink) + '"/>' + source + '</a>';
+		context.imagelinktarget=context.imagelinktarget || "";
+		var targetString="";
+		if(context.imagelinktarget){
+			targetString=' target="' + Mura.escapeHTML(context.imagelinktarget) + '"';
+		}
+		source='<a href="' +  Mura.escapeHTML(context.imagelink) + '"' + targetString + '/>' + source + '</a>';
 	}
 	if(context.caption && context.caption != '<p></p>'){
 		source+='<figcaption>' + context.caption + '</figcaption>';
