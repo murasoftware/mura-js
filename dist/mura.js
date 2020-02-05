@@ -2344,7 +2344,7 @@ var Mura=(function(){
 
 		//Strip out unwanted attributes
 		var unwanted=['iconclass','objectname','inited','params','stylesupport','cssstyles','metacssstyles','contentcssstyles',
-			'cssclass','cssid','metacssclass','metacssid','contentcssclass','contentcssid','transient'];
+			'cssclass','cssid','metacssclass','metacssid','contentcssclass','contentcssid','transient','draggable'];
 
 		for(var c=0; c<unwanted.length;c++){
 			delete params[unwanted[c]];
