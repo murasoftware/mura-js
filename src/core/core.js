@@ -148,7 +148,7 @@ var Mura=(function(){
 				trackingVars.eventData=data;
 				track();
 			} else {
-				Mura.get(mura.apiEndpoint, {
+				Mura.get(Mura.apiEndpoint, {
 					method: 'findTrackingProps',
 					siteid: Mura.siteid,
 					contentid: data.contentid,
@@ -158,9 +158,9 @@ var Mura=(function(){
 					trackingVars.eventData=data;
 
 					 for(var p in trackingVars.ga.trackingprops){
-							if(trackingVars.ga.trackingprops.hasOwnProperty(p) && p.substring(0,1)=='d' && typeof trackingVars.ga.trackingprops[p] != 'string'){
-								trackingVars.ga.trackingprops[p]=new String(trackingVars.ga[p]);
-							}
+						if(trackingVars.ga.trackingprops.hasOwnProperty(p) && p.substring(0,1)=='d' && typeof trackingVars.ga.trackingprops[p] != 'string'){
+							trackingVars.ga.trackingprops[p]=new String(trackingVars.ga[p]);
+						}
 					 }
 
 					Mura.trackingMetadata[trackingID]={};
@@ -2017,51 +2017,58 @@ var Mura=(function(){
 	function resetAsyncObject(el,empty) {
 		var self = Mura(el);
 
-		if(typeof empty =='undefined'){
-			empty=true;
-		}
-		self.removeClass('mura-active');
-		self.removeAttr('data-perm');
-		self.removeAttr('data-runtime');
-		self.removeAttr('draggable');
-		self.removeAttr('style');
-
-		var data=self.data();
-
-		for(var p in data){
-			if(data.hasOwnProperty(p) && (typeof p == 'undefined' || data[p] === '')){
-				self.removeAttr('data-' + p);
+		if(self.data('transient')){
+			self.remove();
+		} else { 
+		
+			if(typeof empty =='undefined'){
+				empty=true;
 			}
-		}
+			self.removeClass('mura-active');
+			self.removeAttr('data-perm');
+			self.removeAttr('data-runtime');
+			self.removeAttr('draggable');
+			self.removeAttr('style');
+			self.removeAttr('data-inited');
 
-		if (self.data('object') == 'container') {
-			self.find('.mura-object:not([data-object="container"])').html('');
-			self.find('.frontEndToolsModal').remove();
-			self.find('.mura-object').each(function() {
-				var self = Mura(this);
-				self.removeClass('mura-active');
-				self.removeAttr('data-perm');
-				self.removeAttr('data-inited');
-				self.removeAttr('data-runtime');
-				self.removeAttr('draggable');
-				self.removeAttr('style');
-			});
 
-			self.find('.mura-object[data-object="container"]').each(
-				function() {
-					resetAsyncObject(this,empty);
-					
+			var data=self.data();
+
+			for(var p in data){
+				if(data.hasOwnProperty(p) && (typeof p == 'undefined' || data[p] === '')){
+					self.removeAttr('data-' + p);
+				}
+			}
+
+			if (self.data('object') == 'container') {
+				self.find('.mura-object:not([data-object="container"])').html('');
+				self.find('.frontEndToolsModal').remove();
+				self.find('.mura-object').each(function() {
+					var self = Mura(this);
+					self.removeClass('mura-active');
+					self.removeAttr('data-perm');
+					self.removeAttr('data-inited');
+					self.removeAttr('data-runtime');
+					self.removeAttr('draggable');
+					self.removeAttr('style');
 				});
 
-			self.find('.mura-object-meta').html('');
-			var content = self.children('div.mura-object-content');
+				self.find('.mura-object[data-object="container"]').each(
+					function() {
+						resetAsyncObject(this,empty);
+						
+					});
 
-			if (content.length) {
-				self.data('content', content.html());
+				self.find('.mura-object-meta').html('');
+				var content = self.children('div.mura-object-content');
+
+				if (content.length) {
+					self.data('content', content.html());
+				}
 			}
-		}
-		if(empty){
-			self.html('');
+			if(empty){
+				self.html('');
+			}
 		}
 	}
 
@@ -2082,7 +2089,7 @@ var Mura=(function(){
 
 		//Strip out unwanted attributes
 		var unwanted=['iconclass','objectname','inited','params','stylesupport','cssstyles','metacssstyles','contentcssstyles',
-			'cssclass','cssid','metacssclass','metacssid','contentcssclass','contentcssid'];
+			'cssclass','cssid','metacssclass','metacssid','contentcssclass','contentcssid','transient'];
 
 		for(var c=0; c<unwanted.length;c++){
 			delete params[unwanted[c]];
