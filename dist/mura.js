@@ -17922,6 +17922,9 @@ Mura.DOMSelection = Mura.Core.extend(
 	appendDisplayObject: function(data) {
 		var self = this;
 		delete data.method;
+		if(typeof data.transient == 'undefined'){
+			data.transient=true;
+		}
 		return new Promise(function(resolve, reject) {
 			self.each(function() {
 				var el = document.createElement('div');
@@ -17969,6 +17972,9 @@ Mura.DOMSelection = Mura.Core.extend(
 	insertDisplayObjectAfter: function(data) {
 		var self = this;
 		delete data.method;
+		if(typeof data.transient == 'undefined'){
+			data.transient=true;
+		}
 		return new Promise(function(resolve, reject) {
 			self.each(function() {
 				console.log(2)
@@ -18017,6 +18023,9 @@ Mura.DOMSelection = Mura.Core.extend(
 	insertDisplayObjectBefore: function(data) {
 		var self = this;
 		delete data.method;
+		if(typeof data.transient == 'undefined'){
+			data.transient=true;
+		}
 		return new Promise(function(resolve, reject) {
 			self.each(function() {
 				var el = document.createElement('div');
@@ -18064,6 +18073,9 @@ Mura.DOMSelection = Mura.Core.extend(
 	prependDisplayObject: function(data) {
 		var self = this;
 		delete data.method;
+		if(typeof data.transient == 'undefined'){
+			data.transient=true;
+		}
 		return new Promise(function(resolve, reject) {
 			self.each(function() {
 				var el = document.createElement('div');
