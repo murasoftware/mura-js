@@ -994,7 +994,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 */
 	remove: function() {
 		this.each(function(el) {
-			el.parentNode.removeChild(el);
+			el.parentNode && el.parentNode.removeChild(el);
 		});
 		return this;
 	},

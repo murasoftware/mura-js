@@ -181,6 +181,24 @@ Mura.EntityCollection=Mura.Entity.extend(
 	},
 
 	 /**
+	 * reverse - Returns new Array returned from map function
+	 *
+	 * @param	{function} fn Sorting function
+	 * @return {object}	 collection
+	 */
+	reverse:function(fn){
+		var newProps={};
+		for(var p in this.properties){
+			if(this.properties.hasOwnProperty(p) && p != 'items' && p != 'links'){
+				newProps[p]=this.properties[p];
+			}
+		}
+		var collection=new Mura.EntityCollection(newProps,this._requestcontext);
+		collection.set('items',this.properties.items.reverse());
+		return collection;
+	},
+
+	 /**
 	 * reduce - Returns value from	reduce function
 	 *
 	 * @param	{function} fn Reduce function
