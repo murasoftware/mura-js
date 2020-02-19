@@ -18152,7 +18152,6 @@ Mura.DOMSelection = Mura.Core.extend(
 		}
 		return new Promise(function(resolve, reject) {
 			self.each(function() {
-				console.log(2)
 				var el = document.createElement('div');
 				el.setAttribute('class','mura-object');
 				for (var a in data) {
