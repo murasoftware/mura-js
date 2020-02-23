@@ -1357,9 +1357,33 @@ Mura.DOMSelection = Mura.Core.extend(
 
 				}
 
-				if(styleSupport && styleSupport['object_md_styles']){
+				if(styleSupport && styleSupport['object_lg_styles']){
 
 					var selector='@media (min-width: 992px) and (max-width: 1199px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
+					var dyncss='';
+					objectAccumulator=Mura.extend(objectAccumulator,styleSupport['object_lg_styles']);
+					for(var s in objectAccumulator){
+						if(objectAccumulator.hasOwnProperty(s)){
+							if(typeof styleMap[s] != 'undefined'){
+								dyncss += styleMap[s]  + ': ' + objectAccumulator[s] + '!important;';
+							}		
+						}
+					}
+					if(dyncss){
+						console.log(selector + ' {' + dyncss+ '}}')
+						try {
+							sheet.insertRule(
+								selector + ' {' + dyncss+ '}',
+								sheet.cssRules.length
+							);
+						} catch (e){
+							console.log(e);
+						}
+					}
+				}
+
+				if(styleSupport && styleSupport['object_md_styles']){
+					var selector='@media (min-width: 768px) and (max-width: 991px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
 					var dyncss='';
 					objectAccumulator=Mura.extend(objectAccumulator,styleSupport['object_md_styles']);
 					for(var s in objectAccumulator){
@@ -1383,7 +1407,7 @@ Mura.DOMSelection = Mura.Core.extend(
 				}
 
 				if(styleSupport && styleSupport['object_sm_styles']){
-					var selector='@media (min-width: 768px) and (max-width: 991px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
+					var selector='@media (min-width: 576px) and (max-width: 767px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
 					var dyncss='';
 					objectAccumulator=Mura.extend(objectAccumulator,styleSupport['object_sm_styles']);
 					for(var s in objectAccumulator){
@@ -1407,7 +1431,7 @@ Mura.DOMSelection = Mura.Core.extend(
 				}
 
 				if(styleSupport && styleSupport['object_xs_styles']){
-					var selector='@media (max-width: 767px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
+					var selector='@media (max-width: 575px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
 					var dyncss='';
 					objectAccumulator=Mura.extend(objectAccumulator,styleSupport['object_xs_styles']);
 					for(var s in objectAccumulator){
@@ -1521,9 +1545,33 @@ Mura.DOMSelection = Mura.Core.extend(
 								}
 							}
 
-							if(styleSupport && styleSupport['meta_md_styles']){
+							if(styleSupport && styleSupport['meta_lg_styles']){
 
 								var selector='@media (min-width: 992px) and (max-width: 1199px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
+								var dyncss='';
+								metaAccumulator=Mura.extend(metaAccumulator,styleSupport['meta_lg_styles']);
+								for(var s in metaAccumulator){
+									if(metaAccumulator.hasOwnProperty(s)){
+										if(typeof styleMap[s] != 'undefined'){
+											dyncss += styleMap[s]  + ': ' + metaAccumulator[s] + '!important;';
+										}		
+									}
+								}
+								if(dyncss){
+									console.log(selector + ' {' + dyncss+ '}}')
+									try {
+										sheet.insertRule(
+											selector + ' {' + dyncss+ '}',
+											sheet.cssRules.length
+										);
+									} catch (e){
+										console.log(e);
+									}
+								}
+							}
+			
+							if(styleSupport && styleSupport['meta_md_styles']){
+								var selector='@media (min-width: 768px) an (max-width: 991px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
 								var dyncss='';
 								metaAccumulator=Mura.extend(metaAccumulator,styleSupport['meta_md_styles']);
 								for(var s in metaAccumulator){
@@ -1545,9 +1593,9 @@ Mura.DOMSelection = Mura.Core.extend(
 									}
 								}
 							}
-			
+
 							if(styleSupport && styleSupport['meta_sm_styles']){
-								var selector='@media (min-width: 768px) an (max-width: 991px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
+								var selector='@media (min-width: 576px) an (max-width: 767) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
 								var dyncss='';
 								metaAccumulator=Mura.extend(metaAccumulator,styleSupport['meta_sm_styles']);
 								for(var s in metaAccumulator){
@@ -1571,7 +1619,7 @@ Mura.DOMSelection = Mura.Core.extend(
 							}
 			
 							if(styleSupport && styleSupport['meta_xs_styles']){
-								var selector='@media (max-width: 767px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
+								var selector='@media (max-width: 575) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
 								var dyncss='';
 								metaAccumulator=Mura.extend(metaAccumulator,styleSupport['meta_xs_styles']);
 								for(var s in metaAccumulator){
@@ -1683,9 +1731,33 @@ Mura.DOMSelection = Mura.Core.extend(
 					}
 				}
 
-				if(styleSupport && styleSupport['content_md_styles']){
+				if(styleSupport && styleSupport['content_lg_styles']){
 
 					var selector='@media (max-width: 992px) and (max-width: 1199px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
+					var dyncss='';
+					contentAccumulator=Mura.extend(contentAccumulator,styleSupport['content_lg_styles']);
+					for(var s in contentAccumulator){
+						if(contentAccumulator.hasOwnProperty(s)){
+							if(typeof styleMap[s] != 'undefined'){
+								dyncss += styleMap[s]  + ': ' + contentAccumulator[s] + '!important;';
+							}		
+						}
+					}
+					if(dyncss){
+						console.log(selector + ' {' + dyncss+ '}}')
+						try {
+							sheet.insertRule(
+								selector + ' {' + dyncss+ '}',
+								sheet.cssRules.length
+							);
+						} catch (e){
+							console.log(e);
+						}
+					}
+				}
+
+				if(styleSupport && styleSupport['content_md_styles']){
+					var selector='@media (min-width: 768px) and (max-width: 991px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
 					var dyncss='';
 					contentAccumulator=Mura.extend(contentAccumulator,styleSupport['content_md_styles']);
 					for(var s in contentAccumulator){
@@ -1709,7 +1781,7 @@ Mura.DOMSelection = Mura.Core.extend(
 				}
 
 				if(styleSupport && styleSupport['content_sm_styles']){
-					var selector='@media (min-width: 768px) and (max-width: 991px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
+					var selector='@media (min-width: 576px) and (max-width: 767px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
 					var dyncss='';
 					contentAccumulator=Mura.extend(contentAccumulator,styleSupport['content_sm_styles']);
 					for(var s in contentAccumulator){
@@ -1733,7 +1805,7 @@ Mura.DOMSelection = Mura.Core.extend(
 				}
 
 				if(styleSupport && styleSupport['content_xs_styles']){
-					var selector='@media (max-width: 767px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
+					var selector='@media (max-width: 575px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
 					var dyncss='';
 					contentAccumulator=Mura.extend(contentAccumulator,styleSupport['content_xs_styles']);
 					for(var s in contentAccumulator){
