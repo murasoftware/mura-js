@@ -1327,16 +1327,16 @@ Mura.DOMSelection = Mura.Core.extend(
 								obj.css(s,objectstyles[s]);
 							}		
 						}
-						if(dyncss){
-							console.log(selector + ' {' + dyncss+ '}')
-							try {
-								sheet.insertRule(
-									selector + ' {' + dyncss+ '}',
-									sheet.cssRules.length
-								);
-							} catch (e){
-								console.log(e);
-							}
+					}
+					if(dyncss){
+						console.log(selector + ' {' + dyncss+ '}')
+						try {
+							sheet.insertRule(
+								selector + ' {' + dyncss+ '}',
+								sheet.cssRules.length
+							);
+						} catch (e){
+							console.log(e);
 						}
 					}
 					
@@ -1371,16 +1371,16 @@ Mura.DOMSelection = Mura.Core.extend(
 								dyncss += styleMap[s]  + ': ' + styleSupport['object_md_styles'][s] + ';';
 							}		
 						}
-						if(dyncss){
-							console.log(selector + ' {' + dyncss+ '}}')
-							try {
-								sheet.insertRule(
-									selector + ' {' + dyncss+ '}',
-									sheet.cssRules.length
-								);
-							} catch (e){
-								console.log(e);
-							}
+					}
+					if(dyncss){
+						console.log(selector + ' {' + dyncss+ '}}')
+						try {
+							sheet.insertRule(
+								selector + ' {' + dyncss+ '}',
+								sheet.cssRules.length
+							);
+						} catch (e){
+							console.log(e);
 						}
 					}
 				}
@@ -1395,16 +1395,16 @@ Mura.DOMSelection = Mura.Core.extend(
 								dyncss += styleMap[s]  + ': ' + styleSupport['object_sm_styles'][s] + ';';
 							}		
 						}
-						if(dyncss){
-							console.log(selector + ' {' + dyncss+ '}}')
-							try {
-								sheet.insertRule(
-									selector + ' {' + dyncss+ '}',
-									sheet.cssRules.length
-								);
-							} catch (e){
-								console.log(e);
-							}
+					}
+					if(dyncss){
+						console.log(selector + ' {' + dyncss+ '}}')
+						try {
+							sheet.insertRule(
+								selector + ' {' + dyncss+ '}',
+								sheet.cssRules.length
+							);
+						} catch (e){
+							console.log(e);
 						}
 					}
 				}
@@ -1419,16 +1419,16 @@ Mura.DOMSelection = Mura.Core.extend(
 								dyncss += styleMap[s]  + ': ' + styleSupport['object_xs_styles'][s] + ';';
 							}		
 						}
-						if(dyncss){
-							console.log(selector + ' {' + dyncss+ '}}')
-							try {
-								sheet.insertRule(
-									selector + ' {' + dyncss+ '}',
-									sheet.cssRules.length
-								);
-							} catch (e){
-								console.log(e);
-							}
+					}
+					if(dyncss){
+						console.log(selector + ' {' + dyncss+ '}}')
+						try {
+							sheet.insertRule(
+								selector + ' {' + dyncss+ '}',
+								sheet.cssRules.length
+							);
+						} catch (e){
+							console.log(e);
 						}
 					}
 				}
@@ -1492,16 +1492,16 @@ Mura.DOMSelection = Mura.Core.extend(
 											meta.css(s,metastyles[s]);
 										}		
 									}
-									if(dyncss){
-										console.log(selector + ' {' + dyncss+ '}')
-										try {
-											sheet.insertRule(
-												selector + ' {' + dyncss+ '}',
-												sheet.cssRules.length
-											);
-										} catch (e){
-											console.log(e);
-										}
+								}
+								if(dyncss){
+									console.log(selector + ' {' + dyncss+ '}')
+									try {
+										sheet.insertRule(
+											selector + ' {' + dyncss+ '}',
+											sheet.cssRules.length
+										);
+									} catch (e){
+										console.log(e);
 									}
 								}
 
@@ -1533,16 +1533,16 @@ Mura.DOMSelection = Mura.Core.extend(
 											dyncss += styleMap[s]  + ': ' + styleSupport['meta_md_styles'][s] + ';';
 										}		
 									}
-									if(dyncss){
-										console.log(selector + ' {' + dyncss+ '}}')
-										try {
-											sheet.insertRule(
-												selector + ' {' + dyncss+ '}',
-												sheet.cssRules.length
-											);
-										} catch (e){
-											console.log(e);
-										}
+								}
+								if(dyncss){
+									console.log(selector + ' {' + dyncss+ '}}')
+									try {
+										sheet.insertRule(
+											selector + ' {' + dyncss+ '}',
+											sheet.cssRules.length
+										);
+									} catch (e){
+										console.log(e);
 									}
 								}
 							}
@@ -1557,16 +1557,16 @@ Mura.DOMSelection = Mura.Core.extend(
 											dyncss += styleMap[s]  + ': ' + styleSupport['meta_sm_styles'][s] + ';';
 										}		
 									}
-									if(dyncss){
-										console.log(selector + ' {' + dyncss+ '}}')
-										try {
-											sheet.insertRule(
-												selector + ' {' + dyncss+ '}',
-												sheet.cssRules.length
-											);
-										} catch (e){
-											console.log(e);
-										}
+								}
+								if(dyncss){
+									console.log(selector + ' {' + dyncss+ '}}')
+									try {
+										sheet.insertRule(
+											selector + ' {' + dyncss+ '}',
+											sheet.cssRules.length
+										);
+									} catch (e){
+										console.log(e);
 									}
 								}
 							}
@@ -1581,16 +1581,16 @@ Mura.DOMSelection = Mura.Core.extend(
 											dyncss += styleMap[s]  + ': ' + styleSupport['meta_xs_styles'][s] + ';';
 										}		
 									}
-									if(dyncss){
-										console.log(selector + ' {' + dyncss+ '}}')
-										try {
-											sheet.insertRule(
-												selector + ' {' + dyncss+ '}',
-												sheet.cssRules.length
-											);
-										} catch (e){
-											console.log(e);
-										}
+								}
+								if(dyncss){
+									console.log(selector + ' {' + dyncss+ '}}')
+									try {
+										sheet.insertRule(
+											selector + ' {' + dyncss+ '}',
+											sheet.cssRules.length
+										);
+									} catch (e){
+										console.log(e);
 									}
 								}
 							}
@@ -1653,16 +1653,16 @@ Mura.DOMSelection = Mura.Core.extend(
 								content.css(s,contentstyles[s]);
 							}		
 						}
-						if(dyncss){
-							console.log(selector + ' {' + dyncss+ '}')
-							try {
-								sheet.insertRule(
-									selector + ' {' + dyncss+ '}',
-									sheet.cssRules.length
-								);
-							} catch (e){
-								console.log(e);
-							}
+					}
+					if(dyncss){
+						console.log(selector + ' {' + dyncss+ '}')
+						try {
+							sheet.insertRule(
+								selector + ' {' + dyncss+ '}',
+								sheet.cssRules.length
+							);
+						} catch (e){
+							console.log(e);
 						}
 					}
 					if(contentstyles.color){
@@ -1693,16 +1693,16 @@ Mura.DOMSelection = Mura.Core.extend(
 								dyncss += styleMap[s]  + ': ' + styleSupport['content_md_styles'][s] + ';';
 							}		
 						}
-						if(dyncss){
-							console.log(selector + ' {' + dyncss+ '}}')
-							try {
-								sheet.insertRule(
-									selector + ' {' + dyncss+ '}',
-									sheet.cssRules.length
-								);
-							} catch (e){
-								console.log(e);
-							}
+					}
+					if(dyncss){
+						console.log(selector + ' {' + dyncss+ '}}')
+						try {
+							sheet.insertRule(
+								selector + ' {' + dyncss+ '}',
+								sheet.cssRules.length
+							);
+						} catch (e){
+							console.log(e);
 						}
 					}
 				}
@@ -1717,16 +1717,16 @@ Mura.DOMSelection = Mura.Core.extend(
 								dyncss += styleMap[s]  + ': ' + styleSupport['content_sm_styles'][s] + ';';
 							}		
 						}
-						if(dyncss){
-							console.log(selector + ' {' + dyncss+ '}}')
-							try {
-								sheet.insertRule(
-									selector + ' {' + dyncss+ '}',
-									sheet.cssRules.length
-								);
-							} catch (e){
-								console.log(e);
-							}
+					}
+					if(dyncss){
+						console.log(selector + ' {' + dyncss+ '}}')
+						try {
+							sheet.insertRule(
+								selector + ' {' + dyncss+ '}',
+								sheet.cssRules.length
+							);
+						} catch (e){
+							console.log(e);
 						}
 					}
 				}
@@ -1741,16 +1741,17 @@ Mura.DOMSelection = Mura.Core.extend(
 								dyncss += styleMap[s]  + ': ' + styleSupport['content_xs_styles'][s] + ';';
 							}		
 						}
-						if(dyncss){
-							console.log(selector + ' {' + dyncss+ '}}')
-							try {
-								sheet.insertRule(
-									selector + ' {' + dyncss+ '}',
-									sheet.cssRules.length
-								);
-							} catch (e){
-								console.log(e);
-							}
+					}
+
+					if(dyncss){
+						console.log(selector + ' {' + dyncss+ '}}')
+						try {
+							sheet.insertRule(
+								selector + ' {' + dyncss+ '}',
+								sheet.cssRules.length
+							);
+						} catch (e){
+							console.log(e);
 						}
 					}
 				}
