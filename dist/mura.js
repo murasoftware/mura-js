@@ -18592,11 +18592,72 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @return {object}	Self
 	 */
 	 calculateDisplayObjectStyles: function(windowResponse) {
-
+		var styleMap={'alignContent':'align-content',
+			'alignItems':'align-items',
+			'alignSelf':'align-self',
+			'animationDuration':'animation-duration',
+			'animationName':'animation-name',
+			'backgroundAttachment':'background-attachment',
+			'backgroundColor':'background-color',
+			'backgroundColor':'background-color',
+			'backgroundImage':'background-image',
+			'backgroundOrigin':'background-origin',
+			'backgroundPosition':'background-position',
+			'backgroundRepeat':'background-repeat',
+			'backgroundRepeat':'background-repeat',
+			'backgroundSize':'background-size',
+			'borderRadius':'border-radius',
+			'borderStyle':'border-style',
+			'borderWidth':'border-width',
+			'boxSizing':'box-sizing',
+			'display':'display',
+			'flex':'flex',
+			'flexGrow':'flex-grow',
+			'flexShrink':'flex-shrink',
+			'fontFamily':'font-family',
+			'fontSize':'font-size',
+			'fontVariant':'font-variant',
+			'fontWeight':'font-weight',
+			'justifyContent':'justify-content',
+			'justifySelf':'justify-self',
+			'letterSpacing':'letter-spacing',
+			'lineHeight':'line-height',
+			'marginBottom':'margin-bottom',
+			'marginLeft':'margin-left',
+			'marginRight':'margin-right',
+			'marginTop':'margin-top',
+			'minHeight':'min-height',
+			'opacity':'opacity',
+			'order':'order',
+			'outlineColor':'outline-color',
+			'outlineOffset':'outline-offset',
+			'outlineStyle':'outline-style',
+			'outlineWidth':'outline-width',
+			'paddingBottom':'padding-bottom',
+			'paddingLeft':'padding-left',
+			'paddingRight':'padding-right',
+			'paddingTop':'padding-top',
+			'textAlign':'text-align',
+			'textDecoration':'text-decoration',
+			'textIndent':'text-indent',
+			'textOverflow':'text-overflow',
+			'textShadow':'text-shadow',
+			'textTransform':'text-transform',
+			'transitionDelay':'transition-delay',
+			'transitionDuration':'transition-duration',
+			'transitionProperty':'transition-property',
+			'transitionTimingFunction':'transition-timing-function',
+			'verticalAlign':'vertical-align',
+			'webkitTransition':'-webkit-transition',
+			'whiteSpace':'white-space',
+			'wordSpacing':'word-spacing',
+			'zIndex':'z-index'
+		}
  		this.each(function(el) {
 			var obj=Mura(el);
 			var breakpoints=['mura-xs','mura-sm','mura-md','mura-lg'];
 			var objBreakpoint='mura-sm';
+			
 			for(var b=0;b<breakpoints.length;b++){
 				if(obj.is('.' + breakpoints[b])){
 					objBreakpoint=breakpoints[b];
@@ -18605,7 +18666,7 @@ Mura.DOMSelection = Mura.Core.extend(
 			}
 			
 			var fullsize=breakpoints.indexOf('mura-' + Mura.getBreakpoint()) >= breakpoints.indexOf(objBreakpoint);
-		
+			
 			Mura.windowResponsiveModules=Mura.windowResponsiveModules||{};
 			Mura.windowResponsiveModules[obj.data('instanceid')]=false;
 
@@ -18663,8 +18724,6 @@ Mura.DOMSelection = Mura.Core.extend(
 					objectstyles.backgroundImage='linear-gradient(' + objectstyles.backgroundColor + ', ' + objectstyles.backgroundColor +' ), ' + objectstyles.backgroundImage;
 				}
 
-				obj.css(objectstyles);
-			
 				if(!fullsize || (fullsize && !(
 					obj.css('marginTop')=='0px'
 					&& obj.css('marginBottom')=='0px'
@@ -18678,14 +18737,39 @@ Mura.DOMSelection = Mura.Core.extend(
 			if(!windowResponse){
 				var sheet=Mura.getStyleSheet('mura-styles-' + obj.data('instanceid'));
 
-				while (sheet.cssRules.length) {
-					sheet.deleteRule(0);
-				}
-
-				var selector='div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
+					while (sheet.cssRules.length) {
+						sheet.deleteRule(0);
+					}
 
 				if(styleSupport && objectstyles){
-					if(objectstyles && objectstyles.color){
+
+					var selector='div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
+		
+					//obj.css(objectstyles);
+					var dyncss='';
+
+					for(var s in objectstyles){
+						if(objectstyles.hasOwnProperty(s)){
+							if(typeof styleMap[s] != 'undefined'){
+								dyncss += styleMap[s]  + ': ' + objectstyles[s] + ';';
+							} else {
+								obj.css(s,objectstyles[s]);
+							}		
+						}
+						if(dyncss){
+							console.log(selector + ' {' + dyncss+ '}')
+							try {
+								sheet.insertRule(
+									selector + ' {' + dyncss+ '}',
+									sheet.cssRules.length
+								);
+							} catch (e){
+								console.log(e);
+							}
+						}
+					}
+					
+					if(objectstyles.color){
 						var style=selector + ', ' + selector + ' label, ' + selector + ' p, ' + selector + ' h1, ' + selector + ' h2, ' + selector + ' h3, ' + selector + ' h4, ' + selector + ' h5, ' + selector + ' h6, ' +selector + ' a:link, ' + selector + ' a:visited, '  + selector + ' a:hover, ' + selector + ' .breadcrumb-item + .breadcrumb-item::before, ' + selector + ' a:active { color:' + objectstyles.color + ';} ';
 						sheet.insertRule(
 							style,
@@ -18699,6 +18783,82 @@ Mura.DOMSelection = Mura.Core.extend(
 							selector + ' hr { border-color:' + objectstyles.color + ';}',
 							sheet.cssRules.length
 						);
+					}
+
+				}
+
+				
+
+				if(styleSupport && styleSupport['object_md_styles']){
+
+					var selector='@media (max-width: 1199px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
+					var dyncss='';
+
+					for(var s in styleSupport['object_md_styles']){
+						if(styleSupport['object_md_styles'].hasOwnProperty(s)){
+							if(typeof styleMap[s] != 'undefined'){
+								dyncss += styleMap[s]  + ': ' + styleSupport['object_md_styles'][s] + ';';
+							}		
+						}
+						if(dyncss){
+							console.log(selector + ' {' + dyncss+ '}}')
+							try {
+								sheet.insertRule(
+									selector + ' {' + dyncss+ '}',
+									sheet.cssRules.length
+								);
+							} catch (e){
+								console.log(e);
+							}
+						}
+					}
+				}
+
+				if(styleSupport && styleSupport['object_sm_styles']){
+					var selector='@media (max-width: 991) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
+					var dyncss='';
+
+					for(var s in styleSupport['object_sm_styles']){
+						if(styleSupport['object_sm_styles'].hasOwnProperty(s)){
+							if(typeof styleMap[s] != 'undefined'){
+								dyncss += styleMap[s]  + ': ' + styleSupport['object_sm_styles'][s] + ';';
+							}		
+						}
+						if(dyncss){
+							console.log(selector + ' {' + dyncss+ '}}')
+							try {
+								sheet.insertRule(
+									selector + ' {' + dyncss+ '}',
+									sheet.cssRules.length
+								);
+							} catch (e){
+								console.log(e);
+							}
+						}
+					}
+				}
+
+				if(styleSupport && styleSupport['object_xs_styles']){
+					var selector='@media (max-width: 767) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
+					var dyncss='';
+
+					for(var s in styleSupport['object_xs_styles']){
+						if(styleSupport['object_xs_styles'].hasOwnProperty(s)){
+							if(typeof styleMap[s] != 'undefined'){
+								dyncss += styleMap[s]  + ': ' + styleSupport['object_xs_styles'][s] + ';';
+							}		
+						}
+						if(dyncss){
+							console.log(selector + ' {' + dyncss+ '}}')
+							try {
+								sheet.insertRule(
+									selector + ' {' + dyncss+ '}',
+									sheet.cssRules.length
+								);
+							} catch (e){
+								console.log(e);
+							}
+						}
 					}
 				}
 
@@ -18748,24 +18908,120 @@ Mura.DOMSelection = Mura.Core.extend(
 						if(hasLayeredBg){
 							metastyles.backgroundImage='linear-gradient(' + metastyles.backgroundColor + ', ' + metastyles.backgroundColor +' ), ' + metastyles.backgroundImage;
 						}
-
 						if(!windowResponse){
-							var selector='div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] .mura-object-meta';
+							if(metastyles){
+								var selector='div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';	
+								var dyncss='';
 
-							if(metastyles && metastyles.color){
-								var style=selector + ', ' + selector + ' label, ' + selector + ' p, ' + selector + ' h1, ' + selector + ' h2, ' + selector + ' h3, ' + selector + ' h4, ' + selector + ' h5, ' + selector + ' h6, ' +selector + ' a:link, ' + selector + ' a:visited, '  + selector + ' a:hover, ' + selector + ' .breadcrumb-item + .breadcrumb-item::before, ' + selector + ' a:active { color:' + metastyles.color + ';} ';
-								sheet.insertRule(
-									style,
-									sheet.cssRules.length
-								);
-								sheet.insertRule(
-									selector + ' * {color:inherit}',
-									sheet.cssRules.length
-								);
-								sheet.insertRule(
-									selector + ' hr { border-color:' + metastyles.color + ';}',
-									sheet.cssRules.length
-								);
+								for(var s in metastyles){
+									if(metastyles.hasOwnProperty(s)){
+										if(typeof styleMap[s] != 'undefined'){
+											dyncss += styleMap[s]  + ': ' + metastyles[s] + ';';
+										} else {
+											meta.css(s,metastyles[s]);
+										}		
+									}
+									if(dyncss){
+										console.log(selector + ' {' + dyncss+ '}')
+										try {
+											sheet.insertRule(
+												selector + ' {' + dyncss+ '}',
+												sheet.cssRules.length
+											);
+										} catch (e){
+											console.log(e);
+										}
+									}
+								}
+
+								if( metastyles.color){
+									var style=selector + ', ' + selector + ' label, ' + selector + ' p, ' + selector + ' h1, ' + selector + ' h2, ' + selector + ' h3, ' + selector + ' h4, ' + selector + ' h5, ' + selector + ' h6, ' +selector + ' a:link, ' + selector + ' a:visited, '  + selector + ' a:hover, ' + selector + ' .breadcrumb-item + .breadcrumb-item::before, ' + selector + ' a:active { color:' + metastyles.color + ';} ';
+									sheet.insertRule(
+										style,
+										sheet.cssRules.length
+									);
+									sheet.insertRule(
+										selector + ' * {color:inherit}',
+										sheet.cssRules.length
+									);
+									sheet.insertRule(
+										selector + ' hr { border-color:' + metastyles.color + ';}',
+										sheet.cssRules.length
+									);
+								}
+							}
+
+							if(styleSupport && styleSupport['meta_md_styles']){
+
+								var selector='@media (max-width: 1199px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
+								var dyncss='';
+			
+								for(var s in styleSupport['meta_md_styles']){
+									if(styleSupport['meta_md_styles'].hasOwnProperty(s)){
+										if(typeof styleMap[s] != 'undefined'){
+											dyncss += styleMap[s]  + ': ' + styleSupport['meta_md_styles'][s] + ';';
+										}		
+									}
+									if(dyncss){
+										console.log(selector + ' {' + dyncss+ '}}')
+										try {
+											sheet.insertRule(
+												selector + ' {' + dyncss+ '}',
+												sheet.cssRules.length
+											);
+										} catch (e){
+											console.log(e);
+										}
+									}
+								}
+							}
+			
+							if(styleSupport && styleSupport['meta_sm_styles']){
+								var selector='@media (max-width: 991) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
+								var dyncss='';
+			
+								for(var s in styleSupport['meta_sm_styles']){
+									if(styleSupport['meta_sm_styles'].hasOwnProperty(s)){
+										if(typeof styleMap[s] != 'undefined'){
+											dyncss += styleMap[s]  + ': ' + styleSupport['meta_sm_styles'][s] + ';';
+										}		
+									}
+									if(dyncss){
+										console.log(selector + ' {' + dyncss+ '}}')
+										try {
+											sheet.insertRule(
+												selector + ' {' + dyncss+ '}',
+												sheet.cssRules.length
+											);
+										} catch (e){
+											console.log(e);
+										}
+									}
+								}
+							}
+			
+							if(styleSupport && styleSupport['meta_xs_styles']){
+								var selector='@media (max-width: 767) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
+								var dyncss='';
+			
+								for(var s in styleSupport['meta_xs_styles']){
+									if(styleSupport['meta_xs_styles'].hasOwnProperty(s)){
+										if(typeof styleMap[s] != 'undefined'){
+											dyncss += styleMap[s]  + ': ' + styleSupport['meta_xs_styles'][s] + ';';
+										}		
+									}
+									if(dyncss){
+										console.log(selector + ' {' + dyncss+ '}}')
+										try {
+											sheet.insertRule(
+												selector + ' {' + dyncss+ '}',
+												sheet.cssRules.length
+											);
+										} catch (e){
+											console.log(e);
+										}
+									}
+								}
 							}
 						}
 
@@ -18782,7 +19038,7 @@ Mura.DOMSelection = Mura.Core.extend(
 
 						if(metastyles){
 							meta.removeAttr('style');
-							meta.css(metastyles);
+							//meta.css(metastyles);
 						}
 
 						if(obj.is('.mura-object-label-left, .mura-object-label-right')){
@@ -18797,9 +19053,12 @@ Mura.DOMSelection = Mura.Core.extend(
 			}
 
 			var contentstyles={};
+			
 			if(styleSupport && styleSupport.contentstyles){
 				contentstyles=styleSupport.contentstyles;
 			}
+
+			var content=obj.children('.mura-object-content').first();
 
 			var selector='div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] .mura-object-content';
 
@@ -18810,24 +19069,123 @@ Mura.DOMSelection = Mura.Core.extend(
 				contentstyles.backgroundImage='linear-gradient(' + contentstyles.backgroundColor + ', ' + contentstyles.backgroundColor +' ), ' + contentstyles.backgroundImage;
 			}
 
-			if(!windowResponse && contentstyles && contentstyles.color){
-				var style=selector + ', ' + selector + ' label, ' + selector + ' p, ' + selector + ' h1, ' + selector + ' h2, ' + selector + ' h3, ' + selector + ' h4, ' + selector + ' h5, ' + selector + ' h6, ' +selector + ' a:link, ' + selector + ' a:visited, '  + selector + ' a:hover, ' + selector + ' .breadcrumb-item + .breadcrumb-item::before, ' + selector + ' a:active { color:' + contentstyles.color + ';} ';
-				sheet.insertRule(
-					style,
-					sheet.cssRules.length
-				);
-				sheet.insertRule(
-					selector + ' * {color:inherit}',
-					sheet.cssRules.length
-				);
-				sheet.insertRule(
-					selector + ' hr { border-color:' + contentstyles.color + ';}',
-					sheet.cssRules.length
-				);
+			if(!windowResponse){
+				if(contentstyles){
+					var selector='div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
+					var dyncss='';
+
+					for(var s in contentstyles){
+						if(contentstyles.hasOwnProperty(s)){
+							if(typeof styleMap[s] != 'undefined'){
+								dyncss += styleMap[s]  + ': ' + contentstyles[s] + ';';
+							} else {
+								content.css(s,contentstyles[s]);
+							}		
+						}
+						if(dyncss){
+							console.log(selector + ' {' + dyncss+ '}')
+							try {
+								sheet.insertRule(
+									selector + ' {' + dyncss+ '}',
+									sheet.cssRules.length
+								);
+							} catch (e){
+								console.log(e);
+							}
+						}
+					}
+					if(contentstyles.color){
+						
+						sheet.insertRule(
+							style,
+							sheet.cssRules.length
+						);
+						sheet.insertRule(
+							selector + ' * {color:inherit}',
+							sheet.cssRules.length
+						);
+						sheet.insertRule(
+							selector + ' hr { border-color:' + contentstyles.color + ';}',
+							sheet.cssRules.length
+						);
+					}
+				}
+
+				if(styleSupport && styleSupport['content_md_styles']){
+
+					var selector='@media (max-width: 1199px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
+					var dyncss='';
+
+					for(var s in styleSupport['content_md_styles']){
+						if(styleSupport['content_md_styles'].hasOwnProperty(s)){
+							if(typeof styleMap[s] != 'undefined'){
+								dyncss += styleMap[s]  + ': ' + styleSupport['content_md_styles'][s] + ';';
+							}		
+						}
+						if(dyncss){
+							console.log(selector + ' {' + dyncss+ '}}')
+							try {
+								sheet.insertRule(
+									selector + ' {' + dyncss+ '}',
+									sheet.cssRules.length
+								);
+							} catch (e){
+								console.log(e);
+							}
+						}
+					}
+				}
+
+				if(styleSupport && styleSupport['content_sm_styles']){
+					var selector='@media (max-width: 991) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
+					var dyncss='';
+
+					for(var s in styleSupport['content_sm_styles']){
+						if(styleSupport['content_sm_styles'].hasOwnProperty(s)){
+							if(typeof styleMap[s] != 'undefined'){
+								dyncss += styleMap[s]  + ': ' + styleSupport['content_sm_styles'][s] + ';';
+							}		
+						}
+						if(dyncss){
+							console.log(selector + ' {' + dyncss+ '}}')
+							try {
+								sheet.insertRule(
+									selector + ' {' + dyncss+ '}',
+									sheet.cssRules.length
+								);
+							} catch (e){
+								console.log(e);
+							}
+						}
+					}
+				}
+
+				if(styleSupport && styleSupport['content_xs_styles']){
+					var selector='@media (max-width: 767) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
+					var dyncss='';
+
+					for(var s in styleSupport['content_xs_styles']){
+						if(styleSupport['content_xs_styles'].hasOwnProperty(s)){
+							if(typeof styleMap[s] != 'undefined'){
+								dyncss += styleMap[s]  + ': ' + styleSupport['content_xs_styles'][s] + ';';
+							}		
+						}
+						if(dyncss){
+							console.log(selector + ' {' + dyncss+ '}}')
+							try {
+								sheet.insertRule(
+									selector + ' {' + dyncss+ '}',
+									sheet.cssRules.length
+								);
+							} catch (e){
+								console.log(e);
+							}
+						}
+					}
+				}
 			}
 
  			if(obj.data('contentcssclass') || obj.data('contentcssid') ||  contentstyles){
- 				var content=obj.children('.mura-object-content').first();
 
 	 			if(obj.data('contentcssid')){
 	 				content.attr('id',obj.data('contentcssid'));
@@ -18842,7 +19200,7 @@ Mura.DOMSelection = Mura.Core.extend(
 
 				if(contentstyles){
 					content.removeAttr('style');
-					content.css(contentstyles);
+					//content.css(contentstyles);
 				}
 
 				if(obj.is('.mura-object-label-left, .mura-object-label-right')){
