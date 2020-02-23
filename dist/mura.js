@@ -18789,6 +18789,7 @@ Mura.DOMSelection = Mura.Core.extend(
 				if(styleSupport && styleSupport['object_lg_styles']){
 
 					var selector='@media (min-width: 992px) and (max-width: 1199px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
+					var selector2='@media (min-width: 1292px) and (max-width: 1399px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
 					var dyncss='';
 					objectAccumulator=Mura.extend(objectAccumulator,styleSupport['object_lg_styles']);
 					for(var s in objectAccumulator){
@@ -18805,6 +18806,10 @@ Mura.DOMSelection = Mura.Core.extend(
 								selector + ' {' + dyncss+ '}',
 								sheet.cssRules.length
 							);
+							sheet.insertRule(
+								selector2 + ' {' + dyncss+ '}',
+								sheet.cssRules.length
+							);
 						} catch (e){
 							console.log(e);
 						}
@@ -18813,6 +18818,7 @@ Mura.DOMSelection = Mura.Core.extend(
 
 				if(styleSupport && styleSupport['object_md_styles']){
 					var selector='@media (min-width: 768px) and (max-width: 991px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
+					var selector2='@media (min-width: 1068px) and (max-width: 1291px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
 					var dyncss='';
 					objectAccumulator=Mura.extend(objectAccumulator,styleSupport['object_md_styles']);
 					for(var s in objectAccumulator){
@@ -18829,6 +18835,10 @@ Mura.DOMSelection = Mura.Core.extend(
 								selector + ' {' + dyncss+ '}',
 								sheet.cssRules.length
 							);
+							sheet.insertRule(
+								selector2 + ' {' + dyncss+ '}',
+								sheet.cssRules.length
+							);
 						} catch (e){
 							console.log(e);
 						}
@@ -18837,6 +18847,7 @@ Mura.DOMSelection = Mura.Core.extend(
 
 				if(styleSupport && styleSupport['object_sm_styles']){
 					var selector='@media (min-width: 576px) and (max-width: 767px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
+					var selector2='@media (min-width: 876px) and (max-width: 1067px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
 					var dyncss='';
 					objectAccumulator=Mura.extend(objectAccumulator,styleSupport['object_sm_styles']);
 					for(var s in objectAccumulator){
@@ -18853,6 +18864,10 @@ Mura.DOMSelection = Mura.Core.extend(
 								selector + ' {' + dyncss+ '}',
 								sheet.cssRules.length
 							);
+							sheet.insertRule(
+								selector2 + ' {' + dyncss+ '}',
+								sheet.cssRules.length
+							);
 						} catch (e){
 							console.log(e);
 						}
@@ -18861,6 +18876,7 @@ Mura.DOMSelection = Mura.Core.extend(
 
 				if(styleSupport && styleSupport['object_xs_styles']){
 					var selector='@media (max-width: 575px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
+					var selector2='@media (max-width: 875px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
 					var dyncss='';
 					objectAccumulator=Mura.extend(objectAccumulator,styleSupport['object_xs_styles']);
 					for(var s in objectAccumulator){
@@ -18875,6 +18891,10 @@ Mura.DOMSelection = Mura.Core.extend(
 						try {
 							sheet.insertRule(
 								selector + ' {' + dyncss+ '}',
+								sheet.cssRules.length
+							);
+							sheet.insertRule(
+								selector2 + ' {' + dyncss+ '}',
 								sheet.cssRules.length
 							);
 						} catch (e){
@@ -18977,6 +18997,7 @@ Mura.DOMSelection = Mura.Core.extend(
 							if(styleSupport && styleSupport['meta_lg_styles']){
 
 								var selector='@media (min-width: 992px) and (max-width: 1199px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
+								var selector2='@media (min-width: 1292px) and (max-width: 1399px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
 								var dyncss='';
 								metaAccumulator=Mura.extend(metaAccumulator,styleSupport['meta_lg_styles']);
 								for(var s in metaAccumulator){
@@ -18993,6 +19014,10 @@ Mura.DOMSelection = Mura.Core.extend(
 											selector + ' {' + dyncss+ '}',
 											sheet.cssRules.length
 										);
+										sheet.insertRule(
+											selector2 + ' {' + dyncss+ '}',
+											sheet.cssRules.length
+										);
 									} catch (e){
 										console.log(e);
 									}
@@ -19001,6 +19026,7 @@ Mura.DOMSelection = Mura.Core.extend(
 			
 							if(styleSupport && styleSupport['meta_md_styles']){
 								var selector='@media (min-width: 768px) an (max-width: 991px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
+								var selector2='@media (min-width: 1068px) an (max-width: 1291px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
 								var dyncss='';
 								metaAccumulator=Mura.extend(metaAccumulator,styleSupport['meta_md_styles']);
 								for(var s in metaAccumulator){
@@ -19017,6 +19043,10 @@ Mura.DOMSelection = Mura.Core.extend(
 											selector + ' {' + dyncss+ '}',
 											sheet.cssRules.length
 										);
+										sheet.insertRule(
+											selector2 + ' {' + dyncss+ '}',
+											sheet.cssRules.length
+										);
 									} catch (e){
 										console.log(e);
 									}
@@ -19025,6 +19055,7 @@ Mura.DOMSelection = Mura.Core.extend(
 
 							if(styleSupport && styleSupport['meta_sm_styles']){
 								var selector='@media (min-width: 576px) an (max-width: 767) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
+								var selector2='@media (min-width: 876px) an (max-width: 1067) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
 								var dyncss='';
 								metaAccumulator=Mura.extend(metaAccumulator,styleSupport['meta_sm_styles']);
 								for(var s in metaAccumulator){
@@ -19041,6 +19072,10 @@ Mura.DOMSelection = Mura.Core.extend(
 											selector + ' {' + dyncss+ '}',
 											sheet.cssRules.length
 										);
+										sheet.insertRule(
+											selector2 + ' {' + dyncss+ '}',
+											sheet.cssRules.length
+										);
 									} catch (e){
 										console.log(e);
 									}
@@ -19049,6 +19084,7 @@ Mura.DOMSelection = Mura.Core.extend(
 			
 							if(styleSupport && styleSupport['meta_xs_styles']){
 								var selector='@media (max-width: 575) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
+								var selector2='@media (max-width: 875) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
 								var dyncss='';
 								metaAccumulator=Mura.extend(metaAccumulator,styleSupport['meta_xs_styles']);
 								for(var s in metaAccumulator){
@@ -19063,6 +19099,10 @@ Mura.DOMSelection = Mura.Core.extend(
 									try {
 										sheet.insertRule(
 											selector + ' {' + dyncss+ '}',
+											sheet.cssRules.length
+										);
+										sheet.insertRule(
+											selector2 + ' {' + dyncss+ '}',
 											sheet.cssRules.length
 										);
 									} catch (e){
@@ -19163,6 +19203,7 @@ Mura.DOMSelection = Mura.Core.extend(
 				if(styleSupport && styleSupport['content_lg_styles']){
 
 					var selector='@media (max-width: 992px) and (max-width: 1199px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
+					var selector2='@media (max-width: 1292px) and (max-width: 1499px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
 					var dyncss='';
 					contentAccumulator=Mura.extend(contentAccumulator,styleSupport['content_lg_styles']);
 					for(var s in contentAccumulator){
@@ -19179,6 +19220,10 @@ Mura.DOMSelection = Mura.Core.extend(
 								selector + ' {' + dyncss+ '}',
 								sheet.cssRules.length
 							);
+							sheet.insertRule(
+								selector2 + ' {' + dyncss+ '}',
+								sheet.cssRules.length
+							);
 						} catch (e){
 							console.log(e);
 						}
@@ -19187,6 +19232,7 @@ Mura.DOMSelection = Mura.Core.extend(
 
 				if(styleSupport && styleSupport['content_md_styles']){
 					var selector='@media (min-width: 768px) and (max-width: 991px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
+					var selector2='@media (min-width: 1068px) and (max-width: 1291px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
 					var dyncss='';
 					contentAccumulator=Mura.extend(contentAccumulator,styleSupport['content_md_styles']);
 					for(var s in contentAccumulator){
@@ -19203,6 +19249,10 @@ Mura.DOMSelection = Mura.Core.extend(
 								selector + ' {' + dyncss+ '}',
 								sheet.cssRules.length
 							);
+							sheet.insertRule(
+								selector2 + ' {' + dyncss+ '}',
+								sheet.cssRules.length
+							);
 						} catch (e){
 							console.log(e);
 						}
@@ -19211,6 +19261,7 @@ Mura.DOMSelection = Mura.Core.extend(
 
 				if(styleSupport && styleSupport['content_sm_styles']){
 					var selector='@media (min-width: 576px) and (max-width: 767px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
+					var selector2='@media (min-width: 876px) and (max-width: 1067px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
 					var dyncss='';
 					contentAccumulator=Mura.extend(contentAccumulator,styleSupport['content_sm_styles']);
 					for(var s in contentAccumulator){
@@ -19227,6 +19278,10 @@ Mura.DOMSelection = Mura.Core.extend(
 								selector + ' {' + dyncss+ '}',
 								sheet.cssRules.length
 							);
+							sheet.insertRule(
+								selector2 + ' {' + dyncss+ '}',
+								sheet.cssRules.length
+							);
 						} catch (e){
 							console.log(e);
 						}
@@ -19235,6 +19290,7 @@ Mura.DOMSelection = Mura.Core.extend(
 
 				if(styleSupport && styleSupport['content_xs_styles']){
 					var selector='@media (max-width: 575px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
+					var selector2='@media (max-width: 875px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
 					var dyncss='';
 					contentAccumulator=Mura.extend(contentAccumulator,styleSupport['content_xs_styles']);
 					for(var s in contentAccumulator){
@@ -19249,6 +19305,10 @@ Mura.DOMSelection = Mura.Core.extend(
 						try {
 							sheet.insertRule(
 								selector + ' {' + dyncss+ '}',
+								sheet.cssRules.length
+							);
+							sheet.insertRule(
+								selector2 + ' {' + dyncss+ '}',
 								sheet.cssRules.length
 							);
 						} catch (e){
