@@ -1524,7 +1524,7 @@ Mura.DOMSelection = Mura.Core.extend(
 
 							if(styleSupport && styleSupport['meta_md_styles']){
 
-								var selector='@media (max-width: 1199px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
+								var selector='@media (max-width: 1199px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
 								var dyncss='';
 			
 								for(var s in styleSupport['meta_md_styles']){
@@ -1548,7 +1548,7 @@ Mura.DOMSelection = Mura.Core.extend(
 							}
 			
 							if(styleSupport && styleSupport['meta_sm_styles']){
-								var selector='@media (max-width: 991) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
+								var selector='@media (max-width: 991) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
 								var dyncss='';
 			
 								for(var s in styleSupport['meta_sm_styles']){
@@ -1572,7 +1572,7 @@ Mura.DOMSelection = Mura.Core.extend(
 							}
 			
 							if(styleSupport && styleSupport['meta_xs_styles']){
-								var selector='@media (max-width: 767) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
+								var selector='@media (max-width: 767) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
 								var dyncss='';
 			
 								for(var s in styleSupport['meta_xs_styles']){
@@ -1631,7 +1631,7 @@ Mura.DOMSelection = Mura.Core.extend(
 
 			var content=obj.children('.mura-object-content').first();
 
-			var selector='div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] .mura-object-content';
+			var selector='div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
 
 			var hasLayeredBg=(contentstyles && typeof contentstyles.backgroundColor != 'undefined' && contentstyles.backgroundColor
 			&& typeof contentstyles.backgroundImage != 'undefined' && contentstyles.backgroundImage);
@@ -1684,7 +1684,7 @@ Mura.DOMSelection = Mura.Core.extend(
 
 				if(styleSupport && styleSupport['content_md_styles']){
 
-					var selector='@media (max-width: 1199px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
+					var selector='@media (max-width: 1199px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
 					var dyncss='';
 
 					for(var s in styleSupport['content_md_styles']){
@@ -1708,7 +1708,7 @@ Mura.DOMSelection = Mura.Core.extend(
 				}
 
 				if(styleSupport && styleSupport['content_sm_styles']){
-					var selector='@media (max-width: 991) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
+					var selector='@media (max-width: 991) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
 					var dyncss='';
 
 					for(var s in styleSupport['content_sm_styles']){
@@ -1732,7 +1732,7 @@ Mura.DOMSelection = Mura.Core.extend(
 				}
 
 				if(styleSupport && styleSupport['content_xs_styles']){
-					var selector='@media (max-width: 767) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
+					var selector='@media (max-width: 767) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
 					var dyncss='';
 
 					for(var s in styleSupport['content_xs_styles']){
