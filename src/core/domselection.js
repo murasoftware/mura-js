@@ -1311,20 +1311,19 @@ Mura.DOMSelection = Mura.Core.extend(
 					while (sheet.cssRules.length) {
 						sheet.deleteRule(0);
 					}
+				
+				var objectAccumulator={};
 
 				if(styleSupport && objectstyles){
-
 					var selector='div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
-		
-					//obj.css(objectstyles);
 					var dyncss='';
-
-					for(var s in objectstyles){
-						if(objectstyles.hasOwnProperty(s)){
+					objectAccumulator=Mura.extend(objectAccumulator,objectstyles);
+					for(var s in objectAccumulator){
+						if(objectAccumulator.hasOwnProperty(s)){
 							if(typeof styleMap[s] != 'undefined'){
-								dyncss += styleMap[s]  + ': ' + objectstyles[s] + ';';
+								dyncss += styleMap[s]  + ': ' + objectAccumulator[s] + '!important;';
 							} else {
-								obj.css(s,objectstyles[s]);
+								obj.css(s,objectAccumulator[s]);
 							}		
 						}
 					}
@@ -1358,17 +1357,15 @@ Mura.DOMSelection = Mura.Core.extend(
 
 				}
 
-				
-
 				if(styleSupport && styleSupport['object_md_styles']){
 
-					var selector='@media (max-width: 1199px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
+					var selector='@media (min-width: 992px) and (max-width: 1199px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
 					var dyncss='';
-
-					for(var s in styleSupport['object_md_styles']){
-						if(styleSupport['object_md_styles'].hasOwnProperty(s)){
+					objectAccumulator=Mura.extend(objectAccumulator,styleSupport['object_md_styles']);
+					for(var s in objectAccumulator){
+						if(objectAccumulator.hasOwnProperty(s)){
 							if(typeof styleMap[s] != 'undefined'){
-								dyncss += styleMap[s]  + ': ' + styleSupport['object_md_styles'][s] + ';';
+								dyncss += styleMap[s]  + ': ' + objectAccumulator[s] + '!important;';
 							}		
 						}
 					}
@@ -1386,13 +1383,13 @@ Mura.DOMSelection = Mura.Core.extend(
 				}
 
 				if(styleSupport && styleSupport['object_sm_styles']){
-					var selector='@media (max-width: 991) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
+					var selector='@media (min-width: 768px) and (max-width: 991px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
 					var dyncss='';
-
-					for(var s in styleSupport['object_sm_styles']){
-						if(styleSupport['object_sm_styles'].hasOwnProperty(s)){
+					objectAccumulator=Mura.extend(objectAccumulator,styleSupport['object_sm_styles']);
+					for(var s in objectAccumulator){
+						if(objectAccumulator.hasOwnProperty(s)){
 							if(typeof styleMap[s] != 'undefined'){
-								dyncss += styleMap[s]  + ': ' + styleSupport['object_sm_styles'][s] + ';';
+								dyncss += styleMap[s]  + ': ' + objectAccumulator[s] + '!important;';
 							}		
 						}
 					}
@@ -1410,13 +1407,13 @@ Mura.DOMSelection = Mura.Core.extend(
 				}
 
 				if(styleSupport && styleSupport['object_xs_styles']){
-					var selector='@media (max-width: 767) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
+					var selector='@media (max-width: 767px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
 					var dyncss='';
-
-					for(var s in styleSupport['object_xs_styles']){
-						if(styleSupport['object_xs_styles'].hasOwnProperty(s)){
+					objectAccumulator=Mura.extend(objectAccumulator,styleSupport['object_xs_styles']);
+					for(var s in objectAccumulator){
+						if(objectAccumulator.hasOwnProperty(s)){
 							if(typeof styleMap[s] != 'undefined'){
-								dyncss += styleMap[s]  + ': ' + styleSupport['object_xs_styles'][s] + ';';
+								dyncss += styleMap[s]  + ': ' + objectAccumulator[s] + '!important;';
 							}		
 						}
 					}
@@ -1480,16 +1477,18 @@ Mura.DOMSelection = Mura.Core.extend(
 							metastyles.backgroundImage='linear-gradient(' + metastyles.backgroundColor + ', ' + metastyles.backgroundColor +' ), ' + metastyles.backgroundImage;
 						}
 						if(!windowResponse){
+							var metaAccumulator={};
+
 							if(metastyles){
 								var selector='div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';	
 								var dyncss='';
-
-								for(var s in metastyles){
-									if(metastyles.hasOwnProperty(s)){
+								metaAccumulator=Mura.extend(metaAccumulator,metastyles);
+								for(var s in metaAccumulator){
+									if(metaAccumulator.hasOwnProperty(s)){
 										if(typeof styleMap[s] != 'undefined'){
-											dyncss += styleMap[s]  + ': ' + metastyles[s] + ';';
+											dyncss += styleMap[s]  + ': ' + metaAccumulator[s] + '!important;';
 										} else {
-											meta.css(s,metastyles[s]);
+											obj.css(s,metaAccumulator[s]);
 										}		
 									}
 								}
@@ -1524,13 +1523,13 @@ Mura.DOMSelection = Mura.Core.extend(
 
 							if(styleSupport && styleSupport['meta_md_styles']){
 
-								var selector='@media (max-width: 1199px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
+								var selector='@media (min-width: 992px) and (max-width: 1199px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
 								var dyncss='';
-			
-								for(var s in styleSupport['meta_md_styles']){
-									if(styleSupport['meta_md_styles'].hasOwnProperty(s)){
+								metaAccumulator=Mura.extend(metaAccumulator,styleSupport['meta_md_styles']);
+								for(var s in metaAccumulator){
+									if(metaAccumulator.hasOwnProperty(s)){
 										if(typeof styleMap[s] != 'undefined'){
-											dyncss += styleMap[s]  + ': ' + styleSupport['meta_md_styles'][s] + ';';
+											dyncss += styleMap[s]  + ': ' + metaAccumulator[s] + '!important;';
 										}		
 									}
 								}
@@ -1548,13 +1547,13 @@ Mura.DOMSelection = Mura.Core.extend(
 							}
 			
 							if(styleSupport && styleSupport['meta_sm_styles']){
-								var selector='@media (max-width: 991) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
+								var selector='@media (min-width: 768px) an (max-width: 991px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
 								var dyncss='';
-			
-								for(var s in styleSupport['meta_sm_styles']){
-									if(styleSupport['meta_sm_styles'].hasOwnProperty(s)){
+								metaAccumulator=Mura.extend(metaAccumulator,styleSupport['meta_sm_styles']);
+								for(var s in metaAccumulator){
+									if(metaAccumulator.hasOwnProperty(s)){
 										if(typeof styleMap[s] != 'undefined'){
-											dyncss += styleMap[s]  + ': ' + styleSupport['meta_sm_styles'][s] + ';';
+											dyncss += styleMap[s]  + ': ' + metaAccumulator[s] + '!important;';
 										}		
 									}
 								}
@@ -1572,13 +1571,13 @@ Mura.DOMSelection = Mura.Core.extend(
 							}
 			
 							if(styleSupport && styleSupport['meta_xs_styles']){
-								var selector='@media (max-width: 767) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
+								var selector='@media (max-width: 767px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
 								var dyncss='';
-			
-								for(var s in styleSupport['meta_xs_styles']){
-									if(styleSupport['meta_xs_styles'].hasOwnProperty(s)){
+								metaAccumulator=Mura.extend(metaAccumulator,styleSupport['meta_xs_styles']);
+								for(var s in metaAccumulator){
+									if(metaAccumulator.hasOwnProperty(s)){
 										if(typeof styleMap[s] != 'undefined'){
-											dyncss += styleMap[s]  + ': ' + styleSupport['meta_xs_styles'][s] + ';';
+											dyncss += styleMap[s]  + ': ' + metaAccumulator[s] + '!important;';
 										}		
 									}
 								}
@@ -1641,16 +1640,18 @@ Mura.DOMSelection = Mura.Core.extend(
 			}
 
 			if(!windowResponse){
+				var contentAccumulator={};
+
 				if(contentstyles){
 					var selector='div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
 					var dyncss='';
-
-					for(var s in contentstyles){
-						if(contentstyles.hasOwnProperty(s)){
+					contentAccumulator=Mura.extend(contentAccumulator,contentstyles);
+					for(var s in contentAccumulator){
+						if(contentAccumulator.hasOwnProperty(s)){
 							if(typeof styleMap[s] != 'undefined'){
-								dyncss += styleMap[s]  + ': ' + contentstyles[s] + ';';
+								dyncss += styleMap[s]  + ': ' + contentAccumulator[s] + '!important;';
 							} else {
-								content.css(s,contentstyles[s]);
+								obj.css(s,contentAccumulator[s]);
 							}		
 						}
 					}
@@ -1684,13 +1685,13 @@ Mura.DOMSelection = Mura.Core.extend(
 
 				if(styleSupport && styleSupport['content_md_styles']){
 
-					var selector='@media (max-width: 1199px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
+					var selector='@media (max-width: 992px) and (max-width: 1199px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
 					var dyncss='';
-
-					for(var s in styleSupport['content_md_styles']){
-						if(styleSupport['content_md_styles'].hasOwnProperty(s)){
+					contentAccumulator=Mura.extend(contentAccumulator,styleSupport['content_md_styles']);
+					for(var s in contentAccumulator){
+						if(contentAccumulator.hasOwnProperty(s)){
 							if(typeof styleMap[s] != 'undefined'){
-								dyncss += styleMap[s]  + ': ' + styleSupport['content_md_styles'][s] + ';';
+								dyncss += styleMap[s]  + ': ' + contentAccumulator[s] + '!important;';
 							}		
 						}
 					}
@@ -1708,13 +1709,13 @@ Mura.DOMSelection = Mura.Core.extend(
 				}
 
 				if(styleSupport && styleSupport['content_sm_styles']){
-					var selector='@media (max-width: 991) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
+					var selector='@media (min-width: 768px) and (max-width: 991px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
 					var dyncss='';
-
-					for(var s in styleSupport['content_sm_styles']){
-						if(styleSupport['content_sm_styles'].hasOwnProperty(s)){
+					contentAccumulator=Mura.extend(contentAccumulator,styleSupport['content_sm_styles']);
+					for(var s in contentAccumulator){
+						if(contentAccumulator.hasOwnProperty(s)){
 							if(typeof styleMap[s] != 'undefined'){
-								dyncss += styleMap[s]  + ': ' + styleSupport['content_sm_styles'][s] + ';';
+								dyncss += styleMap[s]  + ': ' + contentAccumulator[s] + '!important;';
 							}		
 						}
 					}
@@ -1732,17 +1733,16 @@ Mura.DOMSelection = Mura.Core.extend(
 				}
 
 				if(styleSupport && styleSupport['content_xs_styles']){
-					var selector='@media (max-width: 767) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
+					var selector='@media (max-width: 767px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
 					var dyncss='';
-
-					for(var s in styleSupport['content_xs_styles']){
-						if(styleSupport['content_xs_styles'].hasOwnProperty(s)){
+					contentAccumulator=Mura.extend(contentAccumulator,styleSupport['content_xs_styles']);
+					for(var s in contentAccumulator){
+						if(contentAccumulator.hasOwnProperty(s)){
 							if(typeof styleMap[s] != 'undefined'){
-								dyncss += styleMap[s]  + ': ' + styleSupport['content_xs_styles'][s] + ';';
+								dyncss += styleMap[s]  + ': ' + contentAccumulator[s] + '!important;';
 							}		
 						}
 					}
-
 					if(dyncss){
 						console.log(selector + ' {' + dyncss+ '}}')
 						try {
