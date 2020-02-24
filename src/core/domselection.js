@@ -1272,6 +1272,10 @@ Mura.DOMSelection = Mura.Core.extend(
  			}
 
 			var styleSupport=obj.data('stylesupport') || {};
+
+			if(typeof styleSupport == 'string'){
+				styleSupport={};
+			}
 			var objectstyles={};
 
 			if(styleSupport && styleSupport.objectstyles){
