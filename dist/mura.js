@@ -18762,13 +18762,13 @@ Mura.DOMSelection = Mura.Core.extend(
 					}
 				}
 				if(dyncss){
-					console.log(selector + ' {' + dyncss+ '}')
 					try {
 						sheet.insertRule(
 							selector + ' {' + dyncss+ '}',
 							sheet.cssRules.length
 						);
 					} catch (e){
+						console.log(selector + ' {' + dyncss+ '}')
 						console.log(e);
 					}
 				}
@@ -18805,7 +18805,6 @@ Mura.DOMSelection = Mura.Core.extend(
 					}
 				}
 				if(dyncss){
-					console.log(selector + ' {' + dyncss+ '}}')
 					try {
 						sheet.insertRule(
 							selector + ' {' + dyncss+ '}',
@@ -18816,6 +18815,7 @@ Mura.DOMSelection = Mura.Core.extend(
 							sheet.cssRules.length
 						);
 					} catch (e){
+						console.log(selector + ' {' + dyncss+ '}}')
 						console.log(e);
 					}
 				}
@@ -18836,7 +18836,6 @@ Mura.DOMSelection = Mura.Core.extend(
 					}
 				}
 				if(dyncss){
-					console.log(selector + ' {' + dyncss+ '}}')
 					try {
 						sheet.insertRule(
 							selector + ' {' + dyncss+ '}',
@@ -18847,6 +18846,7 @@ Mura.DOMSelection = Mura.Core.extend(
 							sheet.cssRules.length
 						);
 					} catch (e){
+						console.log(selector + ' {' + dyncss+ '}}')
 						console.log(e);
 					}
 				}
@@ -18867,7 +18867,6 @@ Mura.DOMSelection = Mura.Core.extend(
 					}
 				}
 				if(dyncss){
-					console.log(selector + ' {' + dyncss+ '}}')
 					try {
 						sheet.insertRule(
 							selector + ' {' + dyncss+ '}',
@@ -18878,6 +18877,7 @@ Mura.DOMSelection = Mura.Core.extend(
 							sheet.cssRules.length
 						);
 					} catch (e){
+						console.log(selector + ' {' + dyncss+ '}}')
 						console.log(e);
 					}
 				}
@@ -18898,7 +18898,6 @@ Mura.DOMSelection = Mura.Core.extend(
 					}
 				}
 				if(dyncss){
-					console.log(selector + ' {' + dyncss+ '}}')
 					try {
 						sheet.insertRule(
 							selector + ' {' + dyncss+ '}',
@@ -18909,6 +18908,7 @@ Mura.DOMSelection = Mura.Core.extend(
 							sheet.cssRules.length
 						);
 					} catch (e){
+						console.log(selector + ' {' + dyncss+ '}}')
 						console.log(e);
 					}
 				}
@@ -18979,13 +18979,13 @@ Mura.DOMSelection = Mura.Core.extend(
 								}
 							}
 							if(dyncss){
-								console.log(selector + ' {' + dyncss+ '}')
 								try {
 									sheet.insertRule(
 										selector + ' {' + dyncss+ '}',
 										sheet.cssRules.length
 									);
 								} catch (e){
+									console.log(selector + ' {' + dyncss+ '}')
 									console.log(e);
 								}
 							}
@@ -19022,7 +19022,6 @@ Mura.DOMSelection = Mura.Core.extend(
 								}
 							}
 							if(dyncss){
-								console.log(selector + ' {' + dyncss+ '}}')
 								try {
 									sheet.insertRule(
 										selector + ' {' + dyncss+ '}',
@@ -19033,6 +19032,7 @@ Mura.DOMSelection = Mura.Core.extend(
 										sheet.cssRules.length
 									);
 								} catch (e){
+									console.log(selector + ' {' + dyncss+ '}}')
 									console.log(e);
 								}
 							}
@@ -19053,7 +19053,6 @@ Mura.DOMSelection = Mura.Core.extend(
 								}
 							}
 							if(dyncss){
-								console.log(selector + ' {' + dyncss+ '}}')
 								try {
 									sheet.insertRule(
 										selector + ' {' + dyncss+ '}',
@@ -19064,6 +19063,7 @@ Mura.DOMSelection = Mura.Core.extend(
 										sheet.cssRules.length
 									);
 								} catch (e){
+									console.log(selector + ' {' + dyncss+ '}}')
 									console.log(e);
 								}
 							}
@@ -19084,7 +19084,6 @@ Mura.DOMSelection = Mura.Core.extend(
 								}
 							}
 							if(dyncss){
-								console.log(selector + ' {' + dyncss+ '}}')
 								try {
 									sheet.insertRule(
 										selector + ' {' + dyncss+ '}',
@@ -19095,6 +19094,7 @@ Mura.DOMSelection = Mura.Core.extend(
 										sheet.cssRules.length
 									);
 								} catch (e){
+									console.log(selector + ' {' + dyncss+ '}}')
 									console.log(e);
 								}
 							}
@@ -19115,7 +19115,6 @@ Mura.DOMSelection = Mura.Core.extend(
 								}
 							}
 							if(dyncss){
-								console.log(selector + ' {' + dyncss+ '}}')
 								try {
 									sheet.insertRule(
 										selector + ' {' + dyncss+ '}',
@@ -19126,6 +19125,7 @@ Mura.DOMSelection = Mura.Core.extend(
 										sheet.cssRules.length
 									);
 								} catch (e){
+									console.log(selector + ' {' + dyncss+ '}}')
 									console.log(e);
 								}
 							}
@@ -19193,13 +19193,13 @@ Mura.DOMSelection = Mura.Core.extend(
 					}
 				}
 				if(dyncss){
-					console.log(selector + ' {' + dyncss+ '}')
 					try {
 						sheet.insertRule(
 							selector + ' {' + dyncss+ '}',
 							sheet.cssRules.length
 						);
 					} catch (e){
+						console.log(selector + ' {' + dyncss+ '}')
 						console.log(e);
 					}
 				}
@@ -19235,7 +19235,6 @@ Mura.DOMSelection = Mura.Core.extend(
 					}
 				}
 				if(dyncss){
-					console.log(selector + ' {' + dyncss+ '}}')
 					try {
 						sheet.insertRule(
 							selector + ' {' + dyncss+ '}',
@@ -19246,6 +19245,7 @@ Mura.DOMSelection = Mura.Core.extend(
 							sheet.cssRules.length
 						);
 					} catch (e){
+						console.log(selector + ' {' + dyncss+ '}}')
 						console.log(e);
 					}
 				}
@@ -19266,7 +19266,6 @@ Mura.DOMSelection = Mura.Core.extend(
 					}
 				}
 				if(dyncss){
-					console.log(selector + ' {' + dyncss+ '}}')
 					try {
 						sheet.insertRule(
 							selector + ' {' + dyncss+ '}',
@@ -19277,7 +19276,9 @@ Mura.DOMSelection = Mura.Core.extend(
 							sheet.cssRules.length
 						);
 					} catch (e){
+						console.log(selector + ' {' + dyncss+ '}}')
 						console.log(e);
+						
 					}
 				}
 
@@ -19297,7 +19298,6 @@ Mura.DOMSelection = Mura.Core.extend(
 					}
 				}
 				if(dyncss){
-					console.log(selector + ' {' + dyncss+ '}}')
 					try {
 						sheet.insertRule(
 							selector + ' {' + dyncss+ '}',
@@ -19308,6 +19308,7 @@ Mura.DOMSelection = Mura.Core.extend(
 							sheet.cssRules.length
 						);
 					} catch (e){
+						console.log(selector + ' {' + dyncss+ '}}')
 						console.log(e);
 					}
 				}
@@ -19328,7 +19329,6 @@ Mura.DOMSelection = Mura.Core.extend(
 					}
 				}
 				if(dyncss){
-					console.log(selector + ' {' + dyncss+ '}}')
 					try {
 						sheet.insertRule(
 							selector + ' {' + dyncss+ '}',
@@ -19339,6 +19339,7 @@ Mura.DOMSelection = Mura.Core.extend(
 							sheet.cssRules.length
 						);
 					} catch (e){
+						console.log(selector + ' {' + dyncss+ '}}')
 						console.log(e);
 					}
 				}
