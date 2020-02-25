@@ -18772,21 +18772,25 @@ Mura.DOMSelection = Mura.Core.extend(
 						console.log(e);
 					}
 				}
-				
-				if(objectstyles.color){
-					var style=selector + ', ' + selector + ' label, ' + selector + ' p, ' + selector + ' h1, ' + selector + ' h2, ' + selector + ' h3, ' + selector + ' h4, ' + selector + ' h5, ' + selector + ' h6, ' +selector + ' a:link, ' + selector + ' a:visited, '  + selector + ' a:hover, ' + selector + ' .breadcrumb-item + .breadcrumb-item::before, ' + selector + ' a:active { color:' + objectstyles.color + ';} ';
-					sheet.insertRule(
-						style,
-						sheet.cssRules.length
-					);
-					sheet.insertRule(
-						selector + ' * {color:inherit}',
-						sheet.cssRules.length
-					);
-					sheet.insertRule(
-						selector + ' hr { border-color:' + objectstyles.color + ';}',
-						sheet.cssRules.length
-					);
+				try{
+					if(objectstyles.color){
+						var style=selector + ', ' + selector + ' label, ' + selector + ' p, ' + selector + ' h1, ' + selector + ' h2, ' + selector + ' h3, ' + selector + ' h4, ' + selector + ' h5, ' + selector + ' h6, ' +selector + ' a:link, ' + selector + ' a:visited, '  + selector + ' a:hover, ' + selector + ' .breadcrumb-item + .breadcrumb-item::before, ' + selector + ' a:active { color:' + objectstyles.color + ';} ';
+						sheet.insertRule(
+							style,
+							sheet.cssRules.length
+						);
+						sheet.insertRule(
+							selector + ' * {color:inherit}',
+							sheet.cssRules.length
+						);
+						sheet.insertRule(
+							selector + ' hr { border-color:' + objectstyles.color + ';}',
+							sheet.cssRules.length
+						);
+					}
+				} catch (e){
+					console.log("error adding color: " + objectstyles.color);
+					console.log(e);
 				}
 				
 				if(typeof styleSupport['object_lg_styles'] == 'string'){
@@ -18990,20 +18994,25 @@ Mura.DOMSelection = Mura.Core.extend(
 								}
 							}
 
-							if( metastyles.color){
-								var style=selector + ', ' + selector + ' label, ' + selector + ' p, ' + selector + ' h1, ' + selector + ' h2, ' + selector + ' h3, ' + selector + ' h4, ' + selector + ' h5, ' + selector + ' h6, ' +selector + ' a:link, ' + selector + ' a:visited, '  + selector + ' a:hover, ' + selector + ' .breadcrumb-item + .breadcrumb-item::before, ' + selector + ' a:active { color:' + metastyles.color + ';} ';
-								sheet.insertRule(
-									style,
-									sheet.cssRules.length
-								);
-								sheet.insertRule(
-									selector + ' * {color:inherit}',
-									sheet.cssRules.length
-								);
-								sheet.insertRule(
-									selector + ' hr { border-color:' + metastyles.color + ';}',
-									sheet.cssRules.length
-								);
+							try {
+								if( metastyles.color){
+									var style=selector + ', ' + selector + ' label, ' + selector + ' p, ' + selector + ' h1, ' + selector + ' h2, ' + selector + ' h3, ' + selector + ' h4, ' + selector + ' h5, ' + selector + ' h6, ' +selector + ' a:link, ' + selector + ' a:visited, '  + selector + ' a:hover, ' + selector + ' .breadcrumb-item + .breadcrumb-item::before, ' + selector + ' a:active { color:' + metastyles.color + ';} ';
+									sheet.insertRule(
+										style,
+										sheet.cssRules.length
+									);
+									sheet.insertRule(
+										selector + ' * {color:inherit}',
+										sheet.cssRules.length
+									);
+									sheet.insertRule(
+										selector + ' hr { border-color:' + metastyles.color + ';}',
+										sheet.cssRules.length
+									);
+								}
+							} catch (e){
+								console.log("error adding color: " + metastyles.color);
+								console.log(e);
 							}
 
 							if(typeof styleSupport['meta_lg_styles'] == 'string'){
@@ -19203,20 +19212,25 @@ Mura.DOMSelection = Mura.Core.extend(
 						console.log(e);
 					}
 				}
-				if(contentstyles.color){
-					
-					sheet.insertRule(
-						style,
-						sheet.cssRules.length
-					);
-					sheet.insertRule(
-						selector + ' * {color:inherit}',
-						sheet.cssRules.length
-					);
-					sheet.insertRule(
-						selector + ' hr { border-color:' + contentstyles.color + ';}',
-						sheet.cssRules.length
-					);
+				try{
+					if(contentstyles.color){
+						var style=selector + ', ' + selector + ' label, ' + selector + ' p, ' + selector + ' h1, ' + selector + ' h2, ' + selector + ' h3, ' + selector + ' h4, ' + selector + ' h5, ' + selector + ' h6, ' +selector + ' a:link, ' + selector + ' a:visited, '  + selector + ' a:hover, ' + selector + ' .breadcrumb-item + .breadcrumb-item::before, ' + selector + ' a:active { color:' + contentstyles.color + ';} ';
+						sheet.insertRule(
+							style,
+							sheet.cssRules.length
+						);
+						sheet.insertRule(
+							selector + ' * {color:inherit}',
+							sheet.cssRules.length
+						);
+						sheet.insertRule(
+							selector + ' hr { border-color:' + contentstyles.color + ';}',
+							sheet.cssRules.length
+						);
+					}
+				} catch (e){
+					console.log("error adding color: " + contentstyles.color);
+					console.log(e);
 				}
 
 				if(typeof styleSupport['content_lg_styles'] == 'string'){
