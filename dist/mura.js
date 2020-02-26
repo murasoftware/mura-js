@@ -18946,224 +18946,219 @@ Mura.DOMSelection = Mura.Core.extend(
 					}
 				}
 			}
-
- 			if(obj.data('metacssclass') || obj.data('metacssid')){
+ 			
+			var metaWrapper=obj.children('.mura-object-meta-wrapper');
+			if(metaWrapper.length){
 				styleSupport.metastyles=styleSupport.metastyles || {}; 
-				var metaWrapper=obj.children('.mura-object-meta-wrapper');
-				if(metaWrapper.length){
-					var meta=metaWrapper.children('.mura-object-meta');
-					if(meta.length){
-						var metastyles={};
-						if(styleSupport && styleSupport.metastyles){
-							metastyles=styleSupport.metastyles;
+				var meta=metaWrapper.children('.mura-object-meta');
+				if(meta.length){
+					var metastyles={};
+					if(styleSupport && styleSupport.metastyles){
+						metastyles=styleSupport.metastyles;
+					}
+
+					var hasLayeredBg=(metastyles && typeof metastyles.backgroundColor != 'undefined' && metastyles.backgroundColor
+					&& typeof metastyles.backgroundImage != 'undefined' && metastyles.backgroundImage);
+
+					if(hasLayeredBg){
+						metastyles.backgroundImage='linear-gradient(' + metastyles.backgroundColor + ', ' + metastyles.backgroundColor +' ), ' + metastyles.backgroundImage;
+					}
+					if(!windowResponse){
+						var metaAccumulator={};
+						if(typeof metastyles == 'string'){
+							metastyles={};
 						}
-
-						var hasLayeredBg=(metastyles && typeof metastyles.backgroundColor != 'undefined' && metastyles.backgroundColor
-						&& typeof metastyles.backgroundImage != 'undefined' && metastyles.backgroundImage);
-
-						if(hasLayeredBg){
-							metastyles.backgroundImage='linear-gradient(' + metastyles.backgroundColor + ', ' + metastyles.backgroundColor +' ), ' + metastyles.backgroundImage;
+						metastyles=metastyles || {};
+						var selector='div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';	
+						var dyncss='';
+						metaAccumulator=Mura.extend(metaAccumulator,metastyles);
+						for(var s in metaAccumulator){
+							if(metaAccumulator.hasOwnProperty(s)){
+								if(typeof styleMap[s] != 'undefined'){
+									dyncss += styleMap[s]  + ': ' + metaAccumulator[s] + '!important;';
+								} else {
+									obj.css(s,metaAccumulator[s]);
+								}		
+							}
 						}
-						if(!windowResponse){
-							var metaAccumulator={};
-							if(typeof metastyles == 'string'){
-								metastyles={};
-							}
-							metastyles=metastyles || {};
-							var selector='div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';	
-							var dyncss='';
-							metaAccumulator=Mura.extend(metaAccumulator,metastyles);
-							for(var s in metaAccumulator){
-								if(metaAccumulator.hasOwnProperty(s)){
-									if(typeof styleMap[s] != 'undefined'){
-										dyncss += styleMap[s]  + ': ' + metaAccumulator[s] + '!important;';
-									} else {
-										obj.css(s,metaAccumulator[s]);
-									}		
-								}
-							}
-							if(dyncss){
-								try {
-									sheet.insertRule(
-										selector + ' {' + dyncss+ '}',
-										sheet.cssRules.length
-									);
-								} catch (e){
-									console.log(selector + ' {' + dyncss+ '}')
-									console.log(e);
-								}
-							}
-
+						if(dyncss){
 							try {
-								if( metastyles.color){
-									var style=selector + ', ' + selector + ' label, ' + selector + ' p, ' + selector + ' h1, ' + selector + ' h2, ' + selector + ' h3, ' + selector + ' h4, ' + selector + ' h5, ' + selector + ' h6, ' +selector + ' a:link, ' + selector + ' a:visited, '  + selector + ' a:hover, ' + selector + ' .breadcrumb-item + .breadcrumb-item::before, ' + selector + ' a:active { color:' + metastyles.color + ';} ';
-									sheet.insertRule(
-										style,
-										sheet.cssRules.length
-									);
-									sheet.insertRule(
-										selector + ' * {color:inherit}',
-										sheet.cssRules.length
-									);
-									sheet.insertRule(
-										selector + ' hr { border-color:' + metastyles.color + ';}',
-										sheet.cssRules.length
-									);
-								}
+								sheet.insertRule(
+									selector + ' {' + dyncss+ '}',
+									sheet.cssRules.length
+								);
 							} catch (e){
-								console.log("error adding color: " + metastyles.color);
+								console.log(selector + ' {' + dyncss+ '}')
 								console.log(e);
 							}
+						}
 
-							if(typeof styleSupport['meta_lg_styles'] == 'string'){
-								styleSupport['meta_lg_styles']={};
+						try {
+							if( metastyles.color){
+								var style=selector + ', ' + selector + ' label, ' + selector + ' p, ' + selector + ' h1, ' + selector + ' h2, ' + selector + ' h3, ' + selector + ' h4, ' + selector + ' h5, ' + selector + ' h6, ' +selector + ' a:link, ' + selector + ' a:visited, '  + selector + ' a:hover, ' + selector + ' .breadcrumb-item + .breadcrumb-item::before, ' + selector + ' a:active { color:' + metastyles.color + ';} ';
+								sheet.insertRule(
+									style,
+									sheet.cssRules.length
+								);
+								sheet.insertRule(
+									selector + ' * {color:inherit}',
+									sheet.cssRules.length
+								);
+								sheet.insertRule(
+									selector + ' hr { border-color:' + metastyles.color + ';}',
+									sheet.cssRules.length
+								);
 							}
-							styleSupport['meta_lg_styles']=styleSupport['meta_lg_styles'] || {}; 
-							var selector='@media (min-width: 992px) and (max-width: 1199px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
-							var selector2='@media (min-width: 1292px) and (max-width: 1399px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
-							var dyncss='';
-							metaAccumulator=Mura.extend(metaAccumulator,styleSupport['meta_lg_styles']);
-							for(var s in metaAccumulator){
-								if(metaAccumulator.hasOwnProperty(s)){
-									if(typeof styleMap[s] != 'undefined'){
-										dyncss += styleMap[s]  + ': ' + metaAccumulator[s] + '!important;';
-									}		
-								}
-							}
-							if(dyncss){
-								try {
-									sheet.insertRule(
-										selector + ' {' + dyncss+ '}',
-										sheet.cssRules.length
-									);
-									sheet.insertRule(
-										selector2 + ' {' + dyncss+ '}',
-										sheet.cssRules.length
-									);
-								} catch (e){
-									console.log(selector + ' {' + dyncss+ '}}')
-									console.log(e);
-								}
-							}
-							
-							if(typeof styleSupport['meta_md_styles'] == 'string'){
-								styleSupport['meta_md_styles']={};
-							}
-							styleSupport['meta_md_styles']=styleSupport['meta_md_styles'] || {}; 
-							var selector='@media (min-width: 768px) an (max-width: 991px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
-							var selector2='@media (min-width: 1068px) an (max-width: 1291px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
-							var dyncss='';
-							metaAccumulator=Mura.extend(metaAccumulator,styleSupport['meta_md_styles']);
-							for(var s in metaAccumulator){
-								if(metaAccumulator.hasOwnProperty(s)){
-									if(typeof styleMap[s] != 'undefined'){
-										dyncss += styleMap[s]  + ': ' + metaAccumulator[s] + '!important;';
-									}		
-								}
-							}
-							if(dyncss){
-								try {
-									sheet.insertRule(
-										selector + ' {' + dyncss+ '}',
-										sheet.cssRules.length
-									);
-									sheet.insertRule(
-										selector2 + ' {' + dyncss+ '}',
-										sheet.cssRules.length
-									);
-								} catch (e){
-									console.log(selector + ' {' + dyncss+ '}}')
-									console.log(e);
-								}
-							}
+						} catch (e){
+							console.log("error adding color: " + metastyles.color);
+							console.log(e);
+						}
 
-							if(typeof styleSupport['meta_sm_styles'] == 'string'){
-								styleSupport['meta_sm_styles']={};
+						if(typeof styleSupport['meta_lg_styles'] == 'string'){
+							styleSupport['meta_lg_styles']={};
+						}
+						styleSupport['meta_lg_styles']=styleSupport['meta_lg_styles'] || {}; 
+						var selector='@media (min-width: 992px) and (max-width: 1199px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
+						var selector2='@media (min-width: 1292px) and (max-width: 1399px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
+						var dyncss='';
+						metaAccumulator=Mura.extend(metaAccumulator,styleSupport['meta_lg_styles']);
+						for(var s in metaAccumulator){
+							if(metaAccumulator.hasOwnProperty(s)){
+								if(typeof styleMap[s] != 'undefined'){
+									dyncss += styleMap[s]  + ': ' + metaAccumulator[s] + '!important;';
+								}		
 							}
-							styleSupport['meta_sm_styles']=styleSupport['meta_sm_styles'] || {}; 
-							var selector='@media (min-width: 576px) an (max-width: 767) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
-							var selector2='@media (min-width: 876px) an (max-width: 1067) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
-							var dyncss='';
-							metaAccumulator=Mura.extend(metaAccumulator,styleSupport['meta_sm_styles']);
-							for(var s in metaAccumulator){
-								if(metaAccumulator.hasOwnProperty(s)){
-									if(typeof styleMap[s] != 'undefined'){
-										dyncss += styleMap[s]  + ': ' + metaAccumulator[s] + '!important;';
-									}		
-								}
+						}
+						if(dyncss){
+							try {
+								sheet.insertRule(
+									selector + ' {' + dyncss+ '}',
+									sheet.cssRules.length
+								);
+								sheet.insertRule(
+									selector2 + ' {' + dyncss+ '}',
+									sheet.cssRules.length
+								);
+							} catch (e){
+								console.log(selector + ' {' + dyncss+ '}}')
+								console.log(e);
 							}
-							if(dyncss){
-								try {
-									sheet.insertRule(
-										selector + ' {' + dyncss+ '}',
-										sheet.cssRules.length
-									);
-									sheet.insertRule(
-										selector2 + ' {' + dyncss+ '}',
-										sheet.cssRules.length
-									);
-								} catch (e){
-									console.log(selector + ' {' + dyncss+ '}}')
-									console.log(e);
-								}
+						}
+						
+						if(typeof styleSupport['meta_md_styles'] == 'string'){
+							styleSupport['meta_md_styles']={};
+						}
+						styleSupport['meta_md_styles']=styleSupport['meta_md_styles'] || {}; 
+						var selector='@media (min-width: 768px) an (max-width: 991px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
+						var selector2='@media (min-width: 1068px) an (max-width: 1291px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
+						var dyncss='';
+						metaAccumulator=Mura.extend(metaAccumulator,styleSupport['meta_md_styles']);
+						for(var s in metaAccumulator){
+							if(metaAccumulator.hasOwnProperty(s)){
+								if(typeof styleMap[s] != 'undefined'){
+									dyncss += styleMap[s]  + ': ' + metaAccumulator[s] + '!important;';
+								}		
 							}
-
-							if(typeof styleSupport['meta_xs_styles'] == 'string'){
-								styleSupport['meta_xs_styles']={};
-							}
-							styleSupport['meta_xs_styles']=styleSupport['meta_xs_styles'] || {}; 
-							var selector='@media (max-width: 575) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
-							var selector2='@media (max-width: 875) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
-							var dyncss='';
-							metaAccumulator=Mura.extend(metaAccumulator,styleSupport['meta_xs_styles']);
-							for(var s in metaAccumulator){
-								if(metaAccumulator.hasOwnProperty(s)){
-									if(typeof styleMap[s] != 'undefined'){
-										dyncss += styleMap[s]  + ': ' + metaAccumulator[s] + '!important;';
-									}		
-								}
-							}
-							if(dyncss){
-								try {
-									sheet.insertRule(
-										selector + ' {' + dyncss+ '}',
-										sheet.cssRules.length
-									);
-									sheet.insertRule(
-										selector2 + ' {' + dyncss+ '}',
-										sheet.cssRules.length
-									);
-								} catch (e){
-									console.log(selector + ' {' + dyncss+ '}}')
-									console.log(e);
-								}
+						}
+						if(dyncss){
+							try {
+								sheet.insertRule(
+									selector + ' {' + dyncss+ '}',
+									sheet.cssRules.length
+								);
+								sheet.insertRule(
+									selector2 + ' {' + dyncss+ '}',
+									sheet.cssRules.length
+								);
+							} catch (e){
+								console.log(selector + ' {' + dyncss+ '}}')
+								console.log(e);
 							}
 						}
 
-						if(obj.data('metacssid')){
-			 				meta.attr('id',obj.data('metacssid'));
-			 			}
-			 			if(obj.data('metacssclass')){
-			 			 obj.data('metacssclass').split(' ').forEach(function(c){
-			 				 if (!meta.hasClass(c)) {
-			 					 meta.addClass(c);
-			 				 }
-			 			 })
-			 			}
-
-						if(metastyles){
-							meta.removeAttr('style');
-							//meta.css(metastyles);
+						if(typeof styleSupport['meta_sm_styles'] == 'string'){
+							styleSupport['meta_sm_styles']={};
+						}
+						styleSupport['meta_sm_styles']=styleSupport['meta_sm_styles'] || {}; 
+						var selector='@media (min-width: 576px) an (max-width: 767) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
+						var selector2='@media (min-width: 876px) an (max-width: 1067) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
+						var dyncss='';
+						metaAccumulator=Mura.extend(metaAccumulator,styleSupport['meta_sm_styles']);
+						for(var s in metaAccumulator){
+							if(metaAccumulator.hasOwnProperty(s)){
+								if(typeof styleMap[s] != 'undefined'){
+									dyncss += styleMap[s]  + ': ' + metaAccumulator[s] + '!important;';
+								}		
+							}
+						}
+						if(dyncss){
+							try {
+								sheet.insertRule(
+									selector + ' {' + dyncss+ '}',
+									sheet.cssRules.length
+								);
+								sheet.insertRule(
+									selector2 + ' {' + dyncss+ '}',
+									sheet.cssRules.length
+								);
+							} catch (e){
+								console.log(selector + ' {' + dyncss+ '}}')
+								console.log(e);
+							}
 						}
 
-						if(obj.is('.mura-object-label-left, .mura-object-label-right')){
-							var left=meta.css('marginLeft');
-							var right=meta.css('marginRight')
-							if(!(left=='0px' && right=='0px') && left.charAt(0) != "-" && right.charAt(0) != "-"){
-								meta.css('width','calc(50% - (' + left + ' + ' + right + '))');
+						if(typeof styleSupport['meta_xs_styles'] == 'string'){
+							styleSupport['meta_xs_styles']={};
+						}
+						styleSupport['meta_xs_styles']=styleSupport['meta_xs_styles'] || {}; 
+						var selector='@media (max-width: 575) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
+						var selector2='@media (max-width: 875) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
+						var dyncss='';
+						metaAccumulator=Mura.extend(metaAccumulator,styleSupport['meta_xs_styles']);
+						for(var s in metaAccumulator){
+							if(metaAccumulator.hasOwnProperty(s)){
+								if(typeof styleMap[s] != 'undefined'){
+									dyncss += styleMap[s]  + ': ' + metaAccumulator[s] + '!important;';
+								}		
+							}
+						}
+						if(dyncss){
+							try {
+								sheet.insertRule(
+									selector + ' {' + dyncss+ '}',
+									sheet.cssRules.length
+								);
+								sheet.insertRule(
+									selector2 + ' {' + dyncss+ '}',
+									sheet.cssRules.length
+								);
+							} catch (e){
+								console.log(selector + ' {' + dyncss+ '}}')
+								console.log(e);
 							}
 						}
 					}
+
+					if(obj.data('metacssid')){
+						meta.attr('id',obj.data('metacssid'));
+					}
+					if(obj.data('metacssclass')){
+						obj.data('metacssclass').split(' ').forEach(function(c){
+							if (!meta.hasClass(c)) {
+								meta.addClass(c);
+							}
+						})
+					}
+
+
+					if(obj.is('.mura-object-label-left, .mura-object-label-right')){
+						var left=meta.css('marginLeft');
+						var right=meta.css('marginRight')
+						if(!(left=='0px' && right=='0px') && left.charAt(0) != "-" && right.charAt(0) != "-"){
+							meta.css('width','calc(50% - (' + left + ' + ' + right + '))');
+						}
+					}
+				
 				}
 			}
 
