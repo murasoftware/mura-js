@@ -19186,7 +19186,6 @@ Mura.DOMSelection = Mura.Core.extend(
 
 				contentstyles=contentstyles || {};
 				var selector='div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
-				var content=Mura(selector);
 				var dyncss='';
 				contentAccumulator=Mura.extend(contentAccumulator,contentstyles);
 				for(var s in contentAccumulator){
