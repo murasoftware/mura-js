@@ -18614,6 +18614,7 @@ Mura.DOMSelection = Mura.Core.extend(
 			'flex':'flex',
 			'flexGrow':'flex-grow',
 			'flexShrink':'flex-shrink',
+			'float':'float',
 			'fontFamily':'font-family',
 			'fontSize':'font-size',
 			'fontVariant':'font-variant',
@@ -18977,12 +18978,13 @@ Mura.DOMSelection = Mura.Core.extend(
 								if(typeof styleMap[s] != 'undefined'){
 									dyncss += styleMap[s]  + ': ' + metaAccumulator[s] + '!important;';
 								} else {
-									obj.css(s,metaAccumulator[s]);
+									meta.css(s,metaAccumulator[s]);
 								}		
 							}
 						}
 						if(dyncss){
 							try {
+								console.log(selector + ' {' + dyncss+ '}')
 								sheet.insertRule(
 									selector + ' {' + dyncss+ '}',
 									sheet.cssRules.length
@@ -19185,6 +19187,7 @@ Mura.DOMSelection = Mura.Core.extend(
 
 				contentstyles=contentstyles || {};
 				var selector='div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
+				var content=Mura(selector);
 				var dyncss='';
 				contentAccumulator=Mura.extend(contentAccumulator,contentstyles);
 				for(var s in contentAccumulator){
@@ -19192,7 +19195,7 @@ Mura.DOMSelection = Mura.Core.extend(
 						if(typeof styleMap[s] != 'undefined'){
 							dyncss += styleMap[s]  + ': ' + contentAccumulator[s] + '!important;';
 						} else {
-							obj.css(s,contentAccumulator[s]);
+							content.css(s,contentAccumulator[s]);
 						}		
 					}
 				}
