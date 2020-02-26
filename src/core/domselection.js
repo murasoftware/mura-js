@@ -1926,33 +1926,36 @@ Mura.DOMSelection = Mura.Core.extend(
 				}
 			}
 
- 			if(obj.data('contentcssclass') || obj.data('contentcssid') ||  contentstyles){
-
-	 			if(obj.data('contentcssid')){
-	 				content.attr('id',obj.data('contentcssid'));
-	 			}
-	 			if(obj.data('contentcssclass')){
-	 				obj.data('contentcssclass').split(' ').forEach(function(c){
-	 					if (!content.hasClass(c)) {
-	 					 		content.addClass(c);
-	 					}
-	 				 })
-	 			}
-
-				if(contentstyles){
-					content.removeAttr('style');
-					//content.css(contentstyles);
-				}
-
-				if(obj.is('.mura-object-label-left, .mura-object-label-right')){
-					var left=content.css('marginLeft');
-					var right=content.css('marginRight')
-					if(!(left=='0px' && right=='0px') && left.charAt(0) != "-" && right.charAt(0) != "-"){
-						if(fullsize){
-							content.css('width','calc(50% - (' + left + ' + ' + right + '))');
-						}
-						Mura.windowResponsiveModules[obj.data('instanceid')]=true;
+			if(obj.data('contentcssid')){
+				content.attr('id',obj.data('contentcssid'));
+			}
+			if(obj.data('contentcssclass')){
+				obj.data('contentcssclass').split(' ').forEach(function(c){
+					if (!content.hasClass(c)) {
+						content.addClass(c);
 					}
+				})
+			}
+				
+			if(content.hasClass('container')){
+				metaWrapper.addClass('container');
+			} else {
+				metaWrapper.removeClass('container');
+			}
+
+			if(contentstyles){
+				content.removeAttr('style');
+				//content.css(contentstyles);
+			}
+
+			if(obj.is('.mura-object-label-left, .mura-object-label-right')){
+				var left=content.css('marginLeft');
+				var right=content.css('marginRight')
+				if(!(left=='0px' && right=='0px') && left.charAt(0) != "-" && right.charAt(0) != "-"){
+					if(fullsize){
+						content.css('width','calc(50% - (' + left + ' + ' + right + '))');
+					}
+					Mura.windowResponsiveModules[obj.data('instanceid')]=true;
 				}
 			}
 
