@@ -1221,6 +1221,7 @@ Mura.DOMSelection = Mura.Core.extend(
 			'transitionTimingFunction':'transition-timing-function',
 			'verticalAlign':'vertical-align',
 			'webkitTransition':'-webkit-transition',
+			'width':'width',
 			'whiteSpace':'white-space',
 			'wordSpacing':'word-spacing',
 			'zIndex':'z-index'
@@ -1335,6 +1336,7 @@ Mura.DOMSelection = Mura.Core.extend(
 				}
 				if(dyncss){
 					try {
+						//console.log(selector + ' {' + dyncss+ '}')
 						sheet.insertRule(
 							selector + ' {' + dyncss+ '}',
 							sheet.cssRules.length
@@ -1475,6 +1477,7 @@ Mura.DOMSelection = Mura.Core.extend(
 				}
 				if(dyncss){
 					try {
+						console.log(selector + ' {' + dyncss+ '}}')
 						sheet.insertRule(
 							selector + ' {' + dyncss+ '}',
 							sheet.cssRules.length
@@ -1555,6 +1558,7 @@ Mura.DOMSelection = Mura.Core.extend(
 						}
 						if(dyncss){
 							try {
+								//console.log(selector + ' {' + dyncss+ '}')
 								sheet.insertRule(
 									selector + ' {' + dyncss+ '}',
 									sheet.cssRules.length
@@ -1770,6 +1774,7 @@ Mura.DOMSelection = Mura.Core.extend(
 				}
 				if(dyncss){
 					try {
+						//console.log(selector + ' {' + dyncss+ '}')
 						sheet.insertRule(
 							selector + ' {' + dyncss+ '}',
 							sheet.cssRules.length
