@@ -1477,7 +1477,7 @@ Mura.DOMSelection = Mura.Core.extend(
 				}
 				if(dyncss){
 					try {
-						console.log(selector + ' {' + dyncss+ '}}')
+						//console.log(selector + ' {' + dyncss+ '}}')
 						sheet.insertRule(
 							selector + ' {' + dyncss+ '}',
 							sheet.cssRules.length
