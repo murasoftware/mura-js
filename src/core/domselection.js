@@ -2213,7 +2213,7 @@ Mura.DOMSelection = Mura.Core.extend(
 		}
 		var el = this.selection[0];
 		if(typeof el.scrollTop != 'undefined'){
-			el.scrollTop;
+			return el.scrollTop;
 		} else {
 			return	window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
 		}

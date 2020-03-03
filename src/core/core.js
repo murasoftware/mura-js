@@ -3231,7 +3231,19 @@ var Mura=(function(){
 							var data=setLowerCaseKeys(getQueryStringParams(hArray[hArray.length-1]));
 							var obj=source.closest('div.mura-object');
 							obj.data(data);
-							processAsyncObject(obj.node);
+							processAsyncObject(obj.node).then(function(){
+								try {
+									if(typeof window != 'undefined' && typeof document != 'undefined'){
+										var rect=obj.node.getBoundingClientRect();
+										var elemTop = rect.top;
+										if(elemTop < 0){
+											window.scrollTo(0, Mura(document).scrollTop() + elemTop);
+										}
+									}
+								} catch (e) {
+									console.log(e)
+								}							
+							});	
 						}
 					})
 
