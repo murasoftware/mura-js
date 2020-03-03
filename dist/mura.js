@@ -2676,18 +2676,6 @@ var Mura=(function(){
 			}
 		});
 
-		if (obj.data('nextnid')) {
-			obj.find('.mura-next-n a').each(function() {
-				Mura(this).on('click', function(e) {
-					e.preventDefault();
-					var a = this.getAttribute('href').split('?');
-					if (a.length == 2) {
-						location.hash = a[1];
-					}
-				});
-			})
-		}
-
 		obj.trigger('asyncObjectRendered');
 
 	}
@@ -2986,6 +2974,7 @@ var Mura=(function(){
 				});
 			}
 		}
+		
 	}
 
 	/**
@@ -3464,7 +3453,7 @@ var Mura=(function(){
 				}
 
 				if(typeof window !='undefined' && typeof window.document != 'undefined'){
-
+				
 					var hash = location.hash;
 
 					if (hash) {
@@ -3472,26 +3461,40 @@ var Mura=(function(){
 					}
 
 					urlparams = setLowerCaseKeys(getQueryStringParams(location.search));
-
+					
 					if (hashparams.nextnid) {
 						Mura('.mura-async-object[data-nextnid="' +
 							hashparams.nextnid + '"]').each(
 							function() {
-									Mura(this).data(hashparams);
+								Mura(this).data(hashparams);
 							});
 					} else if (hashparams.objectid) {
 						Mura('.mura-async-object[data-nextnid="' +hashparams.objectid + '"]').each(
 						function() {
-								Mura(this).data(hashparams);
+							Mura(this).data(hashparams);
 						});
 					}
 
 					Mura(window).on('hashchange', handleHashChange);
+					
+					Mura(document).on('click','div.mura-object .mura-next-n a,div.mura-object .mura-search-results a',function(e){
+						e.preventDefault();
+						var href=Mura(e.target).attr('href');
+						if(href!='#'){
+							var hArray=href.split('?');
+							var source=Mura(e.target);
+							var data=setLowerCaseKeys(getQueryStringParams(hArray[hArray.length-1]));
+							var obj=source.closest('div.mura-object');
+							obj.data(data);
+							processAsyncObject(obj.node);
+						}
+					})
 
 					if(!Mura.inAdmin){
 						processMarkup(document);
 					}
 
+					
 					Mura.markupInitted=true;
 
 					if(Mura.cookieConsentEnabled){Mura(function(){Mura('body').appendDisplayObject({object:'cookie_consent',queue:false,statsid:'cookie_consent'});});}
