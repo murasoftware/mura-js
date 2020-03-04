@@ -3391,7 +3391,8 @@ var Mura=(function(){
 			getStyleSheet:getStyleSheet,
 			getBreakpoint:getBreakpoint,
 			inAdmin:false,
-			lmv:2
+			lmv:2,
+			homeid: '00000000000000000000000000000000001'
 		}
 	);
 
