@@ -3017,7 +3017,7 @@ var Mura=(function(){
 		}
 	  }
 	  
-
+	//Mura.init
 	function init(config) {
 
 		if(typeof config.content != 'undefined'){
@@ -3025,6 +3025,7 @@ var Mura=(function(){
 				config.content=getEntity('content').set(config.content);
 			}
 			Mura.extend(config,config.content.get('config'));
+			
 		}
 
 		if (config.rootpath) {
@@ -3222,7 +3223,7 @@ var Mura=(function(){
 
 					Mura(window).on('hashchange', handleHashChange);
 					
-					Mura(document).on('click','div.mura-object .mura-next-n a,div.mura-object .mura-search-results a',function(e){
+					Mura(document).on('click','div.mura-object .mura-next-n a,div.mura-object .mura-search-results div.moreResults a,div.mura-object div.mura-pagination a',function(e){
 						e.preventDefault();
 						var href=Mura(e.target).attr('href');
 						if(href!='#'){
