@@ -2280,7 +2280,10 @@ var Mura=(function(){
 			self.removeAttr('draggable');
 			self.removeAttr('style');
 			self.removeAttr('data-inited');
-
+			self.removeAttr('data-startrow');
+			self.removeAttr('data-pagenum');
+			self.removeAttr('data-nextnid');
+			self.removeAttr('data-origininstanceid');
 
 			var data=self.data();
 
@@ -2297,10 +2300,14 @@ var Mura=(function(){
 					var self = Mura(this);
 					self.removeClass('mura-active');
 					self.removeAttr('data-perm');
-					self.removeAttr('data-inited');
 					self.removeAttr('data-runtime');
 					self.removeAttr('draggable');
 					self.removeAttr('style');
+					self.removeAttr('data-inited');
+					self.removeAttr('data-startrow');
+					self.removeAttr('data-pagenum');
+					self.removeAttr('data-nextnid');
+					self.removeAttr('data-origininstanceid');
 				});
 
 				self.find('.mura-object[data-object="container"]').each(
