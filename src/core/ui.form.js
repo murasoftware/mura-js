@@ -833,7 +833,7 @@ Mura.UI.Form=Mura.UI.extend(
 				var data=Mura.extend({},self.context,self.data);
 				data.saveform=true;
 				data.formid=data.objectid;
-				data.siteid=data.siteid || Mura.siteid;
+				data.siteid=self.context.siteid || data.siteid || Mura.siteid;
 				data.contentid=Mura.contentid || '';
 				data.contenthistid=Mura.contenthistid || '';
 
@@ -861,7 +861,7 @@ Mura.UI.Form=Mura.UI.extend(
 				var rawdata=Mura.extend({},self.context,self.data);
 				rawdata.saveform=true;
 				rawdata.formid=rawdata.objectid;
-				rawdata.siteid=rawdata.siteid || Mura.siteid;
+				rawdata.siteid=self.context.siteid || rawdata.siteid || Mura.siteid;
 				rawdata.contentid=Mura.contentid || '';
 				rawdata.contenthistid=Mura.contenthistid || '';
 
