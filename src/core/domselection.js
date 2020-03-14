@@ -862,12 +862,10 @@ Mura.DOMSelection = Mura.Core.extend(
 	/**
 	 * processDisplayObject - Handles processing of display object params to selection
 	 *
-	 * @param	{object} data Display object params
 	 * @return {Promise}
 	 */
-	processDisplayObject: function(data) {
+	processDisplayObject: function() {
 		var self = this;
-		delete data.method;
 		return new Promise(function(resolve, reject) {
 			self.each(function() {
 				Mura.processDisplayObject(
@@ -881,11 +879,10 @@ Mura.DOMSelection = Mura.Core.extend(
 	/**
 	 * processModule - Prepends display object to selected items
 	 *
-	 * @param	{object} data Display objectparams (including object='objectkey')
 	 * @return {Promise}
 	 */
-	processModule: function(data) {
-		return this.processDisplayObject(data);
+	processModule: function() {
+		return this.processDisplayObject();
 	},
 
 	/**
