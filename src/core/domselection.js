@@ -1236,7 +1236,30 @@ Mura.DOMSelection = Mura.Core.extend(
 				if(hasLayeredBg){
 					styles.backgroundImage='linear-gradient(' + styles.backgroundColor + ', ' + styles.backgroundColor +' ), ' + styles.backgroundImage;
 				}
-			 }
+			}
+
+			function handleTextColor(sheet,selector,styles){
+				try{
+					if(styles.color){
+						var style=selector + ', ' + selector + ' label, ' + selector + ' p, ' + selector + ' h1, ' + selector + ' h2, ' + selector + ' h3, ' + selector + ' h4, ' + selector + ' h5, ' + selector + ' h6, ' +selector + ' a:link, ' + selector + ' a:visited, '  + selector + ' a:hover, ' + selector + ' .breadcrumb-item + .breadcrumb-item::before, ' + selector + ' a:active { color:' + styles.color + ';} ';
+						sheet.insertRule(
+							style,
+							sheet.cssRules.length
+						);
+						sheet.insertRule(
+							selector + ' * {color:inherit}',
+							sheet.cssRules.length
+						);
+						sheet.insertRule(
+							selector + ' hr { border-color:' + styles.color + ';}',
+							sheet.cssRules.length
+						);
+					}
+				} catch (e){
+					console.log("error adding color: " + styles.color);
+					console.log(e);
+				}
+			}
 			 
 			var obj=Mura(el);
 			var breakpoints=['mura-xs','mura-sm','mura-md','mura-lg'];
@@ -1313,7 +1336,6 @@ Mura.DOMSelection = Mura.Core.extend(
 				Mura.windowResponsiveModules[obj.data('instanceid')]=true;
 			}
 
-			var hasLayeredBg=false;
 			if(!windowResponse){
 				var sheet=Mura.getStyleSheet('mura-styles-' + obj.data('instanceid'));
 
@@ -1354,26 +1376,8 @@ Mura.DOMSelection = Mura.Core.extend(
 						console.log(e);
 					}
 				}
-				try{
-					if(objectstyles.color){
-						var style=selector + ', ' + selector + ' label, ' + selector + ' p, ' + selector + ' h1, ' + selector + ' h2, ' + selector + ' h3, ' + selector + ' h4, ' + selector + ' h5, ' + selector + ' h6, ' +selector + ' a:link, ' + selector + ' a:visited, '  + selector + ' a:hover, ' + selector + ' .breadcrumb-item + .breadcrumb-item::before, ' + selector + ' a:active { color:' + objectstyles.color + ';} ';
-						sheet.insertRule(
-							style,
-							sheet.cssRules.length
-						);
-						sheet.insertRule(
-							selector + ' * {color:inherit}',
-							sheet.cssRules.length
-						);
-						sheet.insertRule(
-							selector + ' hr { border-color:' + objectstyles.color + ';}',
-							sheet.cssRules.length
-						);
-					}
-				} catch (e){
-					console.log("error adding color: " + objectstyles.color);
-					console.log(e);
-				}
+
+				handleTextColor(sheet,selector,objectstyles);
 				
 				if(typeof styleSupport['object_lg_styles'] == 'string'){
 					styleSupport['object_lg_styles']={};
@@ -1409,6 +1413,9 @@ Mura.DOMSelection = Mura.Core.extend(
 					}
 				}
 
+				handleTextColor(sheet,selector,objectAccumulator);
+				handleTextColor(sheet,selector2,objectAccumulator);
+
 				if(typeof styleSupport['object_md_styles'] == 'string'){
 					styleSupport['object_md_styles']={};
 				}
@@ -1442,6 +1449,9 @@ Mura.DOMSelection = Mura.Core.extend(
 						console.log(e);
 					}
 				}
+
+				handleTextColor(sheet,selector,objectAccumulator);
+				handleTextColor(sheet,selector2,objectAccumulator);
 
 				if(typeof styleSupport['object_sm_styles'] == 'string'){
 					styleSupport['object_sm_styles']={};
@@ -1477,6 +1487,9 @@ Mura.DOMSelection = Mura.Core.extend(
 					}
 				}
 
+				handleTextColor(sheet,selector,objectAccumulator);
+				handleTextColor(sheet,selector2,objectAccumulator);
+
 				if(typeof styleSupport['object_xs_styles'] == 'string'){
 					styleSupport['object_xs_styles']={};
 				}
@@ -1511,6 +1524,9 @@ Mura.DOMSelection = Mura.Core.extend(
 						console.log(e);
 					}
 				}
+
+				handleTextColor(sheet,selector,objectAccumulator);
+				handleTextColor(sheet,selector2,objectAccumulator);
 
 				if(styleSupport.css){
 					var styles=styleSupport.css.split('}');
