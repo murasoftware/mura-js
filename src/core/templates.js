@@ -11,7 +11,12 @@ Mura.templates['meta']=function(context){
 		context.labeltag='h2';
 	}
 	if(context.label){
-		return '<div class="mura-object-meta-wrapper"><div class="mura-object-meta"><' + Mura.escapeHTML(context.labeltag) + '>' + Mura.escapeHTML(context.label) + '</' + Mura.escapeHTML(context.labeltag) + '></div></div>';
+		var returnString= '<div class="mura-object-meta-wrapper"><div class="mura-object-meta"><' + Mura.escapeHTML(context.labeltag) + '>' + Mura.escapeHTML(context.label) + '</' + Mura.escapeHTML(context.labeltag) + '></div></div>';
+		console.log(context.object)
+		if(context.object == 'container'){
+			returnString+='<div class="mura-flex-break"></div>'
+		}
+		return returnString;
 	} else {
 		return '';
 	}
