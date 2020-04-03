@@ -3177,7 +3177,7 @@ var Mura=(function(){
 
 		Mura.dateformat=generateDateFormat();
 
-		if(Mura.mode.toLowerString=='rest'){
+		if(Mura.mode.toLowerCase()=='rest'){
 				Mura.apiEndpoint=Mura.apiEndpoint.replace('/json/', '/rest/');
 		}
 
