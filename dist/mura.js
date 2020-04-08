@@ -329,14 +329,15 @@ var Mura=(function(){
 			}
 		};
 		var gaFound = false;
+		var gtagFound = false;
 		var trackingComplete = false;
 		var attempt=0;
 
-		data.category = eventData.eventCategory || eventData.category || '';
-		data.action = eventData.eventAction || eventData.action || '';
-		data.label = eventData.eventLabel || eventData.label || '';
-		data.type =	eventData.hitType || eventData.type || 'event';
-		data.value =	eventData.eventValue || eventData.value || undefined;
+		data.category = eventData.event_category || eventData.eventCategory || eventData.category || '';
+		data.action = eventData.event_action || eventData.eventAction || eventData.action || '';
+		data.label = eventData.event_label || eventData.eventLabel || eventData.label || '';
+		data.type =	eventData.hit_ype || eventData.hitType || eventData.type || 'event';
+		data.value = eventData.event_value || eventData.eventValue || eventData.value || undefined;
 
 		if (typeof eventData.nonInteraction == 'undefined') {
 			data.nonInteraction = false;
@@ -374,7 +375,28 @@ var Mura=(function(){
 				Mura(document).trigger('muraRecordEvent',trackingVars);
 			}
 
-			if (typeof ga != 'undefined') {
+			if (typeof gtag != 'undefined') {
+				trackingVars.ga.trackingvars.event_category = trackingVars.ga.trackingvars.eventCategory;
+				trackingVars.ga.trackingvars.event_action = trackingVars.ga.trackingvars.eventAction;
+				trackingVars.ga.trackingvars.non_interaction = trackingVars.ga.trackingvars.nonInteraction;
+				trackingVars.ga.trackingvars.hit_type = trackingVars.ga.trackingvars.hitType;
+				trackingVars.ga.trackingvars.event_value = trackingVars.ga.trackingvars.eventValue;
+
+				delete trackingVars.ga.trackingvars.eventCategory;
+				delete trackingVars.ga.trackingvars.eventAction;
+				delete trackingVars.ga.trackingvars.nonInteraction;
+				delete trackingVars.ga.trackingvars.hitType;
+				delete trackingVars.ga.trackingvars.eventValue;
+
+				if(isMXP){
+					trackingVars.ga.trackingvars.send_to=Mura.trackingVars.ga.trackingid;
+				}
+
+				gtag('event', data.type, trackingVars.ga.trackingvars);
+
+				gaFound = true;
+				trackingComplete = true;
+			} else if (typeof ga != 'undefined') {
 				if(isMXP){
 					ga('mxpGATracker.send', data.type, trackingVars.ga.trackingvars);
 				} else {
