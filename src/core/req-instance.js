@@ -394,15 +394,19 @@ Mura.Request=Mura.Core.extend(
 					}
 				}
 			}
+		
 			if (params.type.toLowerCase() == 'post') {
+				
 				req.open(params.type.toUpperCase(), params.url, params.async);
 				for (var p in params.xhrFields) {
-						if (p in req) {
-							req[p] = params.xhrFields[p];
-						}
+					if (p in req) {
+						req[p] = params.xhrFields[p];
+					}
 				}
 				for (var h in params.headers) {
-						req.setRequestHeader(p, params.headers[h]);
+					if(params.headers.hasOwnProperty(h)){
+						req.setRequestHeader(h, params.headers[h]);
+					}
 				}
 				if (Mura.formdata && params.data instanceof FormData) {
 					try{
@@ -450,6 +454,7 @@ Mura.Request=Mura.Core.extend(
 					}, 0);
 				}
 			} else {
+				
 				if (params.url.indexOf('?') == -1) {
 					params.url += '?';
 				}
@@ -461,7 +466,7 @@ Mura.Request=Mura.Core.extend(
 					query.push('muraPointInTime=' + Mura.escape(Mura.pointInTime));
 				}
 				query = query.join('&');
-
+				
 				req.open(params.type.toUpperCase(), params.url + '&' + query, params.async);
 				for (var p in params.xhrFields) {
 					if (p in req) {
@@ -469,8 +474,11 @@ Mura.Request=Mura.Core.extend(
 					}
 				}
 				for (var h in params.headers) {
-					req.setRequestHeader(p, params.headers[h]);
+					if(params.headers.hasOwnProperty(h)){
+						req.setRequestHeader(h, params.headers[h]);
+					}
 				}
+				
 				setTimeout(function() {
 					try{
 						req.send();
