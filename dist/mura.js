@@ -18664,6 +18664,8 @@ Mura.DOMSelection = Mura.Core.extend(
 			'backgroundImage':'background-image',
 			'backgroundOrigin':'background-origin',
 			'backgroundPosition':'background-position',
+			'backgroundPositionX':'background-position-x',
+			'backgroundPositionY':'background-position-y',
 			'backgroundRepeat':'background-repeat',
 			'backgroundSize':'background-size',
 			'borderRadius':'border-radius',
