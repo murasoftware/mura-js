@@ -425,7 +425,7 @@ var Mura=(function(){
 				trackingVars.eventData=data;
 				track();
 			} else {
-				Mura.get(Mura.apiEndpoint, {
+				Mura.get(Mura.getAPIEndpoint(), {
 					method: 'findTrackingProps',
 					siteid: Mura.siteid,
 					contentid: data.contentid,
@@ -816,7 +816,7 @@ var Mura=(function(){
 	 */
 	function generateOAuthToken(grant_type, client_id, client_secret) {
 			return new Promise(function(resolve, reject) {
-				get(Mura.apiEndpoint.replace('/json/', '/rest/') + 'oauth?grant_type=' +
+				get(Mura.getAPIEndpoint().replace('/json/', '/rest/') + 'oauth?grant_type=' +
 					encodeURIComponent(grant_type) + '&client_id=' + encodeURIComponent(client_id) + '&client_secret=' +
 					encodeURIComponent(client_secret) + '&_cacheid=' + Math.random()).then(
 					function(resp) {
@@ -1521,10 +1521,10 @@ var Mura=(function(){
 			var formatArray=['mm','dd','yyyy'];
 
 			return [
-				formatArray[Mura.dtFormat[0]],
-				formatArray[Mura.dtFormat[1]],
-				formatArray[Mura.dtFormat[2]]
-			].join(Mura.dtCh);
+				formatArray[Mura.dtformat[0]],
+				formatArray[Mura.dtformat[1]],
+				formatArray[Mura.dtformat[2]]
+			].join(Mura.dtch);
 
 		}
 
@@ -1538,15 +1538,15 @@ var Mura=(function(){
 	 */
 	function isDate(dtStr, fldName) {
 		var daysInMonth = DaysArray(12);
-		var dtArray = dtStr.split(Mura.dtCh);
+		var dtArray = dtStr.split(Mura.dtch);
 
 		if (dtArray.length != 3) {
 			//alert("The date format for the "+fldName+" field should be : short")
 			return false
 		}
-		var strMonth = dtArray[Mura.dtFormat[0]];
-		var strDay = dtArray[Mura.dtFormat[1]];
-		var strYear = dtArray[Mura.dtFormat[2]];
+		var strMonth = dtArray[Mura.dtformat[0]];
+		var strDay = dtArray[Mura.dtformat[1]];
+		var strYear = dtArray[Mura.dtformat[2]];
 
 		/*
 		if(strYear.length == 2){
@@ -1577,7 +1577,7 @@ var Mura=(function(){
 			//alert("Please enter a valid 4 digit year between "+Mura.minYear+" and "+Mura.maxYear +" in the "+fldName+" field")
 			return false
 		}
-		if (isInteger(stripCharsInBag(dtStr, Mura.dtCh)) == false) {
+		if (isInteger(stripCharsInBag(dtStr, Mura.dtch)) == false) {
 			//alert("Please enter a valid date in the "+fldName+" field")
 			return false
 		}
@@ -1874,7 +1874,7 @@ var Mura=(function(){
 			//console.log(validations);
 			ajax({
 				type: 'post',
-				url: Mura.apiEndpoint + '?method=validate',
+				url: Mura.getAPIEndpoint() + '?method=validate',
 				data: {
 					data: encodeURIComponent(JSON.stringify(data)),
 					validations: encodeURIComponent(JSON.stringify(validations)),
@@ -1994,7 +1994,7 @@ var Mura=(function(){
 					find('.mura-object, .mura-async-object')
 						.each(function() {
 							processDisplayObject(this,
-								Mura.queueObjects).then(
+								Mura.queueobjects).then(
 								resolve);
 						});
 				},
@@ -2219,7 +2219,7 @@ var Mura=(function(){
 			*/
 
 			var postconfig = {
-				url: Mura.apiEndpoint + '?method=processAsyncObject',
+				url: Mura.getAPIEndpoint() + '?method=processAsyncObject',
 				type: 'POST',
 				data: data,
 				success: function(resp) {
@@ -2264,7 +2264,7 @@ var Mura=(function(){
 			}
 
 			var postconfig = {
-				url: Mura.apiEndpoint + '?method=processAsyncObject',
+				url: Mura.getAPIEndpoint() + '?method=processAsyncObject',
 				type: 'POST',
 				data: data,
 				success: function(resp) {
@@ -2281,7 +2281,7 @@ var Mura=(function(){
 		if(typeof self.prevData != 'undefined' && typeof self.prevData.preloadermarkup != 'undefined'){
 			self.innerHTML = self.prevData.preloadermarkup;
 		} else {
-			self.innerHTML = Mura.preloaderMarkup;
+			self.innerHTML = Mura.preloadermarkup;
 		}
 
 		Mura(frm).trigger('formSubmit', data);
@@ -2817,7 +2817,7 @@ var Mura=(function(){
 			obj.html(Mura.templates.content(obj.data()));
 
 			obj.find('.mura-object').each(function() {
-				this.innerHTML=obj.data('preloadermarkup') || Mura.preloaderMarkup;
+				this.innerHTML=obj.data('preloadermarkup') || Mura.preloadermarkup;
 				this.setAttribute('data-instanceid', createUUID());
 			});
 		}
@@ -2935,7 +2935,7 @@ var Mura=(function(){
 							obj.node.innerHTML = data.preloadermarkup;
 							delete data.preloadermarkup;
 						} else {
-							obj.node.innerHTML = Mura.preloaderMarkup;
+							obj.node.innerHTML = Mura.preloadermarkup;
 						}
 					}
 
@@ -2954,7 +2954,7 @@ var Mura=(function(){
 					}
 				
 					ajax({
-						url: Mura.apiEndpoint + '?method=processAsyncObject',
+						url: Mura.getAPIEndpoint() + '?method=processAsyncObject',
 						type: requestType,
 						data: requestData,
 						success: function(resp) {
@@ -3311,6 +3311,17 @@ var Mura=(function(){
 		  timeout = setTimeout(later, interval || 200);
 		}
 	  }
+
+	function getAPIEndpoint(){
+		if(Mura.apiendpoint){
+			Mura.apiEndpoint=Mura.apiendpoint;
+			delete Mura.apiendpoint;
+			if(Mura.mode.toLowerCase()=='rest'){
+				Mura.apiEndpoint=Mura.apiEndpoint.replace('/json/', '/rest/');
+			}
+		} 
+		return Mura.apiEndpoint;
+	}
 	  
 	//Mura.init
 	function init(config) {
@@ -3351,6 +3362,11 @@ var Mura=(function(){
 			config.fileassetpath = config.assetpath;
 		}
 
+		if (config.apiendpoint) {
+			config.apiEndpoint = config.apiendpoint;
+			delete config.apiendpoint;
+		}
+
 		if (!config.apiEndpoint) {
 			config.apiEndpoint = config.context +	'/index.cfm/_api/json/v1/' + config.siteid + '/';
 		}
@@ -3378,45 +3394,85 @@ var Mura=(function(){
 		if (typeof config.mobileformat == 'undefined') {
 			config.mobileformat = false;
 		}
-
-		if (typeof config.queueObjects == 'undefined') {
-			config.queueObjects = true;
+		
+		if (typeof config.queueObjects != 'undefined') {
+			config.queueobjects=config.queueObjects;
+			delete config.queueobjects;
+		}
+		
+		if (typeof config.queueobjects == 'undefined') {
+			config.queueobjects = true;
 		}
 
 		if (typeof config.rootdocumentdomain != 'undefined' && config.rootdocumentdomain != '') {
 			document.domain = config.rootdocumentdomain;
 		}
 
-		if (typeof config.preloaderMarkup == 'undefined') {
-			config.preloaderMarkup = '';
+		if (typeof config.preloaderMarkup != 'undefined') {
+			config.preloadermarkup=config.preloaderMarkup;
+			delete config.preloaderMarkup;
+		}
+
+		if (typeof config.preloadermarkup == 'undefined') {
+			config.preloadermarkup = '';
 		}
 
 		if (typeof config.rb == 'undefined') {
 			config.rb={};
 		}
 
-		if (typeof config.dtExample == 'undefined') {
-			config.dtExample="11/10/2018";
+		if (typeof config.dtExample != 'undefined') {
+			config.dtexample=config.dtExample;
+			delete config.dtExample;
 		}
 
-		if (typeof config.dtCh == 'undefined') {
-			config.dtCh="/";
+		if (typeof config.dtexample == 'undefined') {
+			config.dtexample="11/10/2021";
 		}
 
-		if (typeof config.dtFormat == 'undefined') {
-			config.dtFormat=[0,1,2];
+		if (typeof config.dtCh != 'undefined') {
+			config.dtch=config.dtCh;
+			delete config.dtCh;
 		}
 
-		if (typeof config.dtLocale == 'undefined') {
-			config.dtLocale="en-US";
+		if (typeof config.dtch == 'undefined') {
+			config.dtch="/";
 		}
 
-		if (typeof config.useHTML5DateInput == 'undefined') {
-			config.useHTML5DateInput=false;
+		if (typeof config.dtFormat != 'undefined') {
+			config.dtformat=config.dtFormat;
+			delete config.dtFormat;
 		}
 
-		if (typeof config.cookieConsentEnabled == 'undefined') {
-			config.cookieConsentEnabled=false;
+		if (typeof config.dtformat == 'undefined') {
+			config.dtformat=[0,1,2];
+		}
+
+		if (typeof config.dtLocale != 'undefined') {
+			config.dtlocale=config.dtLocale;
+			delete config.dtLocale;
+		}
+
+		if (typeof config.dtlocale == 'undefined') {
+			config.dtlocale="en-US";
+		}
+
+		if (typeof config.useHTML5DateInput != 'undefined') {
+			config.usehtml5dateinput=config.useHTML5DateInput;
+			delete config.usehtml5dateinput;
+		}
+
+		if (typeof config.usehtml5dateinput == 'undefined') {
+			config.usehtml5dateinput=false;
+		}
+
+		if (typeof config.cookieConsentEnabled != 'undefined') {
+			config.cookieconsentenabled=config.cookieConsentEnabled;
+			delete config.cookieConsentEnabled;
+		}
+
+		if (typeof config.cookieconsentenabled == 'undefined') {
+			config.cookieconsentenabled=false;
 		}
 
 		config.formdata=(typeof FormData != 'undefined') ? true : false;
@@ -3427,6 +3483,9 @@ var Mura=(function(){
 		if(typeof config.processMarkup != 'undefined'){
 			initForDataOnly=typeof config.processMarkup != 'function' && !config.processMarkup;
 			delete config.processMarkup;
+		} else if(typeof config.processmarkup != 'undefined'){
+			initForDataOnly=typeof config.processmarkup != 'function' && !config.processmarkup;
+			delete config.processmarkup;
 		}
 
 		extend(Mura, config);
@@ -3455,7 +3514,7 @@ var Mura=(function(){
 		Mura.dateformat=generateDateFormat();
 
 		if(Mura.mode.toLowerCase()=='rest'){
-				Mura.apiEndpoint=Mura.apiEndpoint.replace('/json/', '/rest/');
+			Mura.apiEndpoint=Mura.apiEndpoint.replace('/json/', '/rest/');
 		}
 
 		if(typeof XMLHttpRequest == 'undefined'
@@ -3550,7 +3609,7 @@ var Mura=(function(){
 					
 					Mura.markupInitted=true;
 
-					if(Mura.cookieConsentEnabled){Mura(function(){Mura('body').appendDisplayObject({object:'cookie_consent',queue:false,statsid:'cookie_consent'});});}
+					if(Mura.cookieconsentenabled){Mura(function(){Mura('body').appendDisplayObject({object:'cookie_consent',queue:false,statsid:'cookie_consent'});});}
 
 					Mura(document).on("keydown", function(event) {
 						loginCheck(event.which);
@@ -3686,6 +3745,7 @@ var Mura=(function(){
 			normalizeRequestHandler:normalizeRequestHandler,
 			getStyleSheet:getStyleSheet,
 			getBreakpoint:getBreakpoint,
+			getAPIEndpoint:getAPIEndpoint,
 			inAdmin:false,
 			lmv:2,
 			homeid: '00000000000000000000000000000000001'
@@ -14587,7 +14647,7 @@ Mura.RequestContext=Mura.Core.extend(
 			self.request({
 				async: true,
 				type: 'get',
-				url: Mura.apiEndpoint + '/content/_path/' + filename + '?' + query.join('&'),
+				url: Mura.getAPIEndpoint() + '/content/_path/' + filename + '?' + query.join('&'),
 				success: function(resp) {
 					if (resp != null && typeof location != 'undefined' && typeof resp.data != 'undefined' && typeof resp.data.redirect != 'undefined' && typeof resp.data.contentid == 'undefined') {
 						if (resp.data.redirect && resp.data.redirect != location.href) {
@@ -14634,7 +14694,7 @@ Mura.RequestContext=Mura.Core.extend(
 		}
 
 		properties.links={
-			permissions:Mura.apiEndpoint + properties.entityname + "/permissions"
+			permissions:Mura.getAPIEndpoint() + properties.entityname + "/permissions"
 		}
 
 		if (Mura.entities[properties.entityname]) {
@@ -14659,7 +14719,7 @@ Mura.RequestContext=Mura.Core.extend(
 				self.request({
 					async: true,
 					type: 'POST',
-					url: Mura.apiEndpoint,
+					url: Mura.getAPIEndpoint(),
 					data:{
 						method: 'declareEntity',
 						entityConfig: encodeURIComponent(JSON.stringify(entityConfig))
@@ -14679,13 +14739,13 @@ Mura.RequestContext=Mura.Core.extend(
 			return new Promise(function(resolve, reject) {
 				self.request({
 					type: 'POST',
-					url: Mura.apiEndpoint + '?method=generateCSRFTokens',
+					url: Mura.getAPIEndpoint() + '?method=generateCSRFTokens',
 					data: {context: ''},
 					success: function(resp) {
 						self.request({
 							async: true,
 							type: 'POST',
-							url: Mura.apiEndpoint,
+							url: Mura.getAPIEndpoint(),
 							data:{
 								method: 'declareEntity',
 								entityConfig: encodeURIComponent(JSON.stringify(entityConfig)),
@@ -14722,7 +14782,7 @@ Mura.RequestContext=Mura.Core.extend(
 				self.request({
 					async: true,
 					type: 'POST',
-					url: Mura.apiEndpoint,
+					url: Mura.getAPIEndpoint(),
 					data:{
 						method: 'undeclareEntity',
 						entityName: entityName,
@@ -14743,13 +14803,13 @@ Mura.RequestContext=Mura.Core.extend(
 			return new Promise(function(resolve, reject) {
 				self.request({
 					type: 'POST',
-					url: Mura.apiEndpoint + '?method=generateCSRFTokens',
+					url: Mura.getAPIEndpoint() + '?method=generateCSRFTokens',
 					data: {context: ''},
 					success: function(resp) {
 						self.request({
 							async: true,
 							type: 'POST',
-							url: Mura.apiEndpoint,
+							url: Mura.getAPIEndpoint(),
 							data:{
 								method: 'undeclareEntity',
 								entityName: entityName,
@@ -14802,7 +14862,7 @@ Mura.RequestContext=Mura.Core.extend(
 					self.request({
 						async: true,
 						type: 'get',
-						url: Mura.apiEndpoint +
+						url: Mura.getAPIEndpoint() +
 							'findCurrentUser?fields=' + params.fields + '&_cacheid=' +
 							Math.random(),
 						success: function(resp) {
@@ -14840,7 +14900,7 @@ Mura.RequestContext=Mura.Core.extend(
 			return new Promise(function(resolve, reject) {
 				self.request({
 					type: 'get',
-					url: Mura.apiEndpoint,
+					url: Mura.getAPIEndpoint(),
 					data: params,
 					success: function(resp) {
 						var collection = new Mura.EntityCollection(resp.data,self)
@@ -14869,7 +14929,7 @@ Mura.RequestContext=Mura.Core.extend(
 		return new Promise(function(resolve, reject) {
 			self.request({
 				type: 'post',
-				url: Mura.apiEndpoint +
+				url: Mura.getAPIEndpoint() +
 						'?method=generateCSRFTokens',
 				data: {
 						siteid: siteid,
@@ -14879,7 +14939,7 @@ Mura.RequestContext=Mura.Core.extend(
 					self.request({
 						async: true,
 						type: 'post',
-						url: Mura.apiEndpoint,
+						url: Mura.getAPIEndpoint(),
 						data: {
 							siteid: siteid,
 							username: username,
@@ -14913,7 +14973,7 @@ Mura.RequestContext=Mura.Core.extend(
 					self.request({
 						async: true,
 						type: 'POST',
-						url: Mura.apiEndpoint + '/gatedasset/open',
+						url: Mura.getAPIEndpoint() + '/gatedasset/open',
 						data:{
 							contentid: contentid
 						},
@@ -14932,13 +14992,13 @@ Mura.RequestContext=Mura.Core.extend(
 				return new Promise(function(resolve, reject) {
 					self.request({
 						type: 'POST',
-						url: Mura.apiEndpoint + '?method=generateCSRFTokens',
+						url: Mura.getAPIEndpoint() + '?method=generateCSRFTokens',
 						data: {context: contentid},
 						success: function(resp) {
 							self.request({
 								async: true,
 								type: 'POST',
-								url: Mura.apiEndpoint + '/gatedasset/open',
+								url: Mura.getAPIEndpoint() + '/gatedasset/open',
 								data:{
 									contentid: contentid
 								},
@@ -14972,7 +15032,7 @@ Mura.RequestContext=Mura.Core.extend(
 			self.request({
 				async: true,
 				type: 'post',
-				url: Mura.apiEndpoint,
+				url: Mura.getAPIEndpoint(),
 				data: {
 					siteid: siteid,
 					method: 'logout'
@@ -15255,7 +15315,7 @@ Mura.Entity = Mura.Core.extend(
 	 * @return {string} All Headers
 	 */
 	getApiEndPoint:function(){
-		return	Mura.apiEndpoint + this.get('entityname') + '/';
+		return	Mura.getAPIEndpoint() + this.get('entityname') + '/';
 	},
 
 	/**
@@ -15377,7 +15437,7 @@ Mura.Entity = Mura.Core.extend(
 				}
 				self._requestcontext.request({
 					type: 'post',
-					url: Mura.apiEndpoint + '?method=generateCSRFTokens',
+					url: Mura.getAPIEndpoint() + '?method=generateCSRFTokens',
 					data: {
 						siteid: self.get('siteid'),
 						context: name
@@ -15570,7 +15630,7 @@ Mura.Entity = Mura.Core.extend(
 			},
 				params
 			);
-			Mura.get(Mura.apiEndpoint, params).then(
+			Mura.get(Mura.getAPIEndpoint(), params).then(
 				function(resp) {
 					self.set(resp.data);
 					if (typeof resolve == 'function') {
@@ -15591,7 +15651,7 @@ Mura.Entity = Mura.Core.extend(
 			if(Mura.mode.toLowerCase() == 'rest'){
 				self._requestcontext.request({
 					type: 'post',
-					url: Mura.apiEndpoint,
+					url: Mura.getAPIEndpoint(),
 					data:{
 						entityname: self.get('entityname'),
 						method: 'checkSchema',
@@ -15614,7 +15674,7 @@ Mura.Entity = Mura.Core.extend(
 			} else {
 				self._requestcontext.request({
 					type: 'post',
-					url: Mura.apiEndpoint + '?method=generateCSRFTokens',
+					url: Mura.getAPIEndpoint() + '?method=generateCSRFTokens',
 					data: {
 						siteid: self.get('siteid'),
 						context: ''
@@ -15622,7 +15682,7 @@ Mura.Entity = Mura.Core.extend(
 					success: function(resp) {
 						self._requestcontext.request({
 							type: 'post',
-							url: Mura.apiEndpoint,
+							url: Mura.getAPIEndpoint(),
 							data: Mura
 							.extend(
 							{
@@ -15672,7 +15732,7 @@ Mura.Entity = Mura.Core.extend(
 			if(Mura.mode.toLowerCase() == 'rest'){
 				self._requestcontext.request({
 					type: 'post',
-					url: Mura.apiEndpoint,
+					url: Mura.getAPIEndpoint(),
 					data: {
 						entityname: self.get('entityname'),
 						deleteSchema: deleteSchema,
@@ -15699,7 +15759,7 @@ Mura.Entity = Mura.Core.extend(
 			} else {
 				return self._requestcontext.request({
 					type: 'post',
-					url: Mura.apiEndpoint + '?method=generateCSRFTokens',
+					url: Mura.getAPIEndpoint() + '?method=generateCSRFTokens',
 					data: {
 						siteid: self.get('siteid'),
 						context: ''
@@ -15707,7 +15767,7 @@ Mura.Entity = Mura.Core.extend(
 					success: function(resp) {
 						self._requestcontext.request({
 							type: 'post',
-							url: Mura.apiEndpoint,
+							url: Mura.getAPIEndpoint(),
 							data: Mura
 							.extend(	{
 								entityname: self.get('entityname'),
@@ -15809,7 +15869,7 @@ Mura.Entity = Mura.Core.extend(
 		return new Promise(function(resolve, reject) {
 			self._requestcontext.request({
 				type: 'post',
-				url: Mura.apiEndpoint + '?method=validate',
+				url: Mura.getAPIEndpoint() + '?method=validate',
 				data: {
 					data: Mura.escape( data),
 					validations: '{}',
@@ -15878,7 +15938,7 @@ Mura.Entity = Mura.Core.extend(
 				var temp = Mura.deepExtend({},self.getAll());
 				self._requestcontext.request({
 					type: 'get',
-					url: Mura.apiEndpoint + self.get('entityname') + '/new',
+					url: Mura.getAPIEndpoint() + self.get('entityname') + '/new',
 					success: function(resp) {
 						self.set(resp.data);
 						self.set(temp);
@@ -15909,7 +15969,7 @@ Mura.Entity = Mura.Core.extend(
 				if(Mura.mode.toLowerCase() == 'rest'){
 					self._requestcontext.request({
 						type: 'post',
-						url: Mura.apiEndpoint + '?method=save',
+						url: Mura.getAPIEndpoint() + '?method=save',
 						data:	self.getAll(),
 						success: function(	resp) {
 							if (resp.data != 'undefined') {
@@ -15939,7 +15999,7 @@ Mura.Entity = Mura.Core.extend(
 				} else {
 					self._requestcontext.request({
 						type: 'post',
-						url: Mura.apiEndpoint + '?method=generateCSRFTokens',
+						url: Mura.getAPIEndpoint() + '?method=generateCSRFTokens',
 						data: {
 							siteid: self.get('siteid'),
 							context: context
@@ -15947,7 +16007,7 @@ Mura.Entity = Mura.Core.extend(
 						success: function(resp) {
 							self._requestcontext.request({
 								type: 'post',
-								url: Mura.apiEndpoint + '?method=save',
+								url: Mura.getAPIEndpoint() + '?method=save',
 								data: Mura
 								.extend( self.getAll(), {
 										'csrf_token': resp.data.csrf_token,
@@ -16014,7 +16074,7 @@ Mura.Entity = Mura.Core.extend(
 
 				self._requestcontext.request({
 					type: 'post',
-					url: Mura.apiEndpoint + '?method=delete',
+					url: Mura.getAPIEndpoint() + '?method=delete',
 					data: {
 						siteid: self.get('siteid'),
 						id: self.get('id'),
@@ -16044,7 +16104,7 @@ Mura.Entity = Mura.Core.extend(
 
 				self._requestcontext.request({
 					type: 'post',
-					url: Mura.apiEndpoint + '?method=generateCSRFTokens',
+					url: Mura.getAPIEndpoint() + '?method=generateCSRFTokens',
 					data: {
 						siteid: self.get('siteid'),
 						context: self.get('id')
@@ -16052,7 +16112,7 @@ Mura.Entity = Mura.Core.extend(
 					success: function(resp) {
 						self._requestcontext.request({
 							type: 'post',
-							url: Mura.apiEndpoint + '?method=delete',
+							url: Mura.getAPIEndpoint() + '?method=delete',
 							data: {
 								siteid: self.get('siteid'),
 								id: self.get('id'),
@@ -16194,7 +16254,7 @@ Mura.entities.Content = Mura.Entity.extend(
 			}
 			self._requestcontext.request({
 				type: 'get',
-				url: Mura.apiEndpoint +
+				url: Mura.getAPIEndpoint() +
 					'/content/' + self.get('contentid') + '/relatedcontent/' + relatedContentSetName + '?' +
 					query.join('&'),
 				params: params,
@@ -17121,10 +17181,10 @@ Mura.Feed = Mura.Core.extend(
 			}
 
 			return new Promise(function(resolve, reject) {
-				if (Mura.apiEndpoint.charAt(Mura.apiEndpoint.length - 1) == "/") {
-					var apiEndpoint = Mura.apiEndpoint;
+				if (Mura.getAPIEndpoint().charAt(Mura.getAPIEndpoint().length - 1) == "/") {
+					var apiEndpoint = Mura.getAPIEndpoint();
 				} else {
-					var apiEndpoint = Mura.apiEndpoint + '/';
+					var apiEndpoint = Mura.getAPIEndpoint() + '/';
 				}
 				self._requestcontext.request({
 					type: 'get',
@@ -20427,7 +20487,7 @@ Mura.UI.Form=Mura.UI.extend(
 			data.contenthistid=Mura.contenthistid;
 
 			Mura.get(
-				 Mura.apiEndpoint + '?method=processAsyncObject',
+				 Mura.getAPIEndpoint() + '?method=processAsyncObject',
 				 data)
 				 .then(function(resp){
 					var tempContext=Mura.extend({},nested_context);
@@ -20734,7 +20794,7 @@ Mura.UI.Form=Mura.UI.extend(
 
 				Mura.ajax({
 					type: 'post',
-					url: Mura.apiEndpoint +
+					url: Mura.getAPIEndpoint() +
 						'?method=generateCSRFTokens',
 					data: {
 						siteid: data.siteid,
@@ -20745,7 +20805,7 @@ Mura.UI.Form=Mura.UI.extend(
 						data['csrf_token']=resp.data['csrf_token'];
 
 						Mura.post(
-							Mura.apiEndpoint + '?method=processAsyncObject',
+							Mura.getAPIEndpoint() + '?method=processAsyncObject',
 							data
 						).then(function(resp){
 							if(typeof resp.data.errors == 'object' && !Mura.isEmptyObject(resp.data.errors)){
@@ -20928,7 +20988,7 @@ Mura.UI.Form=Mura.UI.extend(
 
 			if(self.entityid == undefined) {
 				Mura.get(
-					Mura.apiEndpoint +'/'+ entityName + '/new?expand=all&ishuman=true'
+					Mura.getAPIEndpoint() +'/'+ entityName + '/new?expand=all&ishuman=true'
 				).then(function(resp) {
 					self.data = resp.data;
 					self.renderData();
@@ -20936,7 +20996,7 @@ Mura.UI.Form=Mura.UI.extend(
 			}
 			else {
 				Mura.get(
-					Mura.apiEndpoint	+ '/'+ entityName + '/' + self.entityid + '?expand=all&ishuman=true'
+					Mura.getAPIEndpoint()	+ '/'+ entityName + '/' + self.entityid + '?expand=all&ishuman=true'
 				).then(function(resp) {
 					self.data = resp.data;
 					self.renderData();
@@ -20948,7 +21008,7 @@ Mura.UI.Form=Mura.UI.extend(
 		}
 		/*
 		Mura.get(
-				Mura.apiEndpoint + '/content/' + self.context.objectid
+				Mura.getAPIEndpoint() + '/content/' + self.context.objectid
 				 + '?fields=body,title,filename,responsemessage&ishuman=true'
 				).then(function(data) {
 				 	formJSON = JSON.parse( data.data.body );
@@ -20980,7 +21040,7 @@ Mura.UI.Form=Mura.UI.extend(
 
 					 	if(self.entityid == undefined) {
 							Mura.get(
-								Mura.apiEndpoint +'/'+ entityName + '/new?expand=all&ishuman=true'
+								Mura.getAPIEndpoint() +'/'+ entityName + '/new?expand=all&ishuman=true'
 							).then(function(resp) {
 								self.data = resp.data;
 								self.renderData();
@@ -20988,7 +21048,7 @@ Mura.UI.Form=Mura.UI.extend(
 					 	}
 					 	else {
 							Mura.get(
-								Mura.apiEndpoint	+ '/'+ entityName + '/' + self.entityid + '?expand=all&ishuman=true'
+								Mura.getAPIEndpoint()	+ '/'+ entityName + '/' + self.entityid + '?expand=all&ishuman=true'
 							).then(function(resp) {
 								self.data = resp.data;
 								self.renderData();
@@ -21153,7 +21213,7 @@ Mura.UI.Form=Mura.UI.extend(
 
 			Mura.ajax({
 				type: 'post',
-				url: Mura.apiEndpoint +
+				url: Mura.getAPIEndpoint() +
 					'?method=generateCSRFTokens',
 				data: tokenArgs,
 				success: function(resp) {
@@ -21167,7 +21227,7 @@ Mura.UI.Form=Mura.UI.extend(
 					}
 
 					Mura.post(
-						 Mura.apiEndpoint + '?method=processAsyncObject',
+						 Mura.getAPIEndpoint() + '?method=processAsyncObject',
 						 data)
 						 .then(function(resp){
 							 if(typeof resp.data.errors == 'object' && !Mura.isEmptyObject(resp.data.errors )){
@@ -21358,7 +21418,7 @@ Mura.UI.Form=Mura.UI.extend(
 
 		/*
 		Mura.get(
-			Mura.apiEndpoint + 'content/' + self.context.objectid
+			Mura.getAPIEndpoint() + 'content/' + self.context.objectid
 			 + '?fields=body,title,filename,responsemessage'
 			).then(function(data) {
 			 	formJSON = JSON.parse( data.data.body );
@@ -21383,15 +21443,15 @@ Mura.UI.Form=Mura.UI.extend(
 		var self = this;
 
 		Mura.get(
-			Mura.apiEndpoint	+ self.entity + '/listviewdescriptor'
+			Mura.getAPIEndpoint()	+ self.entity + '/listviewdescriptor'
 		).then(function(resp) {
 				self.columns = resp.data;
 			Mura.get(
-				Mura.apiEndpoint + self.entity + '/propertydescriptor/'
+				Mura.getAPIEndpoint() + self.entity + '/propertydescriptor/'
 			).then(function(resp) {
 				self.properties = self.cleanProps(resp.data);
 				if( navlink == undefined) {
-					navlink = Mura.apiEndpoint + self.entity + '?sort=' + self.sortdir + self.sortfield;
+					navlink = Mura.getAPIEndpoint() + self.entity + '?sort=' + self.sortdir + self.sortfield;
 					var fields = [];
 					for(var i = 0;i < self.columns.length;i++) {
 						fields.push(self.columns[i].column);
@@ -21480,7 +21540,7 @@ Mura.UI.Form=Mura.UI.extend(
 		var self = this;
 
 		Mura.get(
-			Mura.apiEndpoint + entityName + '/' + itemid + '?expand=all'
+			Mura.getAPIEndpoint() + entityName + '/' + itemid + '?expand=all'
 			).then(function(resp) {
 				self.item = resp.data;
 
@@ -21754,7 +21814,7 @@ Mura.UI.Form=Mura.UI.extend(
 		});
 
 		Mura.Handlebars.registerHelper('textInputTypeValue',function() {
-			if(typeof Mura.useHTML5DateInput != 'undefined' && Mura.useHTML5DateInput && typeof this.validatetype != 'undefined' && this.validatetype.toLowerCase()=='date'){
+			if(typeof Mura.usehtml5dateinput != 'undefined' && Mura.usehtml5dateinput && typeof this.validatetype != 'undefined' && this.validatetype.toLowerCase()=='date'){
 				return 'date';
 			} else {
 				return 'text';
@@ -21822,7 +21882,7 @@ Mura.UI.Form=Mura.UI.extend(
 				returnString += ' size="' + escapeExpression(this.size) + '"';
 			}
 
-			if(typeof Mura.useHTML5DateInput != 'undefined' && Mura.useHTML5DateInput && typeof this.validatetype != 'undefined' && this.validatetype.toLowerCase()=='date'){
+			if(typeof Mura.usehtml5dateinput != 'undefined' && Mura.usehtml5dateinput && typeof this.validatetype != 'undefined' && this.validatetype.toLowerCase()=='date'){
 				returnString += ' data-date-format="' + Mura.dateformat + '"';
 			}
 
@@ -22027,7 +22087,7 @@ Mura.UI.Collection=Mura.UI.extend(
 					if(typeof this.context.items != 'undefined'){
 						this.context.items=this.context.items.join();
 					}
-					return Mura.get(Mura.apiEndpoint + 'content/' + this.context.items + ',_',{
+					return Mura.get(Mura.getAPIEndpoint() + 'content/' + this.context.items + ',_',{
 						itemsperpage:this.context.itemsperpage,
 						maxitems:this.context.maxitems,
 						expand:this.context.expand,

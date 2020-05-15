@@ -73,7 +73,7 @@ Mura.entities.Content = Mura.Entity.extend(
 			}
 			self._requestcontext.request({
 				type: 'get',
-				url: Mura.apiEndpoint +
+				url: Mura.getAPIEndpoint() +
 					'/content/' + self.get('contentid') + '/relatedcontent/' + relatedContentSetName + '?' +
 					query.join('&'),
 				params: params,

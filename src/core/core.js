@@ -170,7 +170,7 @@ var Mura=(function(){
 				trackingVars.eventData=data;
 				track();
 			} else {
-				Mura.get(Mura.apiEndpoint, {
+				Mura.get(Mura.getAPIEndpoint(), {
 					method: 'findTrackingProps',
 					siteid: Mura.siteid,
 					contentid: data.contentid,
@@ -561,7 +561,7 @@ var Mura=(function(){
 	 */
 	function generateOAuthToken(grant_type, client_id, client_secret) {
 			return new Promise(function(resolve, reject) {
-				get(Mura.apiEndpoint.replace('/json/', '/rest/') + 'oauth?grant_type=' +
+				get(Mura.getAPIEndpoint().replace('/json/', '/rest/') + 'oauth?grant_type=' +
 					encodeURIComponent(grant_type) + '&client_id=' + encodeURIComponent(client_id) + '&client_secret=' +
 					encodeURIComponent(client_secret) + '&_cacheid=' + Math.random()).then(
 					function(resp) {
@@ -1266,10 +1266,10 @@ var Mura=(function(){
 			var formatArray=['mm','dd','yyyy'];
 
 			return [
-				formatArray[Mura.dtFormat[0]],
-				formatArray[Mura.dtFormat[1]],
-				formatArray[Mura.dtFormat[2]]
-			].join(Mura.dtCh);
+				formatArray[Mura.dtformat[0]],
+				formatArray[Mura.dtformat[1]],
+				formatArray[Mura.dtformat[2]]
+			].join(Mura.dtch);
 
 		}
 
@@ -1283,15 +1283,15 @@ var Mura=(function(){
 	 */
 	function isDate(dtStr, fldName) {
 		var daysInMonth = DaysArray(12);
-		var dtArray = dtStr.split(Mura.dtCh);
+		var dtArray = dtStr.split(Mura.dtch);
 
 		if (dtArray.length != 3) {
 			//alert("The date format for the "+fldName+" field should be : short")
 			return false
 		}
-		var strMonth = dtArray[Mura.dtFormat[0]];
-		var strDay = dtArray[Mura.dtFormat[1]];
-		var strYear = dtArray[Mura.dtFormat[2]];
+		var strMonth = dtArray[Mura.dtformat[0]];
+		var strDay = dtArray[Mura.dtformat[1]];
+		var strYear = dtArray[Mura.dtformat[2]];
 
 		/*
 		if(strYear.length == 2){
@@ -1322,7 +1322,7 @@ var Mura=(function(){
 			//alert("Please enter a valid 4 digit year between "+Mura.minYear+" and "+Mura.maxYear +" in the "+fldName+" field")
 			return false
 		}
-		if (isInteger(stripCharsInBag(dtStr, Mura.dtCh)) == false) {
+		if (isInteger(stripCharsInBag(dtStr, Mura.dtch)) == false) {
 			//alert("Please enter a valid date in the "+fldName+" field")
 			return false
 		}
@@ -1619,7 +1619,7 @@ var Mura=(function(){
 			//console.log(validations);
 			ajax({
 				type: 'post',
-				url: Mura.apiEndpoint + '?method=validate',
+				url: Mura.getAPIEndpoint() + '?method=validate',
 				data: {
 					data: encodeURIComponent(JSON.stringify(data)),
 					validations: encodeURIComponent(JSON.stringify(validations)),
@@ -1739,7 +1739,7 @@ var Mura=(function(){
 					find('.mura-object, .mura-async-object')
 						.each(function() {
 							processDisplayObject(this,
-								Mura.queueObjects).then(
+								Mura.queueobjects).then(
 								resolve);
 						});
 				},
@@ -1964,7 +1964,7 @@ var Mura=(function(){
 			*/
 
 			var postconfig = {
-				url: Mura.apiEndpoint + '?method=processAsyncObject',
+				url: Mura.getAPIEndpoint() + '?method=processAsyncObject',
 				type: 'POST',
 				data: data,
 				success: function(resp) {
@@ -2009,7 +2009,7 @@ var Mura=(function(){
 			}
 
 			var postconfig = {
-				url: Mura.apiEndpoint + '?method=processAsyncObject',
+				url: Mura.getAPIEndpoint() + '?method=processAsyncObject',
 				type: 'POST',
 				data: data,
 				success: function(resp) {
@@ -2026,7 +2026,7 @@ var Mura=(function(){
 		if(typeof self.prevData != 'undefined' && typeof self.prevData.preloadermarkup != 'undefined'){
 			self.innerHTML = self.prevData.preloadermarkup;
 		} else {
-			self.innerHTML = Mura.preloaderMarkup;
+			self.innerHTML = Mura.preloadermarkup;
 		}
 
 		Mura(frm).trigger('formSubmit', data);
@@ -2562,7 +2562,7 @@ var Mura=(function(){
 			obj.html(Mura.templates.content(obj.data()));
 
 			obj.find('.mura-object').each(function() {
-				this.innerHTML=obj.data('preloadermarkup') || Mura.preloaderMarkup;
+				this.innerHTML=obj.data('preloadermarkup') || Mura.preloadermarkup;
 				this.setAttribute('data-instanceid', createUUID());
 			});
 		}
@@ -2680,7 +2680,7 @@ var Mura=(function(){
 							obj.node.innerHTML = data.preloadermarkup;
 							delete data.preloadermarkup;
 						} else {
-							obj.node.innerHTML = Mura.preloaderMarkup;
+							obj.node.innerHTML = Mura.preloadermarkup;
 						}
 					}
 
@@ -2699,7 +2699,7 @@ var Mura=(function(){
 					}
 				
 					ajax({
-						url: Mura.apiEndpoint + '?method=processAsyncObject',
+						url: Mura.getAPIEndpoint() + '?method=processAsyncObject',
 						type: requestType,
 						data: requestData,
 						success: function(resp) {
@@ -3056,6 +3056,17 @@ var Mura=(function(){
 		  timeout = setTimeout(later, interval || 200);
 		}
 	  }
+
+	function getAPIEndpoint(){
+		if(Mura.apiendpoint){
+			Mura.apiEndpoint=Mura.apiendpoint;
+			delete Mura.apiendpoint;
+			if(Mura.mode.toLowerCase()=='rest'){
+				Mura.apiEndpoint=Mura.apiEndpoint.replace('/json/', '/rest/');
+			}
+		} 
+		return Mura.apiEndpoint;
+	}
 	  
 	//Mura.init
 	function init(config) {
@@ -3096,6 +3107,11 @@ var Mura=(function(){
 			config.fileassetpath = config.assetpath;
 		}
 
+		if (config.apiendpoint) {
+			config.apiEndpoint = config.apiendpoint;
+			delete config.apiendpoint;
+		}
+
 		if (!config.apiEndpoint) {
 			config.apiEndpoint = config.context +	'/index.cfm/_api/json/v1/' + config.siteid + '/';
 		}
@@ -3123,45 +3139,85 @@ var Mura=(function(){
 		if (typeof config.mobileformat == 'undefined') {
 			config.mobileformat = false;
 		}
-
-		if (typeof config.queueObjects == 'undefined') {
-			config.queueObjects = true;
+		
+		if (typeof config.queueObjects != 'undefined') {
+			config.queueobjects=config.queueObjects;
+			delete config.queueobjects;
+		}
+		
+		if (typeof config.queueobjects == 'undefined') {
+			config.queueobjects = true;
 		}
 
 		if (typeof config.rootdocumentdomain != 'undefined' && config.rootdocumentdomain != '') {
 			document.domain = config.rootdocumentdomain;
 		}
 
-		if (typeof config.preloaderMarkup == 'undefined') {
-			config.preloaderMarkup = '';
+		if (typeof config.preloaderMarkup != 'undefined') {
+			config.preloadermarkup=config.preloaderMarkup;
+			delete config.preloaderMarkup;
+		}
+
+		if (typeof config.preloadermarkup == 'undefined') {
+			config.preloadermarkup = '';
 		}
 
 		if (typeof config.rb == 'undefined') {
 			config.rb={};
 		}
 
-		if (typeof config.dtExample == 'undefined') {
-			config.dtExample="11/10/2018";
+		if (typeof config.dtExample != 'undefined') {
+			config.dtexample=config.dtExample;
+			delete config.dtExample;
 		}
 
-		if (typeof config.dtCh == 'undefined') {
-			config.dtCh="/";
+		if (typeof config.dtexample == 'undefined') {
+			config.dtexample="11/10/2021";
 		}
 
-		if (typeof config.dtFormat == 'undefined') {
-			config.dtFormat=[0,1,2];
+		if (typeof config.dtCh != 'undefined') {
+			config.dtch=config.dtCh;
+			delete config.dtCh;
 		}
 
-		if (typeof config.dtLocale == 'undefined') {
-			config.dtLocale="en-US";
+		if (typeof config.dtch == 'undefined') {
+			config.dtch="/";
 		}
 
-		if (typeof config.useHTML5DateInput == 'undefined') {
-			config.useHTML5DateInput=false;
+		if (typeof config.dtFormat != 'undefined') {
+			config.dtformat=config.dtFormat;
+			delete config.dtFormat;
 		}
 
-		if (typeof config.cookieConsentEnabled == 'undefined') {
-			config.cookieConsentEnabled=false;
+		if (typeof config.dtformat == 'undefined') {
+			config.dtformat=[0,1,2];
+		}
+
+		if (typeof config.dtLocale != 'undefined') {
+			config.dtlocale=config.dtLocale;
+			delete config.dtLocale;
+		}
+
+		if (typeof config.dtlocale == 'undefined') {
+			config.dtlocale="en-US";
+		}
+
+		if (typeof config.useHTML5DateInput != 'undefined') {
+			config.usehtml5dateinput=config.useHTML5DateInput;
+			delete config.usehtml5dateinput;
+		}
+
+		if (typeof config.usehtml5dateinput == 'undefined') {
+			config.usehtml5dateinput=false;
+		}
+
+		if (typeof config.cookieConsentEnabled != 'undefined') {
+			config.cookieconsentenabled=config.cookieConsentEnabled;
+			delete config.cookieConsentEnabled;
+		}
+
+		if (typeof config.cookieconsentenabled == 'undefined') {
+			config.cookieconsentenabled=false;
 		}
 
 		config.formdata=(typeof FormData != 'undefined') ? true : false;
@@ -3172,6 +3228,9 @@ var Mura=(function(){
 		if(typeof config.processMarkup != 'undefined'){
 			initForDataOnly=typeof config.processMarkup != 'function' && !config.processMarkup;
 			delete config.processMarkup;
+		} else if(typeof config.processmarkup != 'undefined'){
+			initForDataOnly=typeof config.processmarkup != 'function' && !config.processmarkup;
+			delete config.processmarkup;
 		}
 
 		extend(Mura, config);
@@ -3200,7 +3259,7 @@ var Mura=(function(){
 		Mura.dateformat=generateDateFormat();
 
 		if(Mura.mode.toLowerCase()=='rest'){
-				Mura.apiEndpoint=Mura.apiEndpoint.replace('/json/', '/rest/');
+			Mura.apiEndpoint=Mura.apiEndpoint.replace('/json/', '/rest/');
 		}
 
 		if(typeof XMLHttpRequest == 'undefined'
@@ -3295,7 +3354,7 @@ var Mura=(function(){
 					
 					Mura.markupInitted=true;
 
-					if(Mura.cookieConsentEnabled){Mura(function(){Mura('body').appendDisplayObject({object:'cookie_consent',queue:false,statsid:'cookie_consent'});});}
+					if(Mura.cookieconsentenabled){Mura(function(){Mura('body').appendDisplayObject({object:'cookie_consent',queue:false,statsid:'cookie_consent'});});}
 
 					Mura(document).on("keydown", function(event) {
 						loginCheck(event.which);
@@ -3431,6 +3490,7 @@ var Mura=(function(){
 			normalizeRequestHandler:normalizeRequestHandler,
 			getStyleSheet:getStyleSheet,
 			getBreakpoint:getBreakpoint,
+			getAPIEndpoint:getAPIEndpoint,
 			inAdmin:false,
 			lmv:2,
 			homeid: '00000000000000000000000000000000001'

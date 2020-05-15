@@ -92,7 +92,7 @@ Mura.RequestContext=Mura.Core.extend(
 			self.request({
 				async: true,
 				type: 'get',
-				url: Mura.apiEndpoint + '/content/_path/' + filename + '?' + query.join('&'),
+				url: Mura.getAPIEndpoint() + '/content/_path/' + filename + '?' + query.join('&'),
 				success: function(resp) {
 					if (resp != null && typeof location != 'undefined' && typeof resp.data != 'undefined' && typeof resp.data.redirect != 'undefined' && typeof resp.data.contentid == 'undefined') {
 						if (resp.data.redirect && resp.data.redirect != location.href) {
@@ -139,7 +139,7 @@ Mura.RequestContext=Mura.Core.extend(
 		}
 
 		properties.links={
-			permissions:Mura.apiEndpoint + properties.entityname + "/permissions"
+			permissions:Mura.getAPIEndpoint() + properties.entityname + "/permissions"
 		}
 
 		if (Mura.entities[properties.entityname]) {
@@ -164,7 +164,7 @@ Mura.RequestContext=Mura.Core.extend(
 				self.request({
 					async: true,
 					type: 'POST',
-					url: Mura.apiEndpoint,
+					url: Mura.getAPIEndpoint(),
 					data:{
 						method: 'declareEntity',
 						entityConfig: encodeURIComponent(JSON.stringify(entityConfig))
@@ -184,13 +184,13 @@ Mura.RequestContext=Mura.Core.extend(
 			return new Promise(function(resolve, reject) {
 				self.request({
 					type: 'POST',
-					url: Mura.apiEndpoint + '?method=generateCSRFTokens',
+					url: Mura.getAPIEndpoint() + '?method=generateCSRFTokens',
 					data: {context: ''},
 					success: function(resp) {
 						self.request({
 							async: true,
 							type: 'POST',
-							url: Mura.apiEndpoint,
+							url: Mura.getAPIEndpoint(),
 							data:{
 								method: 'declareEntity',
 								entityConfig: encodeURIComponent(JSON.stringify(entityConfig)),
@@ -227,7 +227,7 @@ Mura.RequestContext=Mura.Core.extend(
 				self.request({
 					async: true,
 					type: 'POST',
-					url: Mura.apiEndpoint,
+					url: Mura.getAPIEndpoint(),
 					data:{
 						method: 'undeclareEntity',
 						entityName: entityName,
@@ -248,13 +248,13 @@ Mura.RequestContext=Mura.Core.extend(
 			return new Promise(function(resolve, reject) {
 				self.request({
 					type: 'POST',
-					url: Mura.apiEndpoint + '?method=generateCSRFTokens',
+					url: Mura.getAPIEndpoint() + '?method=generateCSRFTokens',
 					data: {context: ''},
 					success: function(resp) {
 						self.request({
 							async: true,
 							type: 'POST',
-							url: Mura.apiEndpoint,
+							url: Mura.getAPIEndpoint(),
 							data:{
 								method: 'undeclareEntity',
 								entityName: entityName,
@@ -307,7 +307,7 @@ Mura.RequestContext=Mura.Core.extend(
 					self.request({
 						async: true,
 						type: 'get',
-						url: Mura.apiEndpoint +
+						url: Mura.getAPIEndpoint() +
 							'findCurrentUser?fields=' + params.fields + '&_cacheid=' +
 							Math.random(),
 						success: function(resp) {
@@ -345,7 +345,7 @@ Mura.RequestContext=Mura.Core.extend(
 			return new Promise(function(resolve, reject) {
 				self.request({
 					type: 'get',
-					url: Mura.apiEndpoint,
+					url: Mura.getAPIEndpoint(),
 					data: params,
 					success: function(resp) {
 						var collection = new Mura.EntityCollection(resp.data,self)
@@ -374,7 +374,7 @@ Mura.RequestContext=Mura.Core.extend(
 		return new Promise(function(resolve, reject) {
 			self.request({
 				type: 'post',
-				url: Mura.apiEndpoint +
+				url: Mura.getAPIEndpoint() +
 						'?method=generateCSRFTokens',
 				data: {
 						siteid: siteid,
@@ -384,7 +384,7 @@ Mura.RequestContext=Mura.Core.extend(
 					self.request({
 						async: true,
 						type: 'post',
-						url: Mura.apiEndpoint,
+						url: Mura.getAPIEndpoint(),
 						data: {
 							siteid: siteid,
 							username: username,
@@ -418,7 +418,7 @@ Mura.RequestContext=Mura.Core.extend(
 					self.request({
 						async: true,
 						type: 'POST',
-						url: Mura.apiEndpoint + '/gatedasset/open',
+						url: Mura.getAPIEndpoint() + '/gatedasset/open',
 						data:{
 							contentid: contentid
 						},
@@ -437,13 +437,13 @@ Mura.RequestContext=Mura.Core.extend(
 				return new Promise(function(resolve, reject) {
 					self.request({
 						type: 'POST',
-						url: Mura.apiEndpoint + '?method=generateCSRFTokens',
+						url: Mura.getAPIEndpoint() + '?method=generateCSRFTokens',
 						data: {context: contentid},
 						success: function(resp) {
 							self.request({
 								async: true,
 								type: 'POST',
-								url: Mura.apiEndpoint + '/gatedasset/open',
+								url: Mura.getAPIEndpoint() + '/gatedasset/open',
 								data:{
 									contentid: contentid
 								},
@@ -477,7 +477,7 @@ Mura.RequestContext=Mura.Core.extend(
 			self.request({
 				async: true,
 				type: 'post',
-				url: Mura.apiEndpoint,
+				url: Mura.getAPIEndpoint(),
 				data: {
 					siteid: siteid,
 					method: 'logout'
