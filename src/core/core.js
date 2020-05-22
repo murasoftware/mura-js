@@ -3116,7 +3116,7 @@ var Mura=(function(){
 			config.apiEndpoint = config.context +	'/index.cfm/_api/json/v1/' + config.siteid + '/';
 		}
 
-		if(config.apiEndpoint.indexOf('index.cfm') > -1){
+		if(config.apiEndpoint.indexOf('/_api/') == -1){
 			config.apiEndpoint = '/index.cfm/_api/json/v1/' + config.siteid + '/'
 		}
 

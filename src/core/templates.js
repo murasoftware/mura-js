@@ -52,7 +52,7 @@ Mura.templates['image']=function(context){
 		return '';
 	}
 
-	source='<img src="' + Mura.escapeHTML(context.src) + '" alt="' + Mura.escapeHTML(context.alt) + '" />';
+	source='<img src="' + Mura.escapeHTML(context.src) + '" alt="' + Mura.escapeHTML(context.alt) + '" loading="lazy"/>';
 	if(context.imagelink){
 		context.imagelinktarget=context.imagelinktarget || "";
 		var targetString="";
