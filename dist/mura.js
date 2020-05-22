@@ -3372,7 +3372,7 @@ var Mura=(function(){
 		}
 
 		if(config.apiEndpoint.indexOf('/_api/') == -1){
-			config.apiEndpoint = '/index.cfm/_api/json/v1/' + config.siteid + '/'
+			config.apiEndpoint = config.apiEndpoint + '/index.cfm/_api/json/v1/' + config.siteid + '/'
 		}
 
 		if (!config.pluginspath) {
