@@ -2850,6 +2850,7 @@ var Mura=(function(){
 						console.log('Missing Client Template for:');
 						console.log(obj.data());
 					}
+					obj.data('inited',true);
 				}
 
 				obj.find('form').each(function() {
