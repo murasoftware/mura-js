@@ -14,6 +14,7 @@ require('./core/user.js');
 require('./core/entitycollection.js');
 require('./core/feed.js');
 require('./core/loader.js');
+require('./core/domselection.stylemap.js');
 require('./core/domselection.js');
 require('./core/ui.js');
 require('./core/ui.form');

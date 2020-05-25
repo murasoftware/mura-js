@@ -1145,20 +1145,20 @@ Mura.DOMSelection = Mura.Core.extend(
 			this.each(function(el) {
 				try {
 					for (var p in ruleName) {
-						el.style[p] = ruleName[p];
+						el.style[Mura.styleMap.tojs[p]] = ruleName[p];
 					}
 				} catch (e) {console.log(e)}
 			});
 		} else if (typeof value != 'undefined') {
 			this.each(function(el) {
 				try {
-					el.style[ruleName] = value;
+					el.style[Mura.styleMap.tojs[ruleName]] = value;
 				} catch (e) {console.log(e)}
 			});
 			return this;
 		} else {
 			try {
-				return getComputedStyle(this.selection[	0])[ruleName];
+				return getComputedStyle(this.selection[	0])[Mura.styleMap.tojs[ruleName]];
 			} catch (e) {console.log(e)}
 		}
 	},
@@ -1169,75 +1169,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @return {object}	Self
 	 */
 	 calculateDisplayObjectStyles: function(windowResponse) {
-		var styleMap={'alignContent':'align-content',
-			'alignItems':'align-items',
-			'alignSelf':'align-self',
-			'animationDuration':'animation-duration',
-			'animationName':'animation-name',
-			'backgroundAttachment':'background-attachment',
-			'backgroundColor':'background-color',
-			'backgroundImage':'background-image',
-			'backgroundOrigin':'background-origin',
-			'backgroundPosition':'background-position',
-			'backgroundPositionX':'background-position-x',
-			'backgroundPositionY':'background-position-y',
-			'backgroundRepeat':'background-repeat',
-			'backgroundSize':'background-size',
-			'borderRadius':'border-radius',
-			'borderStyle':'border-style',
-			'borderWidth':'border-width',
-			'borderColor':'border-color',
-			'boxSizing':'box-sizing',
-			'color':'color',
-			'display':'display',
-			'flex':'flex',
-			'flexGrow':'flex-grow',
-			'flexShrink':'flex-shrink',
-			'float':'float',
-			'fontFamily':'font-family',
-			'fontSize':'font-size',
-			'fontVariant':'font-variant',
-			'fontWeight':'font-weight',
-			'justifyContent':'justify-content',
-			'justifySelf':'justify-self',
-			'letterSpacing':'letter-spacing',
-			'lineHeight':'line-height',
-			'marginBottom':'margin-bottom',
-			'marginLeft':'margin-left',
-			'marginRight':'margin-right',
-			'marginTop':'margin-top',
-			'maxHeight':'max-height',
-			'minHeight':'min-height',
-			'opacity':'opacity',
-			'order':'order',
-			'outlineColor':'outline-color',
-			'outlineOffset':'outline-offset',
-			'outlineStyle':'outline-style',
-			'outlineWidth':'outline-width',
-			'overflow':'overflow',
-			'overflowX':'overflow-x',
-			'overflowY':'overflow-y',
-			'paddingBottom':'padding-bottom',
-			'paddingLeft':'padding-left',
-			'paddingRight':'padding-right',
-			'paddingTop':'padding-top',
-			'textAlign':'text-align',
-			'textDecoration':'text-decoration',
-			'textIndent':'text-indent',
-			'textOverflow':'text-overflow',
-			'textShadow':'text-shadow',
-			'textTransform':'text-transform',
-			'transitionDelay':'transition-delay',
-			'transitionDuration':'transition-duration',
-			'transitionProperty':'transition-property',
-			'transitionTimingFunction':'transition-timing-function',
-			'verticalAlign':'vertical-align',
-			'webkitTransition':'-webkit-transition',
-			'width':'width',
-			'whiteSpace':'white-space',
-			'wordSpacing':'word-spacing',
-			'zIndex':'z-index'
-		}
+		
  		this.each(function(el) {
 
 			function handleBackround(styles){
@@ -1246,6 +1178,13 @@ Mura.DOMSelection = Mura.Core.extend(
 				
 				if(hasLayeredBg){
 					styles.backgroundImage='linear-gradient(' + styles.backgroundColor + ', ' + styles.backgroundColor +' ), ' + styles.backgroundImage;
+				}
+
+				hasLayeredBg=(styles && typeof styles.backgroundcolor != 'undefined' && styles.backgroundcolor
+				&& typeof styles.backgroundimage != 'undefined' && styles.backgroundimage);	
+				
+				if(hasLayeredBg){
+					styles.backgroundImage='linear-gradient(' + styles.backgroundcolor + ', ' + styles.backgroundcolor +' ), ' + styles.backgroundimage;
 				}
 			}
 
@@ -1322,7 +1261,7 @@ Mura.DOMSelection = Mura.Core.extend(
 			
 			if(typeof styleSupport == 'string'){
 				try{
-					styleSupport=JSON.parse(styleSupport)
+					styleSupport=JSON.parse.call(null,styleSupport)
 				} catch(e){
 					styleSupport={};
 				}
@@ -1375,8 +1314,8 @@ Mura.DOMSelection = Mura.Core.extend(
 				objectAccumulator=Mura.extend(objectAccumulator,objectstyles);
 				for(var s in objectAccumulator){
 					if(objectAccumulator.hasOwnProperty(s)){
-						if(typeof styleMap[s] != 'undefined'){
-							dyncss += styleMap[s]  + ': ' + objectAccumulator[s] + '!important;';
+						if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
+							dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]]  + ': ' + objectAccumulator[s] + '!important;';
 						} else {
 							obj.css(s,objectAccumulator[s]);
 						}		
@@ -1410,8 +1349,8 @@ Mura.DOMSelection = Mura.Core.extend(
 				objectAccumulator=Mura.extend(objectAccumulator,styleSupport['object_lg_styles']);
 				for(var s in objectAccumulator){
 					if(objectAccumulator.hasOwnProperty(s)){
-						if(typeof styleMap[s] != 'undefined'){
-							dyncss += styleMap[s]  + ': ' + objectAccumulator[s] + '!important;';
+						if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
+							dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]]  + ': ' + objectAccumulator[s] + '!important;';
 						}		
 					}
 				}
@@ -1447,8 +1386,8 @@ Mura.DOMSelection = Mura.Core.extend(
 				objectAccumulator=Mura.extend(objectAccumulator,styleSupport['object_md_styles']);
 				for(var s in objectAccumulator){
 					if(objectAccumulator.hasOwnProperty(s)){
-						if(typeof styleMap[s] != 'undefined'){
-							dyncss += styleMap[s]  + ': ' + objectAccumulator[s] + '!important;';
+						if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
+							dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]]  + ': ' + objectAccumulator[s] + '!important;';
 						}		
 					}
 				}
@@ -1484,8 +1423,8 @@ Mura.DOMSelection = Mura.Core.extend(
 				objectAccumulator=Mura.extend(objectAccumulator,styleSupport['object_sm_styles']);
 				for(var s in objectAccumulator){
 					if(objectAccumulator.hasOwnProperty(s)){
-						if(typeof styleMap[s] != 'undefined'){
-							dyncss += styleMap[s]  + ': ' + objectAccumulator[s] + '!important;';
+						if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
+							dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]]  + ': ' + objectAccumulator[s] + '!important;';
 						}		
 					}
 				}
@@ -1521,8 +1460,8 @@ Mura.DOMSelection = Mura.Core.extend(
 				objectAccumulator=Mura.extend(objectAccumulator,styleSupport['object_xs_styles']);
 				for(var s in objectAccumulator){
 					if(objectAccumulator.hasOwnProperty(s)){
-						if(typeof styleMap[s] != 'undefined'){
-							dyncss += styleMap[s]  + ': ' + objectAccumulator[s] + '!important;';
+						if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
+							dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]]  + ': ' + objectAccumulator[s] + '!important;';
 						}		
 					}
 				}
@@ -1602,8 +1541,8 @@ Mura.DOMSelection = Mura.Core.extend(
 						metaAccumulator=Mura.extend(metaAccumulator,metastyles);
 						for(var s in metaAccumulator){
 							if(metaAccumulator.hasOwnProperty(s)){
-								if(typeof styleMap[s] != 'undefined'){
-									dyncss += styleMap[s]  + ': ' + metaAccumulator[s] + '!important;';
+								if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
+									dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]]  + ': ' + metaAccumulator[s] + '!important;';
 								} else {
 									meta.css(s,metaAccumulator[s]);
 								}		
@@ -1656,8 +1595,8 @@ Mura.DOMSelection = Mura.Core.extend(
 						metaAccumulator=Mura.extend(metaAccumulator,styleSupport['meta_lg_styles']);
 						for(var s in metaAccumulator){
 							if(metaAccumulator.hasOwnProperty(s)){
-								if(typeof styleMap[s] != 'undefined'){
-									dyncss += styleMap[s]  + ': ' + metaAccumulator[s] + '!important;';
+								if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
+									dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]]  + ': ' + metaAccumulator[s] + '!important;';
 								}		
 							}
 						}
@@ -1690,8 +1629,8 @@ Mura.DOMSelection = Mura.Core.extend(
 						metaAccumulator=Mura.extend(metaAccumulator,styleSupport['meta_md_styles']);
 						for(var s in metaAccumulator){
 							if(metaAccumulator.hasOwnProperty(s)){
-								if(typeof styleMap[s] != 'undefined'){
-									dyncss += styleMap[s]  + ': ' + metaAccumulator[s] + '!important;';
+								if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
+									dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]]  + ': ' + metaAccumulator[s] + '!important;';
 								}		
 							}
 						}
@@ -1724,8 +1663,8 @@ Mura.DOMSelection = Mura.Core.extend(
 						metaAccumulator=Mura.extend(metaAccumulator,styleSupport['meta_sm_styles']);
 						for(var s in metaAccumulator){
 							if(metaAccumulator.hasOwnProperty(s)){
-								if(typeof styleMap[s] != 'undefined'){
-									dyncss += styleMap[s]  + ': ' + metaAccumulator[s] + '!important;';
+								if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
+									dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]]  + ': ' + metaAccumulator[s] + '!important;';
 								}		
 							}
 						}
@@ -1758,8 +1697,8 @@ Mura.DOMSelection = Mura.Core.extend(
 						metaAccumulator=Mura.extend(metaAccumulator,styleSupport['meta_xs_styles']);
 						for(var s in metaAccumulator){
 							if(metaAccumulator.hasOwnProperty(s)){
-								if(typeof styleMap[s] != 'undefined'){
-									dyncss += styleMap[s]  + ': ' + metaAccumulator[s] + '!important;';
+								if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
+									dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]]  + ': ' + metaAccumulator[s] + '!important;';
 								}		
 							}
 						}
@@ -1828,8 +1767,8 @@ Mura.DOMSelection = Mura.Core.extend(
 				contentAccumulator=Mura.extend(contentAccumulator,contentstyles);
 				for(var s in contentAccumulator){
 					if(contentAccumulator.hasOwnProperty(s)){
-						if(typeof styleMap[s] != 'undefined'){
-							dyncss += styleMap[s]  + ': ' + contentAccumulator[s] + '!important;';
+						if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
+							dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]]  + ': ' + contentAccumulator[s] + '!important;';
 						} else {
 							content.css(s,contentAccumulator[s]);
 						}		
@@ -1881,8 +1820,8 @@ Mura.DOMSelection = Mura.Core.extend(
 				contentAccumulator=Mura.extend(contentAccumulator,styleSupport['content_lg_styles']);
 				for(var s in contentAccumulator){
 					if(contentAccumulator.hasOwnProperty(s)){
-						if(typeof styleMap[s] != 'undefined'){
-							dyncss += styleMap[s]  + ': ' + contentAccumulator[s] + '!important;';
+						if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
+							dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]]  + ': ' + contentAccumulator[s] + '!important;';
 						}		
 					}
 				}
@@ -1915,8 +1854,8 @@ Mura.DOMSelection = Mura.Core.extend(
 				contentAccumulator=Mura.extend(contentAccumulator,styleSupport['content_md_styles']);
 				for(var s in contentAccumulator){
 					if(contentAccumulator.hasOwnProperty(s)){
-						if(typeof styleMap[s] != 'undefined'){
-							dyncss += styleMap[s]  + ': ' + contentAccumulator[s] + '!important;';
+						if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
+							dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]]  + ': ' + contentAccumulator[s] + '!important;';
 						}		
 					}
 				}
@@ -1950,8 +1889,8 @@ Mura.DOMSelection = Mura.Core.extend(
 				contentAccumulator=Mura.extend(contentAccumulator,styleSupport['content_sm_styles']);
 				for(var s in contentAccumulator){
 					if(contentAccumulator.hasOwnProperty(s)){
-						if(typeof styleMap[s] != 'undefined'){
-							dyncss += styleMap[s]  + ': ' + contentAccumulator[s] + '!important;';
+						if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
+							dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]]  + ': ' + contentAccumulator[s] + '!important;';
 						}		
 					}
 				}
@@ -1984,8 +1923,8 @@ Mura.DOMSelection = Mura.Core.extend(
 				contentAccumulator=Mura.extend(contentAccumulator,styleSupport['content_xs_styles']);
 				for(var s in contentAccumulator){
 					if(contentAccumulator.hasOwnProperty(s)){
-						if(typeof styleMap[s] != 'undefined'){
-							dyncss += styleMap[s]  + ': ' + contentAccumulator[s] + '!important;';
+						if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
+							dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]]  + ': ' + contentAccumulator[s] + '!important;';
 						}		
 					}
 				}

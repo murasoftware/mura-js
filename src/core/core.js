@@ -749,37 +749,89 @@ var Mura=(function(){
 			return '';
 		}
 
-		var str = data.header;
+		var str = "<div class=\"mura-region\" data-regionid=\"" + data.regionid + "\">";
 
+		function buildItemHeader(data){
+			var classes=data.class || '';
+ 			var header="<div class=\"mura-object " + classes + "\"";
+			for(var p in data){
+				if(data.hasOwnProperty(p)){
+					if(typeof data[p] == 'object'){
+						header+=" data-" + p + "=\'" + JSON.stringify(data[p]) + "\'";
+					} else {
+						header+=" data-" + p + "=\"" + data[p] + "\"";
+					}
+				}
+			}
 
+			header +=">";
+			return header;
+		}
+
+		function buildRegionSectionHeader(section,name,perm,regionid){
+			if(!name){
+				return "<div class=\"mura-region-" + section + "\">";
+			} else {
+				if(section=='inherited'){
+					return "<div class=\"mura-region-inherited\" data-perm=\"" + perm + "\"><div class=\"frontEndToolsModal mura\"><span class=\"mura-edit-label mi-lock\">" + name.toUpperCase() + ": Inherited</span>";
+				} else {
+					return "<div class=\"mura-editable mura-inactive\"><div class=\"mura-region-local mura-inactive mura-editable-attribute\" data-loose=\"false\" data-regionid=\"" + regionid + "\" data-inited=\"false\" data-perm=\"" + perm + "\"><label class=\"mura-editable-label\" style=\"display:none\">" + name.toUpperCase() + "</label>";
+				}
+			}
+		}
 
 		if(data.inherited.items.length){
-			str += data.inherited.header;
+			if(data.inherited.header){
+				str += data.inherited.header;
+			} else {
+				str += buildRegionSectionHeader('inherited',data.name,data.inherited.perm,data.regionid);
+			}
+			
 			for(var i in data.inherited.items){
-				str += data.inherited.items[i].header;
+				if(data.inherited.items[i].header){
+					str += data.inherited.items[i].header;
+				} else {
+					str += buildItemHeader(data.inherited.items[i]);
+				}
 				if(typeof data.inherited.items[i].html != 'undefined' && data.inherited.items[i].html){
 					str += data.inherited.items[i].html;
 				}
-				str += data.inherited.items[i].footer;
+				if(data.inherited.items[i].footer){
+					str += data.inherited.items[i].footer;
+				} else {
+					str += "</div>"
+				}
 			}
-			str += data.inherited.footer;
+			str += "</div>";
 		}
 
-		str += data.local.header;
+		if(data.local.header){
+			str += data.local.header;
+		} else {
+			str += buildRegionSectionHeader('local',data.name,data.local.perm,data.regionid);
+		}
 
 		if(data.local.items.length){
 			for(var i in data.local.items){
-				str += data.local.items[i].header;
+				if(data.local.items[i].header){
+					str += data.local.items[i].header;
+				} else {
+					str += buildItemHeader(data.local.items[i]);
+				}
 				if(typeof data.local.items[i].html != 'undefined' && data.local.items[i].html){
 					str += data.local.items[i].html;
 				}
-				str += data.local.items[i].footer;
+				if(data.local.items[i].footer){
+					str += data.local.items[i].footer;
+				} else {
+					str += '</div>'
+				}
 			}
 		}
 
-		str += data.local.footer;
+		str += "</div>";
 
-		str += data.footer;
+		str += "</div>";
 
 		return str;
 	}
@@ -802,7 +854,7 @@ var Mura=(function(){
 					}
 					
 					try {
-						var testVal = JSON.parse(val);
+						var testVal = JSON.parse.call(null,val);
 						if(typeof testVal != 'string'){
 							return testVal;
 						} else {
