@@ -22,6 +22,7 @@ require('./core/ui.hr');
 require('./core/ui.embed');
 require('./core/ui.image');
 require('./core/ui.collection');
+require('./core/ui.container');
 require('./core/templates');
 
 if(Mura.isInNode()){

@@ -83,6 +83,10 @@ Mura.UI=Mura.Core.extend(
 		
 	},
 
+	reset:function(self,empty){
+		
+	},
+
 	init:function(args){
 		this.context=args;
 		this.registerHelpers();

@@ -230,6 +230,11 @@ Mura.DOMSelection = Mura.Core.extend(
 				EventListenerOptions=true;
 			}
 		}
+
+		if(eventName=='touchstart' || eventName=='end'){
+			EventListenerOptions= Mura.supportsPassive ? { passive: true } : false;
+		}
+
 		if (typeof selector == 'function') {
 			fn = selector;
 			selector = '';
@@ -676,7 +681,11 @@ Mura.DOMSelection = Mura.Core.extend(
 				var el = document.createElement('div');
 				el.setAttribute('class','mura-object');
 				for (var a in data) {
-					el.setAttribute('data-' + a,data[a]);
+					if(typeof data[a]=='object'){
+						el.setAttribute('data-' + a,JSON.stringify(data[a]));
+					}else {
+						el.setAttribute('data-' + a,data[a]);
+					}
 				}
 				if (typeof data.async == 'undefined') {
 					el.setAttribute('data-async',true);
@@ -1310,9 +1319,16 @@ Mura.DOMSelection = Mura.Core.extend(
  			}
 
 			var styleSupport=obj.data('stylesupport') || {};
-
+			
 			if(typeof styleSupport == 'string'){
-				styleSupport={};
+				try{
+					styleSupport=JSON.parse(styleSupport)
+				} catch(e){
+					styleSupport={};
+				}
+				if(typeof styleSupport == 'string'){
+					styleSupport={};
+				}
 			}
 			var objectstyles={};
 

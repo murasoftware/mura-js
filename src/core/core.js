@@ -800,10 +800,14 @@ var Mura=(function(){
 							return numVal;
 						}
 					}
-
+					
 					try {
-						var jsonVal = JSON.parse(val);
-						return jsonVal;
+						var testVal = JSON.parse(val);
+						if(typeof testVal != 'string'){
+							return testVal;
+						} else {
+							return val;
+						}
 					} catch (e) {
 						return val;
 					}
@@ -2041,6 +2045,19 @@ var Mura=(function(){
 	function resetAsyncObject(el,empty) {
 		var self = Mura(el);
 
+		function clearAttrs(obj){
+			obj.removeClass('mura-active');
+			obj.removeAttr('data-perm');
+			obj.removeAttr('data-runtime');
+			obj.removeAttr('draggable');
+			obj.removeAttr('style');
+			obj.removeAttr('data-inited');
+			obj.removeAttr('data-startrow');
+			obj.removeAttr('data-pagenum');
+			obj.removeAttr('data-nextnid');
+			obj.removeAttr('data-origininstanceid');
+		}
+		
 		if(self.data('transient')){
 			self.remove();
 		} else { 
@@ -2048,16 +2065,8 @@ var Mura=(function(){
 			if(typeof empty =='undefined'){
 				empty=true;
 			}
-			self.removeClass('mura-active');
-			self.removeAttr('data-perm');
-			self.removeAttr('data-runtime');
-			self.removeAttr('draggable');
-			self.removeAttr('style');
-			self.removeAttr('data-inited');
-			self.removeAttr('data-startrow');
-			self.removeAttr('data-pagenum');
-			self.removeAttr('data-nextnid');
-			self.removeAttr('data-origininstanceid');
+			
+			clearAttrs(self);
 
 			var data=self.data();
 
@@ -2066,37 +2075,11 @@ var Mura=(function(){
 					self.removeAttr('data-' + p);
 				}
 			}
-
-			if (self.data('object') == 'container') {
-				self.find('.mura-object:not([data-object="container"])').html('');
-				self.find('.frontEndToolsModal').remove();
-				self.find('.mura-object').each(function() {
-					var self = Mura(this);
-					self.removeClass('mura-active');
-					self.removeAttr('data-perm');
-					self.removeAttr('data-runtime');
-					self.removeAttr('draggable');
-					self.removeAttr('style');
-					self.removeAttr('data-inited');
-					self.removeAttr('data-startrow');
-					self.removeAttr('data-pagenum');
-					self.removeAttr('data-nextnid');
-					self.removeAttr('data-origininstanceid');
-				});
-
-				self.find('.mura-object[data-object="container"]').each(
-					function() {
-						resetAsyncObject(this,empty);
-						
-					});
-
-				self.find('.mura-object-meta').html('');
-				var content = self.children('div.mura-object-content');
-
-				if (content.length) {
-					self.data('content', content.html());
-				}
+			
+			if(typeof Mura.displayObjectInstances[self.data('instanceid')] != 'undefined'){
+				Mura.displayObjectInstances[self.data('instanceid')].reset(self,empty);
 			}
+
 			if(empty){
 				self.html('');
 			}
@@ -2155,81 +2138,32 @@ var Mura=(function(){
 		obj.data('inited', true);
 
 		if (response) {
-				if (typeof response == 'string') {
-					obj.html(trim(response));
-				} else if (typeof response.html == 'string' && response.render != 'client') {
-					obj.html(trim(response.html));
-				} else {
-					if (obj.data('object') == 'container') {
-						var context = filterUnwantedParams(deepExtend(obj.data(), response));
-						context.targetEl = obj.node;
-						obj.prepend(Mura.templates.meta(context));
-					} else {
-						var context = filterUnwantedParams(deepExtend(obj.data(), response));
-						var template = obj.data('clienttemplate') || obj.data('object');
-						var properNameCheck = firstToUpperCase(template);
-
-						if (typeof Mura.DisplayObject[properNameCheck] != 'undefined') {
-							template = properNameCheck;
-						}
-
-						if (typeof context.async != 'undefined') {
-							obj.data('async', context.async);
-						}
-
-						if (typeof context.render != 'undefined') {
-							obj.data('render', context.render);
-						}
-
-						if (typeof context.rendertemplate != 'undefined') {
-							obj.data('rendertemplate', context.rendertemplate);
-						}
-
-						if (typeof Mura.DisplayObject[template] != 'undefined') {
-							context.html = '';
-							if(typeof Mura.displayObjectInstances[obj.data('instanceid')] != 'undefined'){
-								Mura.displayObjectInstances[obj.data('instanceid')].destroy();
-							}
-							obj.html(Mura.templates.content({html:''}));
-							obj.prepend(Mura.templates.meta(context));
-							context.targetEl = obj.children('.mura-object-content').node;
-							Mura.displayObjectInstances[obj.data('instanceid')]=new Mura.DisplayObject[template](context);
-							Mura.displayObjectInstances[obj.data('instanceid')].trigger('beforeRender');
-							Mura.displayObjectInstances[obj.data('instanceid')].renderClient();
-						} else if (typeof Mura.templates[template] !=	'undefined') {
-							context.html = '';
-							obj.html(Mura.templates.content(context));
-							obj.prepend(Mura.templates.meta(context));
-							context.targetEl = obj.children('.mura-object-content').node;
-							Mura.templates[template](context);
-						} else {
-							if(attempt < 1000){
-								setTimeout(
-									function(){
-											wireUpObject(obj,response,attempt);
-									},
-									1
-								);
-							} else {
-								console.log('Missing Client Template for:');
-								console.log(obj.data());
-							}
-						}
-					}
-				}
-		} else {
-			var context = filterUnwantedParams(obj.data());
-			if (obj.data('object') == 'container') {
-				obj.prepend(Mura.templates.meta(context));
+			if (typeof response == 'string') {
+				obj.html(trim(response));
+			} else if (typeof response.html == 'string' && response.render != 'client') {
+				obj.html(trim(response.html));
 			} else {
+				var context = filterUnwantedParams(deepExtend(obj.data(), response));
 				var template = obj.data('clienttemplate') || obj.data('object');
 				var properNameCheck = firstToUpperCase(template);
 
-				if (typeof Mura.DisplayObject[properNameCheck] !=	'undefined') {
+				if (typeof Mura.DisplayObject[properNameCheck] != 'undefined') {
 					template = properNameCheck;
 				}
 
-				if (typeof Mura.DisplayObject[template] == 'function') {
+				if (typeof context.async != 'undefined') {
+					obj.data('async', context.async);
+				}
+
+				if (typeof context.render != 'undefined') {
+					obj.data('render', context.render);
+				}
+
+				if (typeof context.rendertemplate != 'undefined') {
+					obj.data('rendertemplate', context.rendertemplate);
+				}
+
+				if (typeof Mura.DisplayObject[template] != 'undefined') {
 					context.html = '';
 					if(typeof Mura.displayObjectInstances[obj.data('instanceid')] != 'undefined'){
 						Mura.displayObjectInstances[obj.data('instanceid')].destroy();
@@ -2250,7 +2184,7 @@ var Mura=(function(){
 					if(attempt < 1000){
 						setTimeout(
 							function(){
-								wireUpObject(obj,response,attempt);
+									wireUpObject(obj,response,attempt);
 							},
 							1
 						);
@@ -2258,6 +2192,45 @@ var Mura=(function(){
 						console.log('Missing Client Template for:');
 						console.log(obj.data());
 					}
+				}
+			}
+		} else {
+			var context = filterUnwantedParams(obj.data());
+			var template = obj.data('clienttemplate') || obj.data('object');
+			var properNameCheck = firstToUpperCase(template);
+
+			if (typeof Mura.DisplayObject[properNameCheck] !=	'undefined') {
+				template = properNameCheck;
+			}
+
+			if (typeof Mura.DisplayObject[template] == 'function') {
+				context.html = '';
+				if(typeof Mura.displayObjectInstances[obj.data('instanceid')] != 'undefined'){
+					Mura.displayObjectInstances[obj.data('instanceid')].destroy();
+				}
+				obj.html(Mura.templates.content({html:''}));
+				obj.prepend(Mura.templates.meta(context));
+				context.targetEl = obj.children('.mura-object-content').node;
+				Mura.displayObjectInstances[obj.data('instanceid')]=new Mura.DisplayObject[template](context);
+				Mura.displayObjectInstances[obj.data('instanceid')].trigger('beforeRender');
+				Mura.displayObjectInstances[obj.data('instanceid')].renderClient();
+			} else if (typeof Mura.templates[template] !=	'undefined') {
+				context.html = '';
+				obj.html(Mura.templates.content(context));
+				obj.prepend(Mura.templates.meta(context));
+				context.targetEl = obj.children('.mura-object-content').node;
+				Mura.templates[template](context);
+			} else {
+				if(attempt < 1000){
+					setTimeout(
+						function(){
+							wireUpObject(obj,response,attempt);
+						},
+						1
+					);
+				} else {
+					console.log('Missing Client Template for:');
+					console.log(obj.data());
 				}
 			}
 		}
@@ -2407,9 +2380,9 @@ var Mura=(function(){
 											Mura(this).removeClass('mura-active-target');
 										}
 									);
-								}
 							}
 						}
+					}
 				}
 			}
 		}
@@ -2514,8 +2487,10 @@ var Mura=(function(){
 				queue=queue.toLowerCase();
 				if(queue=='no' || queue=='false'){
 					queue=false;
+					obj.data('queue',false);
 				} else {
-					queue==true;
+					queue=true;
+					obj.data('queue',true);
 				}
 			}
 		}
@@ -2557,15 +2532,33 @@ var Mura=(function(){
 		//if(obj.data('async')){
 		obj.addClass("mura-async-object");
 		//}
-
+		/*
 		if (obj.data('object') == 'container') {
-			obj.html(Mura.templates.content(obj.data()));
+			var handeContainer=function(obj){
+				var items=obj.data('items');
+				
+				if(!Array.isArray(items)){
+					obj.html(Mura.templates.content({content:obj.data('content')}));
+				} else {
+					obj.html(Mura.templates.content({content:''}));
+					var target=obj.children('.mura-object-content');
+					items.forEach(function(data){
+						//console.log(data)
+						data.transient=false;
+						target.appendDisplayObject(data);
+					})
+				}
+			}
 
+			handeContainer(obj);
+			
 			obj.find('.mura-object').each(function() {
 				this.innerHTML=obj.data('preloadermarkup') || Mura.preloadermarkup;
 				this.setAttribute('data-instanceid', createUUID());
 			});
+			
 		}
+		*/
 
 		if (rendered && !obj.data('async')) {
 			
@@ -2655,7 +2648,7 @@ var Mura=(function(){
 				data['objectparams'] = encodeURIComponent(JSON.stringify(data['objectparams']));
 			}
 
-			if (obj.data('object') == 'container') {
+			if (!obj.data('async') && obj.data('render') == 'client') {
 				wireUpObject(obj);
 				if (typeof resolve == 'function') {
 					if(typeof resolve.call == 'undefined'){
@@ -2665,62 +2658,51 @@ var Mura=(function(){
 					}
 				}
 			} else {
-				if (!obj.data('async') && obj.data('render') == 'client') {
-					wireUpObject(obj);
-						if (typeof resolve == 'function') {
-							if(typeof resolve.call == 'undefined'){
-								resolve(obj);
-							} else {
-								resolve.call(obj.node, obj);
-							}
-						}
-				} else {
-					//console.log(data);
-					if(usePreloaderMarkup){
-						if(typeof data.preloadermarkup != 'undefined'){
-							obj.node.innerHTML = data.preloadermarkup;
-							delete data.preloadermarkup;
-						} else {
-							obj.node.innerHTML = Mura.preloadermarkup;
-						}
+				//console.log(data);
+				if(usePreloaderMarkup){
+					if(typeof data.preloadermarkup != 'undefined'){
+						obj.node.innerHTML = data.preloadermarkup;
+						delete data.preloadermarkup;
+					} else {
+						obj.node.innerHTML = Mura.preloadermarkup;
 					}
-
-					var requestType='get';
-					var requestData=filterUnwantedParams(data);
-					var postCheck=new RegExp(/<\/?[a-z][\s\S]*>/i);
-
-					for(var p in requestData){
-						if(requestData.hasOwnProperty(p) 
-							&& requestData[p]
-							&& postCheck.test(requestData[p])
-						){
-							requestType='post';
-							break;
-						}
-					}
-				
-					ajax({
-						url: Mura.getAPIEndpoint() + '?method=processAsyncObject',
-						type: requestType,
-						data: requestData,
-						success: function(resp) {
-							//obj=Mura('div[data-instanceid="' + obj.data('instanceid') + '"]');
-							setTimeout(function(){
-								handleResponse(obj, resp)
-								if (typeof resolve =='function') {
-									if(typeof resolve.call == 'undefined'){
-										resolve(obj);
-									} else {
-										resolve.call(obj.node, obj);
-									}
-								}
-							},0)
-						}
-							
-					});
 				}
 
+				var requestType='get';
+				var requestData=filterUnwantedParams(data);
+				var postCheck=new RegExp(/<\/?[a-z][\s\S]*>/i);
+
+				for(var p in requestData){
+					if(requestData.hasOwnProperty(p) 
+						&& requestData[p]
+						&& postCheck.test(requestData[p])
+					){
+						requestType='post';
+						break;
+					}
+				}
+			
+				ajax({
+					url: Mura.getAPIEndpoint() + '?method=processAsyncObject',
+					type: requestType,
+					data: requestData,
+					success: function(resp) {
+						//obj=Mura('div[data-instanceid="' + obj.data('instanceid') + '"]');
+						setTimeout(function(){
+							handleResponse(obj, resp)
+							if (typeof resolve =='function') {
+								if(typeof resolve.call == 'undefined'){
+									resolve(obj);
+								} else {
+									resolve.call(obj.node, obj);
+								}
+							}
+						},0)
+					}
+						
+				});
 			}
+
 		});
 
 	}

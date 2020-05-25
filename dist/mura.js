@@ -231,28 +231,6 @@ module.exports = !__webpack_require__(3)(function () {
 /* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var anObject = __webpack_require__(1);
-var IE8_DOM_DEFINE = __webpack_require__(97);
-var toPrimitive = __webpack_require__(24);
-var dP = Object.defineProperty;
-
-exports.f = __webpack_require__(7) ? Object.defineProperty : function defineProperty(O, P, Attributes) {
-  anObject(O);
-  P = toPrimitive(P, true);
-  anObject(Attributes);
-  if (IE8_DOM_DEFINE) try {
-    return dP(O, P, Attributes);
-  } catch (e) { /* empty */ }
-  if ('get' in Attributes || 'set' in Attributes) throw TypeError('Accessors not supported!');
-  if ('value' in Attributes) O[P] = Attributes.value;
-  return O;
-};
-
-
-/***/ }),
-/* 9 */
-/***/ (function(module, exports, __webpack_require__) {
-
 /* WEBPACK VAR INJECTION */(function(process) {
 //require("babel-polyfill");
 //require("./polyfill");
@@ -1055,10 +1033,14 @@ var Mura=(function(){
 							return numVal;
 						}
 					}
-
+					
 					try {
-						var jsonVal = JSON.parse(val);
-						return jsonVal;
+						var testVal = JSON.parse(val);
+						if(typeof testVal != 'string'){
+							return testVal;
+						} else {
+							return val;
+						}
 					} catch (e) {
 						return val;
 					}
@@ -2296,6 +2278,19 @@ var Mura=(function(){
 	function resetAsyncObject(el,empty) {
 		var self = Mura(el);
 
+		function clearAttrs(obj){
+			obj.removeClass('mura-active');
+			obj.removeAttr('data-perm');
+			obj.removeAttr('data-runtime');
+			obj.removeAttr('draggable');
+			obj.removeAttr('style');
+			obj.removeAttr('data-inited');
+			obj.removeAttr('data-startrow');
+			obj.removeAttr('data-pagenum');
+			obj.removeAttr('data-nextnid');
+			obj.removeAttr('data-origininstanceid');
+		}
+		
 		if(self.data('transient')){
 			self.remove();
 		} else { 
@@ -2303,16 +2298,8 @@ var Mura=(function(){
 			if(typeof empty =='undefined'){
 				empty=true;
 			}
-			self.removeClass('mura-active');
-			self.removeAttr('data-perm');
-			self.removeAttr('data-runtime');
-			self.removeAttr('draggable');
-			self.removeAttr('style');
-			self.removeAttr('data-inited');
-			self.removeAttr('data-startrow');
-			self.removeAttr('data-pagenum');
-			self.removeAttr('data-nextnid');
-			self.removeAttr('data-origininstanceid');
+			
+			clearAttrs(self);
 
 			var data=self.data();
 
@@ -2321,37 +2308,11 @@ var Mura=(function(){
 					self.removeAttr('data-' + p);
 				}
 			}
-
-			if (self.data('object') == 'container') {
-				self.find('.mura-object:not([data-object="container"])').html('');
-				self.find('.frontEndToolsModal').remove();
-				self.find('.mura-object').each(function() {
-					var self = Mura(this);
-					self.removeClass('mura-active');
-					self.removeAttr('data-perm');
-					self.removeAttr('data-runtime');
-					self.removeAttr('draggable');
-					self.removeAttr('style');
-					self.removeAttr('data-inited');
-					self.removeAttr('data-startrow');
-					self.removeAttr('data-pagenum');
-					self.removeAttr('data-nextnid');
-					self.removeAttr('data-origininstanceid');
-				});
-
-				self.find('.mura-object[data-object="container"]').each(
-					function() {
-						resetAsyncObject(this,empty);
-						
-					});
-
-				self.find('.mura-object-meta').html('');
-				var content = self.children('div.mura-object-content');
-
-				if (content.length) {
-					self.data('content', content.html());
-				}
+			
+			if(typeof Mura.displayObjectInstances[self.data('instanceid')] != 'undefined'){
+				Mura.displayObjectInstances[self.data('instanceid')].reset(self,empty);
 			}
+
 			if(empty){
 				self.html('');
 			}
@@ -2410,81 +2371,32 @@ var Mura=(function(){
 		obj.data('inited', true);
 
 		if (response) {
-				if (typeof response == 'string') {
-					obj.html(trim(response));
-				} else if (typeof response.html == 'string' && response.render != 'client') {
-					obj.html(trim(response.html));
-				} else {
-					if (obj.data('object') == 'container') {
-						var context = filterUnwantedParams(deepExtend(obj.data(), response));
-						context.targetEl = obj.node;
-						obj.prepend(Mura.templates.meta(context));
-					} else {
-						var context = filterUnwantedParams(deepExtend(obj.data(), response));
-						var template = obj.data('clienttemplate') || obj.data('object');
-						var properNameCheck = firstToUpperCase(template);
-
-						if (typeof Mura.DisplayObject[properNameCheck] != 'undefined') {
-							template = properNameCheck;
-						}
-
-						if (typeof context.async != 'undefined') {
-							obj.data('async', context.async);
-						}
-
-						if (typeof context.render != 'undefined') {
-							obj.data('render', context.render);
-						}
-
-						if (typeof context.rendertemplate != 'undefined') {
-							obj.data('rendertemplate', context.rendertemplate);
-						}
-
-						if (typeof Mura.DisplayObject[template] != 'undefined') {
-							context.html = '';
-							if(typeof Mura.displayObjectInstances[obj.data('instanceid')] != 'undefined'){
-								Mura.displayObjectInstances[obj.data('instanceid')].destroy();
-							}
-							obj.html(Mura.templates.content({html:''}));
-							obj.prepend(Mura.templates.meta(context));
-							context.targetEl = obj.children('.mura-object-content').node;
-							Mura.displayObjectInstances[obj.data('instanceid')]=new Mura.DisplayObject[template](context);
-							Mura.displayObjectInstances[obj.data('instanceid')].trigger('beforeRender');
-							Mura.displayObjectInstances[obj.data('instanceid')].renderClient();
-						} else if (typeof Mura.templates[template] !=	'undefined') {
-							context.html = '';
-							obj.html(Mura.templates.content(context));
-							obj.prepend(Mura.templates.meta(context));
-							context.targetEl = obj.children('.mura-object-content').node;
-							Mura.templates[template](context);
-						} else {
-							if(attempt < 1000){
-								setTimeout(
-									function(){
-											wireUpObject(obj,response,attempt);
-									},
-									1
-								);
-							} else {
-								console.log('Missing Client Template for:');
-								console.log(obj.data());
-							}
-						}
-					}
-				}
-		} else {
-			var context = filterUnwantedParams(obj.data());
-			if (obj.data('object') == 'container') {
-				obj.prepend(Mura.templates.meta(context));
+			if (typeof response == 'string') {
+				obj.html(trim(response));
+			} else if (typeof response.html == 'string' && response.render != 'client') {
+				obj.html(trim(response.html));
 			} else {
+				var context = filterUnwantedParams(deepExtend(obj.data(), response));
 				var template = obj.data('clienttemplate') || obj.data('object');
 				var properNameCheck = firstToUpperCase(template);
 
-				if (typeof Mura.DisplayObject[properNameCheck] !=	'undefined') {
+				if (typeof Mura.DisplayObject[properNameCheck] != 'undefined') {
 					template = properNameCheck;
 				}
 
-				if (typeof Mura.DisplayObject[template] == 'function') {
+				if (typeof context.async != 'undefined') {
+					obj.data('async', context.async);
+				}
+
+				if (typeof context.render != 'undefined') {
+					obj.data('render', context.render);
+				}
+
+				if (typeof context.rendertemplate != 'undefined') {
+					obj.data('rendertemplate', context.rendertemplate);
+				}
+
+				if (typeof Mura.DisplayObject[template] != 'undefined') {
 					context.html = '';
 					if(typeof Mura.displayObjectInstances[obj.data('instanceid')] != 'undefined'){
 						Mura.displayObjectInstances[obj.data('instanceid')].destroy();
@@ -2505,7 +2417,7 @@ var Mura=(function(){
 					if(attempt < 1000){
 						setTimeout(
 							function(){
-								wireUpObject(obj,response,attempt);
+									wireUpObject(obj,response,attempt);
 							},
 							1
 						);
@@ -2513,6 +2425,45 @@ var Mura=(function(){
 						console.log('Missing Client Template for:');
 						console.log(obj.data());
 					}
+				}
+			}
+		} else {
+			var context = filterUnwantedParams(obj.data());
+			var template = obj.data('clienttemplate') || obj.data('object');
+			var properNameCheck = firstToUpperCase(template);
+
+			if (typeof Mura.DisplayObject[properNameCheck] !=	'undefined') {
+				template = properNameCheck;
+			}
+
+			if (typeof Mura.DisplayObject[template] == 'function') {
+				context.html = '';
+				if(typeof Mura.displayObjectInstances[obj.data('instanceid')] != 'undefined'){
+					Mura.displayObjectInstances[obj.data('instanceid')].destroy();
+				}
+				obj.html(Mura.templates.content({html:''}));
+				obj.prepend(Mura.templates.meta(context));
+				context.targetEl = obj.children('.mura-object-content').node;
+				Mura.displayObjectInstances[obj.data('instanceid')]=new Mura.DisplayObject[template](context);
+				Mura.displayObjectInstances[obj.data('instanceid')].trigger('beforeRender');
+				Mura.displayObjectInstances[obj.data('instanceid')].renderClient();
+			} else if (typeof Mura.templates[template] !=	'undefined') {
+				context.html = '';
+				obj.html(Mura.templates.content(context));
+				obj.prepend(Mura.templates.meta(context));
+				context.targetEl = obj.children('.mura-object-content').node;
+				Mura.templates[template](context);
+			} else {
+				if(attempt < 1000){
+					setTimeout(
+						function(){
+							wireUpObject(obj,response,attempt);
+						},
+						1
+					);
+				} else {
+					console.log('Missing Client Template for:');
+					console.log(obj.data());
 				}
 			}
 		}
@@ -2662,9 +2613,9 @@ var Mura=(function(){
 											Mura(this).removeClass('mura-active-target');
 										}
 									);
-								}
 							}
 						}
+					}
 				}
 			}
 		}
@@ -2769,8 +2720,10 @@ var Mura=(function(){
 				queue=queue.toLowerCase();
 				if(queue=='no' || queue=='false'){
 					queue=false;
+					obj.data('queue',false);
 				} else {
-					queue==true;
+					queue=true;
+					obj.data('queue',true);
 				}
 			}
 		}
@@ -2812,15 +2765,33 @@ var Mura=(function(){
 		//if(obj.data('async')){
 		obj.addClass("mura-async-object");
 		//}
-
+		/*
 		if (obj.data('object') == 'container') {
-			obj.html(Mura.templates.content(obj.data()));
+			var handeContainer=function(obj){
+				var items=obj.data('items');
+				
+				if(!Array.isArray(items)){
+					obj.html(Mura.templates.content({content:obj.data('content')}));
+				} else {
+					obj.html(Mura.templates.content({content:''}));
+					var target=obj.children('.mura-object-content');
+					items.forEach(function(data){
+						//console.log(data)
+						data.transient=false;
+						target.appendDisplayObject(data);
+					})
+				}
+			}
 
+			handeContainer(obj);
+			
 			obj.find('.mura-object').each(function() {
 				this.innerHTML=obj.data('preloadermarkup') || Mura.preloadermarkup;
 				this.setAttribute('data-instanceid', createUUID());
 			});
+			
 		}
+		*/
 
 		if (rendered && !obj.data('async')) {
 			
@@ -2910,7 +2881,7 @@ var Mura=(function(){
 				data['objectparams'] = encodeURIComponent(JSON.stringify(data['objectparams']));
 			}
 
-			if (obj.data('object') == 'container') {
+			if (!obj.data('async') && obj.data('render') == 'client') {
 				wireUpObject(obj);
 				if (typeof resolve == 'function') {
 					if(typeof resolve.call == 'undefined'){
@@ -2920,62 +2891,51 @@ var Mura=(function(){
 					}
 				}
 			} else {
-				if (!obj.data('async') && obj.data('render') == 'client') {
-					wireUpObject(obj);
-						if (typeof resolve == 'function') {
-							if(typeof resolve.call == 'undefined'){
-								resolve(obj);
-							} else {
-								resolve.call(obj.node, obj);
-							}
-						}
-				} else {
-					//console.log(data);
-					if(usePreloaderMarkup){
-						if(typeof data.preloadermarkup != 'undefined'){
-							obj.node.innerHTML = data.preloadermarkup;
-							delete data.preloadermarkup;
-						} else {
-							obj.node.innerHTML = Mura.preloadermarkup;
-						}
+				//console.log(data);
+				if(usePreloaderMarkup){
+					if(typeof data.preloadermarkup != 'undefined'){
+						obj.node.innerHTML = data.preloadermarkup;
+						delete data.preloadermarkup;
+					} else {
+						obj.node.innerHTML = Mura.preloadermarkup;
 					}
-
-					var requestType='get';
-					var requestData=filterUnwantedParams(data);
-					var postCheck=new RegExp(/<\/?[a-z][\s\S]*>/i);
-
-					for(var p in requestData){
-						if(requestData.hasOwnProperty(p) 
-							&& requestData[p]
-							&& postCheck.test(requestData[p])
-						){
-							requestType='post';
-							break;
-						}
-					}
-				
-					ajax({
-						url: Mura.getAPIEndpoint() + '?method=processAsyncObject',
-						type: requestType,
-						data: requestData,
-						success: function(resp) {
-							//obj=Mura('div[data-instanceid="' + obj.data('instanceid') + '"]');
-							setTimeout(function(){
-								handleResponse(obj, resp)
-								if (typeof resolve =='function') {
-									if(typeof resolve.call == 'undefined'){
-										resolve(obj);
-									} else {
-										resolve.call(obj.node, obj);
-									}
-								}
-							},0)
-						}
-							
-					});
 				}
 
+				var requestType='get';
+				var requestData=filterUnwantedParams(data);
+				var postCheck=new RegExp(/<\/?[a-z][\s\S]*>/i);
+
+				for(var p in requestData){
+					if(requestData.hasOwnProperty(p) 
+						&& requestData[p]
+						&& postCheck.test(requestData[p])
+					){
+						requestType='post';
+						break;
+					}
+				}
+			
+				ajax({
+					url: Mura.getAPIEndpoint() + '?method=processAsyncObject',
+					type: requestType,
+					data: requestData,
+					success: function(resp) {
+						//obj=Mura('div[data-instanceid="' + obj.data('instanceid') + '"]');
+						setTimeout(function(){
+							handleResponse(obj, resp)
+							if (typeof resolve =='function') {
+								if(typeof resolve.call == 'undefined'){
+									resolve(obj);
+								} else {
+									resolve.call(obj.node, obj);
+								}
+							}
+						},0)
+					}
+						
+				});
 			}
+
 		});
 
 	}
@@ -3767,6 +3727,28 @@ module.exports=Mura;
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(133)))
 
 /***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var anObject = __webpack_require__(1);
+var IE8_DOM_DEFINE = __webpack_require__(97);
+var toPrimitive = __webpack_require__(24);
+var dP = Object.defineProperty;
+
+exports.f = __webpack_require__(7) ? Object.defineProperty : function defineProperty(O, P, Attributes) {
+  anObject(O);
+  P = toPrimitive(P, true);
+  anObject(Attributes);
+  if (IE8_DOM_DEFINE) try {
+    return dP(O, P, Attributes);
+  } catch (e) { /* empty */ }
+  if ('get' in Attributes || 'set' in Attributes) throw TypeError('Accessors not supported!');
+  if ('value' in Attributes) O[P] = Attributes.value;
+  return O;
+};
+
+
+/***/ }),
 /* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -3791,7 +3773,7 @@ module.exports = function (it) {
 /* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var dP = __webpack_require__(8);
+var dP = __webpack_require__(9);
 var createDesc = __webpack_require__(34);
 module.exports = __webpack_require__(7) ? function (object, key, value) {
   return dP.f(object, key, createDesc(1, value));
@@ -4268,7 +4250,7 @@ if (__webpack_require__(7)) {
   var setSpecies = __webpack_require__(40);
   var arrayFill = __webpack_require__(89);
   var arrayCopyWithin = __webpack_require__(114);
-  var $DP = __webpack_require__(8);
+  var $DP = __webpack_require__(9);
   var $GOPD = __webpack_require__(17);
   var dP = $DP.f;
   var gOPD = $GOPD.f;
@@ -4783,7 +4765,7 @@ module.exports = false;
 var META = __webpack_require__(35)('meta');
 var isObject = __webpack_require__(4);
 var has = __webpack_require__(15);
-var setDesc = __webpack_require__(8).f;
+var setDesc = __webpack_require__(9).f;
 var id = 0;
 var isExtensible = Object.isExtensible || function () {
   return true;
@@ -4966,7 +4948,7 @@ exports.f = Object.getOwnPropertyNames || function getOwnPropertyNames(O) {
 "use strict";
 
 var global = __webpack_require__(2);
-var dP = __webpack_require__(8);
+var dP = __webpack_require__(9);
 var DESCRIPTORS = __webpack_require__(7);
 var SPECIES = __webpack_require__(5)('species');
 
@@ -5118,7 +5100,7 @@ module.exports = exports['default'];
 /* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var def = __webpack_require__(8).f;
+var def = __webpack_require__(9).f;
 var has = __webpack_require__(15);
 var TAG = __webpack_require__(5)('toStringTag');
 
@@ -5767,7 +5749,7 @@ var global = __webpack_require__(2);
 var core = __webpack_require__(19);
 var LIBRARY = __webpack_require__(31);
 var wksExt = __webpack_require__(98);
-var defineProperty = __webpack_require__(8).f;
+var defineProperty = __webpack_require__(9).f;
 module.exports = function (name) {
   var $Symbol = core.Symbol || (core.Symbol = LIBRARY ? {} : global.Symbol || {});
   if (name.charAt(0) != '_' && !(name in $Symbol)) defineProperty($Symbol, name, { value: wksExt.f(name) });
@@ -6051,7 +6033,7 @@ module.exports = function (it) {
 
 "use strict";
 
-var $defineProperty = __webpack_require__(8);
+var $defineProperty = __webpack_require__(9);
 var createDesc = __webpack_require__(34);
 
 module.exports = function (object, index, value) {
@@ -6437,7 +6419,7 @@ var toInteger = __webpack_require__(22);
 var toLength = __webpack_require__(6);
 var toIndex = __webpack_require__(125);
 var gOPN = __webpack_require__(39).f;
-var dP = __webpack_require__(8).f;
+var dP = __webpack_require__(9).f;
 var arrayFill = __webpack_require__(89);
 var setToStringTag = __webpack_require__(46);
 var ARRAY_BUFFER = 'ArrayBuffer';
@@ -6745,7 +6727,7 @@ module.exports = function (object, names) {
 /* 100 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var dP = __webpack_require__(8);
+var dP = __webpack_require__(9);
 var anObject = __webpack_require__(1);
 var getKeys = __webpack_require__(36);
 
@@ -7101,7 +7083,7 @@ __webpack_require__(0)({
 /***/ (function(module, exports, __webpack_require__) {
 
 // 21.2.5.3 get RegExp.prototype.flags()
-if (__webpack_require__(7) && /./g.flags != 'g') __webpack_require__(8).f(RegExp.prototype, 'flags', {
+if (__webpack_require__(7) && /./g.flags != 'g') __webpack_require__(9).f(RegExp.prototype, 'flags', {
   configurable: true,
   get: __webpack_require__(53)
 });
@@ -7170,7 +7152,7 @@ module.exports = __webpack_require__(65)(MAP, function (get) {
 
 "use strict";
 
-var dP = __webpack_require__(8).f;
+var dP = __webpack_require__(9).f;
 var create = __webpack_require__(38);
 var redefineAll = __webpack_require__(43);
 var ctx = __webpack_require__(20);
@@ -7885,7 +7867,7 @@ var _exception2 = _interopRequireDefault(_exception);
 
 var _helpers = __webpack_require__(135);
 
-var _decorators = __webpack_require__(371);
+var _decorators = __webpack_require__(372);
 
 var _logger = __webpack_require__(136);
 
@@ -8001,31 +7983,31 @@ exports.moveHelperToHooks = moveHelperToHooks;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var _helpersBlockHelperMissing = __webpack_require__(364);
+var _helpersBlockHelperMissing = __webpack_require__(365);
 
 var _helpersBlockHelperMissing2 = _interopRequireDefault(_helpersBlockHelperMissing);
 
-var _helpersEach = __webpack_require__(365);
+var _helpersEach = __webpack_require__(366);
 
 var _helpersEach2 = _interopRequireDefault(_helpersEach);
 
-var _helpersHelperMissing = __webpack_require__(366);
+var _helpersHelperMissing = __webpack_require__(367);
 
 var _helpersHelperMissing2 = _interopRequireDefault(_helpersHelperMissing);
 
-var _helpersIf = __webpack_require__(367);
+var _helpersIf = __webpack_require__(368);
 
 var _helpersIf2 = _interopRequireDefault(_helpersIf);
 
-var _helpersLog = __webpack_require__(368);
+var _helpersLog = __webpack_require__(369);
 
 var _helpersLog2 = _interopRequireDefault(_helpersLog);
 
-var _helpersLookup = __webpack_require__(369);
+var _helpersLookup = __webpack_require__(370);
 
 var _helpersLookup2 = _interopRequireDefault(_helpersLookup);
 
-var _helpersWith = __webpack_require__(370);
+var _helpersWith = __webpack_require__(371);
 
 var _helpersWith2 = _interopRequireDefault(_helpersWith);
 
@@ -8119,7 +8101,7 @@ exports.resetLoggedProperties = resetLoggedProperties;
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
 
-var _createNewLookupObject = __webpack_require__(373);
+var _createNewLookupObject = __webpack_require__(374);
 
 var _logger = __webpack_require__(136);
 
@@ -8463,7 +8445,7 @@ var _create = __webpack_require__(38);
 var gOPNExt = __webpack_require__(101);
 var $GOPD = __webpack_require__(17);
 var $GOPS = __webpack_require__(57);
-var $DP = __webpack_require__(8);
+var $DP = __webpack_require__(9);
 var $keys = __webpack_require__(36);
 var gOPD = $GOPD.f;
 var dP = $DP.f;
@@ -8727,7 +8709,7 @@ $export($export.S, 'Object', { create: __webpack_require__(38) });
 
 var $export = __webpack_require__(0);
 // 19.1.2.4 / 15.2.3.6 Object.defineProperty(O, P, Attributes)
-$export($export.S + $export.F * !__webpack_require__(7), 'Object', { defineProperty: __webpack_require__(8).f });
+$export($export.S + $export.F * !__webpack_require__(7), 'Object', { defineProperty: __webpack_require__(9).f });
 
 
 /***/ }),
@@ -8940,7 +8922,7 @@ $export($export.P, 'Function', { bind: __webpack_require__(104) });
 /* 162 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var dP = __webpack_require__(8).f;
+var dP = __webpack_require__(9).f;
 var FProto = Function.prototype;
 var nameRE = /^\s*function ([^ (]*)/;
 var NAME = 'name';
@@ -8969,7 +8951,7 @@ var getPrototypeOf = __webpack_require__(18);
 var HAS_INSTANCE = __webpack_require__(5)('hasInstance');
 var FunctionProto = Function.prototype;
 // 19.2.3.6 Function.prototype[@@hasInstance](V)
-if (!(HAS_INSTANCE in FunctionProto)) __webpack_require__(8).f(FunctionProto, HAS_INSTANCE, { value: function (O) {
+if (!(HAS_INSTANCE in FunctionProto)) __webpack_require__(9).f(FunctionProto, HAS_INSTANCE, { value: function (O) {
   if (typeof this != 'function' || !isObject(O)) return false;
   if (!isObject(this.prototype)) return O instanceof this;
   // for environment w/o native `@@hasInstance` logic enough `instanceof`, but add this:
@@ -9012,7 +8994,7 @@ var toPrimitive = __webpack_require__(24);
 var fails = __webpack_require__(3);
 var gOPN = __webpack_require__(39).f;
 var gOPD = __webpack_require__(17).f;
-var dP = __webpack_require__(8).f;
+var dP = __webpack_require__(9).f;
 var $trim = __webpack_require__(48).trim;
 var NUMBER = 'Number';
 var $Number = global[NUMBER];
@@ -10534,7 +10516,7 @@ __webpack_require__(40)('Array');
 
 var global = __webpack_require__(2);
 var inheritIfRequired = __webpack_require__(77);
-var dP = __webpack_require__(8).f;
+var dP = __webpack_require__(9).f;
 var gOPN = __webpack_require__(39).f;
 var isRegExp = __webpack_require__(60);
 var $flags = __webpack_require__(53);
@@ -11516,7 +11498,7 @@ $export($export.S + $export.F * (NEW_TARGET_BUG || ARGS_BUG), 'Reflect', {
 /***/ (function(module, exports, __webpack_require__) {
 
 // 26.1.3 Reflect.defineProperty(target, propertyKey, attributes)
-var dP = __webpack_require__(8);
+var dP = __webpack_require__(9);
 var $export = __webpack_require__(0);
 var anObject = __webpack_require__(1);
 var toPrimitive = __webpack_require__(24);
@@ -11717,7 +11699,7 @@ $export($export.S, 'Reflect', {
 /***/ (function(module, exports, __webpack_require__) {
 
 // 26.1.13 Reflect.set(target, propertyKey, V [, receiver])
-var dP = __webpack_require__(8);
+var dP = __webpack_require__(9);
 var gOPD = __webpack_require__(17);
 var getPrototypeOf = __webpack_require__(18);
 var has = __webpack_require__(15);
@@ -12053,7 +12035,7 @@ $export($export.S, 'Object', {
 var $export = __webpack_require__(0);
 var toObject = __webpack_require__(10);
 var aFunction = __webpack_require__(11);
-var $defineProperty = __webpack_require__(8);
+var $defineProperty = __webpack_require__(9);
 
 // B.2.2.2 Object.prototype.__defineGetter__(P, getter)
 __webpack_require__(7) && $export($export.P + __webpack_require__(67), 'Object', {
@@ -12072,7 +12054,7 @@ __webpack_require__(7) && $export($export.P + __webpack_require__(67), 'Object',
 var $export = __webpack_require__(0);
 var toObject = __webpack_require__(10);
 var aFunction = __webpack_require__(11);
-var $defineProperty = __webpack_require__(8);
+var $defineProperty = __webpack_require__(9);
 
 // B.2.2.3 Object.prototype.__defineSetter__(P, setter)
 __webpack_require__(7) && $export($export.P + __webpack_require__(67), 'Object', {
@@ -13765,7 +13747,7 @@ module.exports = __webpack_require__(342);
 __webpack_require__(343);
 }
 
-const Mura=__webpack_require__(9);
+const Mura=__webpack_require__(8);
 
 __webpack_require__(344);
 __webpack_require__(345);
@@ -13786,6 +13768,7 @@ __webpack_require__(359);
 __webpack_require__(360);
 __webpack_require__(361);
 __webpack_require__(362);
+__webpack_require__(363);
 
 if(Mura.isInNode()){
 	/*
@@ -13932,7 +13915,7 @@ if(typeof window !='undefined' && typeof window.document != 'undefined'){
 /***/ (function(module, exports, __webpack_require__) {
 
 
-var Mura=__webpack_require__(9);
+var Mura=__webpack_require__(8);
 
 /**
 * Creates a new Mura.Core
@@ -14017,7 +14000,7 @@ Mura.Core=Core;
 /***/ (function(module, exports, __webpack_require__) {
 
 
-var Mura=__webpack_require__(9);
+var Mura=__webpack_require__(8);
 
 (function(Mura){
 "use strict";	
@@ -14559,7 +14542,7 @@ Mura.Request=Mura.Core.extend(
 /***/ (function(module, exports, __webpack_require__) {
 
 
-var Mura=__webpack_require__(9);
+var Mura=__webpack_require__(8);
 
 (function(Mura){
 "use strict";
@@ -15149,7 +15132,7 @@ Mura.RequestContext=Mura.Core.extend(
 /***/ (function(module, exports, __webpack_require__) {
 
 
-var Mura=__webpack_require__(9);
+var Mura=__webpack_require__(8);
 /**
  * Creates a new Mura.Cache
  * @name Mura.Cache
@@ -15261,7 +15244,7 @@ Mura.datacache=new Mura.Cache();
 /***/ (function(module, exports, __webpack_require__) {
 
 
-var Mura=__webpack_require__(9);
+var Mura=__webpack_require__(8);
 
 /**
 * Creates a new Mura.Entity
@@ -16185,7 +16168,7 @@ Mura.Entity = Mura.Core.extend(
 /***/ (function(module, exports, __webpack_require__) {
 
 
-var Mura=__webpack_require__(9);
+var Mura=__webpack_require__(8);
 
 /**
 * Creates a new Mura.entities.Content
@@ -16290,7 +16273,7 @@ Mura.entities.Content = Mura.Entity.extend(
 /***/ (function(module, exports, __webpack_require__) {
 
 
-var Mura=__webpack_require__(9);
+var Mura=__webpack_require__(8);
 
 /**
 * Creates a new Mura.entities.User
@@ -16391,7 +16374,7 @@ Mura.entities.User = Mura.Entity.extend(
 /***/ (function(module, exports, __webpack_require__) {
 
 
-var Mura=__webpack_require__(9);
+var Mura=__webpack_require__(8);
 
 /**
  * Creates a new Mura.EntityCollection
@@ -16618,7 +16601,7 @@ Mura.EntityCollection=Mura.Entity.extend(
 /***/ (function(module, exports, __webpack_require__) {
 
 
-var Mura=__webpack_require__(9);
+var Mura=__webpack_require__(8);
 
 /**
  * Creates a new Mura.Feed
@@ -17222,7 +17205,7 @@ Mura.Feed = Mura.Core.extend(
 /***/ (function(module, exports, __webpack_require__) {
 
 
-var Mura=__webpack_require__(9);
+var Mura=__webpack_require__(8);
 
 //https://github.com/malko/l.js
 /*
@@ -17558,7 +17541,7 @@ if(typeof window !='undefined' && typeof window.document != 'undefined'){
 /***/ (function(module, exports, __webpack_require__) {
 
 
-var Mura=__webpack_require__(9);
+var Mura=__webpack_require__(8);
 
 (function(Mura){
 "use strict";
@@ -17789,6 +17772,11 @@ Mura.DOMSelection = Mura.Core.extend(
 				EventListenerOptions=true;
 			}
 		}
+
+		if(eventName=='touchstart' || eventName=='end'){
+			EventListenerOptions= Mura.supportsPassive ? { passive: true } : false;
+		}
+
 		if (typeof selector == 'function') {
 			fn = selector;
 			selector = '';
@@ -18235,7 +18223,11 @@ Mura.DOMSelection = Mura.Core.extend(
 				var el = document.createElement('div');
 				el.setAttribute('class','mura-object');
 				for (var a in data) {
-					el.setAttribute('data-' + a,data[a]);
+					if(typeof data[a]=='object'){
+						el.setAttribute('data-' + a,JSON.stringify(data[a]));
+					}else {
+						el.setAttribute('data-' + a,data[a]);
+					}
 				}
 				if (typeof data.async == 'undefined') {
 					el.setAttribute('data-async',true);
@@ -18869,9 +18861,16 @@ Mura.DOMSelection = Mura.Core.extend(
  			}
 
 			var styleSupport=obj.data('stylesupport') || {};
-
+			
 			if(typeof styleSupport == 'string'){
-				styleSupport={};
+				try{
+					styleSupport=JSON.parse(styleSupport)
+				} catch(e){
+					styleSupport={};
+				}
+				if(typeof styleSupport == 'string'){
+					styleSupport={};
+				}
 			}
 			var objectstyles={};
 
@@ -20216,7 +20215,7 @@ Mura.DOMSelection = Mura.Core.extend(
 /***/ (function(module, exports, __webpack_require__) {
 
 
-var Mura =__webpack_require__(9);
+var Mura =__webpack_require__(8);
 
 /**
  * Creates a new Mura.UI instance
@@ -20300,6 +20299,10 @@ Mura.UI=Mura.Core.extend(
 		
 	},
 
+	reset:function(){
+		
+	},
+
 	init:function(args){
 		this.context=args;
 		this.registerHelpers();
@@ -20317,7 +20320,7 @@ Mura.UI=Mura.Core.extend(
 /***/ (function(module, exports, __webpack_require__) {
 
 
-var Mura=__webpack_require__(9);
+var Mura=__webpack_require__(8);
 /**
  * Creates a new Mura.UI.Form
  * @name	Mura.UI.Form
@@ -21904,7 +21907,7 @@ Mura.DisplayObject.Form=Mura.UI.Form;
 /* 357 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Mura=__webpack_require__(9);
+var Mura=__webpack_require__(8);
 /**
  * Creates a new Mura.UI.Text
  * @name  Mura.UI.Text
@@ -21939,7 +21942,7 @@ Mura.DisplayObject.Text=Mura.UI.Text;
 /* 358 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Mura=__webpack_require__(9);
+var Mura=__webpack_require__(8);
 /**
  * Creates a new Mura.UI.Text
  * @name  Mura.UI.Hr
@@ -21969,7 +21972,7 @@ Mura.DisplayObject.Hr=Mura.UI.Hr;
 /* 359 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Mura=__webpack_require__(9);
+var Mura=__webpack_require__(8);
 /**
  * Creates a new Mura.UI.Embed
  * @name  Mura.UI.Embed
@@ -21998,7 +22001,7 @@ Mura.DisplayObject.Embed=Mura.UI.Embed;
 /* 360 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Mura=__webpack_require__(9);
+var Mura=__webpack_require__(8);
 /**
  * Creates a new Mura.UI.Text
  * @name  Mura.UI.Image
@@ -22028,7 +22031,7 @@ Mura.DisplayObject.Image=Mura.UI.Image;
 /* 361 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Mura=__webpack_require__(9);
+var Mura=__webpack_require__(8);
 /**
  * Creates a new Mura.UI.Collection
  * @name  Mura.UI.Collection
@@ -22192,9 +22195,63 @@ Mura.Module.Collection=Mura.UI.Collection;
 /* 362 */
 /***/ (function(module, exports, __webpack_require__) {
 
+var Mura=__webpack_require__(8);
+/**
+ * Creates a new Mura.UI.Text
+ * @name  Mura.UI.Container
+ * @class
+ * @extends Mura.UI
+ * @memberof  Mura
+ */
 
-var Mura=__webpack_require__(9);
-var Handlebars=__webpack_require__(363);
+Mura.UI.Container=Mura.UI.extend(
+/** @lends Mura.DisplayObject.Container.prototype */
+{
+	renderClient:function(){		
+        var target=Mura(this.context.targetEl);		
+        if(!Array.isArray(this.context.items)){
+            this.context.content=this.context.content || '';
+            target.html(this.context.content);
+        } else {
+            this.context.items=this.context.items || [];
+            this.context.items.forEach(function(data){
+                //console.log(data)
+                data.transient=false;
+                target.appendDisplayObject(data);
+            })
+        }
+		this.trigger('afterRender');
+    },
+    reset:function(self,empty){ 
+        self.find('.mura-object:not([data-object="container"])').html('');
+        self.find('.frontEndToolsModal').remove();
+        self.find('.mura-object-meta').html('');
+        var content = self.children('div.mura-object-content');
+
+        if (content.length) {
+            var nestedObjects=[];
+            content.children('.mura-object').each(
+                function() {
+                    Mura.resetAsyncObject(this,empty);	
+                    //console.log(Mura(this).data())
+                    nestedObjects.push(Mura(this).data());
+                }
+            );
+            self.data('items', JSON.stringify(nestedObjects));
+            self.removeAttr('data-content');
+        }
+    }
+});
+
+Mura.DisplayObject.Container=Mura.UI.Container;
+
+/***/ }),
+/* 363 */
+/***/ (function(module, exports, __webpack_require__) {
+
+
+var Mura=__webpack_require__(8);
+var Handlebars=__webpack_require__(364);
 Mura.Handlebars=Handlebars.create();
 Mura.templatesLoaded=false;
 Handlebars.noConflict();
@@ -22212,6 +22269,9 @@ Mura.templates['meta']=function(context){
 }
 Mura.templates['content']=function(context){
 	context.html=context.html || context.content || context.source || '';
+	if(Array.isArray(context.html)){
+		context.html='';
+	}
 	return '<div class="mura-object-content">' + context.html + '</div>';
 }
 Mura.templates['text']=function(context){
@@ -22263,11 +22323,11 @@ Mura.templates['image']=function(context){
 	return source;
 }
 
-__webpack_require__(378);
+__webpack_require__(379);
 
 
 /***/ }),
-/* 363 */
+/* 364 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22289,7 +22349,7 @@ var base = _interopRequireWildcard(_handlebarsBase);
 // Each of these augment the Handlebars object. No need to setup here.
 // (This is done to easily share code between commonjs and browse envs)
 
-var _handlebarsSafeString = __webpack_require__(374);
+var _handlebarsSafeString = __webpack_require__(375);
 
 var _handlebarsSafeString2 = _interopRequireDefault(_handlebarsSafeString);
 
@@ -22301,11 +22361,11 @@ var _handlebarsUtils = __webpack_require__(28);
 
 var Utils = _interopRequireWildcard(_handlebarsUtils);
 
-var _handlebarsRuntime = __webpack_require__(375);
+var _handlebarsRuntime = __webpack_require__(376);
 
 var runtime = _interopRequireWildcard(_handlebarsRuntime);
 
-var _handlebarsNoConflict = __webpack_require__(377);
+var _handlebarsNoConflict = __webpack_require__(378);
 
 var _handlebarsNoConflict2 = _interopRequireDefault(_handlebarsNoConflict);
 
@@ -22340,7 +22400,7 @@ module.exports = exports['default'];
 
 
 /***/ }),
-/* 364 */
+/* 365 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22386,7 +22446,7 @@ module.exports = exports['default'];
 
 
 /***/ }),
-/* 365 */
+/* 366 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22498,7 +22558,7 @@ module.exports = exports['default'];
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(55)))
 
 /***/ }),
-/* 366 */
+/* 367 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22530,7 +22590,7 @@ module.exports = exports['default'];
 
 
 /***/ }),
-/* 367 */
+/* 368 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22583,7 +22643,7 @@ module.exports = exports['default'];
 
 
 /***/ }),
-/* 368 */
+/* 369 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22616,7 +22676,7 @@ module.exports = exports['default'];
 
 
 /***/ }),
-/* 369 */
+/* 370 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22639,7 +22699,7 @@ module.exports = exports['default'];
 
 
 /***/ }),
-/* 370 */
+/* 371 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22689,7 +22749,7 @@ module.exports = exports['default'];
 
 
 /***/ }),
-/* 371 */
+/* 372 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22701,7 +22761,7 @@ exports.registerDefaultDecorators = registerDefaultDecorators;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var _decoratorsInline = __webpack_require__(372);
+var _decoratorsInline = __webpack_require__(373);
 
 var _decoratorsInline2 = _interopRequireDefault(_decoratorsInline);
 
@@ -22712,7 +22772,7 @@ function registerDefaultDecorators(instance) {
 
 
 /***/ }),
-/* 372 */
+/* 373 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22748,7 +22808,7 @@ module.exports = exports['default'];
 
 
 /***/ }),
-/* 373 */
+/* 374 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22777,7 +22837,7 @@ function createNewLookupObject() {
 
 
 /***/ }),
-/* 374 */
+/* 375 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22799,7 +22859,7 @@ module.exports = exports['default'];
 
 
 /***/ }),
-/* 375 */
+/* 376 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22832,7 +22892,7 @@ var _base = __webpack_require__(134);
 
 var _helpers = __webpack_require__(135);
 
-var _internalWrapHelper = __webpack_require__(376);
+var _internalWrapHelper = __webpack_require__(377);
 
 var _internalProtoAccess = __webpack_require__(137);
 
@@ -23178,7 +23238,7 @@ function passLookupPropertyOption(helper, container) {
 
 
 /***/ }),
-/* 376 */
+/* 377 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -23204,7 +23264,7 @@ function wrapHelper(helper, transformOptionsFn) {
 
 
 /***/ }),
-/* 377 */
+/* 378 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -23231,10 +23291,10 @@ module.exports = exports['default'];
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(55)))
 
 /***/ }),
-/* 378 */
+/* 379 */
 /***/ (function(module, exports, __webpack_require__) {
 
-this["Mura"]=__webpack_require__(9);
+this["Mura"]=__webpack_require__(8);
 this["Mura"]["templates"] = this["Mura"]["templates"] || {};
 
 this["Mura"]["templates"]["checkbox_static"] = this.Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {

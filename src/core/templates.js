@@ -18,6 +18,9 @@ Mura.templates['meta']=function(context){
 }
 Mura.templates['content']=function(context){
 	context.html=context.html || context.content || context.source || '';
+	if(Array.isArray(context.html)){
+		context.html='';
+	}
 	return '<div class="mura-object-content">' + context.html + '</div>';
 }
 Mura.templates['text']=function(context){
