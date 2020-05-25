@@ -5,8 +5,15 @@ if (typeof document != 'undefined'){
 
     var CSSStyleDeclaration=document.createElement('div').style;
 
+    var fromArray;
+    var toArray;
     for(var s in CSSStyleDeclaration){
-        tocss[s]=s.split(/(?=[A-Z])/).map(s => s.toLowerCase()).join('-');
+        fromArray= s.split(/(?=[A-Z])/);
+        toArray=[];
+        for(var i in fromArray){
+            toArray.push(fromArray[i].toLowerCase());
+        }
+        tocss[s]=toArray.join("-")
     }
 
     var styleMap={
