@@ -990,7 +990,7 @@ var Mura=(function(){
 			for(var p in data){
 				if(data.hasOwnProperty(p)){
 					if(typeof data[p] == 'object'){
-						header+=" data-" + p + "=\'" + JSON.stringify(data[p]) + "\'";
+						header+=" data-" + p + "=\'" +  JSON.stringify(data[p]).replace(/'/g,"&#39;") + "\'";
 					} else {
 						header+=" data-" + p + "=\"" + data[p] + "\"";
 					}
