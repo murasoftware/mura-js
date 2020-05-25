@@ -17,11 +17,11 @@ Mura.templates['meta']=function(context){
 	}
 }
 Mura.templates['content']=function(context){
-	context.html=context.html || context.content || context.source || '';
-	if(Array.isArray(context.html)){
-		context.html='';
+	var html=context.html || context.content || context.source || '';
+	if(Array.isArray(html)){
+		html='';
 	}
-	return '<div class="mura-object-content">' + context.html + '</div>';
+	return '<div class="mura-object-content">' + html + '</div>';
 }
 Mura.templates['text']=function(context){
 	context=context || {};

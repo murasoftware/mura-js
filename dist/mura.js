@@ -20299,7 +20299,7 @@ Mura.UI=Mura.Core.extend(
 		
 	},
 
-	reset:function(){
+	reset:function(self,empty){
 		
 	},
 
@@ -21927,12 +21927,20 @@ Mura.UI.Text=Mura.UI.extend(
 	renderServer:function(){
 		this.context.sourcetype=this.context.sourcetype || 'custom';
 
-		if(this.context.sourcetype=='custom'){
+		if(this.context.sourcetype=='custom' || this.context.sourcetype=='html'){
 			return Mura.templates['text'](this.context);
+		} else if(this.context.sourcetype=='markdown'){
+			return Mura.templates['text'](this.deserializeMarkdown(this.context));
 		} else {
 			return '';
 		}
+	},
+
+	deserializeMarkdown:function(markdown){
+		//add deserialization
+		return markdown;
 	}
+
 });
 
 Mura.DisplayObject.Text=Mura.UI.Text;
@@ -22268,11 +22276,11 @@ Mura.templates['meta']=function(context){
 	}
 }
 Mura.templates['content']=function(context){
-	context.html=context.html || context.content || context.source || '';
-	if(Array.isArray(context.html)){
-		context.html='';
+	var html=context.html || context.content || context.source || '';
+	if(Array.isArray(html)){
+		html='';
 	}
-	return '<div class="mura-object-content">' + context.html + '</div>';
+	return '<div class="mura-object-content">' + html + '</div>';
 }
 Mura.templates['text']=function(context){
 	context=context || {};
