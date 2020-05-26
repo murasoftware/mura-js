@@ -34,6 +34,8 @@ if(Mura.isInNode()){
 		https://github.com/node-fetch/
 	*/
 	Mura._request=eval("require('request')");
+
+	Mura._escapeHTML=eval("require('escape-html')");
 } else if (typeof window != 'undefined'){
 
 	window.m=Mura;
