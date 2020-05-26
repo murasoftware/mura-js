@@ -2449,7 +2449,8 @@ var Mura=(function(){
 		
 		if(obj.data('object') != 'container' || obj.data('content')){
 			processMarkup(obj.node);
-
+		}
+		if(obj.data('object') != 'container'){
 			obj.find('a[href="javascript:history.back();"]').each(function() {
 				Mura(this).off("click").on("click", function(e) {
 					if (obj.node.prevInnerHTML) {
