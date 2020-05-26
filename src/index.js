@@ -30,6 +30,8 @@ if(Mura.isInNode()){
 	/*
 		This is an attempt to hide the require('request') from webpack
 		It's also ignored in the webpack.config.js
+		Need to switch to 
+		https://github.com/node-fetch/
 	*/
 	Mura._request=eval("require('request')");
 } else if (typeof window != 'undefined'){
