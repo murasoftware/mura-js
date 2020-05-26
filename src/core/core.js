@@ -2447,7 +2447,7 @@ var Mura=(function(){
 
 		obj.hide().show();
 		
-		if(obj.data('object') != 'container'){
+		if(obj.data('object') != 'container' || obj.data('content')){
 			processMarkup(obj.node);
 
 			obj.find('a[href="javascript:history.back();"]').each(function() {
