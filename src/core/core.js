@@ -769,14 +769,14 @@ var Mura=(function(){
 		}
 
 		function buildRegionSectionHeader(section,name,perm,regionid){
-			if(!name){
-				return "<div class=\"mura-region-" + escapeHTML(section) + "\">";
-			} else {
+			if(name){
 				if(section=='inherited'){
 					return "<div class=\"mura-region-inherited\" data-perm=\"" + escapeHTML(perm) + "\"><div class=\"frontEndToolsModal mura\"><span class=\"mura-edit-label mi-lock\">" +  escapeHTML(name.toUpperCase()) + ": Inherited</span>";
 				} else {
 					return "<div class=\"mura-editable mura-inactive\"><div class=\"mura-region-local mura-inactive mura-editable-attribute\" data-loose=\"false\" data-regionid=\"" + escapeHTML(regionid) + "\" data-inited=\"false\" data-perm=\"" + escapeHTML(perm) + "\"><label class=\"mura-editable-label\" style=\"display:none\">" +  escapeHTML(name.toUpperCase()) + "</label>";
 				}
+			} else {
+				return "<div class=\"mura-region-" + escapeHTML(section) + "\">";	
 			}
 		}
 
@@ -804,7 +804,7 @@ var Mura=(function(){
 			}
 			str += "</div>";
 		}
-
+ 
 		if(data.local.header){
 			str += data.local.header;
 		} else {
@@ -828,8 +828,12 @@ var Mura=(function(){
 				}
 			}
 		}
-
-		str += "</div>";
+		//when editing the local region header contains two divs
+		if(data.name){
+			str += "</div></div>";
+		} else {
+			str += "</div>";
+		}
 
 		str += "</div>";
 
