@@ -38,9 +38,13 @@ var Mura=(function(){
 	}
 
 	function escapeHTML(str) {
-		var div = document.createElement('div');
-		div.appendChild(document.createTextNode(str));
-		return div.innerHTML;
+		if(typeof document != 'undefined'){
+			var div = document.createElement('div');
+			div.appendChild(document.createTextNode(str));
+			return div.innerHTML;
+		} else {
+			return Mura._escapeHTML(str);
+		}
 	};
 
 	// UNSAFE with unsafe strings; only use on previously-escaped ones!
