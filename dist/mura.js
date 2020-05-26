@@ -982,17 +982,17 @@ var Mura=(function(){
 			return '';
 		}
 
-		var str = "<div class=\"mura-region\" data-regionid=\"" + data.regionid + "\">";
+		var str = "<div class=\"mura-region\" data-regionid=\"" +  Mura.escapeHTML(data.regionid) + "\">";
 
 		function buildItemHeader(data){
 			var classes=data.class || '';
- 			var header="<div class=\"mura-object " + classes + "\"";
+ 			var header="<div class=\"mura-object " + Mura.escapeHTML(classes) + "\"";
 			for(var p in data){
 				if(data.hasOwnProperty(p)){
 					if(typeof data[p] == 'object'){
 						header+=" data-" + p + "=\'" +  JSON.stringify(data[p]).replace(/'/g,"&#39;") + "\'";
 					} else {
-						header+=" data-" + p + "=\"" + data[p] + "\"";
+						header+=" data-" + p + "=\"" + escapeHTML(data[p]) + "\"";
 					}
 				}
 			}
@@ -1003,12 +1003,12 @@ var Mura=(function(){
 
 		function buildRegionSectionHeader(section,name,perm,regionid){
 			if(!name){
-				return "<div class=\"mura-region-" + section + "\">";
+				return "<div class=\"mura-region-" + Mura.escapeHTML(section) + "\">";
 			} else {
 				if(section=='inherited'){
-					return "<div class=\"mura-region-inherited\" data-perm=\"" + perm + "\"><div class=\"frontEndToolsModal mura\"><span class=\"mura-edit-label mi-lock\">" + name.toUpperCase() + ": Inherited</span>";
+					return "<div class=\"mura-region-inherited\" data-perm=\"" +  Mura.escapeHTML(perm) + "\"><div class=\"frontEndToolsModal mura\"><span class=\"mura-edit-label mi-lock\">" +  Mura.escapeHTML(name.toUpperCase()) + ": Inherited</span>";
 				} else {
-					return "<div class=\"mura-editable mura-inactive\"><div class=\"mura-region-local mura-inactive mura-editable-attribute\" data-loose=\"false\" data-regionid=\"" + regionid + "\" data-inited=\"false\" data-perm=\"" + perm + "\"><label class=\"mura-editable-label\" style=\"display:none\">" + name.toUpperCase() + "</label>";
+					return "<div class=\"mura-editable mura-inactive\"><div class=\"mura-region-local mura-inactive mura-editable-attribute\" data-loose=\"false\" data-regionid=\"" +  Mura.escapeHTML(regionid) + "\" data-inited=\"false\" data-perm=\"" +  Mura.escapeHTML(perm) + "\"><label class=\"mura-editable-label\" style=\"display:none\">" +  Mura.escapeHTML(name.toUpperCase()) + "</label>";
 				}
 			}
 		}
