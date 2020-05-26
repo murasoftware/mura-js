@@ -2674,47 +2674,48 @@ var Mura=(function(){
 
 		obj.hide().show();
 		
-		processMarkup(obj.node);
+		if(obj.data('object') != 'container'){
+			processMarkup(obj.node);
 
-		obj.find('a[href="javascript:history.back();"]').each(function() {
-			Mura(this).off("click").on("click", function(e) {
-				if (obj.node.prevInnerHTML) {
-					e.preventDefault();
-					wireUpObject(obj, obj.node.prevInnerHTML);
+			obj.find('a[href="javascript:history.back();"]').each(function() {
+				Mura(this).off("click").on("click", function(e) {
+					if (obj.node.prevInnerHTML) {
+						e.preventDefault();
+						wireUpObject(obj, obj.node.prevInnerHTML);
 
-					if (obj.node.prevData) {
-						for (var p in obj.node.prevData) {
-							select('[name="' + p + '"]').val(obj.node.prevData[p]);
+						if (obj.node.prevData) {
+							for (var p in obj.node.prevData) {
+								select('[name="' + p + '"]').val(obj.node.prevData[p]);
+							}
 						}
+						obj.node.prevInnerHTML = false;
+						obj.node.prevData = false;
 					}
-					obj.node.prevInnerHTML = false;
-					obj.node.prevData = false;
+				});
+			});
+			
+			obj.find('form').each(function() {
+				var form = Mura(this);
+				if(form.closest('.mura-object').data('instanceid')==obj.data('instanceid')) {		
+					if(form.data('async') || !(form.hasData('async') &&
+						!form.data('async')) && !(form.hasData(
+						'autowire') && !form.data('autowire')) && !
+						form.attr('action') && !form.attr('onsubmit') &&
+						!form.attr('onSubmit')) {
+						form.on('submit', function(e) {
+							e.preventDefault();
+							validateForm(this,
+								function(frm) {
+									submitForm(frm,obj);
+								}
+							);
+
+							return false;
+						});
+					}
 				}
 			});
-		});
-		
-		obj.find('form').each(function() {
-			var form = Mura(this);
-			if(form.closest('.mura-object').data('instanceid')==obj.data('instanceid')) {		
-				if(form.data('async') || !(form.hasData('async') &&
-					!form.data('async')) && !(form.hasData(
-					'autowire') && !form.data('autowire')) && !
-					form.attr('action') && !form.attr('onsubmit') &&
-					!form.attr('onSubmit')) {
-					form.on('submit', function(e) {
-						e.preventDefault();
-						validateForm(this,
-							function(frm) {
-								submitForm(frm,obj);
-							}
-						);
-
-						return false;
-					});
-				}
-			}
-		});
-
+		}
 		obj.trigger('asyncObjectRendered');
 
 	}
