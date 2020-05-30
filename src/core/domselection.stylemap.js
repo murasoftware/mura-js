@@ -1,4 +1,4 @@
-var Mura=require('./core');
+import Mura from './core';
 
 if (typeof document != 'undefined'){
     var tocss={}

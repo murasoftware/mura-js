@@ -3532,4 +3532,4 @@ var Mura=(function(){
 
 })();
 
-module.exports=Mura;
+export default Mura;

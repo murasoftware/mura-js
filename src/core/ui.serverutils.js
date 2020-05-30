@@ -1,4 +1,4 @@
-var Mura=require('mura.js');
+import Mura from './core';
 
 Mura.UI.buildDisplayObject=async function(template, params){
 	params = Object.assign({},params);

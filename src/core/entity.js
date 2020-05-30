@@ -1,5 +1,4 @@
-
-var Mura=require('./core');
+import Mura from './core';
 
 /**
 * Creates a new Mura.Entity

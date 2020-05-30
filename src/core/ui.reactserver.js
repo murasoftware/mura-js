@@ -1,7 +1,7 @@
-const React=require('react')
-const ReactDOM=require('react-dom')
-var Mura=require('mura.js');
-const ReactDOMServer = require('react-dom/server');
+import React from 'react';
+import ReactDOM from 'react-dom';
+import Mura from './core';
+import ReactDOMServer from 'react-dom/server';
 
 require('./ui.react')
 require('./ui.serverutils')

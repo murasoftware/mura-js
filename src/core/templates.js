@@ -1,5 +1,5 @@
 
-var Mura=require('./core');
+import Mura from './core';
 var Handlebars=require('handlebars/runtime');
 Mura.Handlebars=Handlebars.create();
 Mura.templatesLoaded=false;
