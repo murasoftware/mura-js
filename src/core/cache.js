@@ -1,5 +1,5 @@
 
-import Mura from './core';
+var Mura=require('./core');
 
 /**
  * Creates a new Mura.Cache

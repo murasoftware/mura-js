@@ -1,5 +1,5 @@
 
-import Mura from './core';
+var Mura=require('./core');
 
 //https://github.com/malko/l.js
 /*
