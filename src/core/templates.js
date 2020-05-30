@@ -48,14 +48,20 @@ Mura.templates['image']=function(context){
 	context.alt=context.alt||'';
 	context.caption=context.caption||'';
 	context.imagelink=context.imagelink||'';
+	context.fit=context.fit||'';
 
 	var source='';
+	var style='';
 
 	if(!context.src){
 		return '';
 	}
 
-	source='<img src="' + Mura.escapeHTML(context.src) + '" alt="' + Mura.escapeHTML(context.alt) + '" loading="lazy"/>';
+	if(context.fit){
+		style=' style="height:100%;width:100%;object-fit:' + Mura.escapeHTML(context.fit) +';" ';
+	}
+
+	source='<img src="' + Mura.escapeHTML(context.src) + '" alt="' + Mura.escapeHTML(context.alt) + '"' +  style + '" loading="lazy"/>';
 	if(context.imagelink){
 		context.imagelinktarget=context.imagelinktarget || "";
 		var targetString="";

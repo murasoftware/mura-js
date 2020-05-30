@@ -11,7 +11,13 @@ Mura.UI.Text=Mura.UI.extend(
 /** @lends Mura.DisplayObject.Text.prototype */
 {
 	renderClient:function(){
-		Mura(this.context.targetEl).html(Mura.templates['text'](this.context));
+		this.context.sourcetype=this.context.sourcetype || 'custom';
+
+		if(this.context.sourcetype=='custom' || this.context.sourcetype=='html'){
+			Mura(this.context.targetEl).html(Mura.templates['text'](this.context));
+		} else if(this.context.sourcetype=='markdown'){
+			Mura(this.context.targetEl).html(Mura.templates['text'](this.deserializeMarkdown(this.context)));
+		} 
 		this.trigger('afterRender');
 	},
 
