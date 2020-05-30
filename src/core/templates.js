@@ -58,7 +58,7 @@ Mura.templates['image']=function(context){
 	}
 
 	if(context.fit){
-		style=' style="height:100%;width:100%;object-fit:' + Mura.escapeHTML(context.fit) +';" ';
+		style=' style="height:100%;width:100%;object-fit:' + Mura.escapeHTML(context.fit) +';" data-object-fit="' + Mura.escapeHTML(context.fit) + '" ';
 	}
 
 	source='<img src="' + Mura.escapeHTML(context.src) + '" alt="' + Mura.escapeHTML(context.alt) + '"' +  style + '" loading="lazy"/>';

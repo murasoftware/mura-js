@@ -13956,6 +13956,16 @@ if(typeof window !='undefined' && typeof window.document != 'undefined'){
 		}
 		else {}
 	}( window ) );
+
+	//https://stackoverflow.com/questions/44091567/how-to-cover-a-div-with-an-img-tag-like-background-image-does
+	if ('objectFit' in document.documentElement.style === false) {
+		document.addEventListener('DOMContentLoaded', function() {
+		  Array.prototype.forEach.call(document.querySelectorAll('img[data-object-fit]'), image => {
+			(image.runtimeStyle || image.style).background = `url("${image.src}") no-repeat 50%/${image.currentStyle ? image.currentStyle['object-fit'] : image.getAttribute('data-object-fit')}`
+			image.src = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${image.width}' height='${image.height}'%3E%3C/svg%3E`
+		  })
+		})
+	}
 }
 
 
@@ -22348,7 +22358,7 @@ Mura.templates['image']=function(context){
 	}
 
 	if(context.fit){
-		style=' style="height:100%;width:100%;object-fit:' + Mura.escapeHTML(context.fit) +';" ';
+		style=' style="height:100%;width:100%;object-fit:' + Mura.escapeHTML(context.fit) +';" data-object-fit="' + Mura.escapeHTML(context.fit) + '" ';
 	}
 
 	source='<img src="' + Mura.escapeHTML(context.src) + '" alt="' + Mura.escapeHTML(context.alt) + '"' +  style + '" loading="lazy"/>';
