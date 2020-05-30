@@ -1,4 +1,4 @@
-import Mura from './core';
+var Mura=require('./core');
 /**
  * Creates a new Mura.UI.Embed
  * @name  Mura.UI.Embed

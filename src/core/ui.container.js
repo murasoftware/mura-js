@@ -1,4 +1,4 @@
-import Mura from './core';
+var Mura=require('./core');
 /**
  * Creates a new Mura.UI.Text
  * @name  Mura.UI.Container

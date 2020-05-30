@@ -1,6 +1,6 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import Mura from './core';
+const React=require('react')
+const ReactDOM=require('react-dom')
+var Mura=require('mura.js');
 
 /**
  * Creates a new Mura.UI.React

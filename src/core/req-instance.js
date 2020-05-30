@@ -1,5 +1,5 @@
 
-import Mura from './core';
+var Mura=require('./core');
 
 (function(Mura){
 "use strict";	
