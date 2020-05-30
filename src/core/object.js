@@ -18,7 +18,7 @@ function Core(){
 /** @lends Mura.Core.prototype */
 Core.prototype=
 	{
-	init:function(){},
+	init(){},
 	/**
 	 * invoke - Invokes a method
 	 *
@@ -26,7 +26,7 @@ Core.prototype=
 	 * @param  {object} params Arguments to submit to method
 	 * @return {any}
 	 */
-	invoke:function(funcName,params){
+	invoke(funcName,params){
 		var self = this;
 		params=params || {};
 
@@ -43,7 +43,7 @@ Core.prototype=
 	 * @param  {string} eventName  Name of header
 	 * @return {object}  Self
 	 */
-	trigger:function(eventName){
+	trigger(eventName){
 		eventName=eventName.toLowerCase();
 		if(typeof this.prototype.handlers[eventName] != 'undefined'){
 			var handlers=this.prototype.handlers[eventName];

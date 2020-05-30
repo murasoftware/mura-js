@@ -17,11 +17,11 @@ require('./ui.serverutils')
 Mura.UI.ReactServer=Mura.UI.React.extend(
 /** @lends Mura.UI.ReactServer.prototype */
 {
-	renderServer:function(){
+	renderServer(){
 		return ReactDOMServer.renderToString(React.createElement(this.component, this.context))
 	},
 
-	hydrate:function(){
+	hydrate(){
 		this.context.suppressHydrationWarning=true
 		ReactDOM.hydrate(
 			React.createElement(this.component, this.context),

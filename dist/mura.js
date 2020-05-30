@@ -20369,7 +20369,7 @@ Mura.UI.Form = Mura.UI.extend(
     			url:Mura.assetpath + '/includes/display_objects/form/templates/' + temp + '.hb',
     			type:'get',
     			xhrFields:{ withCredentials: false },
-    			success:function(data) {
+    			success(data) {
     				Mura.templates[temp] = Mura.Handlebars.compile(data);
     				if(!Mura.templateList.length) {
     					if (self.context.view == 'form') {

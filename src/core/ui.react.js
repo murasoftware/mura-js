@@ -13,7 +13,7 @@ var Mura=require('mura.js');
 Mura.UI.React=Mura.UI.extend(
 /** @lends Mura.UI.React.prototype */
 {
-	renderClient:function(){
+	renderClient(){
 		ReactDOM.render(
 			React.createElement(this.component, this.context),
 			this.context.targetEl,
@@ -21,7 +21,7 @@ Mura.UI.React=Mura.UI.extend(
 		);
 	},
 
-	destroy:function(){
+	destroy(){
 		if(this.context && this.context.targetEl && this.context.targetEl.innerHTML){
 			ReactDOM.unmountComponentAtNode(this.context.targetEl);
 		}

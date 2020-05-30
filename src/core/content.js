@@ -19,7 +19,7 @@ Mura.entities.Content = Mura.Entity.extend(
 	 *
 	 * @return {boolean}
 	 */
-	hasParent:function(){
+	hasParent(){
 		var parentid=this.get('parentid');
 		if(!parentid || ['00000000000000000000000000000000END','00000000000000000000000000000000003','00000000000000000000000000000000004','00000000000000000000000000000000099'].find(function(value){return value===parentid})){
 			return false;
@@ -33,7 +33,7 @@ Mura.entities.Content = Mura.Entity.extend(
 	 *
 	 * @return {string}
 	 */
-	renderDisplayRegion:function(region){
+	renderDisplayRegion(region){
 		return Mura.buildDisplayRegion(this.get('displayregions')[region])
 	},
 
@@ -42,7 +42,7 @@ Mura.entities.Content = Mura.Entity.extend(
 	 *
 	 * @return {self}
 	 */
-	dspRegion:function(selector,region,label){
+	dspRegion(selector,region,label){
 		if(Mura.isNumeric(region) && region <= this.get('displayregionnames').length){
 			region=this.get('displayregionnames')[region-1];
 		}
@@ -57,7 +57,7 @@ Mura.entities.Content = Mura.Entity.extend(
 	 * @param	{object} params
 	 * @return {Mura.EntityCollection}
 	 */
-	getRelatedContent:function(relatedContentSetName,params){
+	getRelatedContent(relatedContentSetName,params){
 		var self=this;
 
 		relatedContentSetName=relatedContentSetName || '';
@@ -77,7 +77,7 @@ Mura.entities.Content = Mura.Entity.extend(
 					'/content/' + self.get('contentid') + '/relatedcontent/' + relatedContentSetName + '?' +
 					query.join('&'),
 				params: params,
-				success: function(resp) {
+				success(resp) {
 					if(typeof resp.data.items != 'undefined'){
 						var returnObj = new Mura.EntityCollection(resp.data,self._requestcontext);
 					} else {

@@ -22,7 +22,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	/** @lends Mura.DOMSelection.prototype */
 	{
 
-		init: function(selection, origSelector) {
+		init(selection, origSelector) {
 			this.selection = selection;
 			this.origSelector = origSelector;
 
@@ -42,7 +42,7 @@ Mura.DOMSelection = Mura.Core.extend(
 				Mura.supportsPassive = false;
 				try {
 					var opts = Object.defineProperty({}, 'passive', {
-						get: function() {
+						get() {
 						  Mura.supportsPassive = true;
 						}
 					});
@@ -58,7 +58,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{number} index Index of selection
 	 * @return {*}
 	 */
-	get: function(index) {
+	get(index) {
 		if(typeof index != 'undefined'){
 			return this.selection[index];
 		} else {
@@ -72,7 +72,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{string} selector Selector
 	 * @return {object}
 	 */
-	select: function(selector) {
+	select(selector) {
 		return Mura(selector);
 	},
 
@@ -82,7 +82,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{function} fn Method
 	 * @return {Mura.DOMSelection} Self
 	 */
-	each: function(fn) {
+	each(fn) {
 		this.selection.forEach(function(el, idx, array) {
 			if(typeof fn.call == 'undefined'){
 				fn(el, idx, array);
@@ -99,7 +99,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{function} fn Method
 	 * @return {Mura.DOMSelection} Self
 	 */
-	forEach: function(fn) {
+	forEach(fn) {
 		this.selection.forEach(function(el, idx, array) {
 			if(typeof fn.call == 'undefined'){
 				fn(el, idx, array);
@@ -116,7 +116,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{function} fn Filter function
 	 * @return {object}		New Mura.DOMSelection
 	 */
-	filter: function(fn) {
+	filter(fn) {
 		return Mura(this.selection.filter(function(el,idx, array) {
 			if(typeof fn.call == 'undefined'){
 				return fn(el, idx,array);
@@ -132,7 +132,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{function} fn Map function
 	 * @return {object}		New Mura.DOMSelection
 	 */
-	map: function(fn) {
+	map(fn) {
 		return Mura(this.selection.map(function(el, idx, array) {
 			if(typeof fn.call == 'undefined'){
 				return fn(el, idx, array);
@@ -149,7 +149,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{any} initialValue Starting accumulator value
 	 * @return {accumulator}
 	 */
-	reduce: function(fn, initialValue) {
+	reduce(fn, initialValue) {
 		initialValue = initialValue || 0;
 		return this.selection.reduce(
 			function(accumulator, item, idx, array) {
@@ -169,7 +169,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{*} val Value
 	 * @return {type}		 description
 	 */
-	isNumeric: function(val) {
+	isNumeric(val) {
 		if (typeof val != 'undefined') {
 			return isNumeric(val);
 		}
@@ -181,7 +181,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 *
 	 * @return {Promise}
 	 */
-	processMarkup: function() {
+	processMarkup() {
 		var self = this;
 		return new Promise(function(resolve, reject) {
 			self.each(function(el) {
@@ -197,7 +197,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{object} handler				description
 	 * @return {Mura.DOMSelection} Self
 	 */
-	addEventHandler:function(selector, handler){
+	addEventHandler(selector, handler){
 		if (typeof handler == 'undefined') {
 			handler = selector;
 			selector = '';
@@ -222,7 +222,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{function} fn				description
 	 * @return {Mura.DOMSelection} Self
 	 */
-	on: function(eventName, selector, fn, EventListenerOptions) {
+	on(eventName, selector, fn, EventListenerOptions) {
 		if(typeof EventListenerOptions == 'undefined'){
 			if(typeof fn != 'undefined' && typeof fn != 'function'){
 				EventListenerOptions=fn;
@@ -310,7 +310,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{function} handlerOut Out method
 	 * @return {object}						Self
 	 */
-	hover: function(handlerIn, handlerOut, EventListenerOptions) {
+	hover(handlerIn, handlerOut, EventListenerOptions) {
 		if(typeof EventListenerOptions =='undefined' || EventListenerOptions == null){
 			EventListenerOptions= Mura.supportsPassive ? { passive: true } : false;
 		}
@@ -327,7 +327,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{function} fn Handler function
 	 * @return {Mura.DOMSelection} Self
 	 */
-	click: function(fn) {
+	click(fn) {
 		this.on('click', fn);
 		return this;
 	},
@@ -338,7 +338,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{function} fn Handler function
 	 * @return {Mura.DOMSelection} Self
 	 */
-	change: function(fn) {
+	change(fn) {
 		this.on('change', fn);
 		return this;
 	},
@@ -349,7 +349,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{function} fn Handler function
 	 * @return {Mura.DOMSelection} Self
 	 */
-	submit: function(fn) {
+	submit(fn) {
 		if (fn) {
 			this.on('submit', fn);
 		} else {
@@ -368,7 +368,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{function} fn Handler function
 	 * @return {Mura.DOMSelection} Self
 	 */
-	ready: function(fn) {
+	ready(fn) {
 		this.on('ready', fn);
 		return this;
 	},
@@ -380,7 +380,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{function} fn			Function to remove	(optional)
 	 * @return {Mura.DOMSelection} Self
 	 */
-	off: function(eventName, fn) {
+	off(eventName, fn) {
 		this.each(function(el, idx, array) {
 			if (typeof eventName != 'undefined') {
 				if (typeof fn != 'undefined') {
@@ -411,7 +411,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{function} fn			Function to remove	(optional)
 	 * @return {Mura.DOMSelection} Self
 	 */
-	unbind: function(eventName, fn) {
+	unbind(eventName, fn) {
 		this.off(eventName, fn);
 		return this;
 	},
@@ -424,7 +424,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{function} fn				description
 	 * @return {Mura.DOMSelection}					 Self
 	 */
-	bind: function(eventName, fn) {
+	bind(eventName, fn) {
 		this.on(eventName, fn);
 		return this;
 	},
@@ -436,7 +436,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{object} eventDetail Event properties
 	 * @return {Mura.DOMSelection}						 Self
 	 */
-	trigger: function(eventName, eventDetail) {
+	trigger(eventName, eventDetail) {
 		eventDetail = eventDetail || {};
 		this.each(function(el) {
 			Mura.trigger(el, eventName,eventDetail);
@@ -449,7 +449,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 *
 	 * @return {Mura.DOMSelection}
 	 */
-	parent: function() {
+	parent() {
 		if (!this.selection.length) {
 			return this;
 		}
@@ -462,7 +462,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{string} selector Filter (optional)
 	 * @return {Mura.DOMSelection}
 	 */
-	children: function(selector) {
+	children(selector) {
 		if (!this.selection.length) {
 			return this;
 		}
@@ -490,7 +490,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{string} selector Selector
 	 * @return {Mura.DOMSelection}
 	 */
-	find: function(selector) {
+	find(selector) {
 		if (this.selection.length && this.selection[0]) {
 			var removeId = false;
 			if (this.selection[0].nodeType == '1' ||
@@ -512,7 +512,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 *
 	 * @return {*}
 	 */
-	first: function() {
+	first() {
 		if (this.selection.length) {
 			return Mura(this.selection[0]);
 		} else {
@@ -525,7 +525,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 *
 	 * @return {*}
 	 */
-	last: function() {
+	last() {
 		if (this.selection.length) {
 			return Mura(this.selection[this.selection.length - 1]);
 		} else {
@@ -538,7 +538,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 *
 	 * @return {string}
 	 */
-	selector: function() {
+	selector() {
 		var pathes = [];
 		var path, node = Mura(this.selection[0]);
 		while (node.length) {
@@ -574,7 +574,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{string} selector Selector to filter siblings (optional)
 	 * @return {Mura.DOMSelection}
 	 */
-	siblings: function(selector) {
+	siblings(selector) {
 		if (!this.selection.length) {
 			return this;
 		}
@@ -602,7 +602,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{number} idx Index to return
 	 * @return {*}
 	 */
-	item: function(idx) {
+	item(idx) {
 		return this.selection[idx];
 	},
 
@@ -612,7 +612,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{*} el Element to return index of
 	 * @return {*}
 	 */
-	index: function(el) {
+	index(el) {
 		return this.selection.indexOf(el);
 	},
 
@@ -622,7 +622,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{*} el Element to return index of
 	 * @return {*}
 	 */
-	indexOf: function(el) {
+	indexOf(el) {
 		return this.selection.indexOf(el);
 	},
 
@@ -632,7 +632,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{string} selector Selector
 	 * @return {Mura.DOMSelection}
 	 */
-	closest: function(selector) {
+	closest(selector) {
 		if (!this.selection.length) {
 			return null;
 		}
@@ -653,7 +653,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{*} el Element to append
 	 * @return {Mura.DOMSelection} Self
 	 */
-	append: function(el) {
+	append(el) {
 		this.each(function() {
 			if (typeof el == 'string') {
 				this.insertAdjacentHTML('beforeend', el);
@@ -670,7 +670,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{object} data Display objectparams (including object='objectkey')
 	 * @return {Promise}
 	 */
-	appendDisplayObject: function(data) {
+	appendDisplayObject(data) {
 		var self = this;
 		delete data.method;
 		if(typeof data.transient == 'undefined'){
@@ -714,7 +714,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{object} data Display objectparams (including object='objectkey')
 	 * @return {Promise}
 	 */
-	appendModule: function(data) {
+	appendModule(data) {
 		return this.appendDisplayObject(data);
 	},
 
@@ -724,7 +724,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{object} data Display objectparams (including object='objectkey')
 	 * @return {Promise}
 	 */
-	insertDisplayObjectAfter: function(data) {
+	insertDisplayObjectAfter(data) {
 		var self = this;
 		delete data.method;
 		if(typeof data.transient == 'undefined'){
@@ -764,7 +764,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{object} data Display objectparams (including object='objectkey')
 	 * @return {Promise}
 	 */
-	insertModuleAfter: function(data) {
+	insertModuleAfter(data) {
 		return this.insertDisplayObjectAfter(data);
 	},
 
@@ -774,7 +774,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{object} data Display objectparams (including object='objectkey')
 	 * @return {Promise}
 	 */
-	insertDisplayObjectBefore: function(data) {
+	insertDisplayObjectBefore(data) {
 		var self = this;
 		delete data.method;
 		if(typeof data.transient == 'undefined'){
@@ -814,7 +814,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{object} data Display objectparams (including object='objectkey')
 	 * @return {Promise}
 	 */
-	insertModuleBefore: function(data) {
+	insertModuleBefore(data) {
 		return this.insertDisplayObjectBefore(data);
 	},
 
@@ -824,7 +824,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{object} data Display objectparams (including object='objectkey')
 	 * @return {Promise}
 	 */
-	prependDisplayObject: function(data) {
+	prependDisplayObject(data) {
 		var self = this;
 		delete data.method;
 		if(typeof data.transient == 'undefined'){
@@ -864,7 +864,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{object} data Display objectparams (including object='objectkey')
 	 * @return {Promise}
 	 */
-	prependModule: function(data) {
+	prependModule(data) {
 		return this.prependDisplayObject(data);
 	},
 
@@ -873,7 +873,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 *
 	 * @return {Promise}
 	 */
-	processDisplayObject: function() {
+	processDisplayObject() {
 		var self = this;
 		return new Promise(function(resolve, reject) {
 			self.each(function() {
@@ -890,7 +890,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 *
 	 * @return {Promise}
 	 */
-	processModule: function() {
+	processModule() {
 		return this.processDisplayObject();
 	},
 
@@ -900,7 +900,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{*} el Element to append
 	 * @return {Mura.DOMSelection} Self
 	 */
-	prepend: function(el) {
+	prepend(el) {
 		this.each(function() {
 			if (typeof el == 'string') {
 				this.insertAdjacentHTML('afterbegin', el);
@@ -917,7 +917,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{*} el Element to append
 	 * @return {Mura.DOMSelection} Self
 	 */
-	before: function(el) {
+	before(el) {
 		this.each(function() {
 			if (typeof el == 'string') {
 				this.insertAdjacentHTML('beforebegin', el);
@@ -934,7 +934,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{*} el Element to append
 	 * @return {Mura.DOMSelection} Self
 	 */
-	after: function(el) {
+	after(el) {
 		this.each(function() {
 			if (typeof el == 'string') {
 				this.insertAdjacentHTML('afterend', el);
@@ -955,7 +955,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 *
 	 * @return {object}	Self
 	 */
-	hide: function() {
+	hide() {
 		this.each(function(el) {
 			el.style.display = 'none';
 		});
@@ -967,7 +967,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 *
 	 * @return {object}	Self
 	 */
-	show: function() {
+	show() {
 		this.each(function(el) {
 			el.style.display = '';
 		});
@@ -979,7 +979,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 *
 	 * @return {object}	Self
 	 */
-	redraw: function() {
+	redraw() {
 		this.each(function(el) {
 			var elm = Mura(el);
 			setTimeout(
@@ -997,7 +997,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 *
 	 * @return {object}	Self
 	 */
-	remove: function() {
+	remove() {
 		this.each(function(el) {
 			el.parentNode && el.parentNode.removeChild(el);
 		});
@@ -1010,7 +1010,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{string} className Name of class
 	 * @return {Mura.DOMSelection} Self
 	 */
-	addClass: function(className) {
+	addClass(className) {
 		if (className.length) {
 			this.each(function(el) {
 				if (el.classList) {
@@ -1029,7 +1029,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{string} className Class name
 	 * @return {Mura.DOMSelection} Self
 	 */
-	hasClass: function(className) {
+	hasClass(className) {
 			return this.is("." + className);
 	},
 
@@ -1039,7 +1039,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{string} className Class name
 	 * @return {Mura.DOMSelection} Self
 	 */
-	removeClass: function(className) {
+	removeClass(className) {
 		this.each(function(el) {
 			if (el.classList) {
 				el.classList.remove(className);
@@ -1056,7 +1056,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{string} className Class name
 	 * @return {Mura.DOMSelection} Self
 	 */
-	toggleClass: function(className) {
+	toggleClass(className) {
 		this.each(function(el) {
 			if (el.classList) {
 				el.classList.toggle(className);
@@ -1080,7 +1080,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 *
 	 * @return {object}	Self
 	 */
-	empty: function() {
+	empty() {
 		this.each(function(el) {
 			el.innerHTML = '';
 		});
@@ -1092,7 +1092,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 *
 	 * @return {object}	Self
 	 */
-	evalScripts: function() {
+	evalScripts() {
 		if (!this.selection.length) {
 			return this;
 		}
@@ -1108,7 +1108,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{string} htmlString description
 	 * @return {object}						Self
 	 */
-	html: function(htmlString) {
+	html(htmlString) {
 		if (typeof htmlString != 'undefined') {
 			this.each(function(el) {
 				el.innerHTML = htmlString;
@@ -1130,7 +1130,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{string} value		Rule value
 	 * @return {object}					Self
 	 */
-	css: function(ruleName, value) {
+	css(ruleName, value) {
 		if (!this.selection.length) {
 			return this;
 		}
@@ -1168,7 +1168,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 *
 	 * @return {object}	Self
 	 */
-	 calculateDisplayObjectStyles: function(windowResponse) {
+	 calculateDisplayObjectStyles(windowResponse) {
 		
  		this.each(function(el) {
 
@@ -2040,7 +2040,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{string} textString Text string
 	 * @return {object}						Self
 	 */
-	text: function(textString) {
+	text(textString) {
 		if (typeof textString != 'undefined') {
 			this.each(function(el) {
 				el.textContent = textString;
@@ -2057,7 +2057,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{string} selector description
 	 * @return {boolean}
 	 */
-	is: function(selector) {
+	is(selector) {
 		if (!this.selection.length) {
 			return false;
 		}
@@ -2078,7 +2078,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{string} attributeName description
 	 * @return {boolean}
 	 */
-	hasAttr: function(attributeName) {
+	hasAttr(attributeName) {
 		if (!this.selection.length) {
 			return false;
 		}
@@ -2093,7 +2093,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{sting} attributeName Data atttribute name
 	 * @return {boolean}
 	 */
-	hasData: function(attributeName) {
+	hasData(attributeName) {
 		if (!this.selection.length) {
 			return false;
 		}
@@ -2106,7 +2106,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 *
 	 * @return {object}	offsetParent
 	 */
-	offsetParent: function() {
+	offsetParent() {
 		if (!this.selection.length) {
 			return this;
 		}
@@ -2120,7 +2120,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{boolean} withMargin Whether to include margin
 	 * @return {number}
 	 */
-	outerHeight: function(withMargin) {
+	outerHeight(withMargin) {
 		if (!this.selection.length) {
 			return this;
 		}
@@ -2143,7 +2143,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{number} height	Height (option)
 	 * @return {object}				Self
 	 */
-	height: function(height) {
+	height(height) {
 		if (!this.selection.length) {
 			return this;
 		}
@@ -2176,7 +2176,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{number} width Width (optional)
 	 * @return {object}			 Self
 	 */
-	width: function(width) {
+	width(width) {
 		if (!this.selection.length) {
 			return this;
 		}
@@ -2206,7 +2206,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 *
 	 * @return {number}
 	 */
-	outerWidth: function() {
+	outerWidth() {
 		if (!this.selection.length) {
 			return 0;
 		}
@@ -2223,7 +2223,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 *
 	 * @return {object}
 	 */
-	scrollTop: function() {
+	scrollTop() {
 		if (!this.selection.length) {
 			return 0;
 		}
@@ -2240,7 +2240,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 *
 	 * @return {object}
 	 */
-	offset: function() {
+	offset() {
 		if (!this.selection.length) {
 			return this;
 		}
@@ -2259,7 +2259,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{string} attributeName Attribute name
 	 * @return {object}							 Self
 	 */
-	removeAttr: function(attributeName) {
+	removeAttr(attributeName) {
 		if (!this.selection.length) {
 				return this;
 		}
@@ -2277,7 +2277,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{string} type Element type to change to
 	 * @return {Mura.DOMSelection} Self
 	 */
-	changeElementType: function(type) {
+	changeElementType(type) {
 		if (!this.selection.length) {
 			return this;
 		}
@@ -2293,7 +2293,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{*} value Value
 	 * @return {Mura.DOMSelection} Self
 	 */
-	val: function(value) {
+	val(value) {
 		if (!this.selection.length) {
 			return this;
 		}
@@ -2327,7 +2327,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{*} value				 Value (optional)
 	 * @return {Mura.DOMSelection} Self
 	 */
-	attr: function(attributeName, value) {
+	attr(attributeName, value) {
 		if (!this.selection.length) {
 			return this;
 		}
@@ -2366,7 +2366,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{*} value				 Value (optional)
 	 * @return {Mura.DOMSelection} Self
 	 */
-	data: function(attributeName, value) {
+	data(attributeName, value) {
 		if (!this.selection.length) {
 			return this;
 		}
@@ -2398,7 +2398,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{*} value				 Value (optional)
 	 * @return {Mura.DOMSelection} Self
 	 */
-	prop: function(attributeName, value) {
+	prop(attributeName, value) {
 			if (!this.selection.length) {
 				return this;
 			}
@@ -2426,7 +2426,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 *
 	 * @return {Mura.DOMSelection} Self
 	 */
-	fadeOut: function() {
+	fadeOut() {
 		this.each(function(el) {
 			el.style.opacity = 1;
 			(function fade() {
@@ -2447,7 +2447,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{string} display Display value
 	 * @return {Mura.DOMSelection} Self
 	 */
-	fadeIn: function(display) {
+	fadeIn(display) {
 			this.each(function(el) {
 				el.style.opacity = 0;
 				el.style.display = display ||	"block";
@@ -2467,7 +2467,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 *
 	 * @return {Mura.DOMSelection} Self
 	 */
-	toggle: function() {
+	toggle() {
 		this.each(function(el) {
 			if (typeof el.style.display ==
 				'undefined' || el.style.display ==
@@ -2484,7 +2484,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 *
 	 * @return {Mura.DOMSelection} Self
 	 */
-	slideToggle: function() {
+	slideToggle() {
 		this.each(function(el) {
 			if (typeof el.style.display ==
 				'undefined' || el.style.display ==
@@ -2502,7 +2502,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 *
 	 * @return {self}
 	 */
-	focus: function() {
+	focus() {
 		if (!this.selection.length) {
 			return this;
 		}
@@ -2516,7 +2516,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{object} params Keys: name, type, required, validation, message, label
 	 * @return {self}
 	 */
-	makeEditableAttr:function(params){
+	makeEditableAttr(params){
 		if (!this.selection.length) {
 			return this;
 		}
@@ -2583,7 +2583,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	* @param	{any} data Region data to render
 	* @return {Promise}
 	*/
-	processDisplayRegion:function(data,label){
+	processDisplayRegion(data,label){
 		if (typeof data == 'undefined' || !this.selection.length) {
 				return this.processMarkup();
 		}
@@ -2600,7 +2600,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @param	{object} data Display objectparams (including object='objectkey')
 	 * @return {Promise}
 	 */
-	dspObject:function(data){
+	dspObject(data){
 		return this.appendDisplayObject(data);
 	}
 });

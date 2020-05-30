@@ -19,7 +19,7 @@ var Mura=require('./core');
 Mura.Request=Mura.Core.extend(
 	/** @lends Mura.Request.prototype */
 	{
-		init: function(request, response, headers) {
+		init(request, response, headers) {
 			this.requestObject=request;
 			this.responseObject=response;
 			this.requestHeaders=headers || {};
@@ -32,7 +32,7 @@ Mura.Request=Mura.Core.extend(
 		* @param	{object} params
 		* @return {Promise}
 		*/
-		execute: function(params) {
+		execute(params) {
 			
 			if (!('type' in params)) {
 				params.type = 'GET';
@@ -59,7 +59,7 @@ Mura.Request=Mura.Core.extend(
 		 * @param	{string} value Header value
 		 * @return {Mura.RequestContext}						Self
 		 */
-		setRequestHeader:function(headerName,value){
+		setRequestHeader(headerName,value){
 			this.requestHeaders[headerName]=value;
 			return this;
 		},
@@ -69,7 +69,7 @@ Mura.Request=Mura.Core.extend(
 		 * @param	{string} headerName	Name of header
 		 * @return {string} header Value
 		 */
-		getRequestHeader:function(headerName){
+		getRequestHeader(headerName){
 			 if(typeof this.requestHeaders[headerName] != 'undefined'){
 				 return this.requestHeaders[headerName];
 			 } else {
@@ -81,10 +81,10 @@ Mura.Request=Mura.Core.extend(
 		 *
 		 * @return {object} All Headers
 		 */
-		getRequestHeaders:function(){
+		getRequestHeaders(){
 			return this.requestHeaders;
 		},
-		nodeRequest:function(params){
+		nodeRequest(params){
 			var debug=typeof Mura.debug != 'undefined' && Mura.debug;
 			var self=this;
 			if(typeof this.requestObject != 'undefined'){
@@ -302,7 +302,7 @@ Mura.Request=Mura.Core.extend(
 				}
 			}
 		},
-		xhrRequest:function(params){
+		xhrRequest(params){
 			var debug=typeof Mura.debug != 'undefined' && Mura.debug;
 			for(var h in Mura.requestHeaders){
 				if(Mura.requestHeaders.hasOwnProperty(h)){
@@ -502,7 +502,7 @@ Mura.Request=Mura.Core.extend(
 			}
 		},
 
-		isXDomainRequest:function(url) {
+		isXDomainRequest(url) {
 			function getHostName(url) {
 				var match = url.match(/:\/\/([0-9]?\.)?(.[^/:]+)/i);
 				if (match != null && match.length > 2 && typeof match[2] ===

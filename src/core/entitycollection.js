@@ -15,7 +15,7 @@ Mura.EntityCollection=Mura.Entity.extend(
 	/** @lends Mura.EntityCollection.prototype */
 	{
 
-	init:function(properties,requestcontext){
+	init(properties,requestcontext){
 		properties=properties || {};
 		this.set(properties);
 		this._requestcontext=requestcontext || Mura._requestcontext;
@@ -39,7 +39,7 @@ Mura.EntityCollection=Mura.Entity.extend(
 	 *
 	 * @return {number}		 integer
 	 */
-	length:function(){
+	length(){
 		return this.properties.items.length;
 	},
 
@@ -49,7 +49,7 @@ Mura.EntityCollection=Mura.Entity.extend(
 	 * @param	{nuymber} idx Index
 	 * @return {object}		 Mura.Entity
 	 */
-	item:function(idx){
+	item(idx){
 		return this.properties.items[idx];
 	},
 
@@ -59,7 +59,7 @@ Mura.EntityCollection=Mura.Entity.extend(
 	 * @param	{object} item Entity instance
 	 * @return {number}			Index of entity
 	 */
-	index:function(item){
+	index(item){
 		return this.properties.items.indexOf(item);
 	},
 
@@ -69,7 +69,7 @@ Mura.EntityCollection=Mura.Entity.extend(
 	 * @param	{object} item Entity instance
 	 * @return {number}			Index of entity
 	 */
-	indexOf:function(item){
+	indexOf(item){
 		return this.properties.items.indexOf(item);
 	},
 
@@ -78,7 +78,7 @@ Mura.EntityCollection=Mura.Entity.extend(
 	 *
 	 * @return {object}
 	 */
-	getAll:function(){
+	getAll(){
 		var self=this;
 		if(typeof self.properties.items != 'undefined'){
 			return Mura.extend(
@@ -109,7 +109,7 @@ Mura.EntityCollection=Mura.Entity.extend(
 	 * @param	{function} fn Function
 	 * @return {object}	Self
 	 */
-	each:function(fn){
+	each(fn){
 		this.properties.items.forEach( function(item,idx){
 			if(typeof fn.call == 'undefined'){
 				fn(item,idx);
@@ -126,7 +126,7 @@ Mura.EntityCollection=Mura.Entity.extend(
 	 * @param	{function} fn Function
 	 * @return {object}	Self
 	 */
-	forEach:function(fn){
+	forEach(fn){
 		return this.each(fn);
 	},
 
@@ -136,7 +136,7 @@ Mura.EntityCollection=Mura.Entity.extend(
 	 * @param	{function} fn Sorting function
 	 * @return {object}	 Self
 	 */
-	sort:function(fn){
+	sort(fn){
 		this.properties.items.sort(fn);
 		return this;
 	},
@@ -147,7 +147,7 @@ Mura.EntityCollection=Mura.Entity.extend(
 	 * @param	{function} fn Filter function
 	 * @return {Mura.EntityCollection}
 	 */
-	filter:function(fn){
+	filter(fn){
 		var newProps={};
 		for(var p in this.properties){
 			if(this.properties.hasOwnProperty(p) && p != 'items' && p != 'links'){
@@ -170,7 +170,7 @@ Mura.EntityCollection=Mura.Entity.extend(
 	 * @param	{function} fn Filter function
 	 * @return {Array}
 	 */
-	map:function(fn){
+	map(fn){
 		return this.properties.items.map( function(item,idx){
 			if(typeof fn.call == 'undefined'){
 				return fn(item,idx);
@@ -186,7 +186,7 @@ Mura.EntityCollection=Mura.Entity.extend(
 	 * @param	{function} fn Sorting function
 	 * @return {object}	 collection
 	 */
-	reverse:function(fn){
+	reverse(fn){
 		var newProps={};
 		for(var p in this.properties){
 			if(this.properties.hasOwnProperty(p) && p != 'items' && p != 'links'){
@@ -205,7 +205,7 @@ Mura.EntityCollection=Mura.Entity.extend(
 	 * @param	{any} initialValue Starting accumulator value
 	 * @return {accumulator}
 	 */
-	reduce:function(fn,initialValue){
+	reduce(fn,initialValue){
 		initialValue=initialValue||0;
 		return this.properties.items.reduce(
 			function(accumulator,item,idx,array){

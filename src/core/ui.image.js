@@ -10,12 +10,12 @@ var Mura=require('./core');
 Mura.UI.Image=Mura.UI.extend(
 /** @lends Mura.DisplayObject.Image.prototype */
 {
-	renderClient:function(){
+	renderClient(){
 		Mura(this.context.targetEl).html(Mura.templates['image'](this.context));
 		this.trigger('afterRender');
 	},
 
-	renderServer:function(){
+	renderServer(){
 		return Mura.templates['image'](this.context);
 	
 	}

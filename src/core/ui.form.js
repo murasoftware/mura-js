@@ -66,7 +66,7 @@ Mura.UI.Form=Mura.UI.extend(
 		formbuttoncancellabel :"Cancel",
 		formrequiredlabel:"Required"
 	},
-	renderClient:function(){
+	renderClient(){
 
 		if(this.context.mode == undefined){
 			this.context.mode = 'form';
@@ -90,7 +90,7 @@ Mura.UI.Form=Mura.UI.extend(
 		return this;
 	},
 
-	getTemplates:function() {
+	getTemplates() {
 
 		var self = this;
 
@@ -109,7 +109,7 @@ Mura.UI.Form=Mura.UI.extend(
 					url:Mura.assetpath + '/includes/display_objects/form/templates/' + temp + '.hb',
 					type:'get',
 					xhrFields:{ withCredentials: false },
-					success:function(data) {
+					success(data) {
 						Mura.templates[temp] = Mura.Handlebars.compile(data);
 						if(!Mura.templateList.length) {
 							if (self.context.view == 'form') {
@@ -128,7 +128,7 @@ Mura.UI.Form=Mura.UI.extend(
 		*/
 	},
 
-	getPageFieldList:function(){
+	getPageFieldList(){
 
 		var page=this.currentpage;
 		var fields = this.formJSON.form.pages[page];
@@ -144,7 +144,7 @@ Mura.UI.Form=Mura.UI.extend(
 		return result.join(',');
 	},
 
-	renderField:function(fieldtype,field) {
+	renderField(fieldtype,field) {
 		var self = this;
 		var templates = Mura.templates;
 		var template = fieldtype;
@@ -236,7 +236,7 @@ Mura.UI.Form=Mura.UI.extend(
 
 	},
 
-	setDefault:function(fieldtype,field) {
+	setDefault(fieldtype,field) {
 		var self = this;
 
 		switch( fieldtype ) {
@@ -303,7 +303,7 @@ Mura.UI.Form=Mura.UI.extend(
 		}
 	},
 
-	renderData:function() {
+	renderData() {
 		var self = this;
 
 		if(self.datasets.length == 0){
@@ -352,7 +352,7 @@ Mura.UI.Form=Mura.UI.extend(
 		}
 	},
 
-	renderForm: function( ) {
+	renderForm( ) {
 		var self = this;
 
 		//console.log("render form: " + self.currentpage);
@@ -394,7 +394,7 @@ Mura.UI.Form=Mura.UI.extend(
 
 	},
 
-	renderPaging:function() {
+	renderPaging() {
 
 		var self = this;
 		var submitlabel=(typeof self.formJSON.form.formattributes != 'undefined' && typeof self.formJSON.form.formattributes.submitlabel != 'undefined' && self.formJSON.form.formattributes.submitlabel) ? self.formJSON.form.formattributes.submitlabel : self.rb.formbuttonsubmitlabel;
@@ -487,7 +487,7 @@ Mura.UI.Form=Mura.UI.extend(
 						siteid: data.siteid,
 						context: data.formid
 					},
-					success: function(resp) {
+					success(resp) {
 						data['csrf_token_expires']=resp.data['csrf_token_expires'];
 						data['csrf_token']=resp.data['csrf_token'];
 
@@ -526,7 +526,7 @@ Mura.UI.Form=Mura.UI.extend(
 		Mura(".mura-form-nav",self.context.formEl).off('click',formNavHandler).on('click',formNavHandler);
 	},
 
-	setDataValues: function() {
+	setDataValues() {
 		var self = this;
 		var multi = {};
 		var item = {};
@@ -595,11 +595,11 @@ Mura.UI.Form=Mura.UI.extend(
 
 	},
 
-	validate: function( entity,fields ) {
+	validate( entity,fields ) {
 		return true;
 	},
 
-	getForm: function( entityid,backlink ) {
+	getForm( entityid,backlink ) {
 		var self = this;
 		var formJSON = {};
 		var entityName = '';
@@ -626,7 +626,7 @@ Mura.UI.Form=Mura.UI.extend(
 		//}
 	},
 
-	loadForm: function( data ) {
+	loadForm( data ) {
 		var self = this;
 
 		//console.log('a');
@@ -751,7 +751,7 @@ Mura.UI.Form=Mura.UI.extend(
 		*/
 	},
 
-	initForm: function() {
+	initForm() {
 		var self = this;
 		Mura(self.context.formEl).empty();
 
@@ -770,15 +770,15 @@ Mura.UI.Form=Mura.UI.extend(
 		Mura.trackEvent({category:'Form',action:'Impression',label:self.context.name,objectid:self.context.objectid,nonInteraction:true});
 	},
 
-	onSubmit: function(){
+	onSubmit(){
 		return true;
 	},
 
-	onPageSubmit: function(){
+	onPageSubmit(){
 		return true;
 	},
 
-	submitForm: function() {
+	submitForm() {
 
 		var self = this;
 		var valid = self.setDataValues();
@@ -903,7 +903,7 @@ Mura.UI.Form=Mura.UI.extend(
 				url: Mura.getAPIEndpoint() +
 					'?method=generateCSRFTokens',
 				data: tokenArgs,
-				success: function(resp) {
+				success(resp) {
 
 					if(!Mura.formdata){
 						data['csrf_token_expires']=resp.data['csrf_token_expires'];
@@ -955,7 +955,7 @@ Mura.UI.Form=Mura.UI.extend(
 
 	},
 
-	showErrors: function( errors ) {
+	showErrors( errors ) {
 		var self = this;
 		var frm=Mura(this.context.formEl);
 		var frmErrors=frm.find(".error-container-" + self.context.objectid);
@@ -1027,7 +1027,7 @@ Mura.UI.Form=Mura.UI.extend(
 
 
 	// lists
-	getList: function() {
+	getList() {
 		var self = this;
 
 		var entityName = '';
@@ -1042,7 +1042,7 @@ Mura.UI.Form=Mura.UI.extend(
 		//}
 	},
 
-	filterResults: function() {
+	filterResults() {
 		var self = this;
 		var before = "";
 		var after = "";
@@ -1077,7 +1077,7 @@ Mura.UI.Form=Mura.UI.extend(
 		self.getTableData();
 	},
 
-	downloadResults: function() {
+	downloadResults() {
 		var self = this;
 
 		self.filterResults();
@@ -1085,7 +1085,7 @@ Mura.UI.Form=Mura.UI.extend(
 	},
 
 
-	loadList: function() {
+	loadList() {
 		var self = this;
 
 		formJSON = self.context.formdata;
@@ -1126,7 +1126,7 @@ Mura.UI.Form=Mura.UI.extend(
 		*/
 	},
 
-	getTableData: function( navlink ) {
+	getTableData( navlink ) {
 		var self = this;
 
 		Mura.get(
@@ -1172,7 +1172,7 @@ Mura.UI.Form=Mura.UI.extend(
 
 	},
 
-	renderTable: function( tableData ) {
+	renderTable( tableData ) {
 		var self = this;
 
 		var html = Mura.templates['table'](tableData);
@@ -1223,7 +1223,7 @@ Mura.UI.Form=Mura.UI.extend(
 	},
 
 
-	loadOverview: function(itemid,pos) {
+	loadOverview(itemid,pos) {
 		var self = this;
 
 		Mura.get(
@@ -1235,7 +1235,7 @@ Mura.UI.Form=Mura.UI.extend(
 		});
 	},
 
-	renderOverview: function() {
+	renderOverview() {
 		var self = this;
 
 		//console.log('ia');
@@ -1251,7 +1251,7 @@ Mura.UI.Form=Mura.UI.extend(
 		});
 	},
 
-	renderCRUD: function( itemid,pos ) {
+	renderCRUD( itemid,pos ) {
 		var self = this;
 
 		self.formInit = 0;
@@ -1260,7 +1260,7 @@ Mura.UI.Form=Mura.UI.extend(
 		self.getForm(itemid,self.data.links.self);
 	},
 
-	cleanProps: function( props ) {
+	cleanProps( props ) {
 		var propsOrdered = {};
 		var propsRet = {};
 		var ct = 100000;
@@ -1293,7 +1293,7 @@ Mura.UI.Form=Mura.UI.extend(
 		return propsRet;
 	},
 
-	registerHelpers: function() {
+	registerHelpers() {
 		var self = this;
 
 		Mura.extend(self.rb,Mura.rb);

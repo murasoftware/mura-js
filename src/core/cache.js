@@ -12,7 +12,7 @@ var Mura=require('./core');
 Mura.Cache=Mura.Core.extend(
 	/** @lends Mura.Cache.prototype */
 	{
-	init:function(){
+	init(){
 		this.cache={};
 		return this;
 	},
@@ -23,7 +23,7 @@ Mura.Cache=Mura.Core.extend(
 	 * @param	{string} keyName Key Name
 	 * @return {*}				 Key Value
 	 */
-	getKey:function(keyName){
+	getKey(keyName){
 		return Mura.hashCode(keyName);
 	},
 
@@ -34,7 +34,7 @@ Mura.Cache=Mura.Core.extend(
 	 * @param	{*} keyValue Default Value
 	 * @return {*}
 	 */
-	get:function(keyName,keyValue){
+	get(keyName,keyValue){
 		var key=this.getKey(keyName);
 		if(typeof this.cache[key] != 'undefined'){
 			return this.cache[key].keyValue;
@@ -54,7 +54,7 @@ Mura.Cache=Mura.Core.extend(
 	 * @param	{string} key			Key
 	 * @return {*}
 	 */
-	set:function(keyName,keyValue,key){
+	set(keyName,keyValue,key){
 		key=key || this.getKey(keyName);
 		this.cache[key]={name:keyName,value:keyValue};
 		return keyValue;
@@ -66,7 +66,7 @@ Mura.Cache=Mura.Core.extend(
 	 * @param	{string} keyName Key Name
 	 * @return {boolean}
 	 */
-	has:function(keyName){
+	has(keyName){
 		return typeof this.cache[getKey(keyName)] != 'undefined';
 	},
 
@@ -75,7 +75,7 @@ Mura.Cache=Mura.Core.extend(
 	 *
 	 * @return {object}
 	 */
-	getAll:function(){
+	getAll(){
 		return this.cache;
 	},
 
@@ -84,7 +84,7 @@ Mura.Cache=Mura.Core.extend(
 	 *
 	 * @return {object}	Self
 	 */
-	purgeAll:function(){
+	purgeAll(){
 		this.cache={};
 		return this;
 	},
@@ -95,7 +95,7 @@ Mura.Cache=Mura.Core.extend(
 	 * @param	{string} keyName Key Name
 	 * @return {object}				 Self
 	 */
-	purge:function(keyName){
+	purge(keyName){
 		var key=this.getKey(keyName)
 		if( typeof this.cache[key] != 'undefined')
 		delete this.cache[key];

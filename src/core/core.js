@@ -1690,7 +1690,7 @@ var Mura=(function(){
 					validations: encodeURIComponent(JSON.stringify(validations)),
 					version: 4
 				},
-				success: function(resp) {
+				success(resp) {
 
 					data = resp.data;
 
@@ -1711,7 +1711,7 @@ var Mura=(function(){
 						alert(msg);
 					}
 				},
-				error: function(resp) {
+				error(resp) {
 					alert(JSON.stringify(resp));
 				}
 
@@ -2032,7 +2032,7 @@ var Mura=(function(){
 				url: Mura.getAPIEndpoint() + '?method=processAsyncObject',
 				type: 'POST',
 				data: data,
-				success: function(resp) {
+				success(resp) {
 					//obj=Mura('div[data-instanceid="' + obj.data('instanceid') + '"]');
 					setTimeout(function(){handleResponse(obj, resp)},0);
 				}
@@ -2077,7 +2077,7 @@ var Mura=(function(){
 				url: Mura.getAPIEndpoint() + '?method=processAsyncObject',
 				type: 'POST',
 				data: data,
-				success: function(resp) {
+				success(resp) {
 					//obj=Mura('div[data-instanceid="' + obj.data('instanceid') + '"]');
 					setTimeout(function(){handleResponse(obj, resp)},0);
 				}
@@ -2520,7 +2520,7 @@ var Mura=(function(){
 				crossDomain: true,
 				url: resp.data.apiEndpoint,
 				data: resp.data,
-				success: function(data) {
+				success(data) {
 						if (typeof data == 'string') {
 								wireUpObject(obj, data);
 						} else if (typeof data == 'object' &&
@@ -2723,7 +2723,7 @@ var Mura=(function(){
 						url: Mura.getAPIEndpoint() + '?method=processAsyncObject',
 						type: requestType,
 						data: requestData,
-						success: function(resp) {
+						success(resp) {
 							//obj=Mura('div[data-instanceid="' + obj.data('instanceid') + '"]');
 							setTimeout(function(){
 								handleResponse(obj, resp)
@@ -3436,7 +3436,7 @@ var Mura=(function(){
 				}
 			}
 		}, {
-			preInit:function(fn){if(holdingReady){holdingPreInitQueue.push(fn)}else{Mura(fn)}},
+			preInit(fn){if(holdingReady){holdingPreInitQueue.push(fn)}else{Mura(fn)}},
 			generateOAuthToken: generateOAuthToken,
 			entities: {},
 			submitForm: submitForm,

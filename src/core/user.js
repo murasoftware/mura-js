@@ -21,7 +21,7 @@ Mura.entities.User = Mura.Entity.extend(
 	 * @param	{boolean} isPublic	If you want to check public or private (system) groups
 	 * @return {boolean}
 	 */
-	isInGroup:function(group,siteid,isPublic){
+	isInGroup(group,siteid,isPublic){
 		siteid=siteid || Mura.siteid;
 		var a=this.get('memberships');
 		if(!Array.isArray(a)){
@@ -40,7 +40,7 @@ Mura.entities.User = Mura.Entity.extend(
 	 *
 	 * @return {boolean}
 	 */
-	isSuperUser:function(){
+	isSuperUser(){
 		var a=this.get('memberships');
 		if(!Array.isArray(a)){
 			console.log('Method design for use with currentuser() only');
@@ -54,7 +54,7 @@ Mura.entities.User = Mura.Entity.extend(
 	 *
 	 * @return {boolean}
 	 */
-	isAdminUser:function(siteid){
+	isAdminUser(siteid){
 		siteid=siteid || Mura.siteid;
 		var a=this.get('memberships');
 		if(!Array.isArray(a)){
@@ -69,7 +69,7 @@ Mura.entities.User = Mura.Entity.extend(
 	 *
 	 * @return {boolean}
 	 */
-	isSystemUser:function(siteid){
+	isSystemUser(siteid){
 		siteid=siteid || Mura.siteid;
 		var a=this.get('memberships');
 		if(!Array.isArray(a)){
@@ -84,7 +84,7 @@ Mura.entities.User = Mura.Entity.extend(
 	 *
 	 * @return {boolean}
 	 */
-	isLoggedIn:function(){
+	isLoggedIn(){
 		var a=this.get('isloggedin');
 		if(a===''){
 			return false;

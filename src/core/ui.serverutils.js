@@ -87,7 +87,7 @@ Mura.UI.Collection=Mura.UI.Collection.extend({
 		}
 	},
 
-	hydrate:function(){
+	hydrate(){
 		this.getCollection().then((collection)=>{
 			this.context.collection=collection;
 			this.getLayoutInstance().hydrate();

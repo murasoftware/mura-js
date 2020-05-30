@@ -10,12 +10,12 @@ var Mura=require('./core');
 Mura.UI.Hr=Mura.UI.extend(
 /** @lends Mura.DisplayObject.Hr.prototype */
 {
-	renderClient:function(){
+	renderClient(){
 		Mura(this.context.targetEl).html("<hr>");
 		this.trigger('afterRender');
 	},
 
-	renderServer:function(){
+	renderServer(){
         return "<hr>";
 	
 	}

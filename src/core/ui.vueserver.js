@@ -15,11 +15,11 @@ require('mura.js/src/core/ui.serverutils')
 Mura.UI.VueServer=Mura.UI.Vue.extend(
 /** @lends Mura.UI.VueServer.prototype */
 {
-	renderServer:function(){
+	renderServer(){
 		return this.renderer.renderToString(this.$vm())
 	},
 
-	hydrate:function(){
+	hydrate(){
 		const container=Mura(this.context.targetEl)
 		if(container.length && container.node.innerHTML){
 			container.node.firstChild.setAttribute('id','mc' + this.context.instanceid)
@@ -28,7 +28,7 @@ Mura.UI.VueServer=Mura.UI.Vue.extend(
 		}
 	},
 
-	registerHelpers:function(){
+	registerHelpers(){
 		if(Mura.isInNode()){
 			this.renderer = eval("require('vue-server-renderer')").createRenderer(this.rendererOptions)
 		}

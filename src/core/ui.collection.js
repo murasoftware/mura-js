@@ -14,7 +14,7 @@ Mura.UI.Collection=Mura.UI.extend(
 
 	layoutInstance:'',
 
-	getLayoutInstance:function(){
+	getLayoutInstance(){
 		if(this.layoutInstance){
 			this.layoutInstance.destroy();
 		}
@@ -22,7 +22,7 @@ Mura.UI.Collection=Mura.UI.extend(
 		return this.layoutInstance;
 	},
 
-	getCollection:function(){
+	getCollection(){
 		var self=this;
 		if(typeof this.context.feed != 'undefined' && typeof this.context.feed.getQuery != 'undefined'){
 			return this.context.feed.getQuery();
@@ -121,7 +121,7 @@ Mura.UI.Collection=Mura.UI.extend(
 		}
 	},
 
-	renderClient:function(){
+	renderClient(){
 		if(typeof Mura.Module[this.context.layout] == 'undefined'){
 			this.context.layout=Mura.firstToUpperCase(this.context.layout);
 		}
@@ -141,12 +141,12 @@ Mura.UI.Collection=Mura.UI.extend(
 		this.trigger('afterRender');
 	},
 
-	renderServer:function(){
+	renderServer(){
 		//has implementation in ui.serverutils
 		return '';
 	},
 
-	destroy:function(){
+	destroy(){
 		//has implementation in ui.serverutils
 		if(this.layoutInstance){
 			this.layoutInstance.destroy();

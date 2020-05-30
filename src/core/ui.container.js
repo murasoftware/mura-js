@@ -10,7 +10,7 @@ var Mura=require('./core');
 Mura.UI.Container=Mura.UI.extend(
 /** @lends Mura.DisplayObject.Container.prototype */
 {
-	renderClient:function(){		
+	renderClient(){		
         var target=Mura(this.context.targetEl);		
         if(!Array.isArray(this.context.items)){
             this.context.content=this.context.content || '';
@@ -25,7 +25,7 @@ Mura.UI.Container=Mura.UI.extend(
         }
 		this.trigger('afterRender');
     },
-    reset:function(self,empty){ 
+    reset(self,empty){ 
         self.find('.mura-object:not([data-object="container"])').html('');
         self.find('.frontEndToolsModal').remove();
         self.find('.mura-object-meta').html('');

@@ -19,7 +19,7 @@ var Mura=require('./core');
 Mura.Feed = Mura.Core.extend(
 	/** @lends Mura.Feed.prototype */
 	{
-		init: function(siteid, entityname, requestcontext) {
+		init(siteid, entityname, requestcontext) {
 			this.queryString = entityname + '/?_cacheid=' + Math.random();
 			this.propIndex = 0;
 
@@ -34,7 +34,7 @@ Mura.Feed = Mura.Core.extend(
 		 * @param  {string} fields List of fields
 		 * @return {Mura.Feed}        Self
 		 */
-		fields: function(fields) {
+		fields(fields) {
 			if(typeof fields != 'undefined' && fields){
 				this.queryString += '&fields=' + encodeURIComponent(fields);
 			}
@@ -47,7 +47,7 @@ Mura.Feed = Mura.Core.extend(
 		 * @RequestContext  {Mura.RequestContext} Mura.RequestContext List of fields
 		 * @return {Mura.Feed}        Self
 		 */
-		setRequestContext: function(RequestContext) {
+		setRequestContext(RequestContext) {
 			this._requestcontext=RequestContext;
 			return this;
 		},
@@ -58,7 +58,7 @@ Mura.Feed = Mura.Core.extend(
 		 * @param  {string} contentPoolID Items per page
 		 * @return {Mura.Feed}              Self
 		 */
-		contentPoolID: function(contentPoolID) {
+		contentPoolID(contentPoolID) {
 			this.queryString += '&contentpoolid=' + encodeURIComponent(
 				contentPoolID);
 			return this;
@@ -70,7 +70,7 @@ Mura.Feed = Mura.Core.extend(
 		 * @param  {string} name Name of feed as defined in admin
 		 * @return {Mura.Feed}              Self
 		 */
-		name: function(name) {
+		name(name) {
 			this.queryString += '&feedname=' + encodeURIComponent(
 				name);
 			return this;
@@ -82,7 +82,7 @@ Mura.Feed = Mura.Core.extend(
 		 * @param  {string} feedID Items per page
 		 * @return {Mura.Feed}              Self
 		 */
-		feedID: function(feedID) {
+		feedID(feedID) {
 			this.queryString += '&feedid=' + encodeURIComponent(
 				feedID);
 			return this;
@@ -94,7 +94,7 @@ Mura.Feed = Mura.Core.extend(
 		 * @param  {string} property Property name
 		 * @return {Mura.Feed}          Self
 		 */
-		where: function(property) {
+		where(property) {
 			if (property) {
 				return this.andProp(property);
 			}
@@ -107,7 +107,7 @@ Mura.Feed = Mura.Core.extend(
 		 * @param  {string} property Property name
 		 * @return {Mura.Feed}          Self
 		 */
-		prop: function(property) {
+		prop(property) {
 			return this.andProp(property);
 		},
 
@@ -117,7 +117,7 @@ Mura.Feed = Mura.Core.extend(
 		 * @param  {string} property Property name
 		 * @return {Mura.Feed}          Self
 		 */
-		andProp: function(property) {
+		andProp(property) {
 			this.queryString += '&' + encodeURIComponent(property + '[' + this.propIndex + ']') +
 				'=';
 			this.propIndex++;
@@ -130,7 +130,7 @@ Mura.Feed = Mura.Core.extend(
 		 * @param  {string} property Property name
 		 * @return {Mura.Feed}          Self
 		 */
-		orProp: function(property) {
+		orProp(property) {
 			this.queryString += '&or' + encodeURIComponent('[' + this.propIndex + ']') + '&';
 			this.propIndex++;
 			this.queryString += encodeURIComponent(property +'[' + this.propIndex + ']') +
@@ -145,7 +145,7 @@ Mura.Feed = Mura.Core.extend(
 		 * @param  {*} criteria Criteria
 		 * @return {Mura.Feed}          Self
 		 */
-		isEQ: function(criteria) {
+		isEQ(criteria) {
 			if (typeof criteria== 'undefined' || criteria === '' || criteria ==	null) {
 				criteria = 'null';
 			}
@@ -159,7 +159,7 @@ Mura.Feed = Mura.Core.extend(
 		 * @param  {*} criteria Criteria
 		 * @return {Mura.Feed}          Self
 		 */
-		isNEQ: function(criteria) {
+		isNEQ(criteria) {
 			if (typeof criteria == 'undefined' || criteria === '' || criteria == null) {
 				criteria = 'null';
 			}
@@ -173,7 +173,7 @@ Mura.Feed = Mura.Core.extend(
 		 * @param  {*} criteria Criteria
 		 * @return {Mura.Feed}          Self
 		 */
-		isLT: function(criteria) {
+		isLT(criteria) {
 			if (typeof criteria == 'undefined' || criteria === '' || criteria == null) {
 				criteria = 'null';
 			}
@@ -187,7 +187,7 @@ Mura.Feed = Mura.Core.extend(
 		 * @param  {*} criteria Criteria
 		 * @return {Mura.Feed}          Self
 		 */
-		isLTE: function(criteria) {
+		isLTE(criteria) {
 			if (typeof criteria == 'undefined' || criteria === '' || criteria ==
 				null) {
 				criteria = 'null';
@@ -202,7 +202,7 @@ Mura.Feed = Mura.Core.extend(
 		 * @param  {*} criteria Criteria
 		 * @return {Mura.Feed}          Self
 		 */
-		isGT: function(criteria) {
+		isGT(criteria) {
 			if (typeof criteria == 'undefined' || criteria === '' || criteria == null) {
 				criteria = 'null';
 			}
@@ -216,7 +216,7 @@ Mura.Feed = Mura.Core.extend(
 		 * @param  {*} criteria Criteria
 		 * @return {Mura.Feed}          Self
 		 */
-		isGTE: function(criteria) {
+		isGTE(criteria) {
 			if (typeof criteria == 'undefined' || criteria === '' || criteria ==
 				null) {
 				criteria = 'null';
@@ -231,7 +231,7 @@ Mura.Feed = Mura.Core.extend(
 		 * @param  {*} criteria Criteria List
 		 * @return {Mura.Feed}          Self
 		 */
-		isIn: function(criteria) {
+		isIn(criteria) {
 			this.queryString += encodeURIComponent('in^' + criteria);
 			return this;
 		},
@@ -242,7 +242,7 @@ Mura.Feed = Mura.Core.extend(
 		 * @param  {*} criteria Criteria List
 		 * @return {Mura.Feed}          Self
 		 */
-		isNotIn: function(criteria) {
+		isNotIn(criteria) {
 			this.queryString += encodeURIComponent('notin^' + criteria);
 			return this;
 		},
@@ -253,11 +253,11 @@ Mura.Feed = Mura.Core.extend(
 		 * @param  {*} criteria Criteria
 		 * @return {Mura.Feed}          Self
 		 */
-		containsValue: function(criteria) {
+		containsValue(criteria) {
 			this.queryString += encodeURIComponent('containsValue^' + criteria);
 			return this;
 		},
-		contains: function(criteria) {
+		contains(criteria) {
 			this.queryString += encodeURIComponent('containsValue^' + criteria);
 			return this;
 		},
@@ -268,7 +268,7 @@ Mura.Feed = Mura.Core.extend(
 		 * @param  {*} criteria Criteria
 		 * @return {Mura.Feed}          Self
 		 */
-		beginsWith: function(criteria) {
+		beginsWith(criteria) {
 			this.queryString += encodeURIComponent('begins^' + criteria);
 			return this;
 		},
@@ -279,7 +279,7 @@ Mura.Feed = Mura.Core.extend(
 		 * @param  {*} criteria Criteria
 		 * @return {Mura.Feed}          Self
 		 */
-		endsWith: function(criteria) {
+		endsWith(criteria) {
 			this.queryString += encodeURIComponent('ends^' + criteria);
 			return this;
 		},
@@ -290,7 +290,7 @@ Mura.Feed = Mura.Core.extend(
 		 *
 		 * @return {Mura.Feed}          Self
 		 */
-		openGrouping: function() {
+		openGrouping() {
 			this.queryString += '&openGrouping' + encodeURIComponent('[' + this.propIndex + ']');
 			this.propIndex++;
 			return this;
@@ -301,7 +301,7 @@ Mura.Feed = Mura.Core.extend(
 		 *
 		 * @return {Mura.Feed}          Self
 		 */
-		andOpenGrouping: function() {
+		andOpenGrouping() {
 			this.queryString += '&andOpenGrouping' + encodeURIComponent('[' + this.propIndex + ']');
 			this.propIndex++;
 			return this;
@@ -312,7 +312,7 @@ Mura.Feed = Mura.Core.extend(
 		 *
 		 * @return {Mura.Feed}          Self
 		 */
-		orOpenGrouping: function() {
+		orOpenGrouping() {
 			this.queryString += '&orOpenGrouping' + encodeURIComponent('[' + this.propIndex + ']');
 			this.propIndex++;
 			return this;
@@ -323,7 +323,7 @@ Mura.Feed = Mura.Core.extend(
 		 *
 		 * @return {Mura.Feed}          Self
 		 */
-		closeGrouping: function() {
+		closeGrouping() {
 			this.queryString += '&closeGrouping' + encodeURIComponent('[' + this.propIndex + ']');
 			this.propIndex++;
 			return this;
@@ -336,7 +336,7 @@ Mura.Feed = Mura.Core.extend(
 		 * @param  {string} direction Sort direction
 		 * @return {Mura.Feed}           Self
 		 */
-		sort: function(property, direction) {
+		sort(property, direction) {
 			direction = direction || 'asc';
 			if (direction == 'desc') {
 				this.queryString += '&sort' + encodeURIComponent('[' + this.propIndex + ']') + '=' + encodeURIComponent('-' + property);
@@ -353,7 +353,7 @@ Mura.Feed = Mura.Core.extend(
 		 * @param  {number} itemsPerPage Items per page
 		 * @return {Mura.Feed}              Self
 		 */
-		itemsPerPage: function(itemsPerPage) {
+		itemsPerPage(itemsPerPage) {
 			this.queryString += '&itemsPerPage=' + encodeURIComponent(itemsPerPage);
 			return this;
 		},
@@ -363,7 +363,7 @@ Mura.Feed = Mura.Core.extend(
 		 *
 		 * @param  {number} pageIndex page to start at
 		 */
-		pageIndex: function(pageIndex) {
+		pageIndex(pageIndex) {
 			this.queryString += '&pageIndex=' + encodeURIComponent(pageIndex);
 			return this;
 		},
@@ -374,7 +374,7 @@ Mura.Feed = Mura.Core.extend(
 		 * @param  {number} maxItems Items to return
 		 * @return {Mura.Feed}              Self
 		 */
-		maxItems: function(maxItems) {
+		maxItems(maxItems) {
 			this.queryString += '&maxItems=' + encodeURIComponent(maxItems);
 			return this;
 		},
@@ -385,7 +385,7 @@ Mura.Feed = Mura.Core.extend(
 		 * @param  {boolean} distinct Whether to to select distinct values
 		 * @return {Mura.Feed}              Self
 		 */
-		distinct: function(distinct) {
+		distinct(distinct) {
 			if(typeof distinct=='undefined'){
 				distinct=true;
 			}
@@ -400,7 +400,7 @@ Mura.Feed = Mura.Core.extend(
 		 * @param  {string} property property
 		 * @return {Mura.Feed}	Self
 		 */
-		aggregate: function(type,property) {
+		aggregate(type,property) {
 			if(type == 'count' && typeof property=='undefined'){
 				property='*';
 			}
@@ -419,7 +419,7 @@ Mura.Feed = Mura.Core.extend(
 		 * @param  {number} liveOnly 0 or 1
 		 * @return {Mura.Feed}              Self
 		 */
-		liveOnly: function(liveOnly) {
+		liveOnly(liveOnly) {
 			this.queryString += '&liveOnly=' + encodeURIComponent(liveOnly);
 			return this;
 		},
@@ -430,7 +430,7 @@ Mura.Feed = Mura.Core.extend(
 		 * @param  {string} groupBy
 		 * @return {Mura.Feed}              Self
 		 */
-		 groupBy: function(property) {
+		 groupBy(property) {
  			if(typeof property!='undefined'){
  				this.queryString += '&' + encodeURIComponent('groupBy[' + this.propIndex + ']') + '=' + property;
  				this.propIndex++;
@@ -444,7 +444,7 @@ Mura.Feed = Mura.Core.extend(
 		 * @param  {number} maxItems Items to return
 		 * @return {Mura.Feed}              Self
 		 */
-		maxItems: function(maxItems) {
+		maxItems(maxItems) {
 			this.queryString += '&maxItems=' + encodeURIComponent(maxItems);
 			return this;
 		},
@@ -455,7 +455,7 @@ Mura.Feed = Mura.Core.extend(
 		 * @param  {boolean} showNavOnly Whether to return items that have been excluded from search
 		 * @return {Mura.Feed}              Self
 		 */
-		showNavOnly: function(showNavOnly) {
+		showNavOnly(showNavOnly) {
 			this.queryString += '&showNavOnly=' + encodeURIComponent(showNavOnly);
 			return this;
 		},
@@ -466,7 +466,7 @@ Mura.Feed = Mura.Core.extend(
 		 * @param  {string} expand List of properties to expand, use 'all' for all.
 		 * @return {Mura.Feed}              Self
 		 */
-		expand: function(expand) {
+		expand(expand) {
 			if(typeof expand == 'undefined'){
 				expand = 'all';
 			}
@@ -482,7 +482,7 @@ Mura.Feed = Mura.Core.extend(
 		 * @param  {number} expandDepth Number of levels to expand, defaults to 1
 		 * @return {Mura.Feed}              Self
 		 */
-		expandDepth: function(expandDepth) {
+		expandDepth(expandDepth) {
 			expandDepth = expandDepth || 1;
 			if(Mura.isNumeric(expandDepth) && Number(parseFloat(expandDepth)) > 1){
 				this.queryString += '&expandDepth=' + encodeURIComponent(expandDepth);
@@ -496,7 +496,7 @@ Mura.Feed = Mura.Core.extend(
 		 * @param  {boolean} showExcludeSearch Whether to return items that have been excluded from search
 		 * @return {Mura.Feed}              Self
 		 */
-		showExcludeSearch: function(showExcludeSearch) {
+		showExcludeSearch(showExcludeSearch) {
 			this.queryString += '&showExcludeSearch=' + encodeURIComponent(showExcludeSearch);
 			return this;
 		},
@@ -507,7 +507,7 @@ Mura.Feed = Mura.Core.extend(
 		 * @param  {boolean} useCategoryIntersect Whether require a match for all categories
 		 * @return {Mura.Feed}              Self
 		 */
-		useCategoryIntersect: function(useCategoryIntersect) {
+		useCategoryIntersect(useCategoryIntersect) {
 			this.queryString += '&useCategoryIntersect=' + encodeURIComponent(useCategoryIntersect);
 			return this;
 		},
@@ -518,7 +518,7 @@ Mura.Feed = Mura.Core.extend(
 		 * @param  {boolean} showExcludeSearch Whether to return the homepage
 		 * @return {Mura.Feed}              Self
 		 */
-		includeHomepage: function(includeHomepage) {
+		includeHomepage(includeHomepage) {
 			this.queryString += '&includehomepage=' + encodeURIComponent(includeHomepage);
 			return this;
 		},
@@ -529,7 +529,7 @@ Mura.Feed = Mura.Core.extend(
 		 * @param  {string} relatedEntity Related entity
 		 * @return {Mura.Feed}              Self
 		 */
-		innerJoin: function(relatedEntity) {
+		innerJoin(relatedEntity) {
 			this.queryString += '&innerJoin' + encodeURIComponent('[' + this.propIndex + ']') + '=' +	encodeURIComponent(relatedEntity);
 			this.propIndex++;
 			return this;
@@ -541,7 +541,7 @@ Mura.Feed = Mura.Core.extend(
 		 * @param  {string} relatedEntity Related entity
 		 * @return {Mura.Feed}              Self
 		 */
-		leftJoin: function(relatedEntity) {
+		leftJoin(relatedEntity) {
 			this.queryString += '&leftJoin' + encodeURIComponent('[' + this.propIndex + ']') + '=' + encodeURIComponent(relatedEntity);
 			this.propIndex++;
 			return this;
@@ -551,7 +551,7 @@ Mura.Feed = Mura.Core.extend(
 		 * Query - Return Mura.EntityCollection fetched from JSON API
 		 * @return {Promise}
 		 */
-		getQuery: function(params) {
+		getQuery(params) {
 			var self = this;
 
 			if(typeof params != 'undefined'){
@@ -575,7 +575,7 @@ Mura.Feed = Mura.Core.extend(
 				self._requestcontext.request({
 					type: 'get',
 					url: apiEndpoint + self.queryString,
-					success: function(resp) {
+					success(resp) {
 						if (resp.data != 'undefined'  ) {
 							var returnObj = new Mura.EntityCollection(resp.data,self._requestcontext);
 
@@ -586,7 +586,7 @@ Mura.Feed = Mura.Core.extend(
 							reject(resp);
 						}
 					},
-					error: function(resp) {
+					error(resp) {
 						resp=Mura.parseString(resp.response);
 						if (typeof reject == 'function'){
 							reject(resp);

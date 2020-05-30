@@ -10,7 +10,7 @@ var Mura=require('./core');
 Mura.UI.Text=Mura.UI.extend(
 /** @lends Mura.DisplayObject.Text.prototype */
 {
-	renderClient:function(){
+	renderClient(){
 		this.context.sourcetype=this.context.sourcetype || 'custom';
 
 		if(this.context.sourcetype=='custom' || this.context.sourcetype=='html'){
@@ -21,7 +21,7 @@ Mura.UI.Text=Mura.UI.extend(
 		this.trigger('afterRender');
 	},
 
-	renderServer:function(){
+	renderServer(){
 		this.context.sourcetype=this.context.sourcetype || 'custom';
 
 		if(this.context.sourcetype=='custom' || this.context.sourcetype=='html'){
@@ -33,7 +33,7 @@ Mura.UI.Text=Mura.UI.extend(
 		}
 	},
 
-	deserializeMarkdown:function(markdown){
+	deserializeMarkdown(markdown){
 		//add deserialization
 		return markdown;
 	}

@@ -14,7 +14,7 @@ Mura.UI.Vue=Mura.UI.extend(
 {
 	vm:'',
 
-	$vm:function(){
+	$vm(){
 		if(!this.vm){
 			this.vm=new Vue(
 				Object.assign({},
@@ -27,7 +27,7 @@ Mura.UI.Vue=Mura.UI.extend(
 		return this.vm;
 	},
 
-	renderClient:function(){
+	renderClient(){
 		const container=Mura(this.context.targetEl)
 		if(!container.node.firstChild){
 			container.node.appendChild(document.createElement('DIV'));
@@ -37,7 +37,7 @@ Mura.UI.Vue=Mura.UI.extend(
 		this.trigger('afterRender');
 	},
 
-	destroy:function(){
+	destroy(){
 		const container=Mura(this.context.targetEl)
 		if(container.length && container.node.innerHTML){
 			container.node.firstChild.setAttribute('id','mc' + this.context.instanceid)

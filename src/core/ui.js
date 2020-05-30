@@ -14,9 +14,9 @@ Mura.UI=Mura.Core.extend(
   {
 	rb:{},
 	context:{},
-	onAfterRender:function(){},
-	onBeforeRender:function(){},
-	trigger:function(eventName){
+	onAfterRender(){},
+	onBeforeRender(){},
+	trigger(eventName){
 		var $eventName=eventName.toLowerCase();
 		if(typeof this.context.targetEl != 'undefined'){
 			var obj=Mura(this.context.targetEl).closest('.mura-object');
@@ -52,7 +52,7 @@ Mura.UI=Mura.Core.extend(
 	},
 
 	/* This method is deprecated, use renderClient and renderServer instead */
-	render:function(){
+	render(){
 		Mura(this.context.targetEl).html(Mura.templates[context.object](this.context));
 		this.trigger('afterRender');
 		return this;
@@ -66,34 +66,34 @@ Mura.UI=Mura.Core.extend(
 		Mura(this.context.targetEl).html(Mura.templates[context.object](this.context));
 		this.trigger('afterRender');
 	*/
-	renderClient:function(){
+	renderClient(){
 		return this.render();
 	},
 
 
-	renderServer:function(){
+	renderServer(){
 		return '';
 	},
 
-	hydrate:function(){
+	hydrate(){
 
 	},
 
-	destroy:function(){
+	destroy(){
 		
 	},
 
-	reset:function(self,empty){
+	reset(self,empty){
 		
 	},
 
-	init:function(args){
+	init(args){
 		this.context=args;
 		this.registerHelpers();
 		return this;
 	},
 
-	registerHelpers:function(){
+	registerHelpers(){
 
 	}
 });
