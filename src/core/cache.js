@@ -1,5 +1,6 @@
 
 var Mura=require('./core');
+
 /**
  * Creates a new Mura.Cache
  * @name Mura.Cache

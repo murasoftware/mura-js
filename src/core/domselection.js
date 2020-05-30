@@ -1,9 +1,6 @@
 
 var Mura=require('./core');
 
-(function(Mura){
-"use strict";
-	
 /**
  * Creates a new Mura.DOMSelection
  * @name	Mura.DOMSelection
@@ -2604,4 +2601,3 @@ Mura.DOMSelection = Mura.Core.extend(
 		return this.appendDisplayObject(data);
 	}
 });
-})(Mura);

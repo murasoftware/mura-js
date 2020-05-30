@@ -1,9 +1,6 @@
 
 var Mura=require('./core');
 
-(function(Mura){
-"use strict";
-
 /**
 * Creates a new Mura.RequestContext
 * @name	Mura.RequestContext
@@ -581,4 +578,3 @@ Mura.RequestContext=Mura.Core.extend(
 	requestHeaders:{}
 
 });
-})(Mura);

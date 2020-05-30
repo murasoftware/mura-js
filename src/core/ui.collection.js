@@ -1,4 +1,5 @@
 var Mura=require('./core');
+
 /**
  * Creates a new Mura.UI.Collection
  * @name  Mura.UI.Collection

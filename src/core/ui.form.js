@@ -1,5 +1,6 @@
 
 var Mura=require('./core');
+
 /**
  * Creates a new Mura.UI.Form
  * @name	Mura.UI.Form

@@ -1,9 +1,6 @@
 
 var Mura=require('./core');
 
-(function(Mura){
-"use strict";	
-
 /**
 * Creates a new Mura.Request
 * @name	Mura.Request
@@ -533,4 +530,3 @@ Mura.Request=Mura.Core.extend(
 		}
 	}
 );
-})(Mura);
