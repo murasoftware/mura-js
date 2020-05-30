@@ -1,5 +1,5 @@
 
-var Mura=require('./core');
+import Mura from './core';
 
 /**
  * Creates a new Mura.EntityCollection
@@ -81,7 +81,7 @@ Mura.EntityCollection=Mura.Entity.extend(
 	getAll(){
 		var self=this;
 		if(typeof self.properties.items != 'undefined'){
-			return Mura.extend(
+			return Object.assign(
 				{},
 				self.properties,
 				{
@@ -91,7 +91,7 @@ Mura.EntityCollection=Mura.Entity.extend(
 				}
 			);
 		} else if(typeof self.properties.properties != 'undefined'){
-			return Mura.extend(
+			return Object.assign(
 				{},
 				self.properties,
 				{

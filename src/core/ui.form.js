@@ -1,5 +1,5 @@
 
-var Mura=require('./core');
+import Mura from './core';
 
 /**
  * Creates a new Mura.UI.Form
@@ -178,7 +178,7 @@ Mura.UI.Form=Mura.UI.extend(
 				 Mura.getAPIEndpoint() + '?method=processAsyncObject',
 				 data)
 				 .then(function(resp){
-					var tempContext=Mura.extend({},nested_context);
+					var tempContext=Object.assign({},nested_context);
 
 					delete tempContext.targetEl;
 
@@ -467,7 +467,7 @@ Mura.UI.Form=Mura.UI.extend(
 					}
 				);
 			} else {
-				var data=Mura.extend({}, self.data, self.context);
+				var data=Object.assign({}, self.data, self.context);
 				data.validateform=true;
 				data.formid=data.objectid;
 				data.siteid=data.siteid || Mura.siteid;
@@ -831,7 +831,7 @@ Mura.UI.Form=Mura.UI.extend(
 			//console.log('b!');
 
 			if(!Mura.formdata){
-				var data=Mura.extend({},self.context,self.data);
+				var data=Object.assign({},self.context,self.data);
 				data.saveform=true;
 				data.formid=data.objectid;
 				data.siteid=self.context.siteid || data.siteid || Mura.siteid;
@@ -859,7 +859,7 @@ Mura.UI.Form=Mura.UI.extend(
 				}
 
 			} else {
-				var rawdata=Mura.extend({},self.context,self.data);
+				var rawdata=Object.assign({},self.context,self.data);
 				rawdata.saveform=true;
 				rawdata.formid=rawdata.objectid;
 				rawdata.siteid=self.context.siteid || rawdata.siteid || Mura.siteid;
@@ -1297,7 +1297,7 @@ Mura.UI.Form=Mura.UI.extend(
 	registerHelpers() {
 		var self = this;
 
-		Mura.extend(self.rb,Mura.rb);
+		Object.assign(self.rb,Mura.rb);
 
 		Mura.Handlebars.registerHelper('eachColRow',function(row, columns, options) {
 			var ret = "";

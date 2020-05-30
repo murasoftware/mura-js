@@ -2,6 +2,7 @@
 //require("babel-polyfill");
 //require("./polyfill");
 
+'use strict'
 
 /**
  * login - Logs user into Mura
@@ -12,6 +13,7 @@
  * @return {Promise}
  * @memberof {class} Mura
  */
+
 function login(username, password, siteid) {
 	return Mura._requestcontext.login(username, password, siteid);
 }
@@ -2587,7 +2589,7 @@ function processDisplayObject(el, queue, rerender, resolveFn, usePreloaderMarkup
 					
 					var context=filterUnwantedParams(obj.data());
 					if(typeof context.instanceid != 'undefined' && typeof Mura.hydrationData[context.instanceid] != 'undefined'){
-						Mura.extend(context,Mura.hydrationData[context.instanceid]);
+						Object.assign(context,Mura.hydrationData[context.instanceid]);
 					}
 					var template=obj.data('clienttemplate') || obj.data('object');
 					var properNameCheck = firstToUpperCase(template);
@@ -2790,11 +2792,11 @@ function extendClass(baseClass, subClass) {
 	muraObject.prototype.handlers = {};
 
 	muraObject.reopen = function(subClass) {
-			Mura.extend(muraObject.prototype, subClass);
+			Object.assign(muraObject.prototype, subClass);
 	};
 
 	muraObject.reopenClass = function(subClass) {
-		Mura.extend(muraObject, subClass);
+		Object.assign(muraObject, subClass);
 	};
 
 	muraObject.on = function(eventName, fn) {
@@ -2840,7 +2842,7 @@ function extendClass(baseClass, subClass) {
 		return muraObject;
 	}
 
-	Mura.extend(muraObject.prototype, subClass);
+	Object.assign(muraObject.prototype, subClass);
 
 	return muraObject;
 }
@@ -3081,7 +3083,7 @@ function init(config) {
 		if(typeof config.content.get == 'undefined'){
 			config.content=getEntity('content').set(config.content);
 		}
-		Mura.extend(config,config.content.get('config'));
+		Object.assign(config,config.content.get('config'));
 		
 	}
 

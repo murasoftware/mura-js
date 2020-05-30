@@ -1,5 +1,7 @@
 
-var Mura=require('./core');
+import Mura from './core';
+
+'use strict'
 
 /**
  * Creates a new Mura.DOMSelection
@@ -1308,7 +1310,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	
 				var selector='div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
 				var dyncss='';
-				objectAccumulator=Mura.extend(objectAccumulator,objectstyles);
+				objectAccumulator=Object.assign(objectAccumulator,objectstyles);
 				for(var s in objectAccumulator){
 					if(objectAccumulator.hasOwnProperty(s)){
 						if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
@@ -1343,7 +1345,7 @@ Mura.DOMSelection = Mura.Core.extend(
 
 				handleBackround(styleSupport['object_lg_styles']);
 
-				objectAccumulator=Mura.extend(objectAccumulator,styleSupport['object_lg_styles']);
+				objectAccumulator=Object.assign(objectAccumulator,styleSupport['object_lg_styles']);
 				for(var s in objectAccumulator){
 					if(objectAccumulator.hasOwnProperty(s)){
 						if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
@@ -1380,7 +1382,7 @@ Mura.DOMSelection = Mura.Core.extend(
 
 				handleBackround(styleSupport['object_md_styles']);
 
-				objectAccumulator=Mura.extend(objectAccumulator,styleSupport['object_md_styles']);
+				objectAccumulator=Object.assign(objectAccumulator,styleSupport['object_md_styles']);
 				for(var s in objectAccumulator){
 					if(objectAccumulator.hasOwnProperty(s)){
 						if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
@@ -1417,7 +1419,7 @@ Mura.DOMSelection = Mura.Core.extend(
 
 				handleBackround(styleSupport['object_sm_styles']);
 
-				objectAccumulator=Mura.extend(objectAccumulator,styleSupport['object_sm_styles']);
+				objectAccumulator=Object.assign(objectAccumulator,styleSupport['object_sm_styles']);
 				for(var s in objectAccumulator){
 					if(objectAccumulator.hasOwnProperty(s)){
 						if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
@@ -1454,7 +1456,7 @@ Mura.DOMSelection = Mura.Core.extend(
 
 				handleBackround(styleSupport['object_xs_styles']);
 
-				objectAccumulator=Mura.extend(objectAccumulator,styleSupport['object_xs_styles']);
+				objectAccumulator=Object.assign(objectAccumulator,styleSupport['object_xs_styles']);
 				for(var s in objectAccumulator){
 					if(objectAccumulator.hasOwnProperty(s)){
 						if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
@@ -1535,7 +1537,7 @@ Mura.DOMSelection = Mura.Core.extend(
 
 						handleBackround(metastyles);
 
-						metaAccumulator=Mura.extend(metaAccumulator,metastyles);
+						metaAccumulator=Object.assign(metaAccumulator,metastyles);
 						for(var s in metaAccumulator){
 							if(metaAccumulator.hasOwnProperty(s)){
 								if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
@@ -1589,7 +1591,7 @@ Mura.DOMSelection = Mura.Core.extend(
 
 						handleBackround(styleSupport['meta_lg_styles']);
 
-						metaAccumulator=Mura.extend(metaAccumulator,styleSupport['meta_lg_styles']);
+						metaAccumulator=Object.assign(metaAccumulator,styleSupport['meta_lg_styles']);
 						for(var s in metaAccumulator){
 							if(metaAccumulator.hasOwnProperty(s)){
 								if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
@@ -1623,7 +1625,7 @@ Mura.DOMSelection = Mura.Core.extend(
 
 						handleBackround(styleSupport['meta_md_styles']);
 
-						metaAccumulator=Mura.extend(metaAccumulator,styleSupport['meta_md_styles']);
+						metaAccumulator=Object.assign(metaAccumulator,styleSupport['meta_md_styles']);
 						for(var s in metaAccumulator){
 							if(metaAccumulator.hasOwnProperty(s)){
 								if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
@@ -1657,7 +1659,7 @@ Mura.DOMSelection = Mura.Core.extend(
 
 						handleBackround(styleSupport['meta_sm_styles']);
 
-						metaAccumulator=Mura.extend(metaAccumulator,styleSupport['meta_sm_styles']);
+						metaAccumulator=Object.assign(metaAccumulator,styleSupport['meta_sm_styles']);
 						for(var s in metaAccumulator){
 							if(metaAccumulator.hasOwnProperty(s)){
 								if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
@@ -1691,7 +1693,7 @@ Mura.DOMSelection = Mura.Core.extend(
 
 						handleBackround(styleSupport['meta_xs_styles']);	
 
-						metaAccumulator=Mura.extend(metaAccumulator,styleSupport['meta_xs_styles']);
+						metaAccumulator=Object.assign(metaAccumulator,styleSupport['meta_xs_styles']);
 						for(var s in metaAccumulator){
 							if(metaAccumulator.hasOwnProperty(s)){
 								if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
@@ -1761,7 +1763,7 @@ Mura.DOMSelection = Mura.Core.extend(
 
 				handleBackround(contentstyles);
 
-				contentAccumulator=Mura.extend(contentAccumulator,contentstyles);
+				contentAccumulator=Object.assign(contentAccumulator,contentstyles);
 				for(var s in contentAccumulator){
 					if(contentAccumulator.hasOwnProperty(s)){
 						if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
@@ -1814,7 +1816,7 @@ Mura.DOMSelection = Mura.Core.extend(
 
 				handleBackround(styleSupport['content_md_styles']);
 
-				contentAccumulator=Mura.extend(contentAccumulator,styleSupport['content_lg_styles']);
+				contentAccumulator=Object.assign(contentAccumulator,styleSupport['content_lg_styles']);
 				for(var s in contentAccumulator){
 					if(contentAccumulator.hasOwnProperty(s)){
 						if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
@@ -1848,7 +1850,7 @@ Mura.DOMSelection = Mura.Core.extend(
 
 				handleBackround(styleSupport['content_md_styles']);
 
-				contentAccumulator=Mura.extend(contentAccumulator,styleSupport['content_md_styles']);
+				contentAccumulator=Object.assign(contentAccumulator,styleSupport['content_md_styles']);
 				for(var s in contentAccumulator){
 					if(contentAccumulator.hasOwnProperty(s)){
 						if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
@@ -1883,7 +1885,7 @@ Mura.DOMSelection = Mura.Core.extend(
 
 				handleBackround(styleSupport['content_sm_styles']);
 
-				contentAccumulator=Mura.extend(contentAccumulator,styleSupport['content_sm_styles']);
+				contentAccumulator=Object.assign(contentAccumulator,styleSupport['content_sm_styles']);
 				for(var s in contentAccumulator){
 					if(contentAccumulator.hasOwnProperty(s)){
 						if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
@@ -1917,7 +1919,7 @@ Mura.DOMSelection = Mura.Core.extend(
 
 				handleBackround(styleSupport['content_xs_styles']);
 
-				contentAccumulator=Mura.extend(contentAccumulator,styleSupport['content_xs_styles']);
+				contentAccumulator=Object.assign(contentAccumulator,styleSupport['content_xs_styles']);
 				for(var s in contentAccumulator){
 					if(contentAccumulator.hasOwnProperty(s)){
 						if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
