@@ -72,7 +72,7 @@ Core.prototype=
  */
 Core.extend=function(properties){
 	var self=this;
-	return Object.assign(Mura.extendClass(self,properties),{extend:self.extend,handlers:[]});
+	return Mura.extend(Mura.extendClass(self,properties),{extend:self.extend,handlers:[]});
 };
 
 Mura.Core=Core;

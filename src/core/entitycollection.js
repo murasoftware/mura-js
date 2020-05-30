@@ -81,7 +81,7 @@ Mura.EntityCollection=Mura.Entity.extend(
 	getAll(){
 		var self=this;
 		if(typeof self.properties.items != 'undefined'){
-			return Object.assign(
+			return Mura.extend(
 				{},
 				self.properties,
 				{
@@ -91,7 +91,7 @@ Mura.EntityCollection=Mura.Entity.extend(
 				}
 			);
 		} else if(typeof self.properties.properties != 'undefined'){
-			return Object.assign(
+			return Mura.extend(
 				{},
 				self.properties,
 				{

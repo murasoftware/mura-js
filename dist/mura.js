@@ -2679,7 +2679,7 @@ function processDisplayObject(el, queue, rerender, resolveFn, usePreloaderMarkup
           var context = filterUnwantedParams(obj.data());
 
           if (typeof context.instanceid != 'undefined' && typeof Mura.hydrationData[context.instanceid] != 'undefined') {
-            Object.assign(context, Mura.hydrationData[context.instanceid]);
+            Mura.extend(context, Mura.hydrationData[context.instanceid]);
           }
 
           var template = obj.data('clienttemplate') || obj.data('object');
@@ -2866,11 +2866,11 @@ function extendClass(baseClass, subClass) {
   muraObject.prototype.handlers = {};
 
   muraObject.reopen = function (subClass) {
-    Object.assign(muraObject.prototype, subClass);
+    Mura.extend(muraObject.prototype, subClass);
   };
 
   muraObject.reopenClass = function (subClass) {
-    Object.assign(muraObject, subClass);
+    Mura.extend(muraObject, subClass);
   };
 
   muraObject.on = function (eventName, fn) {
@@ -2915,7 +2915,7 @@ function extendClass(baseClass, subClass) {
     return muraObject;
   };
 
-  Object.assign(muraObject.prototype, subClass);
+  Mura.extend(muraObject.prototype, subClass);
   return muraObject;
 }
 /**
@@ -3179,7 +3179,7 @@ function init(config) {
       config.content = getEntity('content').set(config.content);
     }
 
-    Object.assign(config, config.content.get('config'));
+    Mura.extend(config, config.content.get('config'));
   }
 
   if (config.rootpath) {
@@ -13915,7 +13915,7 @@ Core.prototype = {
 
 Core.extend = function (properties) {
   var self = this;
-  return Object.assign(Mura.extendClass(self, properties), {
+  return Mura.extend(Mura.extendClass(self, properties), {
     extend: self.extend,
     handlers: []
   });
@@ -15419,7 +15419,7 @@ Mura.Entity = Mura.Core.extend(
               params.append('csrf_token', resp.data.csrf_token);
               params.append('csrf_token_expires', resp.data.csrf_token_expires);
             } else {
-              params = Object.assign(params, resp.data);
+              params = Mura.extend(params, resp.data);
             }
 
             if (resp.data != 'undefined') {
@@ -15586,7 +15586,7 @@ Mura.Entity = Mura.Core.extend(
   'new': function _new(params) {
     var self = this;
     return new Promise(function (resolve, reject) {
-      params = Object.assign({
+      params = Mura.extend({
         entityname: self.get('entityname'),
         method: 'findNew',
         siteid: self.get('siteid'),
@@ -15787,7 +15787,7 @@ Mura.Entity = Mura.Core.extend(
     }
 
     return new Promise(function (resolve, reject) {
-      params = Object.assign({
+      params = Mura.extend({
         entityname: self.get('entityname').toLowerCase(),
         method: 'findQuery',
         siteid: self.get('siteid'),
@@ -16439,13 +16439,13 @@ Mura.EntityCollection = Mura.Entity.extend(
     var self = this;
 
     if (typeof self.properties.items != 'undefined') {
-      return Object.assign({}, self.properties, {
+      return Mura.extend({}, self.properties, {
         items: self.properties.items.map(function (obj) {
           return obj.getAll();
         })
       });
     } else if (typeof self.properties.properties != 'undefined') {
-      return Object.assign({}, self.properties, {
+      return Mura.extend({}, self.properties, {
         properties: self.properties.properties.map(function (obj) {
           return obj.getAll();
         })
@@ -18889,7 +18889,7 @@ Mura.DOMSelection = Mura.Core.extend(
         handleBackround(objectstyles);
         var selector = 'div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
         var dyncss = '';
-        objectAccumulator = Object.assign(objectAccumulator, objectstyles);
+        objectAccumulator = Mura.extend(objectAccumulator, objectstyles);
 
         for (var s in objectAccumulator) {
           if (objectAccumulator.hasOwnProperty(s)) {
@@ -18922,7 +18922,7 @@ Mura.DOMSelection = Mura.Core.extend(
         var selector2 = '@media (min-width: 1292px) and (max-width: 1399px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
         var dyncss = '';
         handleBackround(styleSupport['object_lg_styles']);
-        objectAccumulator = Object.assign(objectAccumulator, styleSupport['object_lg_styles']);
+        objectAccumulator = Mura.extend(objectAccumulator, styleSupport['object_lg_styles']);
 
         for (var s in objectAccumulator) {
           if (objectAccumulator.hasOwnProperty(s)) {
@@ -18954,7 +18954,7 @@ Mura.DOMSelection = Mura.Core.extend(
         var selector2 = '@media (min-width: 1068px) and (max-width: 1291px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
         var dyncss = '';
         handleBackround(styleSupport['object_md_styles']);
-        objectAccumulator = Object.assign(objectAccumulator, styleSupport['object_md_styles']);
+        objectAccumulator = Mura.extend(objectAccumulator, styleSupport['object_md_styles']);
 
         for (var s in objectAccumulator) {
           if (objectAccumulator.hasOwnProperty(s)) {
@@ -18986,7 +18986,7 @@ Mura.DOMSelection = Mura.Core.extend(
         var selector2 = '@media (min-width: 876px) and (max-width: 1067px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
         var dyncss = '';
         handleBackround(styleSupport['object_sm_styles']);
-        objectAccumulator = Object.assign(objectAccumulator, styleSupport['object_sm_styles']);
+        objectAccumulator = Mura.extend(objectAccumulator, styleSupport['object_sm_styles']);
 
         for (var s in objectAccumulator) {
           if (objectAccumulator.hasOwnProperty(s)) {
@@ -19018,7 +19018,7 @@ Mura.DOMSelection = Mura.Core.extend(
         var selector2 = '@media (max-width: 875px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
         var dyncss = '';
         handleBackround(styleSupport['object_xs_styles']);
-        objectAccumulator = Object.assign(objectAccumulator, styleSupport['object_xs_styles']);
+        objectAccumulator = Mura.extend(objectAccumulator, styleSupport['object_xs_styles']);
 
         for (var s in objectAccumulator) {
           if (objectAccumulator.hasOwnProperty(s)) {
@@ -19098,7 +19098,7 @@ Mura.DOMSelection = Mura.Core.extend(
             var selector = 'div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
             var dyncss = '';
             handleBackround(metastyles);
-            metaAccumulator = Object.assign(metaAccumulator, metastyles);
+            metaAccumulator = Mura.extend(metaAccumulator, metastyles);
 
             for (var s in metaAccumulator) {
               if (metaAccumulator.hasOwnProperty(s)) {
@@ -19141,7 +19141,7 @@ Mura.DOMSelection = Mura.Core.extend(
             var selector2 = '@media (min-width: 1292px) and (max-width: 1399px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
             var dyncss = '';
             handleBackround(styleSupport['meta_lg_styles']);
-            metaAccumulator = Object.assign(metaAccumulator, styleSupport['meta_lg_styles']);
+            metaAccumulator = Mura.extend(metaAccumulator, styleSupport['meta_lg_styles']);
 
             for (var s in metaAccumulator) {
               if (metaAccumulator.hasOwnProperty(s)) {
@@ -19170,7 +19170,7 @@ Mura.DOMSelection = Mura.Core.extend(
             var selector2 = '@media (min-width: 1068px) an (max-width: 1291px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
             var dyncss = '';
             handleBackround(styleSupport['meta_md_styles']);
-            metaAccumulator = Object.assign(metaAccumulator, styleSupport['meta_md_styles']);
+            metaAccumulator = Mura.extend(metaAccumulator, styleSupport['meta_md_styles']);
 
             for (var s in metaAccumulator) {
               if (metaAccumulator.hasOwnProperty(s)) {
@@ -19199,7 +19199,7 @@ Mura.DOMSelection = Mura.Core.extend(
             var selector2 = '@media (min-width: 876px) an (max-width: 1067) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
             var dyncss = '';
             handleBackround(styleSupport['meta_sm_styles']);
-            metaAccumulator = Object.assign(metaAccumulator, styleSupport['meta_sm_styles']);
+            metaAccumulator = Mura.extend(metaAccumulator, styleSupport['meta_sm_styles']);
 
             for (var s in metaAccumulator) {
               if (metaAccumulator.hasOwnProperty(s)) {
@@ -19228,7 +19228,7 @@ Mura.DOMSelection = Mura.Core.extend(
             var selector2 = '@media (max-width: 875) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
             var dyncss = '';
             handleBackround(styleSupport['meta_xs_styles']);
-            metaAccumulator = Object.assign(metaAccumulator, styleSupport['meta_xs_styles']);
+            metaAccumulator = Mura.extend(metaAccumulator, styleSupport['meta_xs_styles']);
 
             for (var s in metaAccumulator) {
               if (metaAccumulator.hasOwnProperty(s)) {
@@ -19288,7 +19288,7 @@ Mura.DOMSelection = Mura.Core.extend(
         var selector = 'div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
         var dyncss = '';
         handleBackround(contentstyles);
-        contentAccumulator = Object.assign(contentAccumulator, contentstyles);
+        contentAccumulator = Mura.extend(contentAccumulator, contentstyles);
 
         for (var s in contentAccumulator) {
           if (contentAccumulator.hasOwnProperty(s)) {
@@ -19331,7 +19331,7 @@ Mura.DOMSelection = Mura.Core.extend(
         var selector2 = '@media (max-width: 1292px) and (max-width: 1499px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
         var dyncss = '';
         handleBackround(styleSupport['content_md_styles']);
-        contentAccumulator = Object.assign(contentAccumulator, styleSupport['content_lg_styles']);
+        contentAccumulator = Mura.extend(contentAccumulator, styleSupport['content_lg_styles']);
 
         for (var s in contentAccumulator) {
           if (contentAccumulator.hasOwnProperty(s)) {
@@ -19360,7 +19360,7 @@ Mura.DOMSelection = Mura.Core.extend(
         var selector2 = '@media (min-width: 1068px) and (max-width: 1291px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
         var dyncss = '';
         handleBackround(styleSupport['content_md_styles']);
-        contentAccumulator = Object.assign(contentAccumulator, styleSupport['content_md_styles']);
+        contentAccumulator = Mura.extend(contentAccumulator, styleSupport['content_md_styles']);
 
         for (var s in contentAccumulator) {
           if (contentAccumulator.hasOwnProperty(s)) {
@@ -19389,7 +19389,7 @@ Mura.DOMSelection = Mura.Core.extend(
         var selector2 = '@media (min-width: 876px) and (max-width: 1067px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
         var dyncss = '';
         handleBackround(styleSupport['content_sm_styles']);
-        contentAccumulator = Object.assign(contentAccumulator, styleSupport['content_sm_styles']);
+        contentAccumulator = Mura.extend(contentAccumulator, styleSupport['content_sm_styles']);
 
         for (var s in contentAccumulator) {
           if (contentAccumulator.hasOwnProperty(s)) {
@@ -19418,7 +19418,7 @@ Mura.DOMSelection = Mura.Core.extend(
         var selector2 = '@media (max-width: 875px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
         var dyncss = '';
         handleBackround(styleSupport['content_xs_styles']);
-        contentAccumulator = Object.assign(contentAccumulator, styleSupport['content_xs_styles']);
+        contentAccumulator = Mura.extend(contentAccumulator, styleSupport['content_xs_styles']);
 
         for (var s in contentAccumulator) {
           if (contentAccumulator.hasOwnProperty(s)) {
@@ -20395,7 +20395,7 @@ Mura.UI.Form = Mura.UI.extend(
       data.contentid = Mura.contentid;
       data.contenthistid = Mura.contenthistid;
       Mura.get(Mura.getAPIEndpoint() + '?method=processAsyncObject', data).then(function (resp) {
-        var tempContext = Object.assign({}, nested_context);
+        var tempContext = Mura.extend({}, nested_context);
         delete tempContext.targetEl;
         var context = Mura.deepExtend({}, tempContext, resp.data);
         context.targetEl = self.context.targetEl;
@@ -20667,7 +20667,7 @@ Mura.UI.Form = Mura.UI.extend(
           }
         });
       } else {
-        var data = Object.assign({}, self.data, self.context);
+        var data = Mura.extend({}, self.data, self.context);
         data.validateform = true;
         data.formid = data.objectid;
         data.siteid = data.siteid || Mura.siteid;
@@ -20986,7 +20986,7 @@ Mura.UI.Form = Mura.UI.extend(
     } else {
       //console.log('b!');
       if (!Mura.formdata) {
-        var data = Object.assign({}, self.context, self.data);
+        var data = Mura.extend({}, self.context, self.data);
         data.saveform = true;
         data.formid = data.objectid;
         data.siteid = self.context.siteid || data.siteid || Mura.siteid;
@@ -21015,7 +21015,7 @@ Mura.UI.Form = Mura.UI.extend(
           context: data.formid
         };
       } else {
-        var rawdata = Object.assign({}, self.context, self.data);
+        var rawdata = Mura.extend({}, self.context, self.data);
         rawdata.saveform = true;
         rawdata.formid = rawdata.objectid;
         rawdata.siteid = self.context.siteid || rawdata.siteid || Mura.siteid;
@@ -21381,7 +21381,7 @@ Mura.UI.Form = Mura.UI.extend(
   },
   registerHelpers: function registerHelpers() {
     var self = this;
-    Object.assign(self.rb, Mura.rb);
+    Mura.extend(self.rb, Mura.rb);
     Mura.Handlebars.registerHelper('eachColRow', function (row, columns, options) {
       var ret = "";
 

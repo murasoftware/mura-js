@@ -1,7 +1,7 @@
 var Mura=require('mura.js');
 
 Mura.UI.buildDisplayObject=async function(template, params){
-	params = Object.assign({},params);
+	params = Mura.extend({},params);
 	return new Mura.DisplayObject[template](params).renderServer()
 }
 
@@ -74,7 +74,7 @@ Mura.UI.Collection=Mura.UI.Collection.extend({
 		if(this.context.html){
 			return this.context.html;
 		} else if (typeof Mura.Module[this.context.layout] != 'undefined'){
-			const adjustedContext=Object.assign({},this.context)
+			const adjustedContext=Mura.extend({},this.context)
 			adjustedContext.html=await this.getCollection().then((collection)=>{
 					this.context.collection=collection;
 					return this.getLayoutInstance().renderServer();

@@ -191,7 +191,7 @@ Mura.Entity = Mura.Core.extend(
 							params.append('csrf_token',resp.data.csrf_token);
 							params.append('csrf_token_expires',resp.data.csrf_token_expires);
 						} else {
-							params=Object.assign(params,resp.data);
+							params=Mura.extend(params,resp.data);
 						}
 
 						if (resp.data != 'undefined'	) {
@@ -365,7 +365,7 @@ Mura.Entity = Mura.Core.extend(
 	'new'(params) {
 		var self = this;
 		return new Promise(function(resolve, reject) {
-			params = Object.assign({
+			params = Mura.extend({
 				entityname: self.get('entityname'),
 				method: 'findNew',
 				siteid: self.get('siteid'),
@@ -567,7 +567,7 @@ Mura.Entity = Mura.Core.extend(
 			}
 		}
 		return new Promise(function(resolve, reject) {
-			params = Object.assign({
+			params = Mura.extend({
 				entityname: self.get('entityname').toLowerCase(),
 				method: 'findQuery',
 				siteid: self.get( 'siteid'),

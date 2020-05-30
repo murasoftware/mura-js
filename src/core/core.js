@@ -2589,7 +2589,7 @@ function processDisplayObject(el, queue, rerender, resolveFn, usePreloaderMarkup
 					
 					var context=filterUnwantedParams(obj.data());
 					if(typeof context.instanceid != 'undefined' && typeof Mura.hydrationData[context.instanceid] != 'undefined'){
-						Object.assign(context,Mura.hydrationData[context.instanceid]);
+						Mura.extend(context,Mura.hydrationData[context.instanceid]);
 					}
 					var template=obj.data('clienttemplate') || obj.data('object');
 					var properNameCheck = firstToUpperCase(template);
@@ -2792,11 +2792,11 @@ function extendClass(baseClass, subClass) {
 	muraObject.prototype.handlers = {};
 
 	muraObject.reopen = function(subClass) {
-			Object.assign(muraObject.prototype, subClass);
+			Mura.extend(muraObject.prototype, subClass);
 	};
 
 	muraObject.reopenClass = function(subClass) {
-		Object.assign(muraObject, subClass);
+		Mura.extend(muraObject, subClass);
 	};
 
 	muraObject.on = function(eventName, fn) {
@@ -2842,7 +2842,7 @@ function extendClass(baseClass, subClass) {
 		return muraObject;
 	}
 
-	Object.assign(muraObject.prototype, subClass);
+	Mura.extend(muraObject.prototype, subClass);
 
 	return muraObject;
 }
@@ -3083,7 +3083,7 @@ function init(config) {
 		if(typeof config.content.get == 'undefined'){
 			config.content=getEntity('content').set(config.content);
 		}
-		Object.assign(config,config.content.get('config'));
+		Mura.extend(config,config.content.get('config'));
 		
 	}
 

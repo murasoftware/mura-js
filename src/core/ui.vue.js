@@ -17,7 +17,7 @@ Mura.UI.Vue=Mura.UI.extend(
 	$vm(){
 		if(!this.vm){
 			this.vm=new Vue(
-				Object.assign({},
+				Mura.extend({},
 					this.component,
 					{
 						propsData:{ context: this.context }
