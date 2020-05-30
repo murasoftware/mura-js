@@ -13837,9 +13837,13 @@ if (typeof window != 'undefined' && typeof window.document != 'undefined') {
 
 /***/ }),
 /* 344 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var Mura = __webpack_require__(0);
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+/* harmony import */ var _core__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_core__WEBPACK_IMPORTED_MODULE_0__);
+
 /**
 * Creates a new Mura.Core
 * @name Mura.Core
@@ -13848,7 +13852,6 @@ var Mura = __webpack_require__(0);
 * @param  {object} properties Object containing values to set into object
 * @return {Mura.Core}
 */
-
 
 function Core() {
   this.init.apply(this, arguments);
@@ -13915,13 +13918,13 @@ Core.prototype = {
 
 Core.extend = function (properties) {
   var self = this;
-  return Object.assign(Mura.extendClass(self, properties), {
+  return Object.assign(_core__WEBPACK_IMPORTED_MODULE_0___default.a.extendClass(self, properties), {
     extend: self.extend,
     handlers: []
   });
 };
 
-Mura.Core = Core;
+_core__WEBPACK_IMPORTED_MODULE_0___default.a.Core = Core;
 
 /***/ }),
 /* 345 */
@@ -20175,9 +20178,13 @@ _core__WEBPACK_IMPORTED_MODULE_0___default.a.DOMSelection = _core__WEBPACK_IMPOR
 
 /***/ }),
 /* 356 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var Mura = __webpack_require__(0);
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(0);
+/* harmony import */ var _core__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_core__WEBPACK_IMPORTED_MODULE_0__);
+
 /**
  * Creates a new Mura.UI instance
  * @name Mura.UI
@@ -20186,8 +20193,7 @@ var Mura = __webpack_require__(0);
  * @memberof Mura
  */
 
-
-Mura.UI = Mura.Core.extend(
+_core__WEBPACK_IMPORTED_MODULE_0___default.a.UI = _core__WEBPACK_IMPORTED_MODULE_0___default.a.Core.extend(
 /** @lends Mura.UI.prototype */
 {
   rb: {},
@@ -20198,7 +20204,7 @@ Mura.UI = Mura.Core.extend(
     var $eventName = eventName.toLowerCase();
 
     if (typeof this.context.targetEl != 'undefined') {
-      var obj = Mura(this.context.targetEl).closest('.mura-object');
+      var obj = _core__WEBPACK_IMPORTED_MODULE_0___default()(this.context.targetEl).closest('.mura-object');
 
       if (obj.length && typeof obj.node != 'undefined') {
         if (typeof this.handlers[$eventName] != 'undefined') {
@@ -20238,7 +20244,7 @@ Mura.UI = Mura.Core.extend(
 
   /* This method is deprecated, use renderClient and renderServer instead */
   render: function render() {
-    Mura(this.context.targetEl).html(Mura.templates[context.object](this.context));
+    _core__WEBPACK_IMPORTED_MODULE_0___default()(this.context.targetEl).html(_core__WEBPACK_IMPORTED_MODULE_0___default.a.templates[context.object](this.context));
     this.trigger('afterRender');
     return this;
   },
