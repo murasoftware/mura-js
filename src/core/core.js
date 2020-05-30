@@ -25,7 +25,6 @@ var Mura=(function(){
 		return Mura._requestcontext.login(username, password, siteid);
 	}
 
-
 	/**
 	 * logout - Logs user out
 	 *

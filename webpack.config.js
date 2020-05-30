@@ -45,5 +45,14 @@ module.exports = {
       path.resolve('./node_modules')
     ]
   },
+  module: {
+    rules: [
+      {
+        test: /\.(js)$/,
+        exclude: /node_modules/,
+        use: ['babel-loader']
+      }
+    ]
+  },
   plugins: plugins
 };

@@ -231,7 +231,8 @@ module.exports = !__webpack_require__(3)(function () {
 /* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(process) {
+/* WEBPACK VAR INJECTION */(function(process) {function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 //require("babel-polyfill");
 //require("./polyfill");
 
@@ -241,3533 +242,3392 @@ module.exports = !__webpack_require__(3)(function () {
  * @class
  * @global
  */
-
-var Mura=(function(){
-	"use strict";
-
-	/**
-	 * login - Logs user into Mura
-	 *
-	 * @param	{string} username Username
-	 * @param	{string} password Password
-	 * @param	{string} siteid	 Siteid
-	 * @return {Promise}
-	 * @memberof {class} Mura
-	 */
-	function login(username, password, siteid) {
-		return Mura._requestcontext.login(username, password, siteid);
-	}
-
-
-	/**
-	 * logout - Logs user out
-	 *
-	 * @param	{type} siteid Siteid
-	 * @return {Promise}
-	 * @memberof {class} Mura
-	 */
-	function logout(siteid) {
-		return Mura._requestcontext.logout(siteid);
-	}
-
-	function escapeHTML(str) {
-		if(typeof document != 'undefined'){
-			var div = document.createElement('div');
-			div.appendChild(document.createTextNode(str));
-			return div.innerHTML;
-		} else {
-			return Mura._escapeHTML(str);
-		}
-	};
-
-	// UNSAFE with unsafe strings; only use on previously-escaped ones!
-	function unescapeHTML(escapedStr) {
-			var div = document.createElement('div');
-			div.innerHTML = escapedStr;
-			var child = div.childNodes[0];
-			return child ? child.nodeValue : '';
-	};
-
-	/**
-	 * trackEvent - This is for Mura Experience Platform. It has no use with Mura standard
-	 *
-	 * @param	{object} data event data
-	 * @return {Promise}
-	 * @memberof {class} Mura
-	 */
-	function trackEvent(eventData) {
-		if(typeof Mura.editing != 'undefined' && Mura.editing){
-			return new Promise(function(resolve, reject) {
-				resolve = resolve || function() {};
-				resolve();
-			});
-		}
-
-		var data={};
-		var isMXP=(typeof Mura.MXP != 'undefined');
-		var trackingVars = {
-			ga:{
-				trackingvars:{}
-			}
-		};
-		var gaFound = false;
-		var gtagFound = false;
-		var trackingComplete = false;
-		var attempt=0;
-
-		data.category = eventData.event_category || eventData.eventCategory || eventData.category || '';
-		data.action = eventData.event_action || eventData.eventAction || eventData.action || '';
-		data.label = eventData.event_label || eventData.eventLabel || eventData.label || '';
-		data.type =	eventData.hit_ype || eventData.hitType || eventData.type || 'event';
-		data.value = eventData.event_value || eventData.eventValue || eventData.value || undefined;
-
-		if (typeof eventData.nonInteraction == 'undefined') {
-			data.nonInteraction = false;
-		} else {
-			data.nonInteraction = eventData.nonInteraction;
-		}
-
-		data.contentid = eventData.contentid || Mura.contentid;
-		data.objectid = eventData.objectid || '';
-
-		function track() {
-			if(!attempt){
-				trackingVars.ga.trackingvars.eventCategory = data.category;
-				trackingVars.ga.trackingvars.eventAction = data.action;
-				trackingVars.ga.trackingvars.nonInteraction = data.nonInteraction;
-				trackingVars.ga.trackingvars.hitType = data.type;
-
-				if (typeof data.value != 'undefined' && Mura.isNumeric(data.value)) {
-					trackingVars.ga.trackingvars.eventValue = data.value;
-				}
-
-				if (data.label) {
-					trackingVars.ga.trackingvars.eventLabel = data.label;
-				 } else if(isMXP) {
-					if(typeof trackingVars.object != 'undefined'){
-						trackingVars.ga.trackingvars.eventLabel = trackingVars.object.title;
-					} else {
-						trackingVars.ga.trackingvars.eventLabel = trackingVars.content.title;
-					}
-
-					data.label=trackingVars.object.title;
-				 }
-
-				Mura(document).trigger('muraTrackEvent',trackingVars);
-				Mura(document).trigger('muraRecordEvent',trackingVars);
-			}
-
-			if (typeof gtag != 'undefined') {
-				trackingVars.ga.trackingvars.event_category = trackingVars.ga.trackingvars.eventCategory;
-				trackingVars.ga.trackingvars.event_action = trackingVars.ga.trackingvars.eventAction;
-				trackingVars.ga.trackingvars.non_interaction = trackingVars.ga.trackingvars.nonInteraction;
-				trackingVars.ga.trackingvars.hit_type = trackingVars.ga.trackingvars.hitType;
-				trackingVars.ga.trackingvars.event_value = trackingVars.ga.trackingvars.eventValue;
-
-				delete trackingVars.ga.trackingvars.eventCategory;
-				delete trackingVars.ga.trackingvars.eventAction;
-				delete trackingVars.ga.trackingvars.nonInteraction;
-				delete trackingVars.ga.trackingvars.hitType;
-				delete trackingVars.ga.trackingvars.eventValue;
-
-				if(isMXP){
-					trackingVars.ga.trackingvars.send_to=Mura.trackingVars.ga.trackingid;
-				}
-
-				gtag('event', data.type, trackingVars.ga.trackingvars);
-
-				gaFound = true;
-				trackingComplete = true;
-			} else if (typeof ga != 'undefined') {
-				if(isMXP){
-					ga('mxpGATracker.send', data.type, trackingVars.ga.trackingvars);
-				} else {
-					ga('send', data.type, trackingVars.ga.trackingvars);
-				 }
-
-				gaFound = true;
-				trackingComplete = true;
-			}
-
-			attempt++;
-
-			if (!gaFound && attempt <250) {
-				setTimeout(track, 1);
-			} else {
-				trackingComplete = true;
-			}
-
-		}
-
-		if(isMXP){
-			var trackingID = data.contentid + data.objectid;
-
-			if(typeof Mura.trackingMetadata[trackingID] != 'undefined'){
-				Mura.deepExtend(trackingVars,Mura.trackingMetadata[trackingID]);
-				trackingVars.eventData=data;
-				track();
-			} else {
-				Mura.get(Mura.getAPIEndpoint(), {
-					method: 'findTrackingProps',
-					siteid: Mura.siteid,
-					contentid: data.contentid,
-					objectid: data.objectid
-				}).then(function(response) {
-					Mura.deepExtend(trackingVars,response.data);
-					trackingVars.eventData=data;
-
-					 for(var p in trackingVars.ga.trackingprops){
-						if(trackingVars.ga.trackingprops.hasOwnProperty(p) && p.substring(0,1)=='d' && typeof trackingVars.ga.trackingprops[p] != 'string'){
-							trackingVars.ga.trackingprops[p]=new String(trackingVars.ga[p]);
-						}
-					 }
-
-					Mura.trackingMetadata[trackingID]={};
-					Mura.deepExtend(Mura.trackingMetadata[trackingID],response.data);
-					track();
-				});
-			}
-		} else {
-			track();
-		}
-
-		return new Promise(function(resolve, reject) {
-
-			resolve = resolve || function() {};
-
-			function checkComplete() {
-				if (trackingComplete) {
-					resolve();
-				 } else {
-					setTimeout(checkComplete, 1);
-				}
-			}
-
-			checkComplete();
-
-		 });
-
-	 }
-
-	/**
-	* renderFilename - Returns "Rendered" JSON object of content
-	*
-	* @param	{type} filename Mura content filename
-	* @param	{type} params Object
-	* @return {Promise}
-	* @memberof {class} Mura
-	*/
-	function renderFilename(filename, params) {
-		return Mura._requestcontext.renderFilename(filename, params);
-	}
-
-	/**
-	 * declareEntity - Declare Entity with in service factory
-	 *
-	 * @param	{object} entityConfig Entity config object
-	 * @return {Promise}
-	 * @memberof {class} Mura
-	 */
-	function declareEntity(entityConfig) {
-		return Mura._requestcontext.declareEntity(entityConfig);
-	}
-
-	/**
-	 * undeclareEntity - Deletes entity class from Mura
-	 *
-	 * @param	{object} entityName
-	 * @return {Promise}
-	 * @memberof {class} Mura
-	 */
-	function undeclareEntity(entityName,deleteSchema) {
-		deleteSchema=deleteSchema || false;
-		return Mura._requestcontext.undeclareEntity(entityName,deleteSchema);
-	}
-
-	/**
-	 * openGate - Open's content gate when using MXP
-	 *
-	 * @param	{string} contentid Optional: default's to Mura.contentid
-	 * @return {Promise}
-	 * @memberof {class} Mura
-	 */
-	function openGate(contentid) {
-		return Mura._requestcontext.openGate(contentid);
-	}
-
-	/**
-	 * logout - Logs user out
-	 *
-	 * @param	{type} siteid Siteid
-	 * @return {Promise}
-	 * @memberof {class} Mura
-	 */
-	function logout(siteid) {
-		return Mura._requestcontext.logout(siteid);
-	}
-
-
-	/**
-	 * getEntity - Returns Mura.Entity instance
-	 *
-	 * @param	{string} entityname Entity Name
-	 * @param	{string} siteid		 Siteid
-	 * @return {Mura.Entity}
-	 * @memberof {class} Mura
-	 */
-	function getEntity(entityname, siteid) {
-		siteid=siteid || Mura.siteid;
-		if(typeof Mura._requestcontext=='undefined'){
-			return Mura.getRequestContext().getEntity(entityname, siteid);
-		} else {
-			return Mura._requestcontext.getEntity(entityname, siteid);
-		}
-	}
-
-	/**
-	 * getFeed - Return new instance of Mura.Feed
-	 *
-	 * @param	{type} entityname Entity name
-	 * @return {Mura.Feed}
-	 * @memberof {class} Mura
-	 */
-	function getFeed(entityname,siteid) {
-		siteid=siteid || Mura.siteid;
-		return Mura._requestcontext.getFeed(entityname,siteid);
-	}
-
-	/**
-	 * getCurrentUser - Return Mura.Entity for current user
-	 *
-	 * @param	{object} params Load parameters, fields:listoffields
-	 * @return {Promise}
-	 * @memberof {class} Mura
-	 */
-	function getCurrentUser(params) {
-		return Mura._requestcontext.getCurrentUser(params);
-	}
-
-	/**
-	 * findQuery - Returns Mura.EntityCollection with properties that match params
-	 *
-	 * @param	{object} params Object of matching params
-	 * @return {Promise}
-	 * @memberof {class} Mura
-	 */
-	function findQuery(params) {
-		return Mura._requestcontext.findQuery(params);
-	}
-
-	function evalScripts(el) {
-		if (typeof el == 'string') {
-				el = parseHTML(el);
-		}
-
-		var scripts = [];
-		var ret = el.childNodes;
-
-		for (var i = 0; ret[i]; i++) {
-			if (scripts && nodeName(ret[i], "script") && (!ret[i].type || ret[i].type.toLowerCase() === "text/javascript")) {
-				if (ret[i].src) {
-					scripts.push(ret[i]);
-				} else {
-					scripts.push(ret[i].parentNode ? ret[i].parentNode.removeChild(ret[i]) : ret[i]);
-				}
-			} else if (ret[i].nodeType == 1 || ret[i].nodeType == 9 ||
-				ret[i].nodeType == 11) {
-				evalScripts(ret[i]);
-			}
-		}
-
-		for (var $script in scripts) {
-			evalScript(scripts[$script]);
-		}
-	}
-
-	function nodeName(el, name) {
-		return el.nodeName && el.nodeName.toUpperCase() === name.toUpperCase();
-	}
-
-	function evalScript(el) {
-		if (el.src) {
-			Mura.loader().load(el.src);
-			Mura(el).remove();
-		} else {
-			var data = (el.text || el.textContent || el.innerHTML || "");
-
-			var head = document.getElementsByTagName("head")[0] ||
-				document.documentElement,
-				script = document.createElement("script");
-			script.type = "text/javascript";
-			//script.appendChild( document.createTextNode( data ) );
-			script.text = data;
-			head.insertBefore(script, head.firstChild);
-			head.removeChild(script);
-
-			if (el.parentNode) {
-				el.parentNode.removeChild(el);
-			}
-		}
-	}
-
-	function changeElementType(el, to) {
-		var newEl = document.createElement(to);
-
-		// Try to copy attributes across
-		for (var i = 0, a = el.attributes, n = a.length; i < n; ++i)
-			el.setAttribute(a[i].name, a[i].value);
-
-		// Try to move children across
-		while (el.hasChildNodes())
-			newEl.appendChild(el.firstChild);
-
-		// Replace the old element with the new one
-		el.parentNode.replaceChild(newEl, el);
-
-		// Return the new element, for good measure.
-		return newEl;
-	}
-
-	/*
-	Defaults to holdReady is true so that everything
-	is queued up until the DOMContentLoaded is fired
-	*/
-	var holdingReady = true;
-	var holdingReadyAltered = false;
-	var holdingQueueReleased = false;
-	var holdingQueue = [];
-	var holdingPreInitQueue =[];
-
-	/*
-	if(typeof jQuery != 'undefined' && typeof jQuery.holdReady != 'undefined'){
-			jQuery.holdReady(true);
-	}
-	*/
-
-	/*
-	When DOMContentLoaded is fired check to see it the
-	holdingReady has been altered by custom code.
-	If it hasn't then fire holding functions.
-	*/
-	function initReadyQueue() {
-		if (!holdingReadyAltered) {
-			/*
-			if(typeof jQuery != 'undefined' && typeof jQuery.holdReady != 'undefined'){
-					jQuery.holdReady(false);
-			}
-			*/
-			releaseReadyQueue();
-		}
-	};
-
-	function releaseReadyQueue() {
-		holdingQueueReleased = true;
-		holdingReady = false;
-
-		holdingQueue.forEach(function(fn) {
-			readyInternal(fn);
-		});
-
-		holdingQueue=[];
-	}
-
-	function holdReady(hold) {
-		if (!holdingQueueReleased) {
-			holdingReady = hold;
-			holdingReadyAltered = true;
-
-			/*
-			if(typeof jQuery != 'undefined' && typeof jQuery.holdReady != 'undefined'){
-					jQuery.holdReady(hold);
-			}
-			*/
-
-			if (!holdingReady) {
-				releaseReadyQueue();
-			}
-		}
-	}
-
-	function ready(fn) {
-		if (!holdingQueueReleased) {
-			holdingQueue.push(fn);
-		} else {
-			readyInternal(fn);
-		}
-	}
-
-
-	function readyInternal(fn) {
-		if(typeof document != 'undefined'){
-		if (document.readyState != 'loading') {
-			//IE set the readyState to interative too early
-			setTimeout(function() {
-				fn(Mura);
-			}, 1);
-		} else {
-			document.addEventListener('DOMContentLoaded', function() {
-				fn(Mura);
-			});
-		}
-		} else {
-			fn(Mura);
-		}
-	}
-
-	/**
-	 * get - Make GET request
-	 *
-	 * @param	{url} url	URL
-	 * @param	{object} data Data to send to url
-	 * @return {Promise}
-	 * @memberof {class} Mura
-	 */
-	function get(url, data, eventHandler) {
-		return Mura._requestcontext.get(url, data, eventHandler);
-	}
-
-	/**
-	 * post - Make POST request
-	 *
-	 * @param	{url} url	URL
-	 * @param	{object} data Data to send to url
-	 * @return {Promise}
-	 * @memberof {class} Mura
-	 */
-	function post(url, data, eventHandler) {
-		return Mura._requestcontext.post(url, data, eventHandler);
-	}
-
-	/**
-	 * ajax - Make ajax request
-	 *
-	 * @param	{object} params
-	 * @return {Promise}
-	 * @memberof {class} Mura
-	 */
-	function ajax(params) {
-		return Mura._requestcontext.request(params);
-	}
-
-	/**
-	 * normalizeRequestHandler - Standardizes request handler objects
-	 *
-	 * @param	{object} eventHandler
-	 * @memberof {object} eventHandler
-	 */
-	function normalizeRequestHandler(eventHandler) {
-		eventHandler.progress=eventHandler.progress || eventHandler.onProgress || eventHandler.onUploadProgress || function(){};
-		eventHandler.abort=eventHandler.abort || eventHandler.onAbort|| function(){};
-		eventHandler.success=eventHandler.success || eventHandler.onSuccess || function(){};
-		eventHandler.error=eventHandler.error || eventHandler.onError || function(){};
-		return eventHandler;
-	}
-
-	/**
-	 * getRequestContext - Returns a new Mura.RequestContext;
-	 *
-	 * @name getRequestContext
-	 * @param	{object} request		 Siteid
-	 * @param	{object} response Entity name
-	 * @return {Mura.RequestContext}	 Mura.RequestContext
-	 * @memberof {class} Mura
-	 */
-	function getRequestContext(request,response) {
-		return new Mura.RequestContext(request,response);
-	}
-
-	/**
-	 * getDefaultRequestContext - Returns the default Mura.RequestContext;
-	 *
-	 * @name getDefaultRequestContext
-	 * @return {Mura.RequestContext}	 Mura.RequestContext
-	 * @memberof {class} Mura
-	 */
-	function getDefaultRequestContext() {
-		return	Mura._requestcontext;
-	}
-
-	/**
-	 * generateOAuthToken - Generate Outh toke for REST API
-	 *
-	 * @param	{string} grant_type	Grant type (Use client_credentials)
-	 * @param	{type} client_id		 Client ID
-	 * @param	{type} client_secret Secret Key
-	 * @return {Promise}
-	 * @memberof {class} Mura
-	 */
-	function generateOAuthToken(grant_type, client_id, client_secret) {
-			return new Promise(function(resolve, reject) {
-				get(Mura.getAPIEndpoint().replace('/json/', '/rest/') + 'oauth?grant_type=' +
-					encodeURIComponent(grant_type) + '&client_id=' + encodeURIComponent(client_id) + '&client_secret=' +
-					encodeURIComponent(client_secret) + '&_cacheid=' + Math.random()).then(
-					function(resp) {
-						if (resp.data != 'undefined') {
-							resolve(resp.data);
-						} else {
-							if (typeof resp.error != 'undefined' && typeof reject == 'function') {
-								reject(resp);
-							} else {
-								resolve(resp);
-							}
-						}
-					}
-				)
-			});
-	}
-
-	function each(selector, fn) {
-		select(selector).each(fn);
-	}
-
-	function on(el, eventName, fn) {
-		if (eventName == 'ready') {
-			Mura.ready(fn);
-		} else {
-			if (typeof el.addEventListener == 'function') {
-				el.addEventListener(
-					eventName,
-					function(event) {
-						if(typeof fn.call == 'undefined'){
-							fn(event);
-						} else {
-							fn.call(el, event);
-						}
-					},
-					true
-				);
-			}
-		}
-	}
-
-	function trigger(el, eventName, eventDetail) {
-		if(typeof document != 'undefined'){
-			var bubbles = eventName == "change" ? false : true;
-			if (document.createEvent) {
-				if(eventDetail && !isEmptyObject(eventDetail)){
-					var event = document.createEvent('CustomEvent');
-					event.initCustomEvent(eventName, bubbles, true,eventDetail);
-				} else {
-
-					var eventClass = "";
-
-					switch (eventName) {
-						case "click":
-						case "mousedown":
-						case "mouseup":
-							eventClass = "MouseEvents";
-							break;
-
-						case "focus":
-						case "change":
-						case "blur":
-						case "select":
-							eventClass = "HTMLEvents";
-							break;
-
-						default:
-							eventClass = "Event";
-							break;
-					}
-
-					var event = document.createEvent(eventClass);
-					event.initEvent(eventName, bubbles, true);
-				}
-
-				event.synthetic = true;
-				el.dispatchEvent(event);
-
-			} else {
-					try {
-							document.fireEvent("on" + eventName);
-					} catch (e) {
-							console.warn(
-									"Event failed to fire due to legacy browser: on" +
-									eventName);
-					}
-			}
-		}
-	};
-
-	function off(el, eventName, fn) {
-		el.removeEventListener(eventName, fn);
-	}
-
-	function parseSelection(selector) {
-		if (typeof selector == 'object' && Array.isArray(selector)) {
-			var selection = selector;
-		} else if (typeof selector == 'string') {
-			var selection = nodeListToArray(document.querySelectorAll(selector));
-		} else {
-			if ( (typeof StaticNodeList != 'undefined' && selector instanceof StaticNodeList) ||
-				(typeof NodeList != 'undefined' && selector instanceof NodeList) || (typeof HTMLCollection != 'undefined' &&	selector instanceof HTMLCollection)
-			) {
-				var selection = nodeListToArray(selector);
-			} else {
-				var selection = [selector];
-			}
-		}
-
-		if (typeof selection.length == 'undefined') {
-			selection = [];
-		}
-
-		return selection;
-	}
-
-	function isEmptyObject(obj) {
-		return (typeof obj != 'object' || Object.keys(obj).length == 0);
-	}
-
-	function filter(selector, fn) {
-		return select(parseSelection(selector)).filter(fn);
-	}
-
-	function nodeListToArray(nodeList) {
-		var arr = [];
-		for (var i = nodeList.length; i--; arr.unshift(nodeList[i]));
-		return arr;
-	}
-
-	function select(selector) {
-		return new Mura.DOMSelection(parseSelection(selector),selector);
-	}
-
-	function parseHTML(str) {
-		var tmp = document.implementation.createHTMLDocument();
-		tmp.body.innerHTML = str;
-		return tmp.body.children;
-	};
-
-	function getData(el) {
-		var data = {};
-		Array.prototype.forEach.call(el.attributes, function(attr) {
-			if (/^data-/.test(attr.name)) {
-				data[attr.name.substr(5)] = parseString(attr.value);
-			}
-		});
-
-		return data;
-	}
-
-	function getProps(el) {
-		var data = {};
-		Array.prototype.forEach.call(el.attributes, function(attr) {
-			if (/^data-/.test(attr.name)) {
-				data[attr.name.substr(5)] = parseString(attr.value);
-			}
-		});
-
-		return data;
-	}
-
-
-	/**
-	 * isNumeric - Returns if the value is numeric
-	 *
-	 * @name isNumeric
-	 * @param	{*} val description
-	 * @return {boolean}
-	 * @memberof {class} Mura
-	 */
-	function isNumeric(val) {
-			return Number(parseFloat(val)) == val;
-	}
-
-	/**
-	* buildDisplayRegion - Renders display region data returned from Mura.renderFilename()
-	*
-	* @param	{any} data Region data to build string from
-	* @return {string}
-	*/
-	function buildDisplayRegion(data){
-
-		if(typeof data == 'undefined'){
-			return '';
-		}
-
-		var str = "<div class=\"mura-region\" data-regionid=\"" +  escapeHTML(data.regionid) + "\">";
-
-		function buildItemHeader(data){
-			var classes=data.class || '';
- 			var header="<div class=\"mura-object " + escapeHTML(classes) + "\"";
-			for(var p in data){
-				if(data.hasOwnProperty(p)){
-					if(typeof data[p] == 'object'){
-						header+=" data-" + p + "=\'" +  escapeHTML(JSON.stringify(data[p]).replace(/'/g,"&#39;")) + "\'";
-					} else {
-						header+=" data-" + p + "=\"" + escapeHTML(data[p]) + "\"";
-					}
-				}
-			}
-
-			header +=">";
-			return header;
-		}
-
-		function buildRegionSectionHeader(section,name,perm,regionid){
-			if(name){ 
-				if(section=='inherited'){
-					return "<div class=\"mura-region-inherited\"><div class=\"frontEndToolsModal mura\"><span class=\"mura-edit-label mi-lock\">" +  escapeHTML(name.toUpperCase()) + ": Inherited</span></div>";
-				} else {
-					return "<div class=\"mura-editable mura-inactive\"><div class=\"mura-region-local mura-inactive mura-editable-attribute\" data-loose=\"false\" data-regionid=\"" + escapeHTML(regionid) + "\" data-inited=\"false\" data-perm=\"" + escapeHTML(perm) + "\"><label class=\"mura-editable-label\" style=\"display:none\">" +  escapeHTML(name.toUpperCase()) + "</label>";
-				}
-			} else {
-				return "<div class=\"mura-region-" + escapeHTML(section) + "\">";	
-			}
-		}
-
-		if(data.inherited.items.length){
-			if(data.inherited.header){
-				str += data.inherited.header;
-			} else {
-				str += buildRegionSectionHeader('inherited',data.name,data.inherited.perm,data.regionid);
-			}
-			
-			for(var i in data.inherited.items){
-				if(data.inherited.items[i].header){
-					str += data.inherited.items[i].header;
-				} else {
-					str += buildItemHeader(data.inherited.items[i]);
-				}
-				if(typeof data.inherited.items[i].html != 'undefined' && data.inherited.items[i].html){
-					str += data.inherited.items[i].html;
-				}
-				if(data.inherited.items[i].footer){
-					str += data.inherited.items[i].footer;
-				} else {
-					str += "</div>"
-				}
-			}
-		
-			str += "</div>";
-			
-		}
- 
-		if(data.local.header){
-			str += data.local.header;
-		} else {
-			str += buildRegionSectionHeader('local',data.name,data.local.perm,data.regionid);
-		}
-
-		if(data.local.items.length){
-			for(var i in data.local.items){
-				if(data.local.items[i].header){
-					str += data.local.items[i].header;
-				} else {
-					str += buildItemHeader(data.local.items[i]);
-				}
-				if(typeof data.local.items[i].html != 'undefined' && data.local.items[i].html){
-					str += data.local.items[i].html;
-				}
-				if(data.local.items[i].footer){
-					str += data.local.items[i].footer;
-				} else {
-					str += '</div>'
-				}
-			}
-		}
-		//when editing the region header contains two divs
-		if(data.name){
-			str += "</div></div>";
-		} else {
-			str += "</div>";
-		}
-
-		str += "</div>";
-
-		return str;
-	}
-
-	function parseString(val) {
-			if (typeof val == 'string') {
-				var lcaseVal = val.toLowerCase();
-
-				if (lcaseVal == 'false') {
-					return false;
-				} else if (lcaseVal == 'true') {
-					return true;
-				} else {
-					if (!(typeof val == 'string' && val.length == 35) &&
-						isNumeric(val)) {
-						var numVal = parseFloat(val);
-						if (numVal == 0 || !isNaN(1 / numVal)) {
-							return numVal;
-						}
-					}
-					
-					try {
-						var testVal = JSON.parse.call(null,val);
-						if(typeof testVal != 'string'){
-							return testVal;
-						} else {
-							return val;
-						}
-					} catch (e) {
-						return val;
-					}
-				}
-			} else {
-				return val;
-			}
-
-	}
-
-	function getAttributes(el) {
-			var data = {};
-			Array.prototype.forEach.call(el.attributes, function(attr) {
-				data[attr.name] = attr.value;
-			});
-
-			return data;
-	}
-
-	/**
-	 * formToObject - Returns if the value is numeric
-	 *
-	 * @name formToObject
-	 * @param	{form} form Form to serialize
-	 * @return {object}
-	 * @memberof {class} Mura
-	 */
-	function formToObject(form) {
-		var field, s = {};
-		if (typeof form == 'object' && form.nodeName == "FORM") {
-			var len = form.elements.length;
-			for (var i = 0; i < len; i++) {
-				field = form.elements[i];
-				if (field.name && !field.disabled && field.type !=
-					'file' && field.type != 'reset' && field.type !=
-					'submit' && field.type != 'button') {
-					if (field.type == 'select-multiple') {
-							for (j = form.elements[i].options.length - 1; j >= 0; j--) {
-								if (field.options[j].selected)
-									s[s.name] = field.options[j].value;
-							}
-					} else if ((field.type != 'checkbox' && field.type != 'radio') || field.checked) {
-						if (typeof s[field.name] == 'undefined') {
-							s[field.name] = field.value;
-						} else {
-							s[field.name] = s[field.name] + ',' + field.value;
-						}
-
-					}
-				}
-			}
-		}
-		return s;
-	}
-
-	//http://youmightnotneedjquery.com/
-	/**
-	 * extend - Extends object one level
-	 *
-	 * @name extend
-	 * @return {object}
-	 * @memberof {class} Mura
-	 */
-	function extend(out) {
-		out = out || {};
-
-		for (var i = 1; i < arguments.length; i++) {
-			if (!arguments[i])
-				continue;
-
-			for (var key in arguments[i]) {
-				if (key != '__proto__' && typeof arguments[i].hasOwnProperty != 'undefined' && arguments[i].hasOwnProperty(key) )
-					out[key] = arguments[i][key];
-			}
-		}
-
-		return out;
-	};
-
-	/**
-	 * deepExtend - Extends object to full depth
-	 *
-	 * @name deepExtend
-	 * @return {object}
-	 * @memberof {class} Mura
-	 */
-	function deepExtend(out) {
-		out = out || {};
-
-		for (var i = 1; i < arguments.length; i++) {
-			var obj = arguments[i];
-
-			if (!obj)
-				continue;
-
-			for (var key in obj) {
-				if ( key != '__proto__' && typeof arguments[i].hasOwnProperty != 'undefined' && arguments[i].hasOwnProperty(key) ) {
-					if (Array.isArray(obj[key])) {
-						out[key] = obj[key].slice(0);
-					} else if (typeof obj[key] === 'object') {
-						out[key] = deepExtend({}, obj[key]);
-					} else {
-						out[key] = obj[key];
-					}
-				}
-			}
-		}
-
-		return out;
-	}
-
-
-	/**
-	 * createCookie - Creates cookie
-	 *
-	 * @name createCookie
-	 * @param	{string} name	Name
-	 * @param	{*} value Value
-	 * @param	{number} days	Days
-	 * @return {void}
-	 * @memberof {class} Mura
-	 */
-	 function createCookie(name, value, days, domain) {
- 		if(days) {
- 			var date = new Date();
- 			date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
- 			var expires = "; expires=" + date.toGMTString();
- 		} else {
- 			var expires = "";
- 		}
- 		if(typeof location != 'undefined' && location.protocol == 'https:'){
- 			var secure='; secure; samesite=None';
- 		} else {
- 			var secure='';
- 		}
-		if(typeof domain != 'undefined'){
-			domain='; domain=' + domain;
-		} else {
-			domain='';
-		}
- 		document.cookie = name + "=" + value + expires + "; path=/" + secure + domain;
- 	}
-
-	/**
-	 * readCookie - Reads cookie value
-	 *
-	 * @name readCookie
-	 * @param	{string} name Name
-	 * @return {*}
-	 * @memberof {class} Mura
-	 */
-	function readCookie(name) {
-		var nameEQ = name + "=";
-		var ca = document.cookie.split(';');
-		for (var i = 0; i < ca.length; i++) {
-			var c = ca[i];
-			while (c.charAt(0) == ' ') c = c.substring(1, c.length);
-			if (c.indexOf(nameEQ) == 0) return unescape(c.substring(
-				nameEQ.length, c.length));
-		}
-		return "";
-	}
-
-	/**
-	 * eraseCookie - Removes cookie value
-	 *
-	 * @name eraseCookie
-	 * @param	{type} name description
-	 * @return {type}			description
-	 * @memberof {class} Mura
-	 */
-	function eraseCookie(name) {
-		createCookie(name, "", -1);
-	}
-
-	function $escape(value) {
-		if (typeof encodeURIComponent != 'undefined') {
-			return encodeURIComponent(value)
-		} else {
-			return escape(value).replace(
-				new RegExp("\\+", "g"),
-				"%2B"
-			).replace(/[\x00-\x1F\x7F-\x9F]/g, "");
-		}
-	}
-
-	function $unescape(value) {
-		return unescape(value);
-	}
-
-	//deprecated
-	function addLoadEvent(func) {
-		var oldonload = onload;
-		if (typeof onload != 'function') {
-			onload = func;
-		} else {
-			onload = function() {
-				oldonload();
-				func();
-			}
-		}
-	}
-
-	function noSpam(user, domain) {
-		locationstring = "mailto:" + user + "@" + domain;
-		location = locationstring;
-	}
-
-	/**
-	 * isUUID - description
-	 *
-	 * @name isUUID
-	 * @param	{*} value Value
-	 * @return {boolean}
-	 * @memberof {class} Mura
-	 */
-	function isUUID(value) {
-		if (
-			typeof value == 'string' &&
-			(
-					value.length == 35 && value[8] == '-' && value[13] ==
-					'-' && value[18] == '-' || value ==
-					'00000000000000000000000000000000001' || value ==
-					'00000000000000000000000000000000000' || value ==
-					'00000000000000000000000000000000003' || value ==
-					'00000000000000000000000000000000005' || value ==
-					'00000000000000000000000000000000099'
-			)
-		) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	/**
-	 * createUUID - Create UUID
-	 *
-	 * @name createUUID
-	 * @return {string}
-	 * @memberof {class} Mura
-	 */
-	function createUUID() {
-		var s = [], itoh = '0123456789ABCDEF';
-
-		// Make array of random hex digits. The UUID only has 32 digits in it, but we
-		// allocate an extra items to make room for the '-'s we'll be inserting.
-		for (var i = 0; i < 35; i++) s[i] = Math.floor(Math.random() * 0x10);
-
-		// Conform to RFC-4122, section 4.4
-		s[14] = 4; // Set 4 high bits of time_high field to version
-		s[19] = (s[19] & 0x3) | 0x8; // Specify 2 high bits of clock sequence
-
-		// Convert to hex chars
-		for (var i = 0; i < 36; i++) s[i] = itoh[s[i]];
-
-		// Insert '-'s
-		s[8] = s[13] = s[18] = '-';
-
-		return s.join('');
-	}
-
-	/**
-	 * setHTMLEditor - Set Html Editor
-	 *
-	 * @name setHTMLEditor
-	 * @param	{dom.element} el Dom Element
-	 * @return {void}
-	 * @memberof {class} Mura
-	 */
-	function setHTMLEditor(el) {
-
-		function initEditor() {
-			var instance = CKEDITOR.instances[el.getAttribute('id')];
-			var conf = {
-				height: 200,
-				width: '70%'
-			};
-
-			extend(conf, Mura(el).data());
-
-			if (instance) {
-				instance.destroy();
-				CKEDITOR.remove(instance);
-			}
-
-			CKEDITOR.replace(el.getAttribute('id'), getHTMLEditorConfig(conf), htmlEditorOnComplete);
-		}
-
-		function htmlEditorOnComplete(editorInstance) {
-			editorInstance.resetDirty();
-			var totalIntances = CKEDITOR.instances;
-		}
-
-		function getHTMLEditorConfig(customConfig) {
-			var attrname = '';
-			var htmlEditorConfig = {
-				toolbar: 'htmlEditor',
-				customConfig: 'config.js.cfm'
-			}
-
-			if (typeof(customConfig) == 'object') {
-				extend(htmlEditorConfig, customConfig);
-			}
-
-			return htmlEditorConfig;
-		}
-
-		loader().loadjs(
-			Mura.corepath + '/vendor/ckeditor/ckeditor.js',
-			function() {
-				initEditor();
-			}
-	);
-
-	}
-
-	var pressed_keys = '';
-
-	var loginCheck = function(key) {
-		if (key == 27) {
-			pressed_keys = key.toString();
-
-		} else if (key == 76) {
-			pressed_keys = pressed_keys + "" + key.toString();
-		}
-
-		if (key != 27 && key != 76) {
-			pressed_keys = "";
-		}
-
-		if (pressed_keys != "") {
-
-			var aux = pressed_keys;
-			var lu = '';
-			var ru = '';
-
-			if (aux.indexOf('2776') != -1 && location.search.indexOf(
-							"display=login") == -1) {
-
-				if (typeof(Mura.loginURL) != "undefined") {
-					lu = Mura.loginURL;
-				} else if (typeof(Mura.loginurl) != "undefined") {
-					lu = Mura.loginurl;
-				} else {
-					lu = "?display=login";
-				}
-
-				if (typeof(Mura.returnURL) != "undefined") {
-					ru = Mura.returnURL;
-				} else if (typeof(Mura.returnurl) != "undefined") {
-					ru = Mura.returnurl;
-				} else {
-					ru = location.href;
-				}
-				pressed_keys = "";
-
-				lu = new String(lu);
-				if (lu.indexOf('?') != -1) {
-					location.href = lu + "&returnUrl=" + encodeURIComponent(ru);
-				} else {
-					location.href = lu + "?returnUrl=" + encodeURIComponent(ru);
-				}
-			}
-		}
-	}
-
-	/**
-	 * isInteger - Returns if the value is an integer
-	 *
-	 * @name isInteger
-	 * @param	{*} Value to check
-	 * @return {boolean}
-	 * @memberof {class} Mura
-	 */
-	function isInteger(s) {
-		var i;
-		for (i = 0; i < s.length; i++) {
-			// Check that current character is number.
-			var c = s.charAt(i);
-			if (((c < "0") || (c > "9"))) return false;
-		}
-		// All characters are numbers.
-		return true;
-	}
-
-	function createDate(str) {
-
-		var valueArray = str.split("/");
-
-		var mon = valueArray[0];
-		var dt = valueArray[1];
-		var yr = valueArray[2];
-
-		var date = new Date(yr, mon - 1, dt);
-
-		if (!isNaN(date.getMonth())) {
-			return date;
-		} else {
-			return new Date();
-		}
-
-	}
-
-	function dateToString(date) {
-		var mon = date.getMonth() + 1;
-		var dt = date.getDate();
-		var yr = date.getFullYear();
-
-		if (mon < 10) {
-				mon = "0" + mon;
-		}
-		if (dt < 10) {
-				dt = "0" + dt;
-		}
-
-
-		return mon + "/" + dt + "/20" + new String(yr).substring(2, 4);
-	}
-
-
-	function stripCharsInBag(s, bag) {
-		var i;
-		var returnString = "";
-		// Search through string's characters one by one.
-		// If character is not in bag, append to returnString.
-		for (i = 0; i < s.length; i++) {
-			var c = s.charAt(i);
-			if (bag.indexOf(c) == -1) returnString += c;
-		}
-		return returnString;
-	}
-
-	function daysInFebruary(year) {
-		// February has 29 days in any year evenly divisible by four,
-		// EXCEPT for centurial years which are not also divisible by 400.
-		return (((year % 4 == 0) && ((!(year % 100 == 0)) || (year % 400 == 0))) ? 29 : 28);
-	}
-
-	function DaysArray(n) {
-		for (var i = 1; i <= n; i++) {
-			this[i] = 31
-			if (i == 4 || i == 6 || i == 9 || i == 11) {
-				this[i] = 30
-			}
-			if (i == 2) {
-				this[i] = 29
-			}
-		}
-		return this
-	}
-
-	/**
-	 * generateDateFormat - dateformt for input type="date"
-	 *
-	 * @name generateDateFormat
-	 * @return {string}
-	 */
-		function generateDateFormat(dtStr, fldName) {
-			var formatArray=['mm','dd','yyyy'];
-
-			return [
-				formatArray[Mura.dtformat[0]],
-				formatArray[Mura.dtformat[1]],
-				formatArray[Mura.dtformat[2]]
-			].join(Mura.dtch);
-
-		}
-
-	/**
-	 * isDate - Returns if the value is a data
-	 *
-	 * @name isDate
-	 * @param	{*}	Value to check
-	 * @return {boolean}
-	 * @memberof {class} Mura
-	 */
-	function isDate(dtStr, fldName) {
-		var daysInMonth = DaysArray(12);
-		var dtArray = dtStr.split(Mura.dtch);
-
-		if (dtArray.length != 3) {
-			//alert("The date format for the "+fldName+" field should be : short")
-			return false
-		}
-		var strMonth = dtArray[Mura.dtformat[0]];
-		var strDay = dtArray[Mura.dtformat[1]];
-		var strYear = dtArray[Mura.dtformat[2]];
-
-		/*
-		if(strYear.length == 2){
-			strYear="20" + strYear;
-		}
-		*/
-		strYr = strYear;
-
-		if (strDay.charAt(0) == "0" && strDay.length > 1) strDay = strDay.substring(1)
-		if (strMonth.charAt(0) == "0" && strMonth.length > 1) strMonth = strMonth.substring(1)
-		for (var i = 1; i <= 3; i++) {
-			if (strYr.charAt(0) == "0" && strYr.length > 1) strYr = strYr.substring(1)
-		}
-
-		month = parseInt(strMonth)
-		day = parseInt(strDay)
-		year = parseInt(strYr)
-
-		if (month < 1 || month > 12) {
-			//alert("Please enter a valid month in the "+fldName+" field")
-			return false
-		}
-		if (day < 1 || day > 31 || (month == 2 && day > daysInFebruary(year)) || day > daysInMonth[month]) {
-			//alert("Please enter a valid day	in the "+fldName+" field")
-			return false
-		}
-		if (strYear.length != 4 || year == 0 || year < Mura.minYear || year > Mura.maxYear) {
-			//alert("Please enter a valid 4 digit year between "+Mura.minYear+" and "+Mura.maxYear +" in the "+fldName+" field")
-			return false
-		}
-		if (isInteger(stripCharsInBag(dtStr, Mura.dtch)) == false) {
-			//alert("Please enter a valid date in the "+fldName+" field")
-			return false
-		}
-
-		return true;
-	}
-
-	/**
-	 * isEmail - Returns if value is valid email
-	 *
-	 * @param	{string} str String to parse for email
-	 * @return {boolean}
-	 * @memberof {class} Mura
-	 */
-	function isEmail(e) {
-		return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
-	}
-
-	function initShadowBox(el) {
-		if(typeof window =='undefined' || typeof window.document == 'undefined'){
-			return;
-		};
-
-		if (Mura(el).find('[data-rel^="shadowbox"],[rel^="shadowbox"]').length) {
-			loader().load(
-				[
-					Mura.context + '/core/modules/v1/core_assets/css/shadowbox.min.css',
-					Mura.context + '/core/modules/v1/core_assets/js/shadowbox.js'
-				],
-				function() {
-					Mura('#shadowbox_overlay,#shadowbox_container').remove();
-					window.Shadowbox.init();
-					}
-			);
-		}
-	}
-
-	/**
-	 * validateForm - Validates Mura form
-	 *
-	 * @name validateForm
-	 * @param	{type} frm					Form element to validate
-	 * @param	{function} customaction Custom action (optional)
-	 * @return {boolean}
-	 * @memberof {class} Mura
-	 */
-	function validateForm(frm, customaction) {
-
-		function getValidationFieldName(theField) {
-			if (theField.getAttribute('data-label') != undefined) {
-				return theField.getAttribute('data-label');
-			} else if (theField.getAttribute('label') != undefined) {
-				return theField.getAttribute('label');
-			} else {
-				return theField.getAttribute('name');
-			}
-		}
-
-		function getValidationIsRequired(theField) {
-			if (theField.getAttribute('data-required') != undefined) {
-				return (theField.getAttribute('data-required').toLowerCase() == 'true');
-			} else if (theField.getAttribute('required') != undefined) {
-				return (theField.getAttribute('required').toLowerCase() == 'true');
-			} else {
-				return false;
-			}
-		}
-
-		function getValidationMessage(theField, defaultMessage) {
-			if (theField.getAttribute('data-message') != undefined) {
-				return theField.getAttribute('data-message');
-			} else if (theField.getAttribute('message') != undefined) {
-				return theField.getAttribute('message');
-			} else {
-				return getValidationFieldName(theField).toUpperCase() + defaultMessage;
-			}
-		}
-
-		function getValidationType(theField) {
-			if (theField.getAttribute('data-validate') != undefined) {
-				return theField.getAttribute('data-validate').toUpperCase();
-			} else if (theField.getAttribute('validate') != undefined) {
-				return theField.getAttribute('validate').toUpperCase();
-			} else {
-				return '';
-			}
-		}
-
-		function hasValidationMatchField(theField) {
-			if (theField.getAttribute('data-matchfield') != undefined &&
-				theField.getAttribute('data-matchfield') != '') {
-				return true;
-			} else if (theField.getAttribute('matchfield') != undefined &&
-				theField.getAttribute('matchfield') != '') {
-				return true;
-			} else {
-				return false;
-			}
-		}
-
-		function getValidationMatchField(theField) {
-			if (theField.getAttribute('data-matchfield') != undefined) {
-				return theField.getAttribute('data-matchfield');
-			} else if (theField.getAttribute('matchfield') != undefined) {
-				return theField.getAttribute('matchfield');
-			} else {
-				return '';
-			}
-		}
-
-		function hasValidationRegex(theField) {
-			if (theField.value != undefined) {
-				if (theField.getAttribute('data-regex') != undefined &&
-					theField.getAttribute('data-regex') != '') {
-					return true;
-				} else if (theField.getAttribute('regex') != undefined &&
-					theField.getAttribute('regex') != '') {
-					return true;
-				}
-			} else {
-				return false;
-			}
-		}
-
-		function getValidationRegex(theField) {
-				if (theField.getAttribute('data-regex') != undefined) {
-						return theField.getAttribute('data-regex');
-				} else if (theField.getAttribute('regex') != undefined) {
-						return theField.getAttribute('regex');
-				} else {
-						return '';
-				}
-		}
-
-		var theForm = frm;
-		var errors = "";
-		var setFocus = 0;
-		var started = false;
-		var startAt;
-		var firstErrorNode;
-		var validationType = '';
-		var validations = {
-				properties: {}
-		};
-		var frmInputs = theForm.getElementsByTagName("input");
-		var rules = new Array();
-		var data = {};
-		var $customaction = customaction;
-
-		for (var f = 0; f < frmInputs.length; f++) {
-			var theField = frmInputs[f];
-			validationType = getValidationType(theField).toUpperCase();
-
-			rules = new Array();
-
-			if (theField.style.display == "") {
-				if (getValidationIsRequired(theField)) {
-					rules.push({
-						required: true,
-						message: getValidationMessage(theField,
-								' is required.')
-					});
-				}
-				if (validationType != '') {
-					if (validationType == 'EMAIL' && theField.value != 	'') {
-						rules.push({
-							dataType: 'EMAIL',
-							message: getValidationMessage(
-									theField,
-									' must be a valid email address.'
-							)
-						});
-					} else if (validationType == 'NUMERIC' && theField.value !=
-						'') {
-						rules.push({
-								dataType: 'NUMERIC',
-								message: getValidationMessage(
-										theField,
-										' must be numeric.')
-						});
-					} else if (validationType == 'REGEX' && theField.value != '' && hasValidationRegex(theField)) {
-						rules.push({
-							regex: getValidationRegex(theField),
-							message: getValidationMessage(
-									theField, ' is not valid.')
-						});
-					} else if (validationType == 'MATCH' &&
-						hasValidationMatchField(theField) && theField.value !=
-						theForm[getValidationMatchField(theField)].value
-					) {
-						rules.push({
-							eq: theForm[getValidationMatchField(theField)].value,
-							message: getValidationMessage(
-								theField, ' must match' +
-								getValidationMatchField(
-										theField) + '.')
-						});
-					} else if (validationType == 'DATE' && theField.value != '') {
-						rules.push({
-							dataType: 'DATE',
-							message: getValidationMessage(
-								theField,
-								' must be a valid date [MM/DD/YYYY].'
-							)
-						});
-					}
-				}
-
-				if (rules.length) {
-					validations.properties[theField.getAttribute('name')] = rules;
-
-					//if(!Array.isArray(data[theField.getAttribute('name')])){
-						data[theField.getAttribute('name')]=[];
-					//}
-
-					for (var v = 0; v < frmInputs.length; v++) {
-						if(frmInputs[v].getAttribute('name')==theField.getAttribute('name')){
-							if(frmInputs[v].getAttribute('type').toLowerCase()=='checkbox'
-								|| frmInputs[v].getAttribute('type').toLowerCase()=='radio'
-							) {
-
-								if(frmInputs[v].checked){
-										data[theField.getAttribute('name')].push(frmInputs[v].value);
-								}
-
-							} else if(typeof frmInputs[v].value != 'undefined' && frmInputs[v].value != '') {
-								data[theField.getAttribute('name')].push(frmInputs[v].value)
-							}
-						}
-					}
-				}
-			}
-		}
-
-		for(var p in data){
-			if(data.hasOwnProperty(p)){
-				data[p]=data[p].join();
-			}
-		}
-
-		var frmTextareas = theForm.getElementsByTagName("textarea");
-		for (f = 0; f < frmTextareas.length; f++) {
-			theField = frmTextareas[f];
-			validationType = getValidationType(theField);
-
-			rules = new Array();
-
-			if (theField.style.display == "" && getValidationIsRequired(theField)) {
-				rules.push({
-					required: true,
-					message: getValidationMessage(theField,' is required.')
-				});
-
-			} else if (validationType != '') {
-				if (validationType == 'REGEX' && theField.value != '' &&
-					hasValidationRegex(theField)) {
-					rules.push({
-						regex: getValidationRegex(theField),
-						message: getValidationMessage(theField,' is not valid.')
-					});
-				}
-			}
-
-			if (rules.length) {
-					validations.properties[theField.getAttribute('name')] =
-							rules;
-					data[theField.getAttribute('name')] = theField.value;
-			}
-		}
-
-		var frmSelects = theForm.getElementsByTagName("select");
-		for (f = 0; f < frmSelects.length; f++) {
-			theField = frmSelects[f];
-			validationType = getValidationType(theField);
-
-			rules = new Array();
-
-			if (theField.style.display == "" && getValidationIsRequired(theField)) {
-				rules.push({
-					required: true,
-					message: getValidationMessage(theField,' is required.')
-				});
-			}
-
-			if (rules.length) {
-				validations.properties[theField.getAttribute('name')] =	rules;
-				data[theField.getAttribute('name')] = theField.value;
-			}
-		}
-
-		try {
-			//alert(JSON.stringify(validations));
-			//console.log(data);
-			//console.log(validations);
-			ajax({
-				type: 'post',
-				url: Mura.getAPIEndpoint() + '?method=validate',
-				data: {
-					data: encodeURIComponent(JSON.stringify(data)),
-					validations: encodeURIComponent(JSON.stringify(validations)),
-					version: 4
-				},
-				success: function(resp) {
-
-					data = resp.data;
-
-					if (Object.keys(data).length === 0) {
-						if (typeof $customaction ==
-							'function') {
-							$customaction(theForm);
-							return false;
-						} else {
-							document.createElement('form').submit.call(theForm);
-						}
-					} else {
-							var msg = '';
-						for (var e in data) {
-							msg = msg + data[e] + '\n';
-						}
-
-						alert(msg);
-					}
-				},
-				error: function(resp) {
-					alert(JSON.stringify(resp));
-				}
-
-			});
-		} catch (err) {
-				console.log(err);
-		}
-
-		return false;
-
-	}
-
-	function setLowerCaseKeys(obj) {
-		for (var key in obj) {
-			if (key !== key.toLowerCase()) { // might already be in its lower case version
-				obj[key.toLowerCase()] = obj[key] // swap the value to a new lower case key
-				delete obj[key] // delete the old key
-			}
-			if (typeof obj[key.toLowerCase()] == 'object') {
-				setLowerCaseKeys(obj[key.toLowerCase()]);
-			}
-		}
-
-		return (obj);
-	}
-
-	function isScrolledIntoView(el) {
-		if (typeof window =='undefined' || typeof window.document == 'undefined' || window.innerHeight) {
-			true;
-		}
-
-		try {
-			var elemTop = el.getBoundingClientRect().top;
-			var elemBottom = el.getBoundingClientRect().bottom;
-		} catch (e) {
-			return true;
-		}
-
-		var isVisible = elemTop < window.innerHeight && elemBottom >= 0;
-		return isVisible;
-
-	}
-
-	/**
-	 * loader - Returns Mura.Loader
-	 *
-	 * @name loader
-	 * @return {Mura.Loader}
-	 * @memberof {class} Mura
-	 */
-	function loader() {
-		return Mura.ljs;
-	}
-
-
-	var layoutmanagertoolbar =
-			'<span class="mura-fetborder mura-fetborder-left"></span><span class="mura-fetborder mura-fetborder-right"></span><span class="mura-fetborder mura-fetborder-top"></span><span class="mura-fetborder mura-fetborder-bottom"></span><div class="frontEndToolsModal mura"><span class="mura-edit-icon"></span><span class="mura-edit-label"></span></div>';
-
-	function processMarkup(scope) {
-
-		return new Promise(function(resolve, reject) {
-			if (!(scope instanceof Mura.DOMSelection)) {
-				scope = select(scope);
-			}
-
-			function find(selector) {
-				return scope.find(selector);
-			}
-
-			var processors = [
-
-				function(){
-					//if layout manager UI exists check for rendered regions and remove them from additional regions
-					if(Mura('.mura__layout-manager__display-regions').length){
-						find('.mura-region').each(function(){
-							var region=Mura(this);
-							var isEditRegion=region.closest('.mura-region__item');
-							if(!isEditRegion.length){
-								Mura('.mura-region__item[data-regionid="' + region.data('regionid') + '"]').remove()
-							}
-						})
-
-						if(!Mura('.mura__layout-manager__display-regions .mura-region__item').length){
-							Mura('#mura-objects-openregions-btn, .mura__layout-manager__display-regions').remove();
-						}
-					}
-				},
-
-				function() {
-					find('.mura-object, .mura-async-object')
-						.each(function() {
-							processDisplayObject(this,
-								Mura.queueobjects).then(
-								resolve);
-						});
-				},
-
-				function() {
-					find(".htmlEditor").each(function(el) {
-						setHTMLEditor(this);
-					});
-				},
-
-				function() {
-					if (find(".cffp_applied,	.cffp_mm, .cffp_kp").length) {
-						var fileref = document.createElement('script')
-						fileref.setAttribute("type","text/javascript")
-						fileref.setAttribute("src", Mura.corepath + '/vendor/cfformprotect/js/cffp.js')
-
-						document.getElementsByTagName("head")[0].appendChild(fileref )
-					}
-				},
-
-				function() {
-					Mura.reCAPTCHALanguage = Mura.reCAPTCHALanguage || 'en';
-
-					if (find(".g-recaptcha").length) {
-						var fileref = document.createElement('script')
-						fileref.setAttribute("type","text/javascript");
-						fileref.setAttribute(
-							"src",
-							"https://www.recaptcha.net/recaptcha/api.js?onload=MuraCheckForReCaptcha&render=explicit&hl=" +	Mura.reCAPTCHALanguage
-						);
-
-						document.getElementsByTagName("head")[0].appendChild(fileref);
-					}
-
-					if (find(".g-recaptcha-container").length) {
-						loader().loadjs("https://www.recaptcha.net/recaptcha/api.js?onload=MuraCheckForReCaptcha&render=explicit&hl=" + Mura.reCAPTCHALanguage,
-							function() {
-								find(".g-recaptcha-container").each(function(el) {
-									var notready=0;;
-								
-									window.MuraCheckForReCaptcha=function() {
-										Mura('.g-recaptcha-container').each(function(){
-											var self=this;
-
-											if (
-												typeof grecaptcha ==	'object'
-												&& typeof grecaptcha.render != 'undefined'
-												&&	!self.innerHTML
-											) {
-
-												self
-													.setAttribute(
-														'data-widgetid',
-														grecaptcha
-														.render(
-															self.getAttribute('id'),
-															{
-																'sitekey': self.getAttribute('data-sitekey'),
-																'theme': self.getAttribute('data-theme'),
-																'type': self.getAttribute('data-type')
-															}
-														)
-													);
-											} else {
-												notready++;
-											}
-										})
-											
-										if(notready){
-											setTimeout(
-												function() {
-													window.MuraCheckForReCaptcha();
-												},
-												10
-											);
-										}
-		
-									}
-
-									window.MuraCheckForReCaptcha();
-								});
-							}
-						);
-
-					}
-				},
-
-				function() {
-					if (typeof resizeEditableObject == 'function') {
-
-						scope.closest('.editableObject').each(
-						function() {
-							resizeEditableObject(this);
-						});
-
-						find(".editableObject").each(
-						function() {
-							resizeEditableObject(this);
-						});
-
-					}
-				},
-
-				function() {
-					if (Mura.handleObjectClick == 'function') {
-						find('.mura-object, .frontEndToolsModal').on('click',Mura.handleObjectClick);
-					}
-					
-					if (typeof window !='undefined' && typeof window.document != 'undefined'	&& window.MuraInlineEditor
-							&& window.MuraInlineEditor.checkforImageCroppers) {
-							find("img").each(function() {
-									window.muraInlineEditor.checkforImageCroppers(
-											this);
-							});
-
-					}
-
-				},
-
-				function() {
-					initShadowBox(scope.node);
-				},
-
-				function() {
-					if (typeof urlparams.muraadminpreview != 'undefined') {
-						find("a").each(function() {
-							var h = this.getAttribute('href');
-							if (typeof h ==
-								'string' && h.indexOf(
-										'muraadminpreview'
-								) == -1) {
-								h = h + (h.indexOf(
-										'?') !=
-									-1 ?
-									"&muraadminpreview&mobileformat=" +
-									Mura.mobileformat :
-									"?muraadminpreview&muraadminpreview&mobileformat=" +
-									Mura.mobileformat
-								);
-								this.setAttribute('href', h);
-							}
-						});
-					}
-				}
-			];
-
-
-			for (var h = 0; h < processors.length; h++) {
-				processors[h]();
-			}
-
-		});
-
-	}
-
-	function addEventHandler(eventName, fn) {
-		if (typeof eventName == 'object') {
-			for (var h in eventName) {
-				if(eventName.hasOwnProperty(h)){
-					on(document, h, eventName[h]);
-				}
-			}
-		} else {
-			on(document, eventName, fn);
-		}
-	}
-
-
-	function submitForm(frm, obj) {
-		frm = (frm.node) ? frm.node : frm;
-
-		if (obj) {
-			obj = (obj.node) ? obj : Mura(obj);
-		} else {
-			obj = Mura(frm).closest('.mura-async-object');
-		}
-
-		if (!obj.length) {
-			Mura(frm).trigger('formSubmit', formToObject(frm));
-			frm.submit();
-		}
-
-		if (Mura.formdata	&& frm.getAttribute('enctype') == 'multipart/form-data') {
-
-			var data = new FormData(frm);
-			var checkdata = setLowerCaseKeys(formToObject(frm));
-			var keys = filterUnwantedParams(
-					deepExtend(
-						setLowerCaseKeys(obj.data()),
-						urlparams,
-						{
-						siteid: Mura.siteid,
-						contentid: Mura.contentid,
-						contenthistid: Mura.contenthistid,
-						nocache: 1
-						}
-					)
-			);
-
-			if(obj.data('siteid')){
-				keys.siteid=obj.data('siteid');
-			}
-
-			for (var k in keys) {
-				if (!(k in checkdata)) {
-					data.append(k, keys[k]);
-				}
-			}
-
-			if ('objectparams' in checkdata) {
-				data.append('objectparams2', encodeURIComponent(JSON.stringify(obj.data('objectparams'))));
-			}
-
-			if ('nocache' in checkdata) {
-				data.append('nocache', 1);
-			}
-
-			/*
-			if(data.object=='container' && data.content){
-				delete data.content;
-			}
-			*/
-
-			var postconfig = {
-				url: Mura.getAPIEndpoint() + '?method=processAsyncObject',
-				type: 'POST',
-				data: data,
-				success: function(resp) {
-					//obj=Mura('div[data-instanceid="' + obj.data('instanceid') + '"]');
-					setTimeout(function(){handleResponse(obj, resp)},0);
-				}
-			}
-
-		} else {
-
-			var data = filterUnwantedParams(
-				deepExtend(
-					setLowerCaseKeys(obj.data()),
-					urlparams,
-					setLowerCaseKeys(formToObject(frm)),
-					{
-						siteid: Mura.siteid,
-						contentid: Mura.contentid,
-						contenthistid: Mura.contenthistid,
-						nocache: 1
-					}
-				));
-			
-			if(obj.data('siteid')){
-				data.siteid=obj.data('siteid');
-			}
-
-			if (data.object == 'container' && data.content) {
-				delete data.content;
-			}
-
-			if (!('g-recaptcha-response' in data)) {
-				var reCaptchaCheck = Mura(frm).find("#g-recaptcha-response");
-
-				if (reCaptchaCheck.length && typeof reCaptchaCheck.val() != 'undefined') {
-					data['g-recaptcha-response'] = eCaptchaCheck.val();
-				}
-			}
-
-			if ('objectparams' in data) {
-				data['objectparams'] = encodeURIComponent(JSON.stringify(data['objectparams']));
-			}
-
-			var postconfig = {
-				url: Mura.getAPIEndpoint() + '?method=processAsyncObject',
-				type: 'POST',
-				data: data,
-				success: function(resp) {
-					//obj=Mura('div[data-instanceid="' + obj.data('instanceid') + '"]');
-					setTimeout(function(){handleResponse(obj, resp)},0);
-				}
-			}
-		}
-
-		var self = obj.node;
-		self.prevInnerHTML = self.innerHTML;
-		self.prevData = filterUnwantedParams(obj.data());
-
-		if(typeof self.prevData != 'undefined' && typeof self.prevData.preloadermarkup != 'undefined'){
-			self.innerHTML = self.prevData.preloadermarkup;
-		} else {
-			self.innerHTML = Mura.preloadermarkup;
-		}
-
-		Mura(frm).trigger('formSubmit', data);
-
-		ajax(postconfig);
-	}
-
-	function firstToUpperCase(str) {
-		return str.substr(0, 1).toUpperCase() + str.substr(1);
-	}
-
-	function resetAsyncObject(el,empty) {
-		var self = Mura(el);
-
-		function clearAttrs(obj){
-			obj.removeClass('mura-active');
-			obj.removeAttr('data-perm');
-			obj.removeAttr('data-runtime');
-			obj.removeAttr('draggable');
-			obj.removeAttr('style');
-			obj.removeAttr('data-inited');
-			obj.removeAttr('data-startrow');
-			obj.removeAttr('data-pagenum');
-			obj.removeAttr('data-nextnid');
-			obj.removeAttr('data-origininstanceid');
-		}
-		
-		if(self.data('transient')){
-			self.remove();
-		} else { 
-		
-			if(typeof empty =='undefined'){
-				empty=true;
-			}
-			
-			clearAttrs(self);
-
-			var data=self.data();
-
-			for(var p in data){
-				if(data.hasOwnProperty(p) && (typeof p == 'undefined' || data[p] === '')){
-					self.removeAttr('data-' + p);
-				}
-			}
-			
-			if(typeof Mura.displayObjectInstances[self.data('instanceid')] != 'undefined'){
-				Mura.displayObjectInstances[self.data('instanceid')].reset(self,empty);
-			}
-
-			if(empty){
-				self.html('');
-			}
-		}
-	}
-
-	function processAsyncObject(el,usePreloaderMarkup) {
-			var obj = Mura(el);
-			if (obj.data('async') === null) {
-					obj.data('async', true);
-			}
-
-			if(typeof usePreloaderMarkup == 'undefined'){
-				usePreloaderMarkup=true;
-			}
-
-			return processDisplayObject(obj, false, true,false,usePreloaderMarkup);
-	}
-
-	function filterUnwantedParams(params){
-
-		//Strip out unwanted attributes
-		var unwanted=['iconclass','objectname','inited','params','stylesupport','cssstyles','metacssstyles','contentcssstyles',
-			'cssclass','cssid','metacssclass','metacssid','contentcssclass','contentcssid','transient','draggable'];
-
-		for(var c=0; c<unwanted.length;c++){
-			delete params[unwanted[c]];
-		}
-
-		return params;
-	}
-
-	function destroyDisplayObjects(){
-		for (var property in Mura.displayObjectInstances) {
-			if (Mura.displayObjectInstances.hasOwnProperty(property)) {
-				var obj=Mura.displayObjectInstances[property];
-				if(typeof obj.destroy == 'function'){
-					obj.destroy();
-				}
-				delete Mura.displayObjectInstances[property];
-			}
-		}
-	}
-
-	function destroyModules(){
-		destroyDisplayObjects();
-	}
-
-	function wireUpObject(obj, response, attempt) {
-
-		attempt= attempt || 0;
-		attempt++;
-
-		obj = (obj.node) ? obj : Mura(obj);
-
-		obj.data('inited', true);
-
-		if (response) {
-			if (typeof response == 'string') {
-				obj.html(trim(response));
-			} else if (typeof response.html == 'string' && response.render != 'client') {
-				obj.html(trim(response.html));
-			} else {
-				var context = filterUnwantedParams(deepExtend(obj.data(), response));
-				var template = obj.data('clienttemplate') || obj.data('object');
-				var properNameCheck = firstToUpperCase(template);
-
-				if (typeof Mura.DisplayObject[properNameCheck] != 'undefined') {
-					template = properNameCheck;
-				}
-
-				if (typeof context.async != 'undefined') {
-					obj.data('async', context.async);
-				}
-
-				if (typeof context.render != 'undefined') {
-					obj.data('render', context.render);
-				}
-
-				if (typeof context.rendertemplate != 'undefined') {
-					obj.data('rendertemplate', context.rendertemplate);
-				}
-
-				if (typeof Mura.DisplayObject[template] != 'undefined') {
-					context.html = '';
-					if(typeof Mura.displayObjectInstances[obj.data('instanceid')] != 'undefined'){
-						Mura.displayObjectInstances[obj.data('instanceid')].destroy();
-					}
-					obj.html(Mura.templates.content({html:''}));
-					obj.prepend(Mura.templates.meta(context));
-					context.targetEl = obj.children('.mura-object-content').node;
-					Mura.displayObjectInstances[obj.data('instanceid')]=new Mura.DisplayObject[template](context);
-					Mura.displayObjectInstances[obj.data('instanceid')].trigger('beforeRender');
-					Mura.displayObjectInstances[obj.data('instanceid')].renderClient();
-				} else if (typeof Mura.templates[template] !=	'undefined') {
-					context.html = '';
-					obj.html(Mura.templates.content(context));
-					obj.prepend(Mura.templates.meta(context));
-					context.targetEl = obj.children('.mura-object-content').node;
-					Mura.templates[template](context);
-				} else {
-					if(attempt < 1000){
-						setTimeout(
-							function(){
-									wireUpObject(obj,response,attempt);
-							},
-							1
-						);
-					} else {
-						console.log('Missing Client Template for:');
-						console.log(obj.data());
-					}
-				}
-			}
-		} else {
-			var context = filterUnwantedParams(obj.data());
-			var template = obj.data('clienttemplate') || obj.data('object');
-			var properNameCheck = firstToUpperCase(template);
-
-			if (typeof Mura.DisplayObject[properNameCheck] !=	'undefined') {
-				template = properNameCheck;
-			}
-
-			if (typeof Mura.DisplayObject[template] == 'function') {
-				context.html = '';
-				if(typeof Mura.displayObjectInstances[obj.data('instanceid')] != 'undefined'){
-					Mura.displayObjectInstances[obj.data('instanceid')].destroy();
-				}
-				obj.html(Mura.templates.content({html:''}));
-				obj.prepend(Mura.templates.meta(context));
-				context.targetEl = obj.children('.mura-object-content').node;
-				Mura.displayObjectInstances[obj.data('instanceid')]=new Mura.DisplayObject[template](context);
-				Mura.displayObjectInstances[obj.data('instanceid')].trigger('beforeRender');
-				Mura.displayObjectInstances[obj.data('instanceid')].renderClient();
-			} else if (typeof Mura.templates[template] !=	'undefined') {
-				context.html = '';
-				obj.html(Mura.templates.content(context));
-				obj.prepend(Mura.templates.meta(context));
-				context.targetEl = obj.children('.mura-object-content').node;
-				Mura.templates[template](context);
-			} else {
-				if(attempt < 1000){
-					setTimeout(
-						function(){
-							wireUpObject(obj,response,attempt);
-						},
-						1
-					);
-				} else {
-					console.log('Missing Client Template for:');
-					console.log(obj.data());
-				}
-			}
-		}
-
-		obj.calculateDisplayObjectStyles();
-
-		obj.hide().show();
-
-		if (Mura.layoutmanager && Mura.editing) {
-			if (obj.hasClass('mura-body-object') || obj.is('div.mura-object[data-targetattr]')) {
-				obj.children('.frontEndToolsModal').remove();
-				obj.prepend(Mura.layoutmanagertoolbar);
-				if(obj.data('objectname')){
-					obj.children('.frontEndToolsModal').children('.mura-edit-label').html(obj.data('objectname'));
-				} else {
-					obj.children('.frontEndToolsModal').children('.mura-edit-label').html(Mura.firstToUpperCase(obj.data('object')));
-				}
-				if(obj.data('objecticonclass')){
-					obj.children('.frontEndToolsModal').children('.mura-edit-label').addClass(obj.data('objecticonclass'));
-				}
-
-				MuraInlineEditor.setAnchorSaveChecks(obj.node);
-
-				obj.addClass('mura-active')
-					.hover(
-						Mura.initDraggableObject_hoverin,
-						Mura.initDraggableObject_hoverin
-					);
-			} else {
-				if (Mura.type == 'Variation') {
-					var objectData = obj.data();
-					if (MuraInlineEditor && (MuraInlineEditor.objectHasConfigurator(obj) || (!Mura.layoutmanager && MuraInlineEditor.objectHasEditor(objectData)))) {
-						obj.children('.frontEndToolsModal').remove();
-						obj.prepend(Mura.layoutmanagertoolbar);
-						if(obj.data('objectname')){
-							obj.children('.frontEndToolsModal').children('.mura-edit-label').html(obj.data('objectname'));
-						} else {
-							obj.children('.frontEndToolsModal').children('.mura-edit-label').html(Mura.firstToUpperCase(obj.data('object')));
-						}
-						if(obj.data('objecticonclass')){
-							obj.children('.frontEndToolsModal').children('.mura-edit-label').addClass(obj.data('objecticonclass'));
-						}
-
-						MuraInlineEditor.setAnchorSaveChecks(obj.node);
-
-						obj.off('click',Mura.handleObjectClick).on('click',Mura.handleObjectClick);
-							
-						obj.find("img").each(function(){MuraInlineEditor.checkforImageCroppers(this);});
-						
-						obj
-							.addClass('mura-active')
-							.hover(
-								function(e) {
-									e.stopPropagation();
-									Mura('.mura-active-target').removeClass('mura-active-target');
-									Mura(this).addClass('mura-active-target');
-								},
-								function(e) {
-									e.stopPropagation();
-									Mura(this).removeClass('mura-active-target');
-								}
-							);
-
-						Mura.initDraggableObject(obj.node);
-					}
-				} else {
-					var lcaseObject=obj.data('object');
-					if(typeof lcaseObject=='string'){
-						lcaseObject=lcaseObject.toLowerCase();
-					}
-					var region = Mura(obj.node).closest(".mura-region-local");
-					if (region && region.length) {
-						if (region.data('perm')) {
-							var objectData = obj.data();
-
-							if (MuraInlineEditor && (MuraInlineEditor.objectHasConfigurator(obj) || (!Mura.layoutmanager && MuraInlineEditor.objectHasEditor(objectData)))) {
-								obj.children('.frontEndToolsModal').remove();
-								obj.prepend(Mura.layoutmanagertoolbar);
-								if(obj.data('objectname')){
-									obj.children('.frontEndToolsModal').children('.mura-edit-label').html(obj.data('objectname'));
-								} else {
-									obj.children('.frontEndToolsModal').children('.mura-edit-label').html(Mura.firstToUpperCase(obj.data('object')));
-								}
-								if(obj.data('objecticonclass')){
-									obj.children('.frontEndToolsModal').children('.mura-edit-label').addClass(obj.data('objecticonclass'));
-								}
-
-								obj.off('click',Mura.handleObjectClick).on('click',Mura.handleObjectClick);
-							
-								obj.find("img").each(function(){MuraInlineEditor.checkforImageCroppers(this);});
-
-								MuraInlineEditor.setAnchorSaveChecks(obj.node);
-
-								obj
-									.addClass('mura-active')
-									.hover(
-										function(e) {
-											e.stopPropagation();
-											Mura('.mura-active-target').removeClass('mura-active-target');
-											Mura(this).addClass('mura-active-target');
-										},
-										function(e) {
-											e.stopPropagation();
-											Mura(this).removeClass('mura-active-target');
-										}
-									);
-
-								Mura.initDraggableObject(obj.node);
-							}
-						}
-					} else if (lcaseObject=='form' || lcaseObject=='component'){
-
-						if(obj.data('perm')){
-							var objectData=obj.data();
-							if(window.MuraInlineEditor.objectHasConfigurator(obj) || (!window.Mura.layoutmanager && window.MuraInlineEditor.objectHasEditor(objectData)) ){
-								obj.addClass('mura-active');
-								obj.hover(
-									Mura.initDraggableObject_hoverin,
-									Mura.initDraggableObject_hoverout
-								);
-								obj.data('notconfigurable',true);
-								obj.children('.frontEndToolsModal').remove();
-								obj.prepend(Mura.layoutmanagertoolbar);
-								if(obj.data('objectname')){
-									obj.children('.frontEndToolsModal').children('.mura-edit-label').html(obj.data('objectname'));
-								} else {
-									obj.children('.frontEndToolsModal').children('.mura-edit-label').html(Mura.firstToUpperCase(obj.data('object')));
-								}
-								if(obj.data('objecticonclass')){
-									obj.children('.frontEndToolsModal').children('.mura-edit-label').addClass(obj.data('objecticonclass'));
-								}
-								
-								obj.off('click',Mura.handleObjectClick).on('click',Mura.handleObjectClick);
-							
-								obj.find("img").each(function(){MuraInlineEditor.checkforImageCroppers(this);});
-
-								obj
-									.addClass('mura-active')
-									.hover(
-										function(e) {
-											//e.stopPropagation();
-											Mura('.mura-active-target').removeClass('mura-active-target');
-											Mura(this).addClass('mura-active-target');
-										},
-										function(e) {
-											//e.stopPropagation();
-											Mura(this).removeClass('mura-active-target');
-										}
-									);
-							}
-						}
-					}
-				}
-			}
-		}
-
-		obj.hide().show();
-		
-		if(obj.data('object') != 'container' || obj.data('content')){
-			processMarkup(obj.node);
-		}
-		if(obj.data('object') != 'container'){
-			obj.find('a[href="javascript:history.back();"]').each(function() {
-				Mura(this).off("click").on("click", function(e) {
-					if (obj.node.prevInnerHTML) {
-						e.preventDefault();
-						wireUpObject(obj, obj.node.prevInnerHTML);
-
-						if (obj.node.prevData) {
-							for (var p in obj.node.prevData) {
-								select('[name="' + p + '"]').val(obj.node.prevData[p]);
-							}
-						}
-						obj.node.prevInnerHTML = false;
-						obj.node.prevData = false;
-					}
-				});
-			});
-			
-			obj.find('form').each(function() {
-				var form = Mura(this);
-				if(form.closest('.mura-object').data('instanceid')==obj.data('instanceid')) {		
-					if(form.data('async') || !(form.hasData('async') &&
-						!form.data('async')) && !(form.hasData(
-						'autowire') && !form.data('autowire')) && !
-						form.attr('action') && !form.attr('onsubmit') &&
-						!form.attr('onSubmit')) {
-						form.on('submit', function(e) {
-							e.preventDefault();
-							validateForm(this,
-								function(frm) {
-									submitForm(frm,obj);
-								}
-							);
-
-							return false;
-						});
-					}
-				}
-			});
-		}
-		obj.trigger('asyncObjectRendered');
-
-	}
-
-	function handleResponse(obj, resp) {
-		obj = (obj.node) ? obj : Mura(obj);
-
-		// handle HTML response
-		resp = (!resp.data) ? {
-			data: resp
-		} : resp;
-
-		if (typeof resp.data.redirect != 'undefined') {
-			if (resp.data.redirect && resp.data.redirect != location.href) {
-				location.href = resp.data.redirect;
-			} else {
-				location.reload(true);
-			}
-		} else if (resp.data.apiEndpoint) {
-			ajax({
-				type: "POST",
-				xhrFields: {
-						withCredentials: true
-				},
-				crossDomain: true,
-				url: resp.data.apiEndpoint,
-				data: resp.data,
-				success: function(data) {
-						if (typeof data == 'string') {
-								wireUpObject(obj, data);
-						} else if (typeof data == 'object' &&
-								'html' in data) {
-								wireUpObject(obj, data.html);
-						} else if (typeof data == 'object' &&
-								'data' in data && 'html' in data.data
-						) {
-								wireUpObject(obj, data.data.html);
-						} else {
-								wireUpObject(obj, data.data);
-						}
-				}
-			});
-		} else {
-			wireUpObject(obj, resp.data);
-		}
-	}
-
-	function processDisplayObject(el, queue, rerender, resolveFn, usePreloaderMarkup) {
-		try{
-			var obj = (el.node) ? el : Mura(el);
-
-			if (obj.data('queue') != null) {
-				queue = obj.data('queue');
-
-				if(typeof queue == 'string'){
-					queue=queue.toLowerCase();
-					if(queue=='no' || queue=='false'){
-						queue=false;
-						obj.data('queue',false);
-					} else {
-						queue=true;
-						obj.data('queue',true);
-					}
-				}
-			}
-
-			var rendered = (rerender && !obj.data('async')) ? false : obj.children('.mura-object-content').length
-
-			queue = (queue == null || rendered) ? false : queue;
-			
-			if (document.createEvent && queue && !isScrolledIntoView(obj.node)) {
-				if (!resolveFn) {
-					return new Promise(function(resolve, reject) {
-
-						resolve = resolve || function() {};
-
-						setTimeout(
-							function() {
-								processDisplayObject(obj.node, true, false, resolve, usePreloaderMarkup);
-							}, 10
-						);
-					});
-				} else {
-					setTimeout(
-						function() {
-							var resp = processDisplayObject(obj.node, true, false, resolveFn, usePreloaderMarkup);
-							if (typeof resp == 'object' && typeof resolveFn == 'function') {
-								resp.then(resolveFn);
-							}
-						}, 10
-					);
-
-					return;
-				}
-			}
-
-			if (!obj.node.getAttribute('data-instanceid')) {
-				obj.node.setAttribute('data-instanceid', createUUID());
-			}
-
-			//if(obj.data('async')){
-			obj.addClass("mura-async-object");
-			//}
-
-			if (rendered && !obj.data('async')) {
-				
-				return new Promise(function(resolve, reject) {
-
-					obj.calculateDisplayObjectStyles();
-
-					if(!rerender && obj.data('render')=='client' && obj.children('.mura-object-content').length){
-						
-						var context=filterUnwantedParams(obj.data());
-						if(typeof context.instanceid != 'undefined' && typeof Mura.hydrationData[context.instanceid] != 'undefined'){
-							Mura.extend(context,Mura.hydrationData[context.instanceid]);
-						}
-						var template=obj.data('clienttemplate') || obj.data('object');
-						var properNameCheck = firstToUpperCase(template);
-
-						if (typeof Mura.DisplayObject[properNameCheck] != 'undefined') {
-							template = properNameCheck;
-						}
-
-						if(typeof Mura.DisplayObject[template] != 'undefined'){
-							context.targetEl = obj.children('.mura-object-content').node;
-							Mura.displayObjectInstances[obj.data('instanceid')]=new Mura.DisplayObject[template](context);
-							Mura.displayObjectInstances[obj.data('instanceid')].trigger('beforeRender');
-							Mura.displayObjectInstances[obj.data('instanceid')].hydrate();
-						} else {
-							console.log('Missing Client Template for:');
-							console.log(obj.data());
-						}
-						obj.data('inited',true);
-					}
-
-					obj.find('form').each(function() {
-						var form = Mura(this);
-						if(form.closest('.mura-object').data('instanceid')==obj.data('instanceid')) {
-							if(form.data('async')
-								|| !(form.hasData('async')
-								&& !form.data('async'))
-								&& !(form.hasData('autowire')
-								&& !form.data('autowire'))
-								&& !form.attr('action')
-								&& !form.attr('onsubmit')
-								&& !form.attr('onSubmit')) {
-									form.on('submit', function(e) {
-										e.preventDefault();
-										validateForm(this,
-											function(frm) {
-												submitForm(frm,obj);
-											}
-										);
-
-										return false;
-									});
-							}
-						}
-					});
-		
-					if (typeof resolve == 'function') {
-						resolve(obj);
-					}
-
-				});
-			}
-		
-			return new Promise(function(resolve, reject) {
-				
-				var data = deepExtend(setLowerCaseKeys(obj.data()),
-					urlparams, {
-						siteid: Mura.siteid,
-						contentid: Mura.contentid,
-						contenthistid: Mura.contenthistid
-					});
-				
-				if (obj.data('siteid')) {
-					data.siteid = obj.node.getAttribute('data-siteid');
-				}
-
-				if (obj.data('contentid')) {
-					data.contentid = obj.node.getAttribute('data-contentid');
-				}
-
-				if (obj.data('contenthistid')) {
-					data.contenthistid = obj.node.getAttribute('data-contenthistid');
-				}
-
-				if ('objectparams' in data) {
-					data['objectparams'] = encodeURIComponent(JSON.stringify(data['objectparams']));
-				}
-
-				if (!obj.data('async') && obj.data('render') == 'client') {
-					wireUpObject(obj);
-					if (typeof resolve == 'function') {
-						if(typeof resolve.call == 'undefined'){
-							resolve(obj);
-						} else {
-							resolve.call(obj.node, obj);
-						}
-					}
-				} else {
-					//console.log(data);
-					if(usePreloaderMarkup){
-						if(typeof data.preloadermarkup != 'undefined'){
-							obj.node.innerHTML = data.preloadermarkup;
-							delete data.preloadermarkup;
-						} else {
-							obj.node.innerHTML = Mura.preloadermarkup;
-						}
-					}
-
-					var requestType='get';
-					var requestData=filterUnwantedParams(data);
-					var postCheck=new RegExp(/<\/?[a-z][\s\S]*>/i);
-
-					for(var p in requestData){
-						if(requestData.hasOwnProperty(p) 
-							&& requestData[p]
-							&& postCheck.test(requestData[p])
-						){
-							requestType='post';
-							break;
-						}
-					}
-				
-					ajax({
-						url: Mura.getAPIEndpoint() + '?method=processAsyncObject',
-						type: requestType,
-						data: requestData,
-						success: function(resp) {
-							//obj=Mura('div[data-instanceid="' + obj.data('instanceid') + '"]');
-							setTimeout(function(){
-								handleResponse(obj, resp)
-								if (typeof resolve =='function') {
-									if(typeof resolve.call == 'undefined'){
-										resolve(obj);
-									} else {
-										resolve.call(obj.node, obj);
-									}
-								}
-							},0)
-						}
-							
-					});
-				}
-
-			});
-		} catch (e){
-			console.error(e);
-			if (typeof resolve == 'function') {
-				resolve(obj);
-			}
-		}
-
-	}
-
-	function processModule(el, queue, rerender, resolveFn, usePreloaderMarkup) {
-		return processDisplayObject(el, queue, rerender, resolveFn, usePreloaderMarkup);
-	}
-
-	var hashparams = {};
-	var urlparams = {};
-
-	function handleHashChange() {
-
-		if(typeof location != 'undefined'){
-			var hash = location.hash;
-		} else {
-			var hash = '';
-		}
-
-		if (hash) {
-			hash = hash.substring(1);
-		}
-
-		if (hash) {
-			hashparams = getQueryStringParams(hash);
-			if (hashparams.nextnid) {
-				Mura('.mura-async-object[data-nextnid="' + hashparams.nextnid + '"]')
-					.each(function() {
-						Mura(this).data(hashparams);
-						processAsyncObject(this);
-				});
-			} else if (hashparams.objectid) {
-				Mura('.mura-async-object[data-objectid="' + hashparams.objectid + '"]')
-				.each(function() {
-						Mura(this).data(hashparams);
-						processAsyncObject(this);
-				});
-			}
-		}
-		
-	}
-
-	/**
-	 * trim - description
-	 *
-	 * @param	{string} str Trims string
-	 * @return {string}		 Trimmed string
-	 * @memberof {class} Mura
-	 */
-	function trim(str) {
-		return str.replace(/^\s+|\s+$/gm, '');
-	}
-
-
-	function extendClass(baseClass, subClass) {
-		var muraObject = function() {
-			this.init.apply(this, arguments);
-		}
-
-		muraObject.prototype = Object.create(baseClass.prototype);
-		muraObject.prototype.constructor = muraObject;
-		muraObject.prototype.handlers = {};
-
-		muraObject.reopen = function(subClass) {
-				Mura.extend(muraObject.prototype, subClass);
-		};
-
-		muraObject.reopenClass = function(subClass) {
-			Mura.extend(muraObject, subClass);
-		};
-
-		muraObject.on = function(eventName, fn) {
-			eventName = eventName.toLowerCase();
-
-			if (typeof muraObject.prototype.handlers[eventName] == 'undefined') {
-				muraObject.prototype.handlers[eventName] = [];
-			}
-
-			if (!fn) {
-				return muraObject;
-			}
-
-			for (var i = 0; i < muraObject.prototype.handlers[eventName].length; i++) {
-				if (muraObject.prototype.handlers[eventName][i] == handler) {
-					return muraObject;
-				}
-			}
-
-
-			muraObject.prototype.handlers[eventName].push(fn);
-			return muraObject;
-		};
-
-		muraObject.off = function(eventName, fn) {
-			eventName = eventName.toLowerCase();
-
-			if (typeof muraObject.prototype.handlers[eventName] =='undefined') {
-				muraObject.prototype.handlers[eventName] = [];
-			}
-
-			if (!fn) {
-				muraObject.prototype.handlers[eventName] = [];
-				return muraObject;
-			}
-
-			for (var i = 0; i < muraObject.prototype.handlers[
-				eventName].length; i++) {
-				if (muraObject.prototype.handlers[eventName][i] ==handler) {
-					muraObject.prototype.handlers[eventName].splice(i, 1);
-				}
-			}
-			return muraObject;
-		}
-
-		Mura.extend(muraObject.prototype, subClass);
-
-		return muraObject;
-	}
-
-
-	/**
-	 * getQueryStringParams - Returns object of params in string
-	 *
-	 * @name getQueryStringParams
-	 * @param	{string} queryString Query String
-	 * @return {object}
-	 * @memberof {class} Mura
-	 */
-	function getQueryStringParams(queryString) {
-
-		if(typeof location == 'undefined'){
-			return {};
-		}
-
-		queryString = queryString || location.search;
-		var params = {};
-		var e,
-			a = /\+/g, // Regex for replacing addition symbol with a space
-			r = /([^&;=]+)=?([^&;]*)/g,
-			d = function(s) {
-					return decodeURIComponent(s.replace(a, " "));
-			};
-
-		if (queryString.substring(0, 1) == '?') {
-			var q = queryString.substring(1);
-		} else {
-			var q = queryString;
-		}
-
-
-		while (e = r.exec(q))
-			params[d(e[1]).toLowerCase()] = d(e[2]);
-
-		return params;
-	}
-
-	/**
-	 * getHREFParams - Returns object of params in string
-	 *
-	 * @name getHREFParams
-	 * @param	{string} href
-	 * @return {object}
-	 * @memberof {class} Mura
-	 */
-	function getHREFParams(href) {
-		var a = href.split('?');
-
-		if (a.length == 2) {
-			return getQueryStringParams(a[1]);
-		} else {
-			return {};
-		}
-	}
-
-	function inArray(elem, array, i) {
-		var len;
-		if (array) {
-			if (array.indexOf) {
-				return array.indexOf.call(array, elem, i);
-			}
-			len = array.length;
-			i = i ? i < 0 ? Math.max(0, len + i) : i : 0;
-			for (; i < len; i++) {
-				// Skip accessing in sparse arrays
-				if (i in array && array[i] === elem) {
-					return i;
-				}
-			}
-		}
-		return -1;
-	}
-
-	/**
-	 * getStyleSheet - Returns a stylesheet object;
-	 *
-	 * @param	{string} id Text string
-	 * @return {object}						Self
-	 */
-	function getStyleSheet(id) {
-		var sheet=Mura('#' + id);
-		if(sheet.length){
-			return sheet.get(0).sheet;
-		} else {
-			Mura('HEAD').append('<style id="' + id +'" type="text/css"></style>');
-			return Mura('#' + id).get(0).sheet;
-		}
-	}
-
-	/**
-	 * setRequestHeader - Initialiazes feed
-	 *
-	 * @name setRequestHeader
-	 * @param	{string} headerName	Name of header
-	 * @param	{string} value Header value
-	 * @return {Mura.RequestContext} Self
-	 * @memberof {class} Mura
-	 */
-	function setRequestHeader(headerName,value){
-		Mura.requestHeaders[headerName]=value;
-		return this;
-	}
-
-	/**
-	 * getRequestHeader - Returns a request header value
-	 *
-	 * @name getRequestHeader
-	 * @param	{string} headerName	Name of header
-	 * @return {string} header Value
-	 * @memberof {class} Mura
-	 */
-	 function getRequestHeader(headerName){
-			if(typeof Mura.requestHeaders[headerName] != 'undefined'){
-				return Mura.requestHeaders[headerName];
-			} else {
-				return null;
-			}
-	 }
-
-	/**
-	 * getRequestHeaders - Returns a request header value
-	 *
-	 * @name getRequestHeaders
-	 * @return {object} All Headers
-	 * @memberof {class} Mura
-	 */
-	 function getRequestHeaders(){
-		 return Mura.requestHeaders;
-	 }
-
-	//http://werxltd.com/wp/2010/05/13/javascript-implementation-of-javas-string-hashcode-method/
-
-	/**
-	 * hashCode - description
-	 *
-	 * @name hashCode
-	 * @param	{string} s String to hash
-	 * @return {string}
-	 * @memberof {class} Mura
-	 */
-	function hashCode(s) {
-		var hash = 0,
-			strlen = s.length,
-			i, c;
-
-		if (strlen === 0) {
-			return hash;
-		}
-		for (i = 0; i < strlen; i++) {
-			c = s.charCodeAt(i);
-			hash = ((hash << 5) - hash) + c;
-			hash = hash & hash; // Convert to 32bit integer
-		}
-		return (hash >>> 0);
-	}
-
-	/**
-	 * Returns if the current request s running in Node.js
-	**/
-	function isInNode(){
-		return typeof process !== 'undefined' && {}.toString.call(process) === '[object process]' || typeof document =='undefined';
-	}
-
-	/**
-	 * Global Request Headers
-	**/
-	var requestHeaders={};
-
-	function getBreakpoint(){
-		if(typeof document != 'undefined'){
-			var width=document.documentElement.clientWidth;
-			
-			if(Mura.editing){
-				width=width-300;
-			}
-		
-			if(width >=1200){
-				return 'lg';
-			} else if(width >=992){
-				return 'md';
-			} else if(width >=769){
-				return 'sm';
-			} else {
-				return 'xs';
-			}
-		} else {
-			return '';
-		}
-	}
-
-	function throttle (func, interval) {
-		var timeout;
-		return function() {
-		  var context = this, args = arguments;
-		  var later = function () {
-			timeout = false;
-		  };
-		  if (!timeout) {
-			func.apply(context, args)
-			timeout = true;
-			setTimeout(later, interval)
-		  }
-		}
-	}
-
-	function debounce (func, interval) {
-		var timeout;
-		return function () {
-		  var context = this, args = arguments;
-		  var later = function () {
-			timeout = null;
-			func.apply(context, args);
-		  };
-		  clearTimeout(timeout);
-		  timeout = setTimeout(later, interval || 200);
-		}
-	  }
-
-	function getAPIEndpoint(){
-		if(Mura.apiendpoint){
-			Mura.apiEndpoint=Mura.apiendpoint;
-			delete Mura.apiendpoint;
-			if(Mura.mode.toLowerCase()=='rest'){
-				Mura.apiEndpoint=Mura.apiEndpoint.replace('/json/', '/rest/');
-			}
-		} 
-		return Mura.apiEndpoint;
-	}
-	  
-	//Mura.init
-	function init(config) {
-
-		if(typeof config.content != 'undefined'){
-			if(typeof config.content.get == 'undefined'){
-				config.content=getEntity('content').set(config.content);
-			}
-			Mura.extend(config,config.content.get('config'));
-			
-		}
-
-		if (config.rootpath) {
-			config.context = config.rootpath;
-		}
-
-		if (config.endpoint) {
-			config.context = config.endpoint;
-		}
-
-		if (!config.context) {
-			config.context = '';
-		}
-
-		if (!config.rootpath) {
-			config.rootpath = config.context;
-		}
-
-		if (!config.assetpath) {
-			config.assetpath = config.context + "/sites/" + config.siteid;
-		}
-
-		if (!config.siteassetpath) {
-			config.siteassetpath = config.assetpath;
-		}
-
-		if (!config.fileassetpath) {
-			config.fileassetpath = config.assetpath;
-		}
-
-		if (config.apiendpoint) {
-			config.apiEndpoint = config.apiendpoint;
-			delete config.apiendpoint;
-		}
-
-		if (!config.apiEndpoint) {
-			config.apiEndpoint = config.context +	'/index.cfm/_api/json/v1/' + config.siteid + '/';
-		}
-
-		if(config.apiEndpoint.indexOf('/_api/') == -1){
-			config.apiEndpoint = config.apiEndpoint + '/index.cfm/_api/json/v1/' + config.siteid + '/'
-		}
-
-		if (!config.pluginspath) {
-			config.pluginspath = config.context + '/plugins';
-		}
-
-		if (!config.corepath) {
-			config.corepath = config.context + '/core';
-		}
-
-		if (!config.jslib) {
-			config.jslib = 'jquery';
-		}
-
-		if (!config.perm) {
-			config.perm = 'none';
-		}
-
-		if (typeof config.layoutmanager == 'undefined') {
-			config.layoutmanager = false;
-		}
-
-		if (typeof config.mobileformat == 'undefined') {
-			config.mobileformat = false;
-		}
-		
-		if (typeof config.queueObjects != 'undefined') {
-			config.queueobjects=config.queueObjects;
-			delete config.queueobjects;
-		}
-		
-		if (typeof config.queueobjects == 'undefined') {
-			config.queueobjects = true;
-		}
-
-		if (typeof config.rootdocumentdomain != 'undefined' && config.rootdocumentdomain != '') {
-			document.domain = config.rootdocumentdomain;
-		}
-
-		if (typeof config.preloaderMarkup != 'undefined') {
-			config.preloadermarkup=config.preloaderMarkup;
-			delete config.preloaderMarkup;
-		}
-
-		if (typeof config.preloadermarkup == 'undefined') {
-			config.preloadermarkup = '';
-		}
-
-		if (typeof config.rb == 'undefined') {
-			config.rb={};
-		}
-
-		if (typeof config.dtExample != 'undefined') {
-			config.dtexample=config.dtExample;
-			delete config.dtExample;
-		}
-
-		if (typeof config.dtexample == 'undefined') {
-			config.dtexample="11/10/2021";
-		}
-
-		if (typeof config.dtCh != 'undefined') {
-			config.dtch=config.dtCh;
-			delete config.dtCh;
-		}
-
-		if (typeof config.dtch == 'undefined') {
-			config.dtch="/";
-		}
-
-		if (typeof config.dtFormat != 'undefined') {
-			config.dtformat=config.dtFormat;
-			delete config.dtFormat;
-		}
-
-		if (typeof config.dtformat == 'undefined') {
-			config.dtformat=[0,1,2];
-		}
-
-		if (typeof config.dtLocale != 'undefined') {
-			config.dtlocale=config.dtLocale;
-			delete config.dtLocale;
-		}
-
-		if (typeof config.dtlocale == 'undefined') {
-			config.dtlocale="en-US";
-		}
-
-		if (typeof config.useHTML5DateInput != 'undefined') {
-			config.usehtml5dateinput=config.useHTML5DateInput;
-			delete config.usehtml5dateinput;
-		}
-
-		if (typeof config.usehtml5dateinput == 'undefined') {
-			config.usehtml5dateinput=false;
-		}
-
-		if (typeof config.cookieConsentEnabled != 'undefined') {
-			config.cookieconsentenabled=config.cookieConsentEnabled;
-			delete config.cookieConsentEnabled;
-		}
-
-		if (typeof config.cookieconsentenabled == 'undefined') {
-			config.cookieconsentenabled=false;
-		}
-
-		config.formdata=(typeof FormData != 'undefined') ? true : false;
-
-
-		var initForDataOnly=false;
-
-		if(typeof config.processMarkup != 'undefined'){
-			initForDataOnly=typeof config.processMarkup != 'function' && !config.processMarkup;
-			delete config.processMarkup;
-		} else if(typeof config.processmarkup != 'undefined'){
-			initForDataOnly=typeof config.processmarkup != 'function' && !config.processmarkup;
-			delete config.processmarkup;
-		}
-
-		extend(Mura, config);
-
-		Mura.trackingMetadata={};
-		Mura.hydrationData={}
-
-		if(typeof config.content != 'undefined' && typeof config.content.get != 'undefined'  && config.content.get('displayregions')){
-			for(var r in config.content.properties.displayregions){
-				if( config.content.properties.displayregions.hasOwnProperty(r)){
-					var data=config.content.properties.displayregions[r];
-					if(typeof data.inherited != 'undefined' && typeof data.inherited.items != 'undefined'){
-						for(var d in data.inherited.items){
-							Mura.hydrationData[data.inherited.items[d].instanceid]=data.inherited.items[d];
-						}
-					}
-					if(typeof data.local != 'undefined' && typeof data.local.items != 'undefined'){
-						for(var d in data.local.items){
-							Mura.hydrationData[data.local.items[d].instanceid]=data.local.items[d];
-						}
-					}
-				}
-			}
-		}
-
-		Mura.dateformat=generateDateFormat();
-
-		if(Mura.mode.toLowerCase()=='rest'){
-			Mura.apiEndpoint=Mura.apiEndpoint.replace('/json/', '/rest/');
-		}
-
-		if(typeof XMLHttpRequest == 'undefined'
-			&& typeof Mura.request != 'undefined'
-			&& typeof Mura.response != 'undefined'){
-
-			Mura._requestcontext=Mura.getRequestContext(Mura.request,Mura.response);
-		} else {
-			Mura._requestcontext=Mura.getRequestContext();
-		}
-
-		if(typeof window !='undefined' &&typeof window.document != 'undefined'){
-			if(Array.isArray(window.queuedMuraCmds) && window.queuedMuraCmds.length){
-				holdingQueue=window.queuedMuraCmds.concat(holdingQueue);
-				window.queuedMuraCmds=[];
-			}
-
-			if(Array.isArray(window.queuedMuraPreInitCmds) && window.queuedMuraPreInitCmds.length){
-				holdingPreInitQueue=window.queuedMuraPreInitCmds.concat(holdingPreInitQueue);
-				window.queuedMuraPreInitCmds=[];
-			}
-		}
-
-		if(!initForDataOnly){
-
-			destroyDisplayObjects();
-
-			Mura(function() {
-				for(var cmd in holdingPreInitQueue){
-					if(typeof holdingPreInitQueue[cmd] == 'function'){
-						holdingPreInitQueue[cmd](Mura);
-					} else {
-						console.log("PreInit queue item not a function");
-						console.log(holdingPreInitQueue[cmd]);
-					}
-				}
-
-				if(typeof window !='undefined' && typeof window.document != 'undefined'){
-				
-					var hash = location.hash;
-
-					if (hash) {
-						hash = hash.substring(1);
-					}
-
-					urlparams = setLowerCaseKeys(getQueryStringParams(location.search));
-					
-					if (hashparams.nextnid) {
-						Mura('.mura-async-object[data-nextnid="' +
-							hashparams.nextnid + '"]').each(
-							function() {
-								Mura(this).data(hashparams);
-							});
-					} else if (hashparams.objectid) {
-						Mura('.mura-async-object[data-nextnid="' +hashparams.objectid + '"]').each(
-						function() {
-							Mura(this).data(hashparams);
-						});
-					}
-
-					Mura(window).on('hashchange', handleHashChange);
-					
-					Mura(document).on('click','div.mura-object .mura-next-n a,div.mura-object .mura-search-results div.moreResults a,div.mura-object div.mura-pagination a',function(e){
-						e.preventDefault();
-						var href=Mura(e.target).attr('href');
-						if(href!='#'){
-							var hArray=href.split('?');
-							var source=Mura(e.target);
-							var data=setLowerCaseKeys(getQueryStringParams(hArray[hArray.length-1]));
-							var obj=source.closest('div.mura-object');
-							obj.data(data);
-							processAsyncObject(obj.node).then(function(){
-								try {
-									if(typeof window != 'undefined' && typeof document != 'undefined'){
-										var rect=obj.node.getBoundingClientRect();
-										var elemTop = rect.top;
-										if(elemTop < 0){
-											window.scrollTo(0, Mura(document).scrollTop() + elemTop);
-										}
-									}
-								} catch (e) {
-									console.log(e)
-								}							
-							});	
-						}
-					})
-
-					if(!Mura.inAdmin){
-						processMarkup(document);
-					}
-
-					
-					Mura.markupInitted=true;
-
-					if(Mura.cookieconsentenabled){Mura(function(){Mura('body').appendDisplayObject({object:'cookie_consent',queue:false,statsid:'cookie_consent'});});}
-
-					Mura(document).on("keydown", function(event) {
-						loginCheck(event.which);
-					});
-					
-					Mura.breakpoint=getBreakpoint();
-					Mura.windowResponsiveModules={};
-
-					window.addEventListener("resize", function(){
-			    	clearTimeout(Mura.windowResizeID);
-			    	Mura.windowResizeID = setTimeout(doneResizing, 250);
-
-						function doneResizing(){
-							var breakpoint=getBreakpoint();
-							if(breakpoint!=Mura.breakpoint){
-								Mura.breakpoint=breakpoint;
-							 	Mura('.mura-object').each(function(){
-									var obj=Mura(this);
-									var instanceid=obj.data('instanceid');
-									if(typeof Mura.windowResponsiveModules[instanceid] == 'undefined' || Mura.windowResponsiveModules[instanceid]){
-										obj.calculateDisplayObjectStyles(true);
-									}
-								});
-							}
-							delete Mura.windowResizeID;
-						}
-					});
-
-					Mura(document).trigger('muraReady');
-				}
-			});
-
-			readyInternal(initReadyQueue);
-		}
-
-		return Mura
-	}
-
-	var Mura=extend(
-		function(selector, context) {
-			if (typeof selector == 'function') {
-				Mura.ready(selector);
-				return this;
-			} else {
-				if (typeof context == 'undefined') {
-					return select(selector);
-				} else {
-					return select(context).find(selector);
-				}
-			}
-		}, {
-			preInit:function(fn){if(holdingReady){holdingPreInitQueue.push(fn)}else{Mura(fn)}},
-			generateOAuthToken: generateOAuthToken,
-			entities: {},
-			submitForm: submitForm,
-			escapeHTML: escapeHTML,
-			unescapeHTML: unescapeHTML,
-			processDisplayObject: processDisplayObject,
-			processModule:processModule,
-			processAsyncObject: processAsyncObject,
-			resetAsyncObject: resetAsyncObject,
-			setLowerCaseKeys: setLowerCaseKeys,
-			throttle:throttle,
-			debounce:debounce,
-			noSpam: noSpam,
-			addLoadEvent: addLoadEvent,
-			loader: loader,
-			addEventHandler: addEventHandler,
-			trigger: trigger,
-			ready: ready,
-			on: on,
-			off: off,
-			extend: extend,
-			inArray: inArray,
-			isNumeric: isNumeric,
-			post: post,
-			get: get,
-			deepExtend: deepExtend,
-			ajax: ajax,
-			changeElementType: changeElementType,
-			setHTMLEditor: setHTMLEditor,
-			each: each,
-			parseHTML: parseHTML,
-			getData: getData,
-			getProps: getProps,
-			isEmptyObject: isEmptyObject,
-			isScrolledIntoView: isScrolledIntoView,
-			evalScripts: evalScripts,
-			validateForm: validateForm,
-			escape: $escape,
-			unescape: $unescape,
-			getBean: getEntity,
-			getEntity: getEntity,
-			getCurrentUser: getCurrentUser,
-			renderFilename: renderFilename,
-			findQuery: findQuery,
-			getFeed: getFeed,
-			login: login,
-			logout: logout,
-			extendClass: extendClass,
-			init: init,
-			formToObject: formToObject,
-			createUUID: createUUID,
-			isUUID: isUUID,
-			processMarkup: processMarkup,
-			getQueryStringParams: getQueryStringParams,
-			layoutmanagertoolbar: layoutmanagertoolbar,
-			parseString: parseString,
-			createCookie: createCookie,
-			readCookie: readCookie,
-			trim: trim,
-			hashCode: hashCode,
-			DisplayObject: {},
-			displayObjectInstances: {},
-			destroyDisplayObjects: destroyDisplayObjects,
-			destroyModules: destroyModules,
-			holdReady: holdReady,
-			trackEvent: trackEvent,
-			recordEvent: trackEvent,
-			isInNode: isInNode,
-			getRequestContext: getRequestContext,
-			getDefaultRequestContext: getDefaultRequestContext,
-			requestHeaders:requestHeaders,
-			setRequestHeader:setRequestHeader,
-			getRequestHeader:getRequestHeaders,
-			getRequestHeaders:getRequestHeaders,
-			mode: 'json',
-			declareEntity:declareEntity,
-			undeclareEntity:undeclareEntity,
-			buildDisplayRegion:buildDisplayRegion,
-			openGate:openGate,
-			firstToUpperCase:firstToUpperCase,
-			normalizeRequestHandler:normalizeRequestHandler,
-			getStyleSheet:getStyleSheet,
-			getBreakpoint:getBreakpoint,
-			getAPIEndpoint:getAPIEndpoint,
-			inAdmin:false,
-			lmv:2,
-			homeid: '00000000000000000000000000000000001'
-		}
-	);
-
-	Mura.Module=Mura.DisplayObject;
-	return Mura;
-
-})();
-
-module.exports=Mura;
-
+var Mura = function () {
+  "use strict";
+  /**
+   * login - Logs user into Mura
+   *
+   * @param	{string} username Username
+   * @param	{string} password Password
+   * @param	{string} siteid	 Siteid
+   * @return {Promise}
+   * @memberof {class} Mura
+   */
+
+  function login(username, password, siteid) {
+    return Mura._requestcontext.login(username, password, siteid);
+  }
+  /**
+   * logout - Logs user out
+   *
+   * @param	{type} siteid Siteid
+   * @return {Promise}
+   * @memberof {class} Mura
+   */
+
+
+  function logout(siteid) {
+    return Mura._requestcontext.logout(siteid);
+  }
+
+  function escapeHTML(str) {
+    if (typeof document != 'undefined') {
+      var div = document.createElement('div');
+      div.appendChild(document.createTextNode(str));
+      return div.innerHTML;
+    } else {
+      return Mura._escapeHTML(str);
+    }
+  }
+
+  ; // UNSAFE with unsafe strings; only use on previously-escaped ones!
+
+  function unescapeHTML(escapedStr) {
+    var div = document.createElement('div');
+    div.innerHTML = escapedStr;
+    var child = div.childNodes[0];
+    return child ? child.nodeValue : '';
+  }
+
+  ;
+  /**
+   * trackEvent - This is for Mura Experience Platform. It has no use with Mura standard
+   *
+   * @param	{object} data event data
+   * @return {Promise}
+   * @memberof {class} Mura
+   */
+
+  function trackEvent(eventData) {
+    if (typeof Mura.editing != 'undefined' && Mura.editing) {
+      return new Promise(function (resolve, reject) {
+        resolve = resolve || function () {};
+
+        resolve();
+      });
+    }
+
+    var data = {};
+    var isMXP = typeof Mura.MXP != 'undefined';
+    var trackingVars = {
+      ga: {
+        trackingvars: {}
+      }
+    };
+    var gaFound = false;
+    var gtagFound = false;
+    var trackingComplete = false;
+    var attempt = 0;
+    data.category = eventData.event_category || eventData.eventCategory || eventData.category || '';
+    data.action = eventData.event_action || eventData.eventAction || eventData.action || '';
+    data.label = eventData.event_label || eventData.eventLabel || eventData.label || '';
+    data.type = eventData.hit_ype || eventData.hitType || eventData.type || 'event';
+    data.value = eventData.event_value || eventData.eventValue || eventData.value || undefined;
+
+    if (typeof eventData.nonInteraction == 'undefined') {
+      data.nonInteraction = false;
+    } else {
+      data.nonInteraction = eventData.nonInteraction;
+    }
+
+    data.contentid = eventData.contentid || Mura.contentid;
+    data.objectid = eventData.objectid || '';
+
+    function track() {
+      if (!attempt) {
+        trackingVars.ga.trackingvars.eventCategory = data.category;
+        trackingVars.ga.trackingvars.eventAction = data.action;
+        trackingVars.ga.trackingvars.nonInteraction = data.nonInteraction;
+        trackingVars.ga.trackingvars.hitType = data.type;
+
+        if (typeof data.value != 'undefined' && Mura.isNumeric(data.value)) {
+          trackingVars.ga.trackingvars.eventValue = data.value;
+        }
+
+        if (data.label) {
+          trackingVars.ga.trackingvars.eventLabel = data.label;
+        } else if (isMXP) {
+          if (typeof trackingVars.object != 'undefined') {
+            trackingVars.ga.trackingvars.eventLabel = trackingVars.object.title;
+          } else {
+            trackingVars.ga.trackingvars.eventLabel = trackingVars.content.title;
+          }
+
+          data.label = trackingVars.object.title;
+        }
+
+        Mura(document).trigger('muraTrackEvent', trackingVars);
+        Mura(document).trigger('muraRecordEvent', trackingVars);
+      }
+
+      if (typeof gtag != 'undefined') {
+        trackingVars.ga.trackingvars.event_category = trackingVars.ga.trackingvars.eventCategory;
+        trackingVars.ga.trackingvars.event_action = trackingVars.ga.trackingvars.eventAction;
+        trackingVars.ga.trackingvars.non_interaction = trackingVars.ga.trackingvars.nonInteraction;
+        trackingVars.ga.trackingvars.hit_type = trackingVars.ga.trackingvars.hitType;
+        trackingVars.ga.trackingvars.event_value = trackingVars.ga.trackingvars.eventValue;
+        delete trackingVars.ga.trackingvars.eventCategory;
+        delete trackingVars.ga.trackingvars.eventAction;
+        delete trackingVars.ga.trackingvars.nonInteraction;
+        delete trackingVars.ga.trackingvars.hitType;
+        delete trackingVars.ga.trackingvars.eventValue;
+
+        if (isMXP) {
+          trackingVars.ga.trackingvars.send_to = Mura.trackingVars.ga.trackingid;
+        }
+
+        gtag('event', data.type, trackingVars.ga.trackingvars);
+        gaFound = true;
+        trackingComplete = true;
+      } else if (typeof ga != 'undefined') {
+        if (isMXP) {
+          ga('mxpGATracker.send', data.type, trackingVars.ga.trackingvars);
+        } else {
+          ga('send', data.type, trackingVars.ga.trackingvars);
+        }
+
+        gaFound = true;
+        trackingComplete = true;
+      }
+
+      attempt++;
+
+      if (!gaFound && attempt < 250) {
+        setTimeout(track, 1);
+      } else {
+        trackingComplete = true;
+      }
+    }
+
+    if (isMXP) {
+      var trackingID = data.contentid + data.objectid;
+
+      if (typeof Mura.trackingMetadata[trackingID] != 'undefined') {
+        Mura.deepExtend(trackingVars, Mura.trackingMetadata[trackingID]);
+        trackingVars.eventData = data;
+        track();
+      } else {
+        Mura.get(Mura.getAPIEndpoint(), {
+          method: 'findTrackingProps',
+          siteid: Mura.siteid,
+          contentid: data.contentid,
+          objectid: data.objectid
+        }).then(function (response) {
+          Mura.deepExtend(trackingVars, response.data);
+          trackingVars.eventData = data;
+
+          for (var p in trackingVars.ga.trackingprops) {
+            if (trackingVars.ga.trackingprops.hasOwnProperty(p) && p.substring(0, 1) == 'd' && typeof trackingVars.ga.trackingprops[p] != 'string') {
+              trackingVars.ga.trackingprops[p] = new String(trackingVars.ga[p]);
+            }
+          }
+
+          Mura.trackingMetadata[trackingID] = {};
+          Mura.deepExtend(Mura.trackingMetadata[trackingID], response.data);
+          track();
+        });
+      }
+    } else {
+      track();
+    }
+
+    return new Promise(function (resolve, reject) {
+      resolve = resolve || function () {};
+
+      function checkComplete() {
+        if (trackingComplete) {
+          resolve();
+        } else {
+          setTimeout(checkComplete, 1);
+        }
+      }
+
+      checkComplete();
+    });
+  }
+  /**
+  * renderFilename - Returns "Rendered" JSON object of content
+  *
+  * @param	{type} filename Mura content filename
+  * @param	{type} params Object
+  * @return {Promise}
+  * @memberof {class} Mura
+  */
+
+
+  function renderFilename(filename, params) {
+    return Mura._requestcontext.renderFilename(filename, params);
+  }
+  /**
+   * declareEntity - Declare Entity with in service factory
+   *
+   * @param	{object} entityConfig Entity config object
+   * @return {Promise}
+   * @memberof {class} Mura
+   */
+
+
+  function declareEntity(entityConfig) {
+    return Mura._requestcontext.declareEntity(entityConfig);
+  }
+  /**
+   * undeclareEntity - Deletes entity class from Mura
+   *
+   * @param	{object} entityName
+   * @return {Promise}
+   * @memberof {class} Mura
+   */
+
+
+  function undeclareEntity(entityName, deleteSchema) {
+    deleteSchema = deleteSchema || false;
+    return Mura._requestcontext.undeclareEntity(entityName, deleteSchema);
+  }
+  /**
+   * openGate - Open's content gate when using MXP
+   *
+   * @param	{string} contentid Optional: default's to Mura.contentid
+   * @return {Promise}
+   * @memberof {class} Mura
+   */
+
+
+  function openGate(contentid) {
+    return Mura._requestcontext.openGate(contentid);
+  }
+  /**
+   * logout - Logs user out
+   *
+   * @param	{type} siteid Siteid
+   * @return {Promise}
+   * @memberof {class} Mura
+   */
+
+
+  function logout(siteid) {
+    return Mura._requestcontext.logout(siteid);
+  }
+  /**
+   * getEntity - Returns Mura.Entity instance
+   *
+   * @param	{string} entityname Entity Name
+   * @param	{string} siteid		 Siteid
+   * @return {Mura.Entity}
+   * @memberof {class} Mura
+   */
+
+
+  function getEntity(entityname, siteid) {
+    siteid = siteid || Mura.siteid;
+
+    if (typeof Mura._requestcontext == 'undefined') {
+      return Mura.getRequestContext().getEntity(entityname, siteid);
+    } else {
+      return Mura._requestcontext.getEntity(entityname, siteid);
+    }
+  }
+  /**
+   * getFeed - Return new instance of Mura.Feed
+   *
+   * @param	{type} entityname Entity name
+   * @return {Mura.Feed}
+   * @memberof {class} Mura
+   */
+
+
+  function getFeed(entityname, siteid) {
+    siteid = siteid || Mura.siteid;
+    return Mura._requestcontext.getFeed(entityname, siteid);
+  }
+  /**
+   * getCurrentUser - Return Mura.Entity for current user
+   *
+   * @param	{object} params Load parameters, fields:listoffields
+   * @return {Promise}
+   * @memberof {class} Mura
+   */
+
+
+  function getCurrentUser(params) {
+    return Mura._requestcontext.getCurrentUser(params);
+  }
+  /**
+   * findQuery - Returns Mura.EntityCollection with properties that match params
+   *
+   * @param	{object} params Object of matching params
+   * @return {Promise}
+   * @memberof {class} Mura
+   */
+
+
+  function findQuery(params) {
+    return Mura._requestcontext.findQuery(params);
+  }
+
+  function evalScripts(el) {
+    if (typeof el == 'string') {
+      el = parseHTML(el);
+    }
+
+    var scripts = [];
+    var ret = el.childNodes;
+
+    for (var i = 0; ret[i]; i++) {
+      if (scripts && nodeName(ret[i], "script") && (!ret[i].type || ret[i].type.toLowerCase() === "text/javascript")) {
+        if (ret[i].src) {
+          scripts.push(ret[i]);
+        } else {
+          scripts.push(ret[i].parentNode ? ret[i].parentNode.removeChild(ret[i]) : ret[i]);
+        }
+      } else if (ret[i].nodeType == 1 || ret[i].nodeType == 9 || ret[i].nodeType == 11) {
+        evalScripts(ret[i]);
+      }
+    }
+
+    for (var $script in scripts) {
+      evalScript(scripts[$script]);
+    }
+  }
+
+  function nodeName(el, name) {
+    return el.nodeName && el.nodeName.toUpperCase() === name.toUpperCase();
+  }
+
+  function evalScript(el) {
+    if (el.src) {
+      Mura.loader().load(el.src);
+      Mura(el).remove();
+    } else {
+      var data = el.text || el.textContent || el.innerHTML || "";
+      var head = document.getElementsByTagName("head")[0] || document.documentElement,
+          script = document.createElement("script");
+      script.type = "text/javascript"; //script.appendChild( document.createTextNode( data ) );
+
+      script.text = data;
+      head.insertBefore(script, head.firstChild);
+      head.removeChild(script);
+
+      if (el.parentNode) {
+        el.parentNode.removeChild(el);
+      }
+    }
+  }
+
+  function changeElementType(el, to) {
+    var newEl = document.createElement(to); // Try to copy attributes across
+
+    for (var i = 0, a = el.attributes, n = a.length; i < n; ++i) {
+      el.setAttribute(a[i].name, a[i].value);
+    } // Try to move children across
+
+
+    while (el.hasChildNodes()) {
+      newEl.appendChild(el.firstChild);
+    } // Replace the old element with the new one
+
+
+    el.parentNode.replaceChild(newEl, el); // Return the new element, for good measure.
+
+    return newEl;
+  }
+  /*
+  Defaults to holdReady is true so that everything
+  is queued up until the DOMContentLoaded is fired
+  */
+
+
+  var holdingReady = true;
+  var holdingReadyAltered = false;
+  var holdingQueueReleased = false;
+  var holdingQueue = [];
+  var holdingPreInitQueue = [];
+  /*
+  if(typeof jQuery != 'undefined' && typeof jQuery.holdReady != 'undefined'){
+  		jQuery.holdReady(true);
+  }
+  */
+
+  /*
+  When DOMContentLoaded is fired check to see it the
+  holdingReady has been altered by custom code.
+  If it hasn't then fire holding functions.
+  */
+
+  function initReadyQueue() {
+    if (!holdingReadyAltered) {
+      /*
+      if(typeof jQuery != 'undefined' && typeof jQuery.holdReady != 'undefined'){
+      		jQuery.holdReady(false);
+      }
+      */
+      releaseReadyQueue();
+    }
+  }
+
+  ;
+
+  function releaseReadyQueue() {
+    holdingQueueReleased = true;
+    holdingReady = false;
+    holdingQueue.forEach(function (fn) {
+      readyInternal(fn);
+    });
+    holdingQueue = [];
+  }
+
+  function holdReady(hold) {
+    if (!holdingQueueReleased) {
+      holdingReady = hold;
+      holdingReadyAltered = true;
+      /*
+      if(typeof jQuery != 'undefined' && typeof jQuery.holdReady != 'undefined'){
+      		jQuery.holdReady(hold);
+      }
+      */
+
+      if (!holdingReady) {
+        releaseReadyQueue();
+      }
+    }
+  }
+
+  function ready(fn) {
+    if (!holdingQueueReleased) {
+      holdingQueue.push(fn);
+    } else {
+      readyInternal(fn);
+    }
+  }
+
+  function readyInternal(fn) {
+    if (typeof document != 'undefined') {
+      if (document.readyState != 'loading') {
+        //IE set the readyState to interative too early
+        setTimeout(function () {
+          fn(Mura);
+        }, 1);
+      } else {
+        document.addEventListener('DOMContentLoaded', function () {
+          fn(Mura);
+        });
+      }
+    } else {
+      fn(Mura);
+    }
+  }
+  /**
+   * get - Make GET request
+   *
+   * @param	{url} url	URL
+   * @param	{object} data Data to send to url
+   * @return {Promise}
+   * @memberof {class} Mura
+   */
+
+
+  function get(url, data, eventHandler) {
+    return Mura._requestcontext.get(url, data, eventHandler);
+  }
+  /**
+   * post - Make POST request
+   *
+   * @param	{url} url	URL
+   * @param	{object} data Data to send to url
+   * @return {Promise}
+   * @memberof {class} Mura
+   */
+
+
+  function post(url, data, eventHandler) {
+    return Mura._requestcontext.post(url, data, eventHandler);
+  }
+  /**
+   * ajax - Make ajax request
+   *
+   * @param	{object} params
+   * @return {Promise}
+   * @memberof {class} Mura
+   */
+
+
+  function ajax(params) {
+    return Mura._requestcontext.request(params);
+  }
+  /**
+   * normalizeRequestHandler - Standardizes request handler objects
+   *
+   * @param	{object} eventHandler
+   * @memberof {object} eventHandler
+   */
+
+
+  function normalizeRequestHandler(eventHandler) {
+    eventHandler.progress = eventHandler.progress || eventHandler.onProgress || eventHandler.onUploadProgress || function () {};
+
+    eventHandler.abort = eventHandler.abort || eventHandler.onAbort || function () {};
+
+    eventHandler.success = eventHandler.success || eventHandler.onSuccess || function () {};
+
+    eventHandler.error = eventHandler.error || eventHandler.onError || function () {};
+
+    return eventHandler;
+  }
+  /**
+   * getRequestContext - Returns a new Mura.RequestContext;
+   *
+   * @name getRequestContext
+   * @param	{object} request		 Siteid
+   * @param	{object} response Entity name
+   * @return {Mura.RequestContext}	 Mura.RequestContext
+   * @memberof {class} Mura
+   */
+
+
+  function getRequestContext(request, response) {
+    return new Mura.RequestContext(request, response);
+  }
+  /**
+   * getDefaultRequestContext - Returns the default Mura.RequestContext;
+   *
+   * @name getDefaultRequestContext
+   * @return {Mura.RequestContext}	 Mura.RequestContext
+   * @memberof {class} Mura
+   */
+
+
+  function getDefaultRequestContext() {
+    return Mura._requestcontext;
+  }
+  /**
+   * generateOAuthToken - Generate Outh toke for REST API
+   *
+   * @param	{string} grant_type	Grant type (Use client_credentials)
+   * @param	{type} client_id		 Client ID
+   * @param	{type} client_secret Secret Key
+   * @return {Promise}
+   * @memberof {class} Mura
+   */
+
+
+  function generateOAuthToken(grant_type, client_id, client_secret) {
+    return new Promise(function (resolve, reject) {
+      get(Mura.getAPIEndpoint().replace('/json/', '/rest/') + 'oauth?grant_type=' + encodeURIComponent(grant_type) + '&client_id=' + encodeURIComponent(client_id) + '&client_secret=' + encodeURIComponent(client_secret) + '&_cacheid=' + Math.random()).then(function (resp) {
+        if (resp.data != 'undefined') {
+          resolve(resp.data);
+        } else {
+          if (typeof resp.error != 'undefined' && typeof reject == 'function') {
+            reject(resp);
+          } else {
+            resolve(resp);
+          }
+        }
+      });
+    });
+  }
+
+  function each(selector, fn) {
+    select(selector).each(fn);
+  }
+
+  function on(el, eventName, fn) {
+    if (eventName == 'ready') {
+      Mura.ready(fn);
+    } else {
+      if (typeof el.addEventListener == 'function') {
+        el.addEventListener(eventName, function (event) {
+          if (typeof fn.call == 'undefined') {
+            fn(event);
+          } else {
+            fn.call(el, event);
+          }
+        }, true);
+      }
+    }
+  }
+
+  function trigger(el, eventName, eventDetail) {
+    if (typeof document != 'undefined') {
+      var bubbles = eventName == "change" ? false : true;
+
+      if (document.createEvent) {
+        if (eventDetail && !isEmptyObject(eventDetail)) {
+          var event = document.createEvent('CustomEvent');
+          event.initCustomEvent(eventName, bubbles, true, eventDetail);
+        } else {
+          var eventClass = "";
+
+          switch (eventName) {
+            case "click":
+            case "mousedown":
+            case "mouseup":
+              eventClass = "MouseEvents";
+              break;
+
+            case "focus":
+            case "change":
+            case "blur":
+            case "select":
+              eventClass = "HTMLEvents";
+              break;
+
+            default:
+              eventClass = "Event";
+              break;
+          }
+
+          var event = document.createEvent(eventClass);
+          event.initEvent(eventName, bubbles, true);
+        }
+
+        event.synthetic = true;
+        el.dispatchEvent(event);
+      } else {
+        try {
+          document.fireEvent("on" + eventName);
+        } catch (e) {
+          console.warn("Event failed to fire due to legacy browser: on" + eventName);
+        }
+      }
+    }
+  }
+
+  ;
+
+  function off(el, eventName, fn) {
+    el.removeEventListener(eventName, fn);
+  }
+
+  function parseSelection(selector) {
+    if (_typeof(selector) == 'object' && Array.isArray(selector)) {
+      var selection = selector;
+    } else if (typeof selector == 'string') {
+      var selection = nodeListToArray(document.querySelectorAll(selector));
+    } else {
+      if (typeof StaticNodeList != 'undefined' && selector instanceof StaticNodeList || typeof NodeList != 'undefined' && selector instanceof NodeList || typeof HTMLCollection != 'undefined' && selector instanceof HTMLCollection) {
+        var selection = nodeListToArray(selector);
+      } else {
+        var selection = [selector];
+      }
+    }
+
+    if (typeof selection.length == 'undefined') {
+      selection = [];
+    }
+
+    return selection;
+  }
+
+  function isEmptyObject(obj) {
+    return _typeof(obj) != 'object' || Object.keys(obj).length == 0;
+  }
+
+  function filter(selector, fn) {
+    return select(parseSelection(selector)).filter(fn);
+  }
+
+  function nodeListToArray(nodeList) {
+    var arr = [];
+
+    for (var i = nodeList.length; i--; arr.unshift(nodeList[i])) {
+      ;
+    }
+
+    return arr;
+  }
+
+  function select(selector) {
+    return new Mura.DOMSelection(parseSelection(selector), selector);
+  }
+
+  function parseHTML(str) {
+    var tmp = document.implementation.createHTMLDocument();
+    tmp.body.innerHTML = str;
+    return tmp.body.children;
+  }
+
+  ;
+
+  function getData(el) {
+    var data = {};
+    Array.prototype.forEach.call(el.attributes, function (attr) {
+      if (/^data-/.test(attr.name)) {
+        data[attr.name.substr(5)] = parseString(attr.value);
+      }
+    });
+    return data;
+  }
+
+  function getProps(el) {
+    var data = {};
+    Array.prototype.forEach.call(el.attributes, function (attr) {
+      if (/^data-/.test(attr.name)) {
+        data[attr.name.substr(5)] = parseString(attr.value);
+      }
+    });
+    return data;
+  }
+  /**
+   * isNumeric - Returns if the value is numeric
+   *
+   * @name isNumeric
+   * @param	{*} val description
+   * @return {boolean}
+   * @memberof {class} Mura
+   */
+
+
+  function isNumeric(val) {
+    return Number(parseFloat(val)) == val;
+  }
+  /**
+  * buildDisplayRegion - Renders display region data returned from Mura.renderFilename()
+  *
+  * @param	{any} data Region data to build string from
+  * @return {string}
+  */
+
+
+  function buildDisplayRegion(data) {
+    if (typeof data == 'undefined') {
+      return '';
+    }
+
+    var str = "<div class=\"mura-region\" data-regionid=\"" + escapeHTML(data.regionid) + "\">";
+
+    function buildItemHeader(data) {
+      var classes = data["class"] || '';
+      var header = "<div class=\"mura-object " + escapeHTML(classes) + "\"";
+
+      for (var p in data) {
+        if (data.hasOwnProperty(p)) {
+          if (_typeof(data[p]) == 'object') {
+            header += " data-" + p + "=\'" + escapeHTML(JSON.stringify(data[p]).replace(/'/g, "&#39;")) + "\'";
+          } else {
+            header += " data-" + p + "=\"" + escapeHTML(data[p]) + "\"";
+          }
+        }
+      }
+
+      header += ">";
+      return header;
+    }
+
+    function buildRegionSectionHeader(section, name, perm, regionid) {
+      if (name) {
+        if (section == 'inherited') {
+          return "<div class=\"mura-region-inherited\"><div class=\"frontEndToolsModal mura\"><span class=\"mura-edit-label mi-lock\">" + escapeHTML(name.toUpperCase()) + ": Inherited</span></div>";
+        } else {
+          return "<div class=\"mura-editable mura-inactive\"><div class=\"mura-region-local mura-inactive mura-editable-attribute\" data-loose=\"false\" data-regionid=\"" + escapeHTML(regionid) + "\" data-inited=\"false\" data-perm=\"" + escapeHTML(perm) + "\"><label class=\"mura-editable-label\" style=\"display:none\">" + escapeHTML(name.toUpperCase()) + "</label>";
+        }
+      } else {
+        return "<div class=\"mura-region-" + escapeHTML(section) + "\">";
+      }
+    }
+
+    if (data.inherited.items.length) {
+      if (data.inherited.header) {
+        str += data.inherited.header;
+      } else {
+        str += buildRegionSectionHeader('inherited', data.name, data.inherited.perm, data.regionid);
+      }
+
+      for (var i in data.inherited.items) {
+        if (data.inherited.items[i].header) {
+          str += data.inherited.items[i].header;
+        } else {
+          str += buildItemHeader(data.inherited.items[i]);
+        }
+
+        if (typeof data.inherited.items[i].html != 'undefined' && data.inherited.items[i].html) {
+          str += data.inherited.items[i].html;
+        }
+
+        if (data.inherited.items[i].footer) {
+          str += data.inherited.items[i].footer;
+        } else {
+          str += "</div>";
+        }
+      }
+
+      str += "</div>";
+    }
+
+    if (data.local.header) {
+      str += data.local.header;
+    } else {
+      str += buildRegionSectionHeader('local', data.name, data.local.perm, data.regionid);
+    }
+
+    if (data.local.items.length) {
+      for (var i in data.local.items) {
+        if (data.local.items[i].header) {
+          str += data.local.items[i].header;
+        } else {
+          str += buildItemHeader(data.local.items[i]);
+        }
+
+        if (typeof data.local.items[i].html != 'undefined' && data.local.items[i].html) {
+          str += data.local.items[i].html;
+        }
+
+        if (data.local.items[i].footer) {
+          str += data.local.items[i].footer;
+        } else {
+          str += '</div>';
+        }
+      }
+    } //when editing the region header contains two divs
+
+
+    if (data.name) {
+      str += "</div></div>";
+    } else {
+      str += "</div>";
+    }
+
+    str += "</div>";
+    return str;
+  }
+
+  function parseString(val) {
+    if (typeof val == 'string') {
+      var lcaseVal = val.toLowerCase();
+
+      if (lcaseVal == 'false') {
+        return false;
+      } else if (lcaseVal == 'true') {
+        return true;
+      } else {
+        if (!(typeof val == 'string' && val.length == 35) && isNumeric(val)) {
+          var numVal = parseFloat(val);
+
+          if (numVal == 0 || !isNaN(1 / numVal)) {
+            return numVal;
+          }
+        }
+
+        try {
+          var testVal = JSON.parse.call(null, val);
+
+          if (typeof testVal != 'string') {
+            return testVal;
+          } else {
+            return val;
+          }
+        } catch (e) {
+          return val;
+        }
+      }
+    } else {
+      return val;
+    }
+  }
+
+  function getAttributes(el) {
+    var data = {};
+    Array.prototype.forEach.call(el.attributes, function (attr) {
+      data[attr.name] = attr.value;
+    });
+    return data;
+  }
+  /**
+   * formToObject - Returns if the value is numeric
+   *
+   * @name formToObject
+   * @param	{form} form Form to serialize
+   * @return {object}
+   * @memberof {class} Mura
+   */
+
+
+  function formToObject(form) {
+    var field,
+        s = {};
+
+    if (_typeof(form) == 'object' && form.nodeName == "FORM") {
+      var len = form.elements.length;
+
+      for (var i = 0; i < len; i++) {
+        field = form.elements[i];
+
+        if (field.name && !field.disabled && field.type != 'file' && field.type != 'reset' && field.type != 'submit' && field.type != 'button') {
+          if (field.type == 'select-multiple') {
+            for (j = form.elements[i].options.length - 1; j >= 0; j--) {
+              if (field.options[j].selected) s[s.name] = field.options[j].value;
+            }
+          } else if (field.type != 'checkbox' && field.type != 'radio' || field.checked) {
+            if (typeof s[field.name] == 'undefined') {
+              s[field.name] = field.value;
+            } else {
+              s[field.name] = s[field.name] + ',' + field.value;
+            }
+          }
+        }
+      }
+    }
+
+    return s;
+  } //http://youmightnotneedjquery.com/
+
+  /**
+   * extend - Extends object one level
+   *
+   * @name extend
+   * @return {object}
+   * @memberof {class} Mura
+   */
+
+
+  function extend(out) {
+    out = out || {};
+
+    for (var i = 1; i < arguments.length; i++) {
+      if (!arguments[i]) continue;
+
+      for (var key in arguments[i]) {
+        if (key != '__proto__' && typeof arguments[i].hasOwnProperty != 'undefined' && arguments[i].hasOwnProperty(key)) out[key] = arguments[i][key];
+      }
+    }
+
+    return out;
+  }
+
+  ;
+  /**
+   * deepExtend - Extends object to full depth
+   *
+   * @name deepExtend
+   * @return {object}
+   * @memberof {class} Mura
+   */
+
+  function deepExtend(out) {
+    out = out || {};
+
+    for (var i = 1; i < arguments.length; i++) {
+      var obj = arguments[i];
+      if (!obj) continue;
+
+      for (var key in obj) {
+        if (key != '__proto__' && typeof arguments[i].hasOwnProperty != 'undefined' && arguments[i].hasOwnProperty(key)) {
+          if (Array.isArray(obj[key])) {
+            out[key] = obj[key].slice(0);
+          } else if (_typeof(obj[key]) === 'object') {
+            out[key] = deepExtend({}, obj[key]);
+          } else {
+            out[key] = obj[key];
+          }
+        }
+      }
+    }
+
+    return out;
+  }
+  /**
+   * createCookie - Creates cookie
+   *
+   * @name createCookie
+   * @param	{string} name	Name
+   * @param	{*} value Value
+   * @param	{number} days	Days
+   * @return {void}
+   * @memberof {class} Mura
+   */
+
+
+  function createCookie(name, value, days, domain) {
+    if (days) {
+      var date = new Date();
+      date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+      var expires = "; expires=" + date.toGMTString();
+    } else {
+      var expires = "";
+    }
+
+    if (typeof location != 'undefined' && location.protocol == 'https:') {
+      var secure = '; secure; samesite=None';
+    } else {
+      var secure = '';
+    }
+
+    if (typeof domain != 'undefined') {
+      domain = '; domain=' + domain;
+    } else {
+      domain = '';
+    }
+
+    document.cookie = name + "=" + value + expires + "; path=/" + secure + domain;
+  }
+  /**
+   * readCookie - Reads cookie value
+   *
+   * @name readCookie
+   * @param	{string} name Name
+   * @return {*}
+   * @memberof {class} Mura
+   */
+
+
+  function readCookie(name) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+
+    for (var i = 0; i < ca.length; i++) {
+      var c = ca[i];
+
+      while (c.charAt(0) == ' ') {
+        c = c.substring(1, c.length);
+      }
+
+      if (c.indexOf(nameEQ) == 0) return unescape(c.substring(nameEQ.length, c.length));
+    }
+
+    return "";
+  }
+  /**
+   * eraseCookie - Removes cookie value
+   *
+   * @name eraseCookie
+   * @param	{type} name description
+   * @return {type}			description
+   * @memberof {class} Mura
+   */
+
+
+  function eraseCookie(name) {
+    createCookie(name, "", -1);
+  }
+
+  function $escape(value) {
+    if (typeof encodeURIComponent != 'undefined') {
+      return encodeURIComponent(value);
+    } else {
+      return escape(value).replace(new RegExp("\\+", "g"), "%2B").replace(/[\x00-\x1F\x7F-\x9F]/g, "");
+    }
+  }
+
+  function $unescape(value) {
+    return unescape(value);
+  } //deprecated
+
+
+  function addLoadEvent(func) {
+    var oldonload = onload;
+
+    if (typeof onload != 'function') {
+      onload = func;
+    } else {
+      onload = function onload() {
+        oldonload();
+        func();
+      };
+    }
+  }
+
+  function noSpam(user, domain) {
+    locationstring = "mailto:" + user + "@" + domain;
+    location = locationstring;
+  }
+  /**
+   * isUUID - description
+   *
+   * @name isUUID
+   * @param	{*} value Value
+   * @return {boolean}
+   * @memberof {class} Mura
+   */
+
+
+  function isUUID(value) {
+    if (typeof value == 'string' && (value.length == 35 && value[8] == '-' && value[13] == '-' && value[18] == '-' || value == '00000000000000000000000000000000001' || value == '00000000000000000000000000000000000' || value == '00000000000000000000000000000000003' || value == '00000000000000000000000000000000005' || value == '00000000000000000000000000000000099')) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * createUUID - Create UUID
+   *
+   * @name createUUID
+   * @return {string}
+   * @memberof {class} Mura
+   */
+
+
+  function createUUID() {
+    var s = [],
+        itoh = '0123456789ABCDEF'; // Make array of random hex digits. The UUID only has 32 digits in it, but we
+    // allocate an extra items to make room for the '-'s we'll be inserting.
+
+    for (var i = 0; i < 35; i++) {
+      s[i] = Math.floor(Math.random() * 0x10);
+    } // Conform to RFC-4122, section 4.4
+
+
+    s[14] = 4; // Set 4 high bits of time_high field to version
+
+    s[19] = s[19] & 0x3 | 0x8; // Specify 2 high bits of clock sequence
+    // Convert to hex chars
+
+    for (var i = 0; i < 36; i++) {
+      s[i] = itoh[s[i]];
+    } // Insert '-'s
+
+
+    s[8] = s[13] = s[18] = '-';
+    return s.join('');
+  }
+  /**
+   * setHTMLEditor - Set Html Editor
+   *
+   * @name setHTMLEditor
+   * @param	{dom.element} el Dom Element
+   * @return {void}
+   * @memberof {class} Mura
+   */
+
+
+  function setHTMLEditor(el) {
+    function initEditor() {
+      var instance = CKEDITOR.instances[el.getAttribute('id')];
+      var conf = {
+        height: 200,
+        width: '70%'
+      };
+      extend(conf, Mura(el).data());
+
+      if (instance) {
+        instance.destroy();
+        CKEDITOR.remove(instance);
+      }
+
+      CKEDITOR.replace(el.getAttribute('id'), getHTMLEditorConfig(conf), htmlEditorOnComplete);
+    }
+
+    function htmlEditorOnComplete(editorInstance) {
+      editorInstance.resetDirty();
+      var totalIntances = CKEDITOR.instances;
+    }
+
+    function getHTMLEditorConfig(customConfig) {
+      var attrname = '';
+      var htmlEditorConfig = {
+        toolbar: 'htmlEditor',
+        customConfig: 'config.js.cfm'
+      };
+
+      if (_typeof(customConfig) == 'object') {
+        extend(htmlEditorConfig, customConfig);
+      }
+
+      return htmlEditorConfig;
+    }
+
+    loader().loadjs(Mura.corepath + '/vendor/ckeditor/ckeditor.js', function () {
+      initEditor();
+    });
+  }
+
+  var pressed_keys = '';
+
+  var loginCheck = function loginCheck(key) {
+    if (key == 27) {
+      pressed_keys = key.toString();
+    } else if (key == 76) {
+      pressed_keys = pressed_keys + "" + key.toString();
+    }
+
+    if (key != 27 && key != 76) {
+      pressed_keys = "";
+    }
+
+    if (pressed_keys != "") {
+      var aux = pressed_keys;
+      var lu = '';
+      var ru = '';
+
+      if (aux.indexOf('2776') != -1 && location.search.indexOf("display=login") == -1) {
+        if (typeof Mura.loginURL != "undefined") {
+          lu = Mura.loginURL;
+        } else if (typeof Mura.loginurl != "undefined") {
+          lu = Mura.loginurl;
+        } else {
+          lu = "?display=login";
+        }
+
+        if (typeof Mura.returnURL != "undefined") {
+          ru = Mura.returnURL;
+        } else if (typeof Mura.returnurl != "undefined") {
+          ru = Mura.returnurl;
+        } else {
+          ru = location.href;
+        }
+
+        pressed_keys = "";
+        lu = new String(lu);
+
+        if (lu.indexOf('?') != -1) {
+          location.href = lu + "&returnUrl=" + encodeURIComponent(ru);
+        } else {
+          location.href = lu + "?returnUrl=" + encodeURIComponent(ru);
+        }
+      }
+    }
+  };
+  /**
+   * isInteger - Returns if the value is an integer
+   *
+   * @name isInteger
+   * @param	{*} Value to check
+   * @return {boolean}
+   * @memberof {class} Mura
+   */
+
+
+  function isInteger(s) {
+    var i;
+
+    for (i = 0; i < s.length; i++) {
+      // Check that current character is number.
+      var c = s.charAt(i);
+      if (c < "0" || c > "9") return false;
+    } // All characters are numbers.
+
+
+    return true;
+  }
+
+  function createDate(str) {
+    var valueArray = str.split("/");
+    var mon = valueArray[0];
+    var dt = valueArray[1];
+    var yr = valueArray[2];
+    var date = new Date(yr, mon - 1, dt);
+
+    if (!isNaN(date.getMonth())) {
+      return date;
+    } else {
+      return new Date();
+    }
+  }
+
+  function dateToString(date) {
+    var mon = date.getMonth() + 1;
+    var dt = date.getDate();
+    var yr = date.getFullYear();
+
+    if (mon < 10) {
+      mon = "0" + mon;
+    }
+
+    if (dt < 10) {
+      dt = "0" + dt;
+    }
+
+    return mon + "/" + dt + "/20" + new String(yr).substring(2, 4);
+  }
+
+  function stripCharsInBag(s, bag) {
+    var i;
+    var returnString = ""; // Search through string's characters one by one.
+    // If character is not in bag, append to returnString.
+
+    for (i = 0; i < s.length; i++) {
+      var c = s.charAt(i);
+      if (bag.indexOf(c) == -1) returnString += c;
+    }
+
+    return returnString;
+  }
+
+  function daysInFebruary(year) {
+    // February has 29 days in any year evenly divisible by four,
+    // EXCEPT for centurial years which are not also divisible by 400.
+    return year % 4 == 0 && (!(year % 100 == 0) || year % 400 == 0) ? 29 : 28;
+  }
+
+  function DaysArray(n) {
+    for (var i = 1; i <= n; i++) {
+      this[i] = 31;
+
+      if (i == 4 || i == 6 || i == 9 || i == 11) {
+        this[i] = 30;
+      }
+
+      if (i == 2) {
+        this[i] = 29;
+      }
+    }
+
+    return this;
+  }
+  /**
+   * generateDateFormat - dateformt for input type="date"
+   *
+   * @name generateDateFormat
+   * @return {string}
+   */
+
+
+  function generateDateFormat(dtStr, fldName) {
+    var formatArray = ['mm', 'dd', 'yyyy'];
+    return [formatArray[Mura.dtformat[0]], formatArray[Mura.dtformat[1]], formatArray[Mura.dtformat[2]]].join(Mura.dtch);
+  }
+  /**
+   * isDate - Returns if the value is a data
+   *
+   * @name isDate
+   * @param	{*}	Value to check
+   * @return {boolean}
+   * @memberof {class} Mura
+   */
+
+
+  function isDate(dtStr, fldName) {
+    var daysInMonth = DaysArray(12);
+    var dtArray = dtStr.split(Mura.dtch);
+
+    if (dtArray.length != 3) {
+      //alert("The date format for the "+fldName+" field should be : short")
+      return false;
+    }
+
+    var strMonth = dtArray[Mura.dtformat[0]];
+    var strDay = dtArray[Mura.dtformat[1]];
+    var strYear = dtArray[Mura.dtformat[2]];
+    /*
+    if(strYear.length == 2){
+    	strYear="20" + strYear;
+    }
+    */
+
+    strYr = strYear;
+    if (strDay.charAt(0) == "0" && strDay.length > 1) strDay = strDay.substring(1);
+    if (strMonth.charAt(0) == "0" && strMonth.length > 1) strMonth = strMonth.substring(1);
+
+    for (var i = 1; i <= 3; i++) {
+      if (strYr.charAt(0) == "0" && strYr.length > 1) strYr = strYr.substring(1);
+    }
+
+    month = parseInt(strMonth);
+    day = parseInt(strDay);
+    year = parseInt(strYr);
+
+    if (month < 1 || month > 12) {
+      //alert("Please enter a valid month in the "+fldName+" field")
+      return false;
+    }
+
+    if (day < 1 || day > 31 || month == 2 && day > daysInFebruary(year) || day > daysInMonth[month]) {
+      //alert("Please enter a valid day	in the "+fldName+" field")
+      return false;
+    }
+
+    if (strYear.length != 4 || year == 0 || year < Mura.minYear || year > Mura.maxYear) {
+      //alert("Please enter a valid 4 digit year between "+Mura.minYear+" and "+Mura.maxYear +" in the "+fldName+" field")
+      return false;
+    }
+
+    if (isInteger(stripCharsInBag(dtStr, Mura.dtch)) == false) {
+      //alert("Please enter a valid date in the "+fldName+" field")
+      return false;
+    }
+
+    return true;
+  }
+  /**
+   * isEmail - Returns if value is valid email
+   *
+   * @param	{string} str String to parse for email
+   * @return {boolean}
+   * @memberof {class} Mura
+   */
+
+
+  function isEmail(e) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+  }
+
+  function initShadowBox(el) {
+    if (typeof window == 'undefined' || typeof window.document == 'undefined') {
+      return;
+    }
+
+    ;
+
+    if (Mura(el).find('[data-rel^="shadowbox"],[rel^="shadowbox"]').length) {
+      loader().load([Mura.context + '/core/modules/v1/core_assets/css/shadowbox.min.css', Mura.context + '/core/modules/v1/core_assets/js/shadowbox.js'], function () {
+        Mura('#shadowbox_overlay,#shadowbox_container').remove();
+        window.Shadowbox.init();
+      });
+    }
+  }
+  /**
+   * validateForm - Validates Mura form
+   *
+   * @name validateForm
+   * @param	{type} frm					Form element to validate
+   * @param	{function} customaction Custom action (optional)
+   * @return {boolean}
+   * @memberof {class} Mura
+   */
+
+
+  function validateForm(frm, customaction) {
+    function getValidationFieldName(theField) {
+      if (theField.getAttribute('data-label') != undefined) {
+        return theField.getAttribute('data-label');
+      } else if (theField.getAttribute('label') != undefined) {
+        return theField.getAttribute('label');
+      } else {
+        return theField.getAttribute('name');
+      }
+    }
+
+    function getValidationIsRequired(theField) {
+      if (theField.getAttribute('data-required') != undefined) {
+        return theField.getAttribute('data-required').toLowerCase() == 'true';
+      } else if (theField.getAttribute('required') != undefined) {
+        return theField.getAttribute('required').toLowerCase() == 'true';
+      } else {
+        return false;
+      }
+    }
+
+    function getValidationMessage(theField, defaultMessage) {
+      if (theField.getAttribute('data-message') != undefined) {
+        return theField.getAttribute('data-message');
+      } else if (theField.getAttribute('message') != undefined) {
+        return theField.getAttribute('message');
+      } else {
+        return getValidationFieldName(theField).toUpperCase() + defaultMessage;
+      }
+    }
+
+    function getValidationType(theField) {
+      if (theField.getAttribute('data-validate') != undefined) {
+        return theField.getAttribute('data-validate').toUpperCase();
+      } else if (theField.getAttribute('validate') != undefined) {
+        return theField.getAttribute('validate').toUpperCase();
+      } else {
+        return '';
+      }
+    }
+
+    function hasValidationMatchField(theField) {
+      if (theField.getAttribute('data-matchfield') != undefined && theField.getAttribute('data-matchfield') != '') {
+        return true;
+      } else if (theField.getAttribute('matchfield') != undefined && theField.getAttribute('matchfield') != '') {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    function getValidationMatchField(theField) {
+      if (theField.getAttribute('data-matchfield') != undefined) {
+        return theField.getAttribute('data-matchfield');
+      } else if (theField.getAttribute('matchfield') != undefined) {
+        return theField.getAttribute('matchfield');
+      } else {
+        return '';
+      }
+    }
+
+    function hasValidationRegex(theField) {
+      if (theField.value != undefined) {
+        if (theField.getAttribute('data-regex') != undefined && theField.getAttribute('data-regex') != '') {
+          return true;
+        } else if (theField.getAttribute('regex') != undefined && theField.getAttribute('regex') != '') {
+          return true;
+        }
+      } else {
+        return false;
+      }
+    }
+
+    function getValidationRegex(theField) {
+      if (theField.getAttribute('data-regex') != undefined) {
+        return theField.getAttribute('data-regex');
+      } else if (theField.getAttribute('regex') != undefined) {
+        return theField.getAttribute('regex');
+      } else {
+        return '';
+      }
+    }
+
+    var theForm = frm;
+    var errors = "";
+    var setFocus = 0;
+    var started = false;
+    var startAt;
+    var firstErrorNode;
+    var validationType = '';
+    var validations = {
+      properties: {}
+    };
+    var frmInputs = theForm.getElementsByTagName("input");
+    var rules = new Array();
+    var data = {};
+    var $customaction = customaction;
+
+    for (var f = 0; f < frmInputs.length; f++) {
+      var theField = frmInputs[f];
+      validationType = getValidationType(theField).toUpperCase();
+      rules = new Array();
+
+      if (theField.style.display == "") {
+        if (getValidationIsRequired(theField)) {
+          rules.push({
+            required: true,
+            message: getValidationMessage(theField, ' is required.')
+          });
+        }
+
+        if (validationType != '') {
+          if (validationType == 'EMAIL' && theField.value != '') {
+            rules.push({
+              dataType: 'EMAIL',
+              message: getValidationMessage(theField, ' must be a valid email address.')
+            });
+          } else if (validationType == 'NUMERIC' && theField.value != '') {
+            rules.push({
+              dataType: 'NUMERIC',
+              message: getValidationMessage(theField, ' must be numeric.')
+            });
+          } else if (validationType == 'REGEX' && theField.value != '' && hasValidationRegex(theField)) {
+            rules.push({
+              regex: getValidationRegex(theField),
+              message: getValidationMessage(theField, ' is not valid.')
+            });
+          } else if (validationType == 'MATCH' && hasValidationMatchField(theField) && theField.value != theForm[getValidationMatchField(theField)].value) {
+            rules.push({
+              eq: theForm[getValidationMatchField(theField)].value,
+              message: getValidationMessage(theField, ' must match' + getValidationMatchField(theField) + '.')
+            });
+          } else if (validationType == 'DATE' && theField.value != '') {
+            rules.push({
+              dataType: 'DATE',
+              message: getValidationMessage(theField, ' must be a valid date [MM/DD/YYYY].')
+            });
+          }
+        }
+
+        if (rules.length) {
+          validations.properties[theField.getAttribute('name')] = rules; //if(!Array.isArray(data[theField.getAttribute('name')])){
+
+          data[theField.getAttribute('name')] = []; //}
+
+          for (var v = 0; v < frmInputs.length; v++) {
+            if (frmInputs[v].getAttribute('name') == theField.getAttribute('name')) {
+              if (frmInputs[v].getAttribute('type').toLowerCase() == 'checkbox' || frmInputs[v].getAttribute('type').toLowerCase() == 'radio') {
+                if (frmInputs[v].checked) {
+                  data[theField.getAttribute('name')].push(frmInputs[v].value);
+                }
+              } else if (typeof frmInputs[v].value != 'undefined' && frmInputs[v].value != '') {
+                data[theField.getAttribute('name')].push(frmInputs[v].value);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    for (var p in data) {
+      if (data.hasOwnProperty(p)) {
+        data[p] = data[p].join();
+      }
+    }
+
+    var frmTextareas = theForm.getElementsByTagName("textarea");
+
+    for (f = 0; f < frmTextareas.length; f++) {
+      theField = frmTextareas[f];
+      validationType = getValidationType(theField);
+      rules = new Array();
+
+      if (theField.style.display == "" && getValidationIsRequired(theField)) {
+        rules.push({
+          required: true,
+          message: getValidationMessage(theField, ' is required.')
+        });
+      } else if (validationType != '') {
+        if (validationType == 'REGEX' && theField.value != '' && hasValidationRegex(theField)) {
+          rules.push({
+            regex: getValidationRegex(theField),
+            message: getValidationMessage(theField, ' is not valid.')
+          });
+        }
+      }
+
+      if (rules.length) {
+        validations.properties[theField.getAttribute('name')] = rules;
+        data[theField.getAttribute('name')] = theField.value;
+      }
+    }
+
+    var frmSelects = theForm.getElementsByTagName("select");
+
+    for (f = 0; f < frmSelects.length; f++) {
+      theField = frmSelects[f];
+      validationType = getValidationType(theField);
+      rules = new Array();
+
+      if (theField.style.display == "" && getValidationIsRequired(theField)) {
+        rules.push({
+          required: true,
+          message: getValidationMessage(theField, ' is required.')
+        });
+      }
+
+      if (rules.length) {
+        validations.properties[theField.getAttribute('name')] = rules;
+        data[theField.getAttribute('name')] = theField.value;
+      }
+    }
+
+    try {
+      //alert(JSON.stringify(validations));
+      //console.log(data);
+      //console.log(validations);
+      ajax({
+        type: 'post',
+        url: Mura.getAPIEndpoint() + '?method=validate',
+        data: {
+          data: encodeURIComponent(JSON.stringify(data)),
+          validations: encodeURIComponent(JSON.stringify(validations)),
+          version: 4
+        },
+        success: function success(resp) {
+          data = resp.data;
+
+          if (Object.keys(data).length === 0) {
+            if (typeof $customaction == 'function') {
+              $customaction(theForm);
+              return false;
+            } else {
+              document.createElement('form').submit.call(theForm);
+            }
+          } else {
+            var msg = '';
+
+            for (var e in data) {
+              msg = msg + data[e] + '\n';
+            }
+
+            alert(msg);
+          }
+        },
+        error: function error(resp) {
+          alert(JSON.stringify(resp));
+        }
+      });
+    } catch (err) {
+      console.log(err);
+    }
+
+    return false;
+  }
+
+  function setLowerCaseKeys(obj) {
+    for (var key in obj) {
+      if (key !== key.toLowerCase()) {
+        // might already be in its lower case version
+        obj[key.toLowerCase()] = obj[key]; // swap the value to a new lower case key
+
+        delete obj[key]; // delete the old key
+      }
+
+      if (_typeof(obj[key.toLowerCase()]) == 'object') {
+        setLowerCaseKeys(obj[key.toLowerCase()]);
+      }
+    }
+
+    return obj;
+  }
+
+  function isScrolledIntoView(el) {
+    if (typeof window == 'undefined' || typeof window.document == 'undefined' || window.innerHeight) {
+      true;
+    }
+
+    try {
+      var elemTop = el.getBoundingClientRect().top;
+      var elemBottom = el.getBoundingClientRect().bottom;
+    } catch (e) {
+      return true;
+    }
+
+    var isVisible = elemTop < window.innerHeight && elemBottom >= 0;
+    return isVisible;
+  }
+  /**
+   * loader - Returns Mura.Loader
+   *
+   * @name loader
+   * @return {Mura.Loader}
+   * @memberof {class} Mura
+   */
+
+
+  function loader() {
+    return Mura.ljs;
+  }
+
+  var layoutmanagertoolbar = '<span class="mura-fetborder mura-fetborder-left"></span><span class="mura-fetborder mura-fetborder-right"></span><span class="mura-fetborder mura-fetborder-top"></span><span class="mura-fetborder mura-fetborder-bottom"></span><div class="frontEndToolsModal mura"><span class="mura-edit-icon"></span><span class="mura-edit-label"></span></div>';
+
+  function processMarkup(scope) {
+    return new Promise(function (resolve, reject) {
+      if (!(scope instanceof Mura.DOMSelection)) {
+        scope = select(scope);
+      }
+
+      function find(selector) {
+        return scope.find(selector);
+      }
+
+      var processors = [function () {
+        //if layout manager UI exists check for rendered regions and remove them from additional regions
+        if (Mura('.mura__layout-manager__display-regions').length) {
+          find('.mura-region').each(function () {
+            var region = Mura(this);
+            var isEditRegion = region.closest('.mura-region__item');
+
+            if (!isEditRegion.length) {
+              Mura('.mura-region__item[data-regionid="' + region.data('regionid') + '"]').remove();
+            }
+          });
+
+          if (!Mura('.mura__layout-manager__display-regions .mura-region__item').length) {
+            Mura('#mura-objects-openregions-btn, .mura__layout-manager__display-regions').remove();
+          }
+        }
+      }, function () {
+        find('.mura-object, .mura-async-object').each(function () {
+          processDisplayObject(this, Mura.queueobjects).then(resolve);
+        });
+      }, function () {
+        find(".htmlEditor").each(function (el) {
+          setHTMLEditor(this);
+        });
+      }, function () {
+        if (find(".cffp_applied,	.cffp_mm, .cffp_kp").length) {
+          var fileref = document.createElement('script');
+          fileref.setAttribute("type", "text/javascript");
+          fileref.setAttribute("src", Mura.corepath + '/vendor/cfformprotect/js/cffp.js');
+          document.getElementsByTagName("head")[0].appendChild(fileref);
+        }
+      }, function () {
+        Mura.reCAPTCHALanguage = Mura.reCAPTCHALanguage || 'en';
+
+        if (find(".g-recaptcha").length) {
+          var fileref = document.createElement('script');
+          fileref.setAttribute("type", "text/javascript");
+          fileref.setAttribute("src", "https://www.recaptcha.net/recaptcha/api.js?onload=MuraCheckForReCaptcha&render=explicit&hl=" + Mura.reCAPTCHALanguage);
+          document.getElementsByTagName("head")[0].appendChild(fileref);
+        }
+
+        if (find(".g-recaptcha-container").length) {
+          loader().loadjs("https://www.recaptcha.net/recaptcha/api.js?onload=MuraCheckForReCaptcha&render=explicit&hl=" + Mura.reCAPTCHALanguage, function () {
+            find(".g-recaptcha-container").each(function (el) {
+              var notready = 0;
+              ;
+
+              window.MuraCheckForReCaptcha = function () {
+                Mura('.g-recaptcha-container').each(function () {
+                  var self = this;
+
+                  if ((typeof grecaptcha === "undefined" ? "undefined" : _typeof(grecaptcha)) == 'object' && typeof grecaptcha.render != 'undefined' && !self.innerHTML) {
+                    self.setAttribute('data-widgetid', grecaptcha.render(self.getAttribute('id'), {
+                      'sitekey': self.getAttribute('data-sitekey'),
+                      'theme': self.getAttribute('data-theme'),
+                      'type': self.getAttribute('data-type')
+                    }));
+                  } else {
+                    notready++;
+                  }
+                });
+
+                if (notready) {
+                  setTimeout(function () {
+                    window.MuraCheckForReCaptcha();
+                  }, 10);
+                }
+              };
+
+              window.MuraCheckForReCaptcha();
+            });
+          });
+        }
+      }, function () {
+        if (typeof resizeEditableObject == 'function') {
+          scope.closest('.editableObject').each(function () {
+            resizeEditableObject(this);
+          });
+          find(".editableObject").each(function () {
+            resizeEditableObject(this);
+          });
+        }
+      }, function () {
+        if (Mura.handleObjectClick == 'function') {
+          find('.mura-object, .frontEndToolsModal').on('click', Mura.handleObjectClick);
+        }
+
+        if (typeof window != 'undefined' && typeof window.document != 'undefined' && window.MuraInlineEditor && window.MuraInlineEditor.checkforImageCroppers) {
+          find("img").each(function () {
+            window.muraInlineEditor.checkforImageCroppers(this);
+          });
+        }
+      }, function () {
+        initShadowBox(scope.node);
+      }, function () {
+        if (typeof urlparams.muraadminpreview != 'undefined') {
+          find("a").each(function () {
+            var h = this.getAttribute('href');
+
+            if (typeof h == 'string' && h.indexOf('muraadminpreview') == -1) {
+              h = h + (h.indexOf('?') != -1 ? "&muraadminpreview&mobileformat=" + Mura.mobileformat : "?muraadminpreview&muraadminpreview&mobileformat=" + Mura.mobileformat);
+              this.setAttribute('href', h);
+            }
+          });
+        }
+      }];
+
+      for (var h = 0; h < processors.length; h++) {
+        processors[h]();
+      }
+    });
+  }
+
+  function addEventHandler(eventName, fn) {
+    if (_typeof(eventName) == 'object') {
+      for (var h in eventName) {
+        if (eventName.hasOwnProperty(h)) {
+          on(document, h, eventName[h]);
+        }
+      }
+    } else {
+      on(document, eventName, fn);
+    }
+  }
+
+  function submitForm(frm, obj) {
+    frm = frm.node ? frm.node : frm;
+
+    if (obj) {
+      obj = obj.node ? obj : Mura(obj);
+    } else {
+      obj = Mura(frm).closest('.mura-async-object');
+    }
+
+    if (!obj.length) {
+      Mura(frm).trigger('formSubmit', formToObject(frm));
+      frm.submit();
+    }
+
+    if (Mura.formdata && frm.getAttribute('enctype') == 'multipart/form-data') {
+      var data = new FormData(frm);
+      var checkdata = setLowerCaseKeys(formToObject(frm));
+      var keys = filterUnwantedParams(deepExtend(setLowerCaseKeys(obj.data()), urlparams, {
+        siteid: Mura.siteid,
+        contentid: Mura.contentid,
+        contenthistid: Mura.contenthistid,
+        nocache: 1
+      }));
+
+      if (obj.data('siteid')) {
+        keys.siteid = obj.data('siteid');
+      }
+
+      for (var k in keys) {
+        if (!(k in checkdata)) {
+          data.append(k, keys[k]);
+        }
+      }
+
+      if ('objectparams' in checkdata) {
+        data.append('objectparams2', encodeURIComponent(JSON.stringify(obj.data('objectparams'))));
+      }
+
+      if ('nocache' in checkdata) {
+        data.append('nocache', 1);
+      }
+      /*
+      if(data.object=='container' && data.content){
+      	delete data.content;
+      }
+      */
+
+
+      var postconfig = {
+        url: Mura.getAPIEndpoint() + '?method=processAsyncObject',
+        type: 'POST',
+        data: data,
+        success: function success(resp) {
+          //obj=Mura('div[data-instanceid="' + obj.data('instanceid') + '"]');
+          setTimeout(function () {
+            handleResponse(obj, resp);
+          }, 0);
+        }
+      };
+    } else {
+      var data = filterUnwantedParams(deepExtend(setLowerCaseKeys(obj.data()), urlparams, setLowerCaseKeys(formToObject(frm)), {
+        siteid: Mura.siteid,
+        contentid: Mura.contentid,
+        contenthistid: Mura.contenthistid,
+        nocache: 1
+      }));
+
+      if (obj.data('siteid')) {
+        data.siteid = obj.data('siteid');
+      }
+
+      if (data.object == 'container' && data.content) {
+        delete data.content;
+      }
+
+      if (!('g-recaptcha-response' in data)) {
+        var reCaptchaCheck = Mura(frm).find("#g-recaptcha-response");
+
+        if (reCaptchaCheck.length && typeof reCaptchaCheck.val() != 'undefined') {
+          data['g-recaptcha-response'] = eCaptchaCheck.val();
+        }
+      }
+
+      if ('objectparams' in data) {
+        data['objectparams'] = encodeURIComponent(JSON.stringify(data['objectparams']));
+      }
+
+      var postconfig = {
+        url: Mura.getAPIEndpoint() + '?method=processAsyncObject',
+        type: 'POST',
+        data: data,
+        success: function success(resp) {
+          //obj=Mura('div[data-instanceid="' + obj.data('instanceid') + '"]');
+          setTimeout(function () {
+            handleResponse(obj, resp);
+          }, 0);
+        }
+      };
+    }
+
+    var self = obj.node;
+    self.prevInnerHTML = self.innerHTML;
+    self.prevData = filterUnwantedParams(obj.data());
+
+    if (typeof self.prevData != 'undefined' && typeof self.prevData.preloadermarkup != 'undefined') {
+      self.innerHTML = self.prevData.preloadermarkup;
+    } else {
+      self.innerHTML = Mura.preloadermarkup;
+    }
+
+    Mura(frm).trigger('formSubmit', data);
+    ajax(postconfig);
+  }
+
+  function firstToUpperCase(str) {
+    return str.substr(0, 1).toUpperCase() + str.substr(1);
+  }
+
+  function resetAsyncObject(el, empty) {
+    var self = Mura(el);
+
+    function clearAttrs(obj) {
+      obj.removeClass('mura-active');
+      obj.removeAttr('data-perm');
+      obj.removeAttr('data-runtime');
+      obj.removeAttr('draggable');
+      obj.removeAttr('style');
+      obj.removeAttr('data-inited');
+      obj.removeAttr('data-startrow');
+      obj.removeAttr('data-pagenum');
+      obj.removeAttr('data-nextnid');
+      obj.removeAttr('data-origininstanceid');
+    }
+
+    if (self.data('transient')) {
+      self.remove();
+    } else {
+      if (typeof empty == 'undefined') {
+        empty = true;
+      }
+
+      clearAttrs(self);
+      var data = self.data();
+
+      for (var p in data) {
+        if (data.hasOwnProperty(p) && (typeof p == 'undefined' || data[p] === '')) {
+          self.removeAttr('data-' + p);
+        }
+      }
+
+      if (typeof Mura.displayObjectInstances[self.data('instanceid')] != 'undefined') {
+        Mura.displayObjectInstances[self.data('instanceid')].reset(self, empty);
+      }
+
+      if (empty) {
+        self.html('');
+      }
+    }
+  }
+
+  function processAsyncObject(el, usePreloaderMarkup) {
+    var obj = Mura(el);
+
+    if (obj.data('async') === null) {
+      obj.data('async', true);
+    }
+
+    if (typeof usePreloaderMarkup == 'undefined') {
+      usePreloaderMarkup = true;
+    }
+
+    return processDisplayObject(obj, false, true, false, usePreloaderMarkup);
+  }
+
+  function filterUnwantedParams(params) {
+    //Strip out unwanted attributes
+    var unwanted = ['iconclass', 'objectname', 'inited', 'params', 'stylesupport', 'cssstyles', 'metacssstyles', 'contentcssstyles', 'cssclass', 'cssid', 'metacssclass', 'metacssid', 'contentcssclass', 'contentcssid', 'transient', 'draggable'];
+
+    for (var c = 0; c < unwanted.length; c++) {
+      delete params[unwanted[c]];
+    }
+
+    return params;
+  }
+
+  function destroyDisplayObjects() {
+    for (var property in Mura.displayObjectInstances) {
+      if (Mura.displayObjectInstances.hasOwnProperty(property)) {
+        var obj = Mura.displayObjectInstances[property];
+
+        if (typeof obj.destroy == 'function') {
+          obj.destroy();
+        }
+
+        delete Mura.displayObjectInstances[property];
+      }
+    }
+  }
+
+  function destroyModules() {
+    destroyDisplayObjects();
+  }
+
+  function wireUpObject(obj, response, attempt) {
+    attempt = attempt || 0;
+    attempt++;
+    obj = obj.node ? obj : Mura(obj);
+    obj.data('inited', true);
+
+    if (response) {
+      if (typeof response == 'string') {
+        obj.html(trim(response));
+      } else if (typeof response.html == 'string' && response.render != 'client') {
+        obj.html(trim(response.html));
+      } else {
+        var context = filterUnwantedParams(deepExtend(obj.data(), response));
+        var template = obj.data('clienttemplate') || obj.data('object');
+        var properNameCheck = firstToUpperCase(template);
+
+        if (typeof Mura.DisplayObject[properNameCheck] != 'undefined') {
+          template = properNameCheck;
+        }
+
+        if (typeof context.async != 'undefined') {
+          obj.data('async', context.async);
+        }
+
+        if (typeof context.render != 'undefined') {
+          obj.data('render', context.render);
+        }
+
+        if (typeof context.rendertemplate != 'undefined') {
+          obj.data('rendertemplate', context.rendertemplate);
+        }
+
+        if (typeof Mura.DisplayObject[template] != 'undefined') {
+          context.html = '';
+
+          if (typeof Mura.displayObjectInstances[obj.data('instanceid')] != 'undefined') {
+            Mura.displayObjectInstances[obj.data('instanceid')].destroy();
+          }
+
+          obj.html(Mura.templates.content({
+            html: ''
+          }));
+          obj.prepend(Mura.templates.meta(context));
+          context.targetEl = obj.children('.mura-object-content').node;
+          Mura.displayObjectInstances[obj.data('instanceid')] = new Mura.DisplayObject[template](context);
+          Mura.displayObjectInstances[obj.data('instanceid')].trigger('beforeRender');
+          Mura.displayObjectInstances[obj.data('instanceid')].renderClient();
+        } else if (typeof Mura.templates[template] != 'undefined') {
+          context.html = '';
+          obj.html(Mura.templates.content(context));
+          obj.prepend(Mura.templates.meta(context));
+          context.targetEl = obj.children('.mura-object-content').node;
+          Mura.templates[template](context);
+        } else {
+          if (attempt < 1000) {
+            setTimeout(function () {
+              wireUpObject(obj, response, attempt);
+            }, 1);
+          } else {
+            console.log('Missing Client Template for:');
+            console.log(obj.data());
+          }
+        }
+      }
+    } else {
+      var context = filterUnwantedParams(obj.data());
+      var template = obj.data('clienttemplate') || obj.data('object');
+      var properNameCheck = firstToUpperCase(template);
+
+      if (typeof Mura.DisplayObject[properNameCheck] != 'undefined') {
+        template = properNameCheck;
+      }
+
+      if (typeof Mura.DisplayObject[template] == 'function') {
+        context.html = '';
+
+        if (typeof Mura.displayObjectInstances[obj.data('instanceid')] != 'undefined') {
+          Mura.displayObjectInstances[obj.data('instanceid')].destroy();
+        }
+
+        obj.html(Mura.templates.content({
+          html: ''
+        }));
+        obj.prepend(Mura.templates.meta(context));
+        context.targetEl = obj.children('.mura-object-content').node;
+        Mura.displayObjectInstances[obj.data('instanceid')] = new Mura.DisplayObject[template](context);
+        Mura.displayObjectInstances[obj.data('instanceid')].trigger('beforeRender');
+        Mura.displayObjectInstances[obj.data('instanceid')].renderClient();
+      } else if (typeof Mura.templates[template] != 'undefined') {
+        context.html = '';
+        obj.html(Mura.templates.content(context));
+        obj.prepend(Mura.templates.meta(context));
+        context.targetEl = obj.children('.mura-object-content').node;
+        Mura.templates[template](context);
+      } else {
+        if (attempt < 1000) {
+          setTimeout(function () {
+            wireUpObject(obj, response, attempt);
+          }, 1);
+        } else {
+          console.log('Missing Client Template for:');
+          console.log(obj.data());
+        }
+      }
+    }
+
+    obj.calculateDisplayObjectStyles();
+    obj.hide().show();
+
+    if (Mura.layoutmanager && Mura.editing) {
+      if (obj.hasClass('mura-body-object') || obj.is('div.mura-object[data-targetattr]')) {
+        obj.children('.frontEndToolsModal').remove();
+        obj.prepend(Mura.layoutmanagertoolbar);
+
+        if (obj.data('objectname')) {
+          obj.children('.frontEndToolsModal').children('.mura-edit-label').html(obj.data('objectname'));
+        } else {
+          obj.children('.frontEndToolsModal').children('.mura-edit-label').html(Mura.firstToUpperCase(obj.data('object')));
+        }
+
+        if (obj.data('objecticonclass')) {
+          obj.children('.frontEndToolsModal').children('.mura-edit-label').addClass(obj.data('objecticonclass'));
+        }
+
+        MuraInlineEditor.setAnchorSaveChecks(obj.node);
+        obj.addClass('mura-active').hover(Mura.initDraggableObject_hoverin, Mura.initDraggableObject_hoverin);
+      } else {
+        if (Mura.type == 'Variation') {
+          var objectData = obj.data();
+
+          if (MuraInlineEditor && (MuraInlineEditor.objectHasConfigurator(obj) || !Mura.layoutmanager && MuraInlineEditor.objectHasEditor(objectData))) {
+            obj.children('.frontEndToolsModal').remove();
+            obj.prepend(Mura.layoutmanagertoolbar);
+
+            if (obj.data('objectname')) {
+              obj.children('.frontEndToolsModal').children('.mura-edit-label').html(obj.data('objectname'));
+            } else {
+              obj.children('.frontEndToolsModal').children('.mura-edit-label').html(Mura.firstToUpperCase(obj.data('object')));
+            }
+
+            if (obj.data('objecticonclass')) {
+              obj.children('.frontEndToolsModal').children('.mura-edit-label').addClass(obj.data('objecticonclass'));
+            }
+
+            MuraInlineEditor.setAnchorSaveChecks(obj.node);
+            obj.off('click', Mura.handleObjectClick).on('click', Mura.handleObjectClick);
+            obj.find("img").each(function () {
+              MuraInlineEditor.checkforImageCroppers(this);
+            });
+            obj.addClass('mura-active').hover(function (e) {
+              e.stopPropagation();
+              Mura('.mura-active-target').removeClass('mura-active-target');
+              Mura(this).addClass('mura-active-target');
+            }, function (e) {
+              e.stopPropagation();
+              Mura(this).removeClass('mura-active-target');
+            });
+            Mura.initDraggableObject(obj.node);
+          }
+        } else {
+          var lcaseObject = obj.data('object');
+
+          if (typeof lcaseObject == 'string') {
+            lcaseObject = lcaseObject.toLowerCase();
+          }
+
+          var region = Mura(obj.node).closest(".mura-region-local");
+
+          if (region && region.length) {
+            if (region.data('perm')) {
+              var objectData = obj.data();
+
+              if (MuraInlineEditor && (MuraInlineEditor.objectHasConfigurator(obj) || !Mura.layoutmanager && MuraInlineEditor.objectHasEditor(objectData))) {
+                obj.children('.frontEndToolsModal').remove();
+                obj.prepend(Mura.layoutmanagertoolbar);
+
+                if (obj.data('objectname')) {
+                  obj.children('.frontEndToolsModal').children('.mura-edit-label').html(obj.data('objectname'));
+                } else {
+                  obj.children('.frontEndToolsModal').children('.mura-edit-label').html(Mura.firstToUpperCase(obj.data('object')));
+                }
+
+                if (obj.data('objecticonclass')) {
+                  obj.children('.frontEndToolsModal').children('.mura-edit-label').addClass(obj.data('objecticonclass'));
+                }
+
+                obj.off('click', Mura.handleObjectClick).on('click', Mura.handleObjectClick);
+                obj.find("img").each(function () {
+                  MuraInlineEditor.checkforImageCroppers(this);
+                });
+                MuraInlineEditor.setAnchorSaveChecks(obj.node);
+                obj.addClass('mura-active').hover(function (e) {
+                  e.stopPropagation();
+                  Mura('.mura-active-target').removeClass('mura-active-target');
+                  Mura(this).addClass('mura-active-target');
+                }, function (e) {
+                  e.stopPropagation();
+                  Mura(this).removeClass('mura-active-target');
+                });
+                Mura.initDraggableObject(obj.node);
+              }
+            }
+          } else if (lcaseObject == 'form' || lcaseObject == 'component') {
+            if (obj.data('perm')) {
+              var objectData = obj.data();
+
+              if (window.MuraInlineEditor.objectHasConfigurator(obj) || !window.Mura.layoutmanager && window.MuraInlineEditor.objectHasEditor(objectData)) {
+                obj.addClass('mura-active');
+                obj.hover(Mura.initDraggableObject_hoverin, Mura.initDraggableObject_hoverout);
+                obj.data('notconfigurable', true);
+                obj.children('.frontEndToolsModal').remove();
+                obj.prepend(Mura.layoutmanagertoolbar);
+
+                if (obj.data('objectname')) {
+                  obj.children('.frontEndToolsModal').children('.mura-edit-label').html(obj.data('objectname'));
+                } else {
+                  obj.children('.frontEndToolsModal').children('.mura-edit-label').html(Mura.firstToUpperCase(obj.data('object')));
+                }
+
+                if (obj.data('objecticonclass')) {
+                  obj.children('.frontEndToolsModal').children('.mura-edit-label').addClass(obj.data('objecticonclass'));
+                }
+
+                obj.off('click', Mura.handleObjectClick).on('click', Mura.handleObjectClick);
+                obj.find("img").each(function () {
+                  MuraInlineEditor.checkforImageCroppers(this);
+                });
+                obj.addClass('mura-active').hover(function (e) {
+                  //e.stopPropagation();
+                  Mura('.mura-active-target').removeClass('mura-active-target');
+                  Mura(this).addClass('mura-active-target');
+                }, function (e) {
+                  //e.stopPropagation();
+                  Mura(this).removeClass('mura-active-target');
+                });
+              }
+            }
+          }
+        }
+      }
+    }
+
+    obj.hide().show();
+
+    if (obj.data('object') != 'container' || obj.data('content')) {
+      processMarkup(obj.node);
+    }
+
+    if (obj.data('object') != 'container') {
+      obj.find('a[href="javascript:history.back();"]').each(function () {
+        Mura(this).off("click").on("click", function (e) {
+          if (obj.node.prevInnerHTML) {
+            e.preventDefault();
+            wireUpObject(obj, obj.node.prevInnerHTML);
+
+            if (obj.node.prevData) {
+              for (var p in obj.node.prevData) {
+                select('[name="' + p + '"]').val(obj.node.prevData[p]);
+              }
+            }
+
+            obj.node.prevInnerHTML = false;
+            obj.node.prevData = false;
+          }
+        });
+      });
+      obj.find('form').each(function () {
+        var form = Mura(this);
+
+        if (form.closest('.mura-object').data('instanceid') == obj.data('instanceid')) {
+          if (form.data('async') || !(form.hasData('async') && !form.data('async')) && !(form.hasData('autowire') && !form.data('autowire')) && !form.attr('action') && !form.attr('onsubmit') && !form.attr('onSubmit')) {
+            form.on('submit', function (e) {
+              e.preventDefault();
+              validateForm(this, function (frm) {
+                submitForm(frm, obj);
+              });
+              return false;
+            });
+          }
+        }
+      });
+    }
+
+    obj.trigger('asyncObjectRendered');
+  }
+
+  function handleResponse(obj, resp) {
+    obj = obj.node ? obj : Mura(obj); // handle HTML response
+
+    resp = !resp.data ? {
+      data: resp
+    } : resp;
+
+    if (typeof resp.data.redirect != 'undefined') {
+      if (resp.data.redirect && resp.data.redirect != location.href) {
+        location.href = resp.data.redirect;
+      } else {
+        location.reload(true);
+      }
+    } else if (resp.data.apiEndpoint) {
+      ajax({
+        type: "POST",
+        xhrFields: {
+          withCredentials: true
+        },
+        crossDomain: true,
+        url: resp.data.apiEndpoint,
+        data: resp.data,
+        success: function success(data) {
+          if (typeof data == 'string') {
+            wireUpObject(obj, data);
+          } else if (_typeof(data) == 'object' && 'html' in data) {
+            wireUpObject(obj, data.html);
+          } else if (_typeof(data) == 'object' && 'data' in data && 'html' in data.data) {
+            wireUpObject(obj, data.data.html);
+          } else {
+            wireUpObject(obj, data.data);
+          }
+        }
+      });
+    } else {
+      wireUpObject(obj, resp.data);
+    }
+  }
+
+  function processDisplayObject(el, queue, rerender, resolveFn, usePreloaderMarkup) {
+    try {
+      var obj = el.node ? el : Mura(el);
+
+      if (obj.data('queue') != null) {
+        queue = obj.data('queue');
+
+        if (typeof queue == 'string') {
+          queue = queue.toLowerCase();
+
+          if (queue == 'no' || queue == 'false') {
+            queue = false;
+            obj.data('queue', false);
+          } else {
+            queue = true;
+            obj.data('queue', true);
+          }
+        }
+      }
+
+      var rendered = rerender && !obj.data('async') ? false : obj.children('.mura-object-content').length;
+      queue = queue == null || rendered ? false : queue;
+
+      if (document.createEvent && queue && !isScrolledIntoView(obj.node)) {
+        if (!resolveFn) {
+          return new Promise(function (resolve, reject) {
+            resolve = resolve || function () {};
+
+            setTimeout(function () {
+              processDisplayObject(obj.node, true, false, resolve, usePreloaderMarkup);
+            }, 10);
+          });
+        } else {
+          setTimeout(function () {
+            var resp = processDisplayObject(obj.node, true, false, resolveFn, usePreloaderMarkup);
+
+            if (_typeof(resp) == 'object' && typeof resolveFn == 'function') {
+              resp.then(resolveFn);
+            }
+          }, 10);
+          return;
+        }
+      }
+
+      if (!obj.node.getAttribute('data-instanceid')) {
+        obj.node.setAttribute('data-instanceid', createUUID());
+      } //if(obj.data('async')){
+
+
+      obj.addClass("mura-async-object"); //}
+
+      if (rendered && !obj.data('async')) {
+        return new Promise(function (resolve, reject) {
+          obj.calculateDisplayObjectStyles();
+
+          if (!rerender && obj.data('render') == 'client' && obj.children('.mura-object-content').length) {
+            var context = filterUnwantedParams(obj.data());
+
+            if (typeof context.instanceid != 'undefined' && typeof Mura.hydrationData[context.instanceid] != 'undefined') {
+              Mura.extend(context, Mura.hydrationData[context.instanceid]);
+            }
+
+            var template = obj.data('clienttemplate') || obj.data('object');
+            var properNameCheck = firstToUpperCase(template);
+
+            if (typeof Mura.DisplayObject[properNameCheck] != 'undefined') {
+              template = properNameCheck;
+            }
+
+            if (typeof Mura.DisplayObject[template] != 'undefined') {
+              context.targetEl = obj.children('.mura-object-content').node;
+              Mura.displayObjectInstances[obj.data('instanceid')] = new Mura.DisplayObject[template](context);
+              Mura.displayObjectInstances[obj.data('instanceid')].trigger('beforeRender');
+              Mura.displayObjectInstances[obj.data('instanceid')].hydrate();
+            } else {
+              console.log('Missing Client Template for:');
+              console.log(obj.data());
+            }
+
+            obj.data('inited', true);
+          }
+
+          obj.find('form').each(function () {
+            var form = Mura(this);
+
+            if (form.closest('.mura-object').data('instanceid') == obj.data('instanceid')) {
+              if (form.data('async') || !(form.hasData('async') && !form.data('async')) && !(form.hasData('autowire') && !form.data('autowire')) && !form.attr('action') && !form.attr('onsubmit') && !form.attr('onSubmit')) {
+                form.on('submit', function (e) {
+                  e.preventDefault();
+                  validateForm(this, function (frm) {
+                    submitForm(frm, obj);
+                  });
+                  return false;
+                });
+              }
+            }
+          });
+
+          if (typeof resolve == 'function') {
+            resolve(obj);
+          }
+        });
+      }
+
+      return new Promise(function (resolve, reject) {
+        var data = deepExtend(setLowerCaseKeys(obj.data()), urlparams, {
+          siteid: Mura.siteid,
+          contentid: Mura.contentid,
+          contenthistid: Mura.contenthistid
+        });
+
+        if (obj.data('siteid')) {
+          data.siteid = obj.node.getAttribute('data-siteid');
+        }
+
+        if (obj.data('contentid')) {
+          data.contentid = obj.node.getAttribute('data-contentid');
+        }
+
+        if (obj.data('contenthistid')) {
+          data.contenthistid = obj.node.getAttribute('data-contenthistid');
+        }
+
+        if ('objectparams' in data) {
+          data['objectparams'] = encodeURIComponent(JSON.stringify(data['objectparams']));
+        }
+
+        if (!obj.data('async') && obj.data('render') == 'client') {
+          wireUpObject(obj);
+
+          if (typeof resolve == 'function') {
+            if (typeof resolve.call == 'undefined') {
+              resolve(obj);
+            } else {
+              resolve.call(obj.node, obj);
+            }
+          }
+        } else {
+          //console.log(data);
+          if (usePreloaderMarkup) {
+            if (typeof data.preloadermarkup != 'undefined') {
+              obj.node.innerHTML = data.preloadermarkup;
+              delete data.preloadermarkup;
+            } else {
+              obj.node.innerHTML = Mura.preloadermarkup;
+            }
+          }
+
+          var requestType = 'get';
+          var requestData = filterUnwantedParams(data);
+          var postCheck = new RegExp(/<\/?[a-z][\s\S]*>/i);
+
+          for (var p in requestData) {
+            if (requestData.hasOwnProperty(p) && requestData[p] && postCheck.test(requestData[p])) {
+              requestType = 'post';
+              break;
+            }
+          }
+
+          ajax({
+            url: Mura.getAPIEndpoint() + '?method=processAsyncObject',
+            type: requestType,
+            data: requestData,
+            success: function success(resp) {
+              //obj=Mura('div[data-instanceid="' + obj.data('instanceid') + '"]');
+              setTimeout(function () {
+                handleResponse(obj, resp);
+
+                if (typeof resolve == 'function') {
+                  if (typeof resolve.call == 'undefined') {
+                    resolve(obj);
+                  } else {
+                    resolve.call(obj.node, obj);
+                  }
+                }
+              }, 0);
+            }
+          });
+        }
+      });
+    } catch (e) {
+      console.error(e);
+
+      if (typeof resolve == 'function') {
+        resolve(obj);
+      }
+    }
+  }
+
+  function processModule(el, queue, rerender, resolveFn, usePreloaderMarkup) {
+    return processDisplayObject(el, queue, rerender, resolveFn, usePreloaderMarkup);
+  }
+
+  var hashparams = {};
+  var urlparams = {};
+
+  function handleHashChange() {
+    if (typeof location != 'undefined') {
+      var hash = location.hash;
+    } else {
+      var hash = '';
+    }
+
+    if (hash) {
+      hash = hash.substring(1);
+    }
+
+    if (hash) {
+      hashparams = getQueryStringParams(hash);
+
+      if (hashparams.nextnid) {
+        Mura('.mura-async-object[data-nextnid="' + hashparams.nextnid + '"]').each(function () {
+          Mura(this).data(hashparams);
+          processAsyncObject(this);
+        });
+      } else if (hashparams.objectid) {
+        Mura('.mura-async-object[data-objectid="' + hashparams.objectid + '"]').each(function () {
+          Mura(this).data(hashparams);
+          processAsyncObject(this);
+        });
+      }
+    }
+  }
+  /**
+   * trim - description
+   *
+   * @param	{string} str Trims string
+   * @return {string}		 Trimmed string
+   * @memberof {class} Mura
+   */
+
+
+  function trim(str) {
+    return str.replace(/^\s+|\s+$/gm, '');
+  }
+
+  function extendClass(baseClass, subClass) {
+    var muraObject = function muraObject() {
+      this.init.apply(this, arguments);
+    };
+
+    muraObject.prototype = Object.create(baseClass.prototype);
+    muraObject.prototype.constructor = muraObject;
+    muraObject.prototype.handlers = {};
+
+    muraObject.reopen = function (subClass) {
+      Mura.extend(muraObject.prototype, subClass);
+    };
+
+    muraObject.reopenClass = function (subClass) {
+      Mura.extend(muraObject, subClass);
+    };
+
+    muraObject.on = function (eventName, fn) {
+      eventName = eventName.toLowerCase();
+
+      if (typeof muraObject.prototype.handlers[eventName] == 'undefined') {
+        muraObject.prototype.handlers[eventName] = [];
+      }
+
+      if (!fn) {
+        return muraObject;
+      }
+
+      for (var i = 0; i < muraObject.prototype.handlers[eventName].length; i++) {
+        if (muraObject.prototype.handlers[eventName][i] == handler) {
+          return muraObject;
+        }
+      }
+
+      muraObject.prototype.handlers[eventName].push(fn);
+      return muraObject;
+    };
+
+    muraObject.off = function (eventName, fn) {
+      eventName = eventName.toLowerCase();
+
+      if (typeof muraObject.prototype.handlers[eventName] == 'undefined') {
+        muraObject.prototype.handlers[eventName] = [];
+      }
+
+      if (!fn) {
+        muraObject.prototype.handlers[eventName] = [];
+        return muraObject;
+      }
+
+      for (var i = 0; i < muraObject.prototype.handlers[eventName].length; i++) {
+        if (muraObject.prototype.handlers[eventName][i] == handler) {
+          muraObject.prototype.handlers[eventName].splice(i, 1);
+        }
+      }
+
+      return muraObject;
+    };
+
+    Mura.extend(muraObject.prototype, subClass);
+    return muraObject;
+  }
+  /**
+   * getQueryStringParams - Returns object of params in string
+   *
+   * @name getQueryStringParams
+   * @param	{string} queryString Query String
+   * @return {object}
+   * @memberof {class} Mura
+   */
+
+
+  function getQueryStringParams(queryString) {
+    if (typeof location == 'undefined') {
+      return {};
+    }
+
+    queryString = queryString || location.search;
+    var params = {};
+
+    var e,
+        a = /\+/g,
+        // Regex for replacing addition symbol with a space
+    r = /([^&;=]+)=?([^&;]*)/g,
+        d = function d(s) {
+      return decodeURIComponent(s.replace(a, " "));
+    };
+
+    if (queryString.substring(0, 1) == '?') {
+      var q = queryString.substring(1);
+    } else {
+      var q = queryString;
+    }
+
+    while (e = r.exec(q)) {
+      params[d(e[1]).toLowerCase()] = d(e[2]);
+    }
+
+    return params;
+  }
+  /**
+   * getHREFParams - Returns object of params in string
+   *
+   * @name getHREFParams
+   * @param	{string} href
+   * @return {object}
+   * @memberof {class} Mura
+   */
+
+
+  function getHREFParams(href) {
+    var a = href.split('?');
+
+    if (a.length == 2) {
+      return getQueryStringParams(a[1]);
+    } else {
+      return {};
+    }
+  }
+
+  function inArray(elem, array, i) {
+    var len;
+
+    if (array) {
+      if (array.indexOf) {
+        return array.indexOf.call(array, elem, i);
+      }
+
+      len = array.length;
+      i = i ? i < 0 ? Math.max(0, len + i) : i : 0;
+
+      for (; i < len; i++) {
+        // Skip accessing in sparse arrays
+        if (i in array && array[i] === elem) {
+          return i;
+        }
+      }
+    }
+
+    return -1;
+  }
+  /**
+   * getStyleSheet - Returns a stylesheet object;
+   *
+   * @param	{string} id Text string
+   * @return {object}						Self
+   */
+
+
+  function getStyleSheet(id) {
+    var sheet = Mura('#' + id);
+
+    if (sheet.length) {
+      return sheet.get(0).sheet;
+    } else {
+      Mura('HEAD').append('<style id="' + id + '" type="text/css"></style>');
+      return Mura('#' + id).get(0).sheet;
+    }
+  }
+  /**
+   * setRequestHeader - Initialiazes feed
+   *
+   * @name setRequestHeader
+   * @param	{string} headerName	Name of header
+   * @param	{string} value Header value
+   * @return {Mura.RequestContext} Self
+   * @memberof {class} Mura
+   */
+
+
+  function setRequestHeader(headerName, value) {
+    Mura.requestHeaders[headerName] = value;
+    return this;
+  }
+  /**
+   * getRequestHeader - Returns a request header value
+   *
+   * @name getRequestHeader
+   * @param	{string} headerName	Name of header
+   * @return {string} header Value
+   * @memberof {class} Mura
+   */
+
+
+  function getRequestHeader(headerName) {
+    if (typeof Mura.requestHeaders[headerName] != 'undefined') {
+      return Mura.requestHeaders[headerName];
+    } else {
+      return null;
+    }
+  }
+  /**
+   * getRequestHeaders - Returns a request header value
+   *
+   * @name getRequestHeaders
+   * @return {object} All Headers
+   * @memberof {class} Mura
+   */
+
+
+  function getRequestHeaders() {
+    return Mura.requestHeaders;
+  } //http://werxltd.com/wp/2010/05/13/javascript-implementation-of-javas-string-hashcode-method/
+
+  /**
+   * hashCode - description
+   *
+   * @name hashCode
+   * @param	{string} s String to hash
+   * @return {string}
+   * @memberof {class} Mura
+   */
+
+
+  function hashCode(s) {
+    var hash = 0,
+        strlen = s.length,
+        i,
+        c;
+
+    if (strlen === 0) {
+      return hash;
+    }
+
+    for (i = 0; i < strlen; i++) {
+      c = s.charCodeAt(i);
+      hash = (hash << 5) - hash + c;
+      hash = hash & hash; // Convert to 32bit integer
+    }
+
+    return hash >>> 0;
+  }
+  /**
+   * Returns if the current request s running in Node.js
+  **/
+
+
+  function isInNode() {
+    return typeof process !== 'undefined' && {}.toString.call(process) === '[object process]' || typeof document == 'undefined';
+  }
+  /**
+   * Global Request Headers
+  **/
+
+
+  var requestHeaders = {};
+
+  function getBreakpoint() {
+    if (typeof document != 'undefined') {
+      var width = document.documentElement.clientWidth;
+
+      if (Mura.editing) {
+        width = width - 300;
+      }
+
+      if (width >= 1200) {
+        return 'lg';
+      } else if (width >= 992) {
+        return 'md';
+      } else if (width >= 769) {
+        return 'sm';
+      } else {
+        return 'xs';
+      }
+    } else {
+      return '';
+    }
+  }
+
+  function throttle(func, interval) {
+    var timeout;
+    return function () {
+      var context = this,
+          args = arguments;
+
+      var later = function later() {
+        timeout = false;
+      };
+
+      if (!timeout) {
+        func.apply(context, args);
+        timeout = true;
+        setTimeout(later, interval);
+      }
+    };
+  }
+
+  function debounce(func, interval) {
+    var timeout;
+    return function () {
+      var context = this,
+          args = arguments;
+
+      var later = function later() {
+        timeout = null;
+        func.apply(context, args);
+      };
+
+      clearTimeout(timeout);
+      timeout = setTimeout(later, interval || 200);
+    };
+  }
+
+  function getAPIEndpoint() {
+    if (Mura.apiendpoint) {
+      Mura.apiEndpoint = Mura.apiendpoint;
+      delete Mura.apiendpoint;
+
+      if (Mura.mode.toLowerCase() == 'rest') {
+        Mura.apiEndpoint = Mura.apiEndpoint.replace('/json/', '/rest/');
+      }
+    }
+
+    return Mura.apiEndpoint;
+  } //Mura.init
+
+
+  function init(config) {
+    if (typeof config.content != 'undefined') {
+      if (typeof config.content.get == 'undefined') {
+        config.content = getEntity('content').set(config.content);
+      }
+
+      Mura.extend(config, config.content.get('config'));
+    }
+
+    if (config.rootpath) {
+      config.context = config.rootpath;
+    }
+
+    if (config.endpoint) {
+      config.context = config.endpoint;
+    }
+
+    if (!config.context) {
+      config.context = '';
+    }
+
+    if (!config.rootpath) {
+      config.rootpath = config.context;
+    }
+
+    if (!config.assetpath) {
+      config.assetpath = config.context + "/sites/" + config.siteid;
+    }
+
+    if (!config.siteassetpath) {
+      config.siteassetpath = config.assetpath;
+    }
+
+    if (!config.fileassetpath) {
+      config.fileassetpath = config.assetpath;
+    }
+
+    if (config.apiendpoint) {
+      config.apiEndpoint = config.apiendpoint;
+      delete config.apiendpoint;
+    }
+
+    if (!config.apiEndpoint) {
+      config.apiEndpoint = config.context + '/index.cfm/_api/json/v1/' + config.siteid + '/';
+    }
+
+    if (config.apiEndpoint.indexOf('/_api/') == -1) {
+      config.apiEndpoint = config.apiEndpoint + '/index.cfm/_api/json/v1/' + config.siteid + '/';
+    }
+
+    if (!config.pluginspath) {
+      config.pluginspath = config.context + '/plugins';
+    }
+
+    if (!config.corepath) {
+      config.corepath = config.context + '/core';
+    }
+
+    if (!config.jslib) {
+      config.jslib = 'jquery';
+    }
+
+    if (!config.perm) {
+      config.perm = 'none';
+    }
+
+    if (typeof config.layoutmanager == 'undefined') {
+      config.layoutmanager = false;
+    }
+
+    if (typeof config.mobileformat == 'undefined') {
+      config.mobileformat = false;
+    }
+
+    if (typeof config.queueObjects != 'undefined') {
+      config.queueobjects = config.queueObjects;
+      delete config.queueobjects;
+    }
+
+    if (typeof config.queueobjects == 'undefined') {
+      config.queueobjects = true;
+    }
+
+    if (typeof config.rootdocumentdomain != 'undefined' && config.rootdocumentdomain != '') {
+      document.domain = config.rootdocumentdomain;
+    }
+
+    if (typeof config.preloaderMarkup != 'undefined') {
+      config.preloadermarkup = config.preloaderMarkup;
+      delete config.preloaderMarkup;
+    }
+
+    if (typeof config.preloadermarkup == 'undefined') {
+      config.preloadermarkup = '';
+    }
+
+    if (typeof config.rb == 'undefined') {
+      config.rb = {};
+    }
+
+    if (typeof config.dtExample != 'undefined') {
+      config.dtexample = config.dtExample;
+      delete config.dtExample;
+    }
+
+    if (typeof config.dtexample == 'undefined') {
+      config.dtexample = "11/10/2021";
+    }
+
+    if (typeof config.dtCh != 'undefined') {
+      config.dtch = config.dtCh;
+      delete config.dtCh;
+    }
+
+    if (typeof config.dtch == 'undefined') {
+      config.dtch = "/";
+    }
+
+    if (typeof config.dtFormat != 'undefined') {
+      config.dtformat = config.dtFormat;
+      delete config.dtFormat;
+    }
+
+    if (typeof config.dtformat == 'undefined') {
+      config.dtformat = [0, 1, 2];
+    }
+
+    if (typeof config.dtLocale != 'undefined') {
+      config.dtlocale = config.dtLocale;
+      delete config.dtLocale;
+    }
+
+    if (typeof config.dtlocale == 'undefined') {
+      config.dtlocale = "en-US";
+    }
+
+    if (typeof config.useHTML5DateInput != 'undefined') {
+      config.usehtml5dateinput = config.useHTML5DateInput;
+      delete config.usehtml5dateinput;
+    }
+
+    if (typeof config.usehtml5dateinput == 'undefined') {
+      config.usehtml5dateinput = false;
+    }
+
+    if (typeof config.cookieConsentEnabled != 'undefined') {
+      config.cookieconsentenabled = config.cookieConsentEnabled;
+      delete config.cookieConsentEnabled;
+    }
+
+    if (typeof config.cookieconsentenabled == 'undefined') {
+      config.cookieconsentenabled = false;
+    }
+
+    config.formdata = typeof FormData != 'undefined' ? true : false;
+    var initForDataOnly = false;
+
+    if (typeof config.processMarkup != 'undefined') {
+      initForDataOnly = typeof config.processMarkup != 'function' && !config.processMarkup;
+      delete config.processMarkup;
+    } else if (typeof config.processmarkup != 'undefined') {
+      initForDataOnly = typeof config.processmarkup != 'function' && !config.processmarkup;
+      delete config.processmarkup;
+    }
+
+    extend(Mura, config);
+    Mura.trackingMetadata = {};
+    Mura.hydrationData = {};
+
+    if (typeof config.content != 'undefined' && typeof config.content.get != 'undefined' && config.content.get('displayregions')) {
+      for (var r in config.content.properties.displayregions) {
+        if (config.content.properties.displayregions.hasOwnProperty(r)) {
+          var data = config.content.properties.displayregions[r];
+
+          if (typeof data.inherited != 'undefined' && typeof data.inherited.items != 'undefined') {
+            for (var d in data.inherited.items) {
+              Mura.hydrationData[data.inherited.items[d].instanceid] = data.inherited.items[d];
+            }
+          }
+
+          if (typeof data.local != 'undefined' && typeof data.local.items != 'undefined') {
+            for (var d in data.local.items) {
+              Mura.hydrationData[data.local.items[d].instanceid] = data.local.items[d];
+            }
+          }
+        }
+      }
+    }
+
+    Mura.dateformat = generateDateFormat();
+
+    if (Mura.mode.toLowerCase() == 'rest') {
+      Mura.apiEndpoint = Mura.apiEndpoint.replace('/json/', '/rest/');
+    }
+
+    if (typeof XMLHttpRequest == 'undefined' && typeof Mura.request != 'undefined' && typeof Mura.response != 'undefined') {
+      Mura._requestcontext = Mura.getRequestContext(Mura.request, Mura.response);
+    } else {
+      Mura._requestcontext = Mura.getRequestContext();
+    }
+
+    if (typeof window != 'undefined' && typeof window.document != 'undefined') {
+      if (Array.isArray(window.queuedMuraCmds) && window.queuedMuraCmds.length) {
+        holdingQueue = window.queuedMuraCmds.concat(holdingQueue);
+        window.queuedMuraCmds = [];
+      }
+
+      if (Array.isArray(window.queuedMuraPreInitCmds) && window.queuedMuraPreInitCmds.length) {
+        holdingPreInitQueue = window.queuedMuraPreInitCmds.concat(holdingPreInitQueue);
+        window.queuedMuraPreInitCmds = [];
+      }
+    }
+
+    if (!initForDataOnly) {
+      destroyDisplayObjects();
+      Mura(function () {
+        for (var cmd in holdingPreInitQueue) {
+          if (typeof holdingPreInitQueue[cmd] == 'function') {
+            holdingPreInitQueue[cmd](Mura);
+          } else {
+            console.log("PreInit queue item not a function");
+            console.log(holdingPreInitQueue[cmd]);
+          }
+        }
+
+        if (typeof window != 'undefined' && typeof window.document != 'undefined') {
+          var hash = location.hash;
+
+          if (hash) {
+            hash = hash.substring(1);
+          }
+
+          urlparams = setLowerCaseKeys(getQueryStringParams(location.search));
+
+          if (hashparams.nextnid) {
+            Mura('.mura-async-object[data-nextnid="' + hashparams.nextnid + '"]').each(function () {
+              Mura(this).data(hashparams);
+            });
+          } else if (hashparams.objectid) {
+            Mura('.mura-async-object[data-nextnid="' + hashparams.objectid + '"]').each(function () {
+              Mura(this).data(hashparams);
+            });
+          }
+
+          Mura(window).on('hashchange', handleHashChange);
+          Mura(document).on('click', 'div.mura-object .mura-next-n a,div.mura-object .mura-search-results div.moreResults a,div.mura-object div.mura-pagination a', function (e) {
+            e.preventDefault();
+            var href = Mura(e.target).attr('href');
+
+            if (href != '#') {
+              var hArray = href.split('?');
+              var source = Mura(e.target);
+              var data = setLowerCaseKeys(getQueryStringParams(hArray[hArray.length - 1]));
+              var obj = source.closest('div.mura-object');
+              obj.data(data);
+              processAsyncObject(obj.node).then(function () {
+                try {
+                  if (typeof window != 'undefined' && typeof document != 'undefined') {
+                    var rect = obj.node.getBoundingClientRect();
+                    var elemTop = rect.top;
+
+                    if (elemTop < 0) {
+                      window.scrollTo(0, Mura(document).scrollTop() + elemTop);
+                    }
+                  }
+                } catch (e) {
+                  console.log(e);
+                }
+              });
+            }
+          });
+
+          if (!Mura.inAdmin) {
+            processMarkup(document);
+          }
+
+          Mura.markupInitted = true;
+
+          if (Mura.cookieconsentenabled) {
+            Mura(function () {
+              Mura('body').appendDisplayObject({
+                object: 'cookie_consent',
+                queue: false,
+                statsid: 'cookie_consent'
+              });
+            });
+          }
+
+          Mura(document).on("keydown", function (event) {
+            loginCheck(event.which);
+          });
+          Mura.breakpoint = getBreakpoint();
+          Mura.windowResponsiveModules = {};
+          window.addEventListener("resize", function () {
+            clearTimeout(Mura.windowResizeID);
+            Mura.windowResizeID = setTimeout(doneResizing, 250);
+
+            function doneResizing() {
+              var breakpoint = getBreakpoint();
+
+              if (breakpoint != Mura.breakpoint) {
+                Mura.breakpoint = breakpoint;
+                Mura('.mura-object').each(function () {
+                  var obj = Mura(this);
+                  var instanceid = obj.data('instanceid');
+
+                  if (typeof Mura.windowResponsiveModules[instanceid] == 'undefined' || Mura.windowResponsiveModules[instanceid]) {
+                    obj.calculateDisplayObjectStyles(true);
+                  }
+                });
+              }
+
+              delete Mura.windowResizeID;
+            }
+          });
+          Mura(document).trigger('muraReady');
+        }
+      });
+      readyInternal(initReadyQueue);
+    }
+
+    return Mura;
+  }
+
+  var Mura = extend(function (selector, context) {
+    if (typeof selector == 'function') {
+      Mura.ready(selector);
+      return this;
+    } else {
+      if (typeof context == 'undefined') {
+        return select(selector);
+      } else {
+        return select(context).find(selector);
+      }
+    }
+  }, {
+    preInit: function preInit(fn) {
+      if (holdingReady) {
+        holdingPreInitQueue.push(fn);
+      } else {
+        Mura(fn);
+      }
+    },
+    generateOAuthToken: generateOAuthToken,
+    entities: {},
+    submitForm: submitForm,
+    escapeHTML: escapeHTML,
+    unescapeHTML: unescapeHTML,
+    processDisplayObject: processDisplayObject,
+    processModule: processModule,
+    processAsyncObject: processAsyncObject,
+    resetAsyncObject: resetAsyncObject,
+    setLowerCaseKeys: setLowerCaseKeys,
+    throttle: throttle,
+    debounce: debounce,
+    noSpam: noSpam,
+    addLoadEvent: addLoadEvent,
+    loader: loader,
+    addEventHandler: addEventHandler,
+    trigger: trigger,
+    ready: ready,
+    on: on,
+    off: off,
+    extend: extend,
+    inArray: inArray,
+    isNumeric: isNumeric,
+    post: post,
+    get: get,
+    deepExtend: deepExtend,
+    ajax: ajax,
+    changeElementType: changeElementType,
+    setHTMLEditor: setHTMLEditor,
+    each: each,
+    parseHTML: parseHTML,
+    getData: getData,
+    getProps: getProps,
+    isEmptyObject: isEmptyObject,
+    isScrolledIntoView: isScrolledIntoView,
+    evalScripts: evalScripts,
+    validateForm: validateForm,
+    escape: $escape,
+    unescape: $unescape,
+    getBean: getEntity,
+    getEntity: getEntity,
+    getCurrentUser: getCurrentUser,
+    renderFilename: renderFilename,
+    findQuery: findQuery,
+    getFeed: getFeed,
+    login: login,
+    logout: logout,
+    extendClass: extendClass,
+    init: init,
+    formToObject: formToObject,
+    createUUID: createUUID,
+    isUUID: isUUID,
+    processMarkup: processMarkup,
+    getQueryStringParams: getQueryStringParams,
+    layoutmanagertoolbar: layoutmanagertoolbar,
+    parseString: parseString,
+    createCookie: createCookie,
+    readCookie: readCookie,
+    trim: trim,
+    hashCode: hashCode,
+    DisplayObject: {},
+    displayObjectInstances: {},
+    destroyDisplayObjects: destroyDisplayObjects,
+    destroyModules: destroyModules,
+    holdReady: holdReady,
+    trackEvent: trackEvent,
+    recordEvent: trackEvent,
+    isInNode: isInNode,
+    getRequestContext: getRequestContext,
+    getDefaultRequestContext: getDefaultRequestContext,
+    requestHeaders: requestHeaders,
+    setRequestHeader: setRequestHeader,
+    getRequestHeader: getRequestHeaders,
+    getRequestHeaders: getRequestHeaders,
+    mode: 'json',
+    declareEntity: declareEntity,
+    undeclareEntity: undeclareEntity,
+    buildDisplayRegion: buildDisplayRegion,
+    openGate: openGate,
+    firstToUpperCase: firstToUpperCase,
+    normalizeRequestHandler: normalizeRequestHandler,
+    getStyleSheet: getStyleSheet,
+    getBreakpoint: getBreakpoint,
+    getAPIEndpoint: getAPIEndpoint,
+    inAdmin: false,
+    lmv: 2,
+    homeid: '00000000000000000000000000000000001'
+  });
+  Mura.Module = Mura.DisplayObject;
+  return Mura;
+}();
+
+module.exports = Mura;
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(133)))
 
 /***/ }),
@@ -13782,200 +13642,226 @@ module.exports = function (regExp, replace) {
 
 module.exports = __webpack_require__(342);
 
-
 /***/ }),
 /* 342 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(process) {if(!(typeof process !== 'undefined' && {}.toString.call(process) === '[object process]' || typeof document =='undefined')){
-__webpack_require__(343);
+/* WEBPACK VAR INJECTION */(function(process) {if (!(typeof process !== 'undefined' && {}.toString.call(process) === '[object process]' || typeof document == 'undefined')) {
+  __webpack_require__(343);
 }
 
-const Mura=__webpack_require__(8);
+var Mura = __webpack_require__(8);
 
 __webpack_require__(344);
+
 __webpack_require__(345);
+
 __webpack_require__(346);
+
 __webpack_require__(347);
+
 __webpack_require__(348);
+
 __webpack_require__(349);
+
 __webpack_require__(350);
+
 __webpack_require__(351);
+
 __webpack_require__(352);
+
 __webpack_require__(353);
+
 __webpack_require__(354);
+
 __webpack_require__(355);
+
 __webpack_require__(356);
+
 __webpack_require__(357);
+
 __webpack_require__(358);
+
 __webpack_require__(359);
+
 __webpack_require__(360);
+
 __webpack_require__(361);
+
 __webpack_require__(362);
+
 __webpack_require__(363);
+
 __webpack_require__(364);
 
-if(Mura.isInNode()){
-	/*
-		This is an attempt to hide the require('request') from webpack
-		It's also ignored in the webpack.config.js
-		Need to switch to 
-		https://github.com/node-fetch/
-	*/
-	Mura._request=eval("require('request')");
-
-	Mura._escapeHTML=eval("require('escape-html')");
-} else if (typeof window != 'undefined'){
-
-	window.m=Mura;
-	window.mura=Mura;
-	window.Mura=Mura;
-	window.validateForm=Mura.validateForm;
-	window.setHTMLEditor=Mura.setHTMLEditor;
-	window.createCookie=Mura.createCookie;
-	window.readCookie=Mura.readCookie;
-	window.addLoadEvent=Mura.addLoadEvent;
-	window.noSpam=Mura.noSpam;
-	window.initMura=Mura.init;
+if (Mura.isInNode()) {
+  /*
+  	This is an attempt to hide the require('request') from webpack
+  	It's also ignored in the webpack.config.js
+  	Need to switch to 
+  	https://github.com/node-fetch/
+  */
+  Mura._request = eval("require('request')");
+  Mura._escapeHTML = eval("require('escape-html')");
+} else if (typeof window != 'undefined') {
+  window.m = Mura;
+  window.mura = Mura;
+  window.Mura = Mura;
+  window.validateForm = Mura.validateForm;
+  window.setHTMLEditor = Mura.setHTMLEditor;
+  window.createCookie = Mura.createCookie;
+  window.readCookie = Mura.readCookie;
+  window.addLoadEvent = Mura.addLoadEvent;
+  window.noSpam = Mura.noSpam;
+  window.initMura = Mura.init;
 }
 
-module.exports=Mura;
-
+module.exports = Mura;
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(133)))
 
 /***/ }),
 /* 343 */
 /***/ (function(module, exports, __webpack_require__) {
 
-if(typeof window !='undefined' && typeof window.document != 'undefined'){
-	window.Element && function(ElementPrototype) {
-		ElementPrototype.matchesSelector = ElementPrototype.matchesSelector ||
-		ElementPrototype.mozMatchesSelector ||
-		ElementPrototype.msMatchesSelector ||
-		ElementPrototype.oMatchesSelector ||
-		ElementPrototype.webkitMatchesSelector ||
-		function (selector) {
-			var node = this, nodes = (node.parentNode || node.document).querySelectorAll(selector), i = -1;
-			while (nodes[++i] && nodes[i] != node);
-			return !!nodes[i];
-		}
-	}(Element.prototype);
+if (typeof window != 'undefined' && typeof window.document != 'undefined') {
+  window.Element && function (ElementPrototype) {
+    ElementPrototype.matchesSelector = ElementPrototype.matchesSelector || ElementPrototype.mozMatchesSelector || ElementPrototype.msMatchesSelector || ElementPrototype.oMatchesSelector || ElementPrototype.webkitMatchesSelector || function (selector) {
+      var node = this,
+          nodes = (node.parentNode || node.document).querySelectorAll(selector),
+          i = -1;
 
-	//https://github.com/filamentgroup/loadCSS/blob/master/src/cssrelpreload.js
-	/*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
-	/* This file is meant as a standalone workflow for
-	- testing support for link[rel=preload]
-	- enabling async CSS loading in browsers that do not support rel=preload
-	- applying rel preload css once loaded, whether supported or not.
-	*/
-	(function( w ){
-		"use strict";
-		// rel=preload support test
-		if( !w.loadCSS ){
-			w.loadCSS = function(){};
-		}
-		// define on the loadCSS obj
-		var rp = loadCSS.relpreload = {};
-		// rel=preload feature support test
-		// runs once and returns a function for compat purposes
-		rp.support = (function(){
-			var ret;
-			try {
-				ret = w.document.createElement( "link" ).relList.supports( "preload" );
-			} catch (e) {
-				ret = false;
-			}
-			return function(){
-				return ret;
-			};
-		})();
-		// if preload isn't supported, get an asynchronous load by using a non-matching media attribute
-		// then change that media back to its intended value on load
-		rp.bindMediaToggle = function( link ){
-			// remember existing media attr for ultimate state, or default to 'all'
-			var finalMedia = link.media || "all";
+      while (nodes[++i] && nodes[i] != node) {
+        ;
+      }
 
-			function enableStylesheet(){
-				link.media = finalMedia;
-			}
-			// bind load handlers to enable media
-			if( link.addEventListener ){
-				link.addEventListener( "load", enableStylesheet );
-			} else if( link.attachEvent ){
-				link.attachEvent( "onload", enableStylesheet );
-			}
-			// Set rel and non-applicable media type to start an async request
-			// note: timeout allows this to happen async to let rendering continue in IE
-			setTimeout(function(){
-				link.rel = "stylesheet";
-				link.media = "only x";
-			});
-			// also enable media after 3 seconds,
-			// which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
-			setTimeout( enableStylesheet, 3000 );
-		};
-		// loop through link elements in DOM
-		rp.poly = function(){
-			// double check this to prevent external calls from running
-			if( rp.support() ){
-				return;
-			}
-			var links = w.document.getElementsByTagName( "link" );
-			for( var i = 0; i < links.length; i++ ){
-				var link = links[ i ];
-				// qualify links to those with rel=preload and as=style attrs
-				if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
-					// prevent rerunning on link
-					link.setAttribute( "data-loadcss", true );
-					// bind listeners to toggle media back
-					rp.bindMediaToggle( link );
-				}
-			}
-		};
-		// if unsupported, run the polyfill
-		if( !rp.support() ){
-			// run once at least
-			rp.poly();
-			// rerun poly on an interval until onload
-			var run = w.setInterval( rp.poly, 500 );
-			if( w.addEventListener ){
-				w.addEventListener( "load", function(){
-					rp.poly();
-					w.clearInterval( run );
-				} );
-			} else if( w.attachEvent ){
-				w.attachEvent( "onload", function(){
-					rp.poly();
-					w.clearInterval( run );
-				} );
-			}
-		}
-		// commonjs
-		if( true ){
-			exports.loadCSS = loadCSS;
-		}
-		else {}
-	}( window ) );
+      return !!nodes[i];
+    };
+  }(Element.prototype); //https://github.com/filamentgroup/loadCSS/blob/master/src/cssrelpreload.js
 
-	//https://stackoverflow.com/questions/44091567/how-to-cover-a-div-with-an-img-tag-like-background-image-does
-	if ('objectFit' in document.documentElement.style === false) {
-		document.addEventListener('DOMContentLoaded', function() {
-		  Array.prototype.forEach.call(document.querySelectorAll('img[data-object-fit]'), image => {
-			(image.runtimeStyle || image.style).background = `url("${image.src}") no-repeat 50%/${image.currentStyle ? image.currentStyle['object-fit'] : image.getAttribute('data-object-fit')}`
-			image.src = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='${image.width}' height='${image.height}'%3E%3C/svg%3E`
-		  })
-		})
-	}
+  /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+
+  /* This file is meant as a standalone workflow for
+  - testing support for link[rel=preload]
+  - enabling async CSS loading in browsers that do not support rel=preload
+  - applying rel preload css once loaded, whether supported or not.
+  */
+
+  (function (w) {
+    "use strict"; // rel=preload support test
+
+    if (!w.loadCSS) {
+      w.loadCSS = function () {};
+    } // define on the loadCSS obj
+
+
+    var rp = loadCSS.relpreload = {}; // rel=preload feature support test
+    // runs once and returns a function for compat purposes
+
+    rp.support = function () {
+      var ret;
+
+      try {
+        ret = w.document.createElement("link").relList.supports("preload");
+      } catch (e) {
+        ret = false;
+      }
+
+      return function () {
+        return ret;
+      };
+    }(); // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+    // then change that media back to its intended value on load
+
+
+    rp.bindMediaToggle = function (link) {
+      // remember existing media attr for ultimate state, or default to 'all'
+      var finalMedia = link.media || "all";
+
+      function enableStylesheet() {
+        link.media = finalMedia;
+      } // bind load handlers to enable media
+
+
+      if (link.addEventListener) {
+        link.addEventListener("load", enableStylesheet);
+      } else if (link.attachEvent) {
+        link.attachEvent("onload", enableStylesheet);
+      } // Set rel and non-applicable media type to start an async request
+      // note: timeout allows this to happen async to let rendering continue in IE
+
+
+      setTimeout(function () {
+        link.rel = "stylesheet";
+        link.media = "only x";
+      }); // also enable media after 3 seconds,
+      // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+
+      setTimeout(enableStylesheet, 3000);
+    }; // loop through link elements in DOM
+
+
+    rp.poly = function () {
+      // double check this to prevent external calls from running
+      if (rp.support()) {
+        return;
+      }
+
+      var links = w.document.getElementsByTagName("link");
+
+      for (var i = 0; i < links.length; i++) {
+        var link = links[i]; // qualify links to those with rel=preload and as=style attrs
+
+        if (link.rel === "preload" && link.getAttribute("as") === "style" && !link.getAttribute("data-loadcss")) {
+          // prevent rerunning on link
+          link.setAttribute("data-loadcss", true); // bind listeners to toggle media back
+
+          rp.bindMediaToggle(link);
+        }
+      }
+    }; // if unsupported, run the polyfill
+
+
+    if (!rp.support()) {
+      // run once at least
+      rp.poly(); // rerun poly on an interval until onload
+
+      var run = w.setInterval(rp.poly, 500);
+
+      if (w.addEventListener) {
+        w.addEventListener("load", function () {
+          rp.poly();
+          w.clearInterval(run);
+        });
+      } else if (w.attachEvent) {
+        w.attachEvent("onload", function () {
+          rp.poly();
+          w.clearInterval(run);
+        });
+      }
+    } // commonjs
+
+
+    if (true) {
+      exports.loadCSS = loadCSS;
+    } else {}
+  })(window); //https://stackoverflow.com/questions/44091567/how-to-cover-a-div-with-an-img-tag-like-background-image-does
+
+
+  if ('objectFit' in document.documentElement.style === false) {
+    document.addEventListener('DOMContentLoaded', function () {
+      Array.prototype.forEach.call(document.querySelectorAll('img[data-object-fit]'), function (image) {
+        (image.runtimeStyle || image.style).background = 'url("' + image.src + '") no-repeat 50%/' + (image.currentStyle ? image.currentStyle['object-fit'] : image.getAttribute('data-object-fit')) + '"';
+        image.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="' + image.width + '" height="' + image.height + '%3E%3C/svg%3E';
+      });
+    });
+  }
 }
-
 
 /***/ }),
 /* 344 */
 /***/ (function(module, exports, __webpack_require__) {
 
-
-var Mura=__webpack_require__(8);
-
+var Mura = __webpack_require__(8);
 /**
 * Creates a new Mura.Core
 * @name Mura.Core
@@ -13985,57 +13871,59 @@ var Mura=__webpack_require__(8);
 * @return {Mura.Core}
 */
 
-function Core(){
-	this.init.apply(this,arguments);
-	return this;
+
+function Core() {
+  this.init.apply(this, arguments);
+  return this;
 }
-
 /** @lends Mura.Core.prototype */
-Core.prototype=
-	{
-	init:function(){},
-	/**
-	 * invoke - Invokes a method
-	 *
-	 * @param  {string} funcName Method to call
-	 * @param  {object} params Arguments to submit to method
-	 * @return {any}
-	 */
-	invoke:function(funcName,params){
-		var self = this;
-		params=params || {};
 
-		if(this[funcName]=='function'){
-			return this[funcName].apply(this,params);
-		}
-	},
 
-	/**
-	 * trigger - Triggers custom event on Mura objects
-	 *
-	 * @name Mura.Core.trigger
-	 * @function
-	 * @param  {string} eventName  Name of header
-	 * @return {object}  Self
-	 */
-	trigger:function(eventName){
-		eventName=eventName.toLowerCase();
-		if(typeof this.prototype.handlers[eventName] != 'undefined'){
-			var handlers=this.prototype.handlers[eventName];
-			for(var handler in handlers){
-				if(typeof handler.call == 'undefined'){
-					handler(this);
-				} else {
-					handler.call(this,this);
-				}
+Core.prototype = {
+  init: function init() {},
 
-			}
-		}
+  /**
+   * invoke - Invokes a method
+   *
+   * @param  {string} funcName Method to call
+   * @param  {object} params Arguments to submit to method
+   * @return {any}
+   */
+  invoke: function invoke(funcName, params) {
+    var self = this;
+    params = params || {};
 
-		return this;
-	},
+    if (this[funcName] == 'function') {
+      return this[funcName].apply(this, params);
+    }
+  },
+
+  /**
+   * trigger - Triggers custom event on Mura objects
+   *
+   * @name Mura.Core.trigger
+   * @function
+   * @param  {string} eventName  Name of header
+   * @return {object}  Self
+   */
+  trigger: function trigger(eventName) {
+    eventName = eventName.toLowerCase();
+
+    if (typeof this.prototype.handlers[eventName] != 'undefined') {
+      var handlers = this.prototype.handlers[eventName];
+
+      for (var handler in handlers) {
+        if (typeof handler.call == 'undefined') {
+          handler(this);
+        } else {
+          handler.call(this, this);
+        }
+      }
+    }
+
+    return this;
+  }
 };
-
 /** @lends Mura.Core.prototype */
 
 /**
@@ -14046,1152 +13934,1222 @@ Core.prototype=
  * @param  {object} properties  Properties to add to new class prototype
  * @return {class}  Self
  */
-Core.extend=function(properties){
-	var self=this;
-	return Mura.extend(Mura.extendClass(self,properties),{extend:self.extend,handlers:[]});
+
+Core.extend = function (properties) {
+  var self = this;
+  return Mura.extend(Mura.extendClass(self, properties), {
+    extend: self.extend,
+    handlers: []
+  });
 };
 
-Mura.Core=Core;
-
+Mura.Core = Core;
 
 /***/ }),
 /* 345 */
 /***/ (function(module, exports, __webpack_require__) {
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-var Mura=__webpack_require__(8);
+var Mura = __webpack_require__(8);
 
-(function(Mura){
-"use strict";	
+(function (Mura) {
+  "use strict";
+  /**
+  * Creates a new Mura.Request
+  * @name	Mura.Request
+  * @class
+  * @extends Mura.Core
+  * @memberof Mura
+  * @param	{object} request		 Siteid
+  * @param	{object} response Entity name
+  * @param	{object} requestHeaders Optional
+  * @return {Mura.Request}	Self
+  */
 
-/**
-* Creates a new Mura.Request
-* @name	Mura.Request
-* @class
-* @extends Mura.Core
-* @memberof Mura
-* @param	{object} request		 Siteid
-* @param	{object} response Entity name
-* @param	{object} requestHeaders Optional
-* @return {Mura.Request}	Self
-*/
+  Mura.Request = Mura.Core.extend(
+  /** @lends Mura.Request.prototype */
+  {
+    init: function init(request, response, headers) {
+      this.requestObject = request;
+      this.responseObject = response;
+      this.requestHeaders = headers || {};
+      return this;
+    },
 
-Mura.Request=Mura.Core.extend(
-	/** @lends Mura.Request.prototype */
-	{
-		init: function(request, response, headers) {
-			this.requestObject=request;
-			this.responseObject=response;
-			this.requestHeaders=headers || {};
-			return this;
-		},
+    /**
+    * execute - Make ajax request
+    *
+    * @param	{object} params
+    * @return {Promise}
+    */
+    execute: function execute(params) {
+      if (!('type' in params)) {
+        params.type = 'GET';
+      }
 
-		/**
-		* execute - Make ajax request
-		*
-		* @param	{object} params
-		* @return {Promise}
-		*/
-		execute: function(params) {
-			
-			if (!('type' in params)) {
-				params.type = 'GET';
-			}
-			if (!('success' in params)) {
-				params.success = function() {};
-			}
-			if (!('data' in params)) {
-				params.data = {};
-			}
-			if (!('headers' in params)) {
-				params.headers = {};
-			}
-			if(typeof XMLHttpRequest == 'undefined'){
-				this.nodeRequest(params);
-			} else {
-				this.xhrRequest(params);
-			}
-		},
-		/**
-		 * setRequestHeader - Initialiazes feed
-		 *
-		 * @param	{string} headerName	Name of header
-		 * @param	{string} value Header value
-		 * @return {Mura.RequestContext}						Self
-		 */
-		setRequestHeader:function(headerName,value){
-			this.requestHeaders[headerName]=value;
-			return this;
-		},
-		/**
-		 * getRequestHeader - Returns a request header value
-		 *
-		 * @param	{string} headerName	Name of header
-		 * @return {string} header Value
-		 */
-		getRequestHeader:function(headerName){
-			 if(typeof this.requestHeaders[headerName] != 'undefined'){
-				 return this.requestHeaders[headerName];
-			 } else {
-				 return null;
-			 }
-		},
-		/**
-		 * getRequestHeaders - Returns a request header value
-		 *
-		 * @return {object} All Headers
-		 */
-		getRequestHeaders:function(){
-			return this.requestHeaders;
-		},
-		nodeRequest:function(params){
-			var debug=typeof Mura.debug != 'undefined' && Mura.debug;
-			var self=this;
-			if(typeof this.requestObject != 'undefined'){
-				params.headers['User-Agent']='MuraJS';
-				if(typeof this.requestObject.headers['cookie'] != 'undefined'){
-					if(debug){
-						console.log('pre cookies:');
-						console.log(this.requestObject.headers['cookie']);
-					}
-					params.headers['Cookie']=this.requestObject.headers['cookie'];
-				}
-				if(typeof this.requestObject.headers['x-client_id'] != 'undefined'){
-					params.headers['X-client_id']=this.requestObject.headers['x-client_id'];
-				}
-				if(typeof this.requestObject.headers['x-client_id'] != 'undefined'){
-					params.headers['X-client_id']=this.requestObject.headers['x-client_id'];
-				}
-				if(typeof this.requestObject.headers['X-client_secret'] != 'undefined'){
-					params.headers['X-client_secret']=this.requestObject.headers['X-client_secret'];
-				}
-				if(typeof this.requestObject.headers['x-client_secret'] != 'undefined'){
-					params.headers['X-client_secret']=this.requestObject.headers['x-client_secret'];
-				}
-				if(typeof this.requestObject.headers['X-access_token'] != 'undefined'){
-					params.headers['X-access_token']=this.requestObject.headers['X-access_token'];
-				}
-				if(typeof this.requestObject.headers['x-access_token'] != 'undefined'){
-					params.headers['X-access_token']=this.requestObject.headers['x-access_token'];
-				}
-				if(typeof this.requestObject.headers['x-client-id'] != 'undefined'){
-					params.headers['X-client-id']=this.requestObject.headers['x-client-id'];
-				}
-				if(typeof this.requestObject.headers['x-clien-id'] != 'undefined'){
-					params.headers['X-client-id']=this.requestObject.headers['x-client-id'];
-				}
-				if(typeof this.requestObject.headers['X-client_secret'] != 'undefined'){
-					params.headers['X-client-secret']=this.requestObject.headers['X-client-secret'];
-				}
-				if(typeof this.requestObject.headers['x-client-secret'] != 'undefined'){
-					params.headers['X-client-secret']=this.requestObject.headers['x-client-secret'];
-				}
-				if(typeof this.requestObject.headers['X-access-token'] != 'undefined'){
-					params.headers['X-access-token']=this.requestObject.headers['X-access-token'];
-				}
-				if(typeof this.requestObject.headers['x-access-token'] != 'undefined'){
-					params.headers['X-access-token']=this.requestObject.headers['x-access-token'];
-				}
-				if(typeof this.requestObject.headers['Authorization'] != 'undefined'){
-					params.headers['Authorization']=this.requestObject.headers['Authorization'];
-				}
-				if(typeof this.requestObject.headers['authorization'] != 'undefined'){
-					params.headers['Authorization']=this.requestObject.headers['authorization'];
-				}
-			}
-			for(var h in Mura.requestHeaders){
-					if(Mura.requestHeaders.hasOwnProperty(h)){
-							params.headers[h]= Mura.requestHeaders[h];
-					}
-			}
-			for(var h in this.requestHeaders){
-					if(this.requestHeaders.hasOwnProperty(h)){
-							params.headers[h]= this.requestHeaders[h];
-					}
-			}
-			//console.log('pre:')
-			//console.log(params.headers);
-			//console.log(params.headers)
-			if (params.type.toLowerCase() == 'post') {
-					Mura._request.post(
-						{
-							url: params.url,
-							formData: params.data,
-							headers: params.headers
-						},
-						nodeResponseHandler
-					);
-			} else {
-					if (params.url.indexOf('?') == -1) {
-							params.url += '?';
-					}
-					var query = [];
-					for (var key in params.data) {
-							query.push(Mura.escape(key) + '=' + Mura.escape(params.data[key]));
-					}
-					if(typeof params.data['muraPointInTime'] == 'undefined' && typeof Mura.pointInTime != 'undefined'){
-							query.push('muraPointInTime=' + Mura.escape(Mura.pointInTime));
-					}
-					query = query.join('&');
-					Mura._request(
-						{
-							url: params.url + query,
-							headers:params.headers
-						},
-						nodeResponseHandler
-					);
-			}
+      if (!('success' in params)) {
+        params.success = function () {};
+      }
 
-			function nodeResponseHandler(error, httpResponse, body) {
-				var debug=typeof Mura.debug != 'undefined' && Mura.debug;
-				if(typeof self.responseObject != 'undefined'
-					&& typeof httpResponse != 'undefined'
-					&& typeof httpResponse.headers != 'undefined'
-					&& typeof httpResponse.headers['set-cookie'] != 'undefined'){
-					var existingCookies=((typeof self.requestObject.headers['cookie'] != 'undefined') ? self.requestObject.headers['cookie'] : '').split("; ");
-					var newSetCookies=httpResponse.headers['set-cookie'];
-					if(debug){
-						console.log('response cookies:');
-						console.log(httpResponse.headers['set-cookie']);
-					}
-					if(!(newSetCookies instanceof Array)){
-						newSetCookies=[newSetCookies];
-					}
-					self.responseObject.setHeader('Set-Cookie',newSetCookies);
-					var cookieMap={};
-					var setMap={};
-					// pull out existing cookies
-					if(existingCookies.length){
-						for(var c in existingCookies){
-							var tempCookie=existingCookies[c];
-							if(typeof tempCookie != 'undefined'){
-								tempCookie=existingCookies[c].split(" ")[0].split("=");
-								if(tempCookie.length > 1){
-									cookieMap[tempCookie[0]]=tempCookie[1].split(';')[0];
-								}
-							}
-						}
-					}
-					if(debug){
-						console.log('existing 1:');
-						console.log(cookieMap);
-					}
-					// pull out new cookies
-					if(newSetCookies.length){
-						for(var c in newSetCookies){
-							var tempCookie=newSetCookies[c];
-							if(typeof tempCookie != 'undefined'){
-								tempCookie=tempCookie.split(" ")[0].split("=");
-								if(tempCookie.length > 1){
-									cookieMap[tempCookie[0]]=tempCookie[1].split(';')[0];
-								}
-							}
-						}
-					}
-					if(debug){
-						console.log('existing 2:');
-						console.log(cookieMap);
-					}
-					var cookie='';
-					// put cookies back in in the same order that they came out
-					if(existingCookies.length){
-						for(var c in existingCookies){
-							var tempCookie=existingCookies[c];
-							if(typeof tempCookie != 'undefined'){
-								tempCookie=tempCookie.split(" ")[0].split("=");
-								if(tempCookie.length > 1){
-									if(cookie != ''){
-										cookie=cookie + "; ";
-									}
-									setMap[tempCookie[0]]=true;
-									cookie=cookie + tempCookie[0] + "=" + cookieMap[tempCookie[0]];
-								}
-							}
-						}
-					}
-					if(newSetCookies.length){
-						for(var c in newSetCookies){
-							var tempCookie=newSetCookies[c];
-							if(typeof tempCookie != 'undefined'){
-								var tempCookie=tempCookie.split(" ")[0].split("=");
-								if(typeof setMap[tempCookie[0]] == 'undefined' && tempCookie.length > 1){
-									if(cookie != ''){
-										cookie=cookie + "; ";
-									}
-									setMap[tempCookie[0]]=true;
-									cookie=cookie + tempCookie[0] + "=" + cookieMap[tempCookie[0]];
-								}
-							}
-						}
-					}
-					self.requestObject.headers['cookie']=cookie;
-					if(debug){
-						console.log('merged cookies:');
-						console.log(self.requestObject.headers['cookie']);
-					}
-				}
-				if (typeof error == 'undefined' || ( typeof httpResponse != 'undefined' && httpResponse.statusCode >= 200 && httpResponse.statusCode < 400)) {
-					try {
-						var data = JSON.parse.call(null,body);
-					} catch (e) {
-						var data = body;
-					}
-					params.success(data, httpResponse);
-				} else if (typeof error == 'undefined') {
-					try {
-						var data = JSON.parse.call(null,body);
-					} catch (e) {
-						var data = body;
-					}
-					if(typeof params.error == 'function'){
-						params.error(data,httpResponse);
-					} else {
-						throw data;
-					}
-				} else {
-					try {
-						var data = JSON.parse.call(null,body);
-					} catch (e) {
-						var data = body;
-					}
-					if(typeof params.error == 'function'){
-						params.error(data,httpResponse);
-					} else {
-						throw data;
-					}
-				}
-			}
-		},
-		xhrRequest:function(params){
-			var debug=typeof Mura.debug != 'undefined' && Mura.debug;
-			for(var h in Mura.requestHeaders){
-				if(Mura.requestHeaders.hasOwnProperty(h)){
-					params.headers[h]= Mura.requestHeaders[h];
-				}
-			}
-			for(var h in this.requestHeaders){
-				if(this.requestHeaders.hasOwnProperty(h)){
-					params.headers[h]= this.requestHeaders[h];
-				}
-			}
-			if (!(Mura.formdata && params.data instanceof FormData)) {
-				params.data = Mura.deepExtend({}, params.data);
-				for (var p in params.data) {
-					if (typeof params.data[p] == 'object') {
-						params.data[p] = JSON.stringify(params.data[p]);
-					}
-				}
-			}
-			if (!('xhrFields' in params)) {
-				params.xhrFields = {
-					withCredentials: true
-				};
-			}
-			if (!('crossDomain' in params)) {
-				params.crossDomain = true;
-			}
-			if (!('async' in params)) {
-				params.async = true;
-			}
-			var req = new XMLHttpRequest();
+      if (!('data' in params)) {
+        params.data = {};
+      }
 
-			if (params.crossDomain) {
-				if (!("withCredentials" in req) && typeof XDomainRequest !=
-					"undefined" && this.isXDomainRequest(params.url)) {
-					// Check if the XMLHttpRequest object has a "withCredentials" property.
-					// "withCredentials" only exists on XMLHTTPRequest2 objects.
-					// Otherwise, check if XDomainRequest.
-					// XDomainRequest only exists in IE, and is IE's way of making CORS requests.
-					req = new XDomainRequest();
-				}
-			}
+      if (!('headers' in params)) {
+        params.headers = {};
+      }
 
-			if(typeof params.data != 'undefined' && typeof params.data.httpmethod != 'undefined'){
-				params.type=params.data.httpmethod;
-				delete params.data.httpmethod;
-			}
-			
-			params.progress=params.progress || params.onProgress || params.onUploadProgress || function(){};
-			params.abort=params.abort || params.onAbort|| function(){};
-			params.success=params.success || params.onSuccess || function(){};
-			params.error=params.error || params.onError || function(){};
-			
-			if(typeof req.addEventListener != 'undefined'){
-				if(typeof params.progress == 'function'){
-					req.addEventListener("progress", params.progress);
-				}
+      if (typeof XMLHttpRequest == 'undefined') {
+        this.nodeRequest(params);
+      } else {
+        this.xhrRequest(params);
+      }
+    },
 
-				if(typeof params.abort == 'function'){
-					req.addEventListener("abort", params.abort);
-				}
-			}			
-			
-			req.onreadystatechange = function() {
-				if (req.readyState == 4) {
-					//IE9 doesn't appear to return the request status
-					if (typeof req.status == 'undefined' || (req.status >= 200 && req.status < 400)) {
-						try {	
-							var data=JSON.parse.call(null,req.responseText);
-						} catch (e) {
-							var data = req.response;
-						}
-						
-						params.success(data, req);
-					} else {
-						if(debug && typeof req.responseText != 'undefined'){
-							console.log(req.responseText);
-						}
-						if(typeof params.error == 'function'){
-							try {
-								var data = JSON.parse.call(null,req.responseText);
-							} catch (e) {
-								var data = req.responseText;
-							}
-							params.error(data);
-						} else {
-							throw req;
-						}
-					}
-				}
-			}
-		
-			if (params.type.toLowerCase() == 'post') {
-				
-				req.open(params.type.toUpperCase(), params.url, params.async);
-				for (var p in params.xhrFields) {
-					if (p in req) {
-						req[p] = params.xhrFields[p];
-					}
-				}
-				for (var h in params.headers) {
-					if(params.headers.hasOwnProperty(h)){
-						req.setRequestHeader(h, params.headers[h]);
-					}
-				}
-				if (Mura.formdata && params.data instanceof FormData) {
-					try{
-						req.send(params.data);
-					} catch(e){
-						if(typeof params.error == 'function'){
-							try {
-								var data = JSON.parse.call(null,req.responseText);
-							} catch (e) {
-								var data = req.responseText;
-							}
-							params.error(data,e);
-						} else {
-							throw e;
-						}
-					}
-				} else {
-					req.setRequestHeader('Content-Type',
-							'application/x-www-form-urlencoded; charset=UTF-8'
-					);
-					var query = [];
-					for (var key in params.data) {
-							query.push(Mura.escape(key) + '=' + Mura.escape(params.data[
-									key]));
-					}
-					if(typeof params.data['muraPointInTime'] == 'undefined' && typeof Mura.pointInTime != 'undefined'){
-							query.push('muraPointInTime=' + Mura.escape(Mura.pointInTime));
-					}
-					query = query.join('&');
-					setTimeout(function() {
-						try{
-							req.send(query);
-						} catch(e){
-							if(typeof params.error == 'function'){
-								try {
-									var data = JSON.parse.call(null,req.responseText);
-								} catch (e) {
-									var data = req.responseText;
-								}
-								params.error(data,e);
-							} else {
-								throw e;
-							}
-						}
-					}, 0);
-				}
-			} else {
-				
-				if (params.url.indexOf('?') == -1) {
-					params.url += '?';
-				}
-				var query = [];
-				for (var key in params.data) {
-					query.push(Mura.escape(key) + '=' + Mura.escape(params.data[key]));
-				}
-				if(typeof params.data['muraPointInTime'] == 'undefined' && typeof Mura.pointInTime != 'undefined'){
-					query.push('muraPointInTime=' + Mura.escape(Mura.pointInTime));
-				}
-				query = query.join('&');
-				
-				req.open(params.type.toUpperCase(), params.url + '&' + query, params.async);
-				for (var p in params.xhrFields) {
-					if (p in req) {
-						req[p] = params.xhrFields[p];
-					}
-				}
-				for (var h in params.headers) {
-					if(params.headers.hasOwnProperty(h)){
-						req.setRequestHeader(h, params.headers[h]);
-					}
-				}
-				
-				setTimeout(function() {
-					try{
-						req.send();
-					} catch(e){
-						if(typeof params.error == 'function'){
-							if(typeof req.responseText != 'undefined'){
-								try {
-									var data = JSON.parse.call(null,req.responseText);
-								} catch (e) {
-									var data = req.responseText;
-								}
-								params.error(data,e);
-							} else {
-								params.error(req,e);
-							}
-						} else {
-							throw e;
-						}
-					}
-				}, 0);
-			}
-		},
+    /**
+     * setRequestHeader - Initialiazes feed
+     *
+     * @param	{string} headerName	Name of header
+     * @param	{string} value Header value
+     * @return {Mura.RequestContext}						Self
+     */
+    setRequestHeader: function setRequestHeader(headerName, value) {
+      this.requestHeaders[headerName] = value;
+      return this;
+    },
 
-		isXDomainRequest:function(url) {
-			function getHostName(url) {
-				var match = url.match(/:\/\/([0-9]?\.)?(.[^/:]+)/i);
-				if (match != null && match.length > 2 && typeof match[2] ===
-					'string' && match[2].length > 0) {
-					return match[2];
-				} else {
-					return null;
-				}
-			}
+    /**
+     * getRequestHeader - Returns a request header value
+     *
+     * @param	{string} headerName	Name of header
+     * @return {string} header Value
+     */
+    getRequestHeader: function getRequestHeader(headerName) {
+      if (typeof this.requestHeaders[headerName] != 'undefined') {
+        return this.requestHeaders[headerName];
+      } else {
+        return null;
+      }
+    },
 
-			function getDomain(url) {
-				var hostName = getHostName(url);
-				var domain = hostName;
-				if (hostName != null) {
-					var parts = hostName.split('.').reverse();
-					if (parts != null && parts.length > 1) {
-						domain = parts[1] + '.' + parts[0];
-						if (hostName.toLowerCase().indexOf('.co.uk') != -1 &&
-							parts.length > 2) {
-							domain = parts[2] + '.' + domain;
-						}
-					}
-				}
-				return domain;
-			}
-			var requestDomain = getDomain(url);
-			return (requestDomain && requestDomain != location.host);
-		}
-	}
-);
+    /**
+     * getRequestHeaders - Returns a request header value
+     *
+     * @return {object} All Headers
+     */
+    getRequestHeaders: function getRequestHeaders() {
+      return this.requestHeaders;
+    },
+    nodeRequest: function nodeRequest(params) {
+      var debug = typeof Mura.debug != 'undefined' && Mura.debug;
+      var self = this;
+
+      if (typeof this.requestObject != 'undefined') {
+        params.headers['User-Agent'] = 'MuraJS';
+
+        if (typeof this.requestObject.headers['cookie'] != 'undefined') {
+          if (debug) {
+            console.log('pre cookies:');
+            console.log(this.requestObject.headers['cookie']);
+          }
+
+          params.headers['Cookie'] = this.requestObject.headers['cookie'];
+        }
+
+        if (typeof this.requestObject.headers['x-client_id'] != 'undefined') {
+          params.headers['X-client_id'] = this.requestObject.headers['x-client_id'];
+        }
+
+        if (typeof this.requestObject.headers['x-client_id'] != 'undefined') {
+          params.headers['X-client_id'] = this.requestObject.headers['x-client_id'];
+        }
+
+        if (typeof this.requestObject.headers['X-client_secret'] != 'undefined') {
+          params.headers['X-client_secret'] = this.requestObject.headers['X-client_secret'];
+        }
+
+        if (typeof this.requestObject.headers['x-client_secret'] != 'undefined') {
+          params.headers['X-client_secret'] = this.requestObject.headers['x-client_secret'];
+        }
+
+        if (typeof this.requestObject.headers['X-access_token'] != 'undefined') {
+          params.headers['X-access_token'] = this.requestObject.headers['X-access_token'];
+        }
+
+        if (typeof this.requestObject.headers['x-access_token'] != 'undefined') {
+          params.headers['X-access_token'] = this.requestObject.headers['x-access_token'];
+        }
+
+        if (typeof this.requestObject.headers['x-client-id'] != 'undefined') {
+          params.headers['X-client-id'] = this.requestObject.headers['x-client-id'];
+        }
+
+        if (typeof this.requestObject.headers['x-clien-id'] != 'undefined') {
+          params.headers['X-client-id'] = this.requestObject.headers['x-client-id'];
+        }
+
+        if (typeof this.requestObject.headers['X-client_secret'] != 'undefined') {
+          params.headers['X-client-secret'] = this.requestObject.headers['X-client-secret'];
+        }
+
+        if (typeof this.requestObject.headers['x-client-secret'] != 'undefined') {
+          params.headers['X-client-secret'] = this.requestObject.headers['x-client-secret'];
+        }
+
+        if (typeof this.requestObject.headers['X-access-token'] != 'undefined') {
+          params.headers['X-access-token'] = this.requestObject.headers['X-access-token'];
+        }
+
+        if (typeof this.requestObject.headers['x-access-token'] != 'undefined') {
+          params.headers['X-access-token'] = this.requestObject.headers['x-access-token'];
+        }
+
+        if (typeof this.requestObject.headers['Authorization'] != 'undefined') {
+          params.headers['Authorization'] = this.requestObject.headers['Authorization'];
+        }
+
+        if (typeof this.requestObject.headers['authorization'] != 'undefined') {
+          params.headers['Authorization'] = this.requestObject.headers['authorization'];
+        }
+      }
+
+      for (var h in Mura.requestHeaders) {
+        if (Mura.requestHeaders.hasOwnProperty(h)) {
+          params.headers[h] = Mura.requestHeaders[h];
+        }
+      }
+
+      for (var h in this.requestHeaders) {
+        if (this.requestHeaders.hasOwnProperty(h)) {
+          params.headers[h] = this.requestHeaders[h];
+        }
+      } //console.log('pre:')
+      //console.log(params.headers);
+      //console.log(params.headers)
+
+
+      if (params.type.toLowerCase() == 'post') {
+        Mura._request.post({
+          url: params.url,
+          formData: params.data,
+          headers: params.headers
+        }, nodeResponseHandler);
+      } else {
+        if (params.url.indexOf('?') == -1) {
+          params.url += '?';
+        }
+
+        var query = [];
+
+        for (var key in params.data) {
+          query.push(Mura.escape(key) + '=' + Mura.escape(params.data[key]));
+        }
+
+        if (typeof params.data['muraPointInTime'] == 'undefined' && typeof Mura.pointInTime != 'undefined') {
+          query.push('muraPointInTime=' + Mura.escape(Mura.pointInTime));
+        }
+
+        query = query.join('&');
+
+        Mura._request({
+          url: params.url + query,
+          headers: params.headers
+        }, nodeResponseHandler);
+      }
+
+      function nodeResponseHandler(error, httpResponse, body) {
+        var debug = typeof Mura.debug != 'undefined' && Mura.debug;
+
+        if (typeof self.responseObject != 'undefined' && typeof httpResponse != 'undefined' && typeof httpResponse.headers != 'undefined' && typeof httpResponse.headers['set-cookie'] != 'undefined') {
+          var existingCookies = (typeof self.requestObject.headers['cookie'] != 'undefined' ? self.requestObject.headers['cookie'] : '').split("; ");
+          var newSetCookies = httpResponse.headers['set-cookie'];
+
+          if (debug) {
+            console.log('response cookies:');
+            console.log(httpResponse.headers['set-cookie']);
+          }
+
+          if (!(newSetCookies instanceof Array)) {
+            newSetCookies = [newSetCookies];
+          }
+
+          self.responseObject.setHeader('Set-Cookie', newSetCookies);
+          var cookieMap = {};
+          var setMap = {}; // pull out existing cookies
+
+          if (existingCookies.length) {
+            for (var c in existingCookies) {
+              var tempCookie = existingCookies[c];
+
+              if (typeof tempCookie != 'undefined') {
+                tempCookie = existingCookies[c].split(" ")[0].split("=");
+
+                if (tempCookie.length > 1) {
+                  cookieMap[tempCookie[0]] = tempCookie[1].split(';')[0];
+                }
+              }
+            }
+          }
+
+          if (debug) {
+            console.log('existing 1:');
+            console.log(cookieMap);
+          } // pull out new cookies
+
+
+          if (newSetCookies.length) {
+            for (var c in newSetCookies) {
+              var tempCookie = newSetCookies[c];
+
+              if (typeof tempCookie != 'undefined') {
+                tempCookie = tempCookie.split(" ")[0].split("=");
+
+                if (tempCookie.length > 1) {
+                  cookieMap[tempCookie[0]] = tempCookie[1].split(';')[0];
+                }
+              }
+            }
+          }
+
+          if (debug) {
+            console.log('existing 2:');
+            console.log(cookieMap);
+          }
+
+          var cookie = ''; // put cookies back in in the same order that they came out
+
+          if (existingCookies.length) {
+            for (var c in existingCookies) {
+              var tempCookie = existingCookies[c];
+
+              if (typeof tempCookie != 'undefined') {
+                tempCookie = tempCookie.split(" ")[0].split("=");
+
+                if (tempCookie.length > 1) {
+                  if (cookie != '') {
+                    cookie = cookie + "; ";
+                  }
+
+                  setMap[tempCookie[0]] = true;
+                  cookie = cookie + tempCookie[0] + "=" + cookieMap[tempCookie[0]];
+                }
+              }
+            }
+          }
+
+          if (newSetCookies.length) {
+            for (var c in newSetCookies) {
+              var tempCookie = newSetCookies[c];
+
+              if (typeof tempCookie != 'undefined') {
+                var tempCookie = tempCookie.split(" ")[0].split("=");
+
+                if (typeof setMap[tempCookie[0]] == 'undefined' && tempCookie.length > 1) {
+                  if (cookie != '') {
+                    cookie = cookie + "; ";
+                  }
+
+                  setMap[tempCookie[0]] = true;
+                  cookie = cookie + tempCookie[0] + "=" + cookieMap[tempCookie[0]];
+                }
+              }
+            }
+          }
+
+          self.requestObject.headers['cookie'] = cookie;
+
+          if (debug) {
+            console.log('merged cookies:');
+            console.log(self.requestObject.headers['cookie']);
+          }
+        }
+
+        if (typeof error == 'undefined' || typeof httpResponse != 'undefined' && httpResponse.statusCode >= 200 && httpResponse.statusCode < 400) {
+          try {
+            var data = JSON.parse.call(null, body);
+          } catch (e) {
+            var data = body;
+          }
+
+          params.success(data, httpResponse);
+        } else if (typeof error == 'undefined') {
+          try {
+            var data = JSON.parse.call(null, body);
+          } catch (e) {
+            var data = body;
+          }
+
+          if (typeof params.error == 'function') {
+            params.error(data, httpResponse);
+          } else {
+            throw data;
+          }
+        } else {
+          try {
+            var data = JSON.parse.call(null, body);
+          } catch (e) {
+            var data = body;
+          }
+
+          if (typeof params.error == 'function') {
+            params.error(data, httpResponse);
+          } else {
+            throw data;
+          }
+        }
+      }
+    },
+    xhrRequest: function xhrRequest(params) {
+      var debug = typeof Mura.debug != 'undefined' && Mura.debug;
+
+      for (var h in Mura.requestHeaders) {
+        if (Mura.requestHeaders.hasOwnProperty(h)) {
+          params.headers[h] = Mura.requestHeaders[h];
+        }
+      }
+
+      for (var h in this.requestHeaders) {
+        if (this.requestHeaders.hasOwnProperty(h)) {
+          params.headers[h] = this.requestHeaders[h];
+        }
+      }
+
+      if (!(Mura.formdata && params.data instanceof FormData)) {
+        params.data = Mura.deepExtend({}, params.data);
+
+        for (var p in params.data) {
+          if (_typeof(params.data[p]) == 'object') {
+            params.data[p] = JSON.stringify(params.data[p]);
+          }
+        }
+      }
+
+      if (!('xhrFields' in params)) {
+        params.xhrFields = {
+          withCredentials: true
+        };
+      }
+
+      if (!('crossDomain' in params)) {
+        params.crossDomain = true;
+      }
+
+      if (!('async' in params)) {
+        params.async = true;
+      }
+
+      var req = new XMLHttpRequest();
+
+      if (params.crossDomain) {
+        if (!("withCredentials" in req) && typeof XDomainRequest != "undefined" && this.isXDomainRequest(params.url)) {
+          // Check if the XMLHttpRequest object has a "withCredentials" property.
+          // "withCredentials" only exists on XMLHTTPRequest2 objects.
+          // Otherwise, check if XDomainRequest.
+          // XDomainRequest only exists in IE, and is IE's way of making CORS requests.
+          req = new XDomainRequest();
+        }
+      }
+
+      if (typeof params.data != 'undefined' && typeof params.data.httpmethod != 'undefined') {
+        params.type = params.data.httpmethod;
+        delete params.data.httpmethod;
+      }
+
+      params.progress = params.progress || params.onProgress || params.onUploadProgress || function () {};
+
+      params.abort = params.abort || params.onAbort || function () {};
+
+      params.success = params.success || params.onSuccess || function () {};
+
+      params.error = params.error || params.onError || function () {};
+
+      if (typeof req.addEventListener != 'undefined') {
+        if (typeof params.progress == 'function') {
+          req.addEventListener("progress", params.progress);
+        }
+
+        if (typeof params.abort == 'function') {
+          req.addEventListener("abort", params.abort);
+        }
+      }
+
+      req.onreadystatechange = function () {
+        if (req.readyState == 4) {
+          //IE9 doesn't appear to return the request status
+          if (typeof req.status == 'undefined' || req.status >= 200 && req.status < 400) {
+            try {
+              var data = JSON.parse.call(null, req.responseText);
+            } catch (e) {
+              var data = req.response;
+            }
+
+            params.success(data, req);
+          } else {
+            if (debug && typeof req.responseText != 'undefined') {
+              console.log(req.responseText);
+            }
+
+            if (typeof params.error == 'function') {
+              try {
+                var data = JSON.parse.call(null, req.responseText);
+              } catch (e) {
+                var data = req.responseText;
+              }
+
+              params.error(data);
+            } else {
+              throw req;
+            }
+          }
+        }
+      };
+
+      if (params.type.toLowerCase() == 'post') {
+        req.open(params.type.toUpperCase(), params.url, params.async);
+
+        for (var p in params.xhrFields) {
+          if (p in req) {
+            req[p] = params.xhrFields[p];
+          }
+        }
+
+        for (var h in params.headers) {
+          if (params.headers.hasOwnProperty(h)) {
+            req.setRequestHeader(h, params.headers[h]);
+          }
+        }
+
+        if (Mura.formdata && params.data instanceof FormData) {
+          try {
+            req.send(params.data);
+          } catch (e) {
+            if (typeof params.error == 'function') {
+              try {
+                var data = JSON.parse.call(null, req.responseText);
+              } catch (e) {
+                var data = req.responseText;
+              }
+
+              params.error(data, e);
+            } else {
+              throw e;
+            }
+          }
+        } else {
+          req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+          var query = [];
+
+          for (var key in params.data) {
+            query.push(Mura.escape(key) + '=' + Mura.escape(params.data[key]));
+          }
+
+          if (typeof params.data['muraPointInTime'] == 'undefined' && typeof Mura.pointInTime != 'undefined') {
+            query.push('muraPointInTime=' + Mura.escape(Mura.pointInTime));
+          }
+
+          query = query.join('&');
+          setTimeout(function () {
+            try {
+              req.send(query);
+            } catch (e) {
+              if (typeof params.error == 'function') {
+                try {
+                  var data = JSON.parse.call(null, req.responseText);
+                } catch (e) {
+                  var data = req.responseText;
+                }
+
+                params.error(data, e);
+              } else {
+                throw e;
+              }
+            }
+          }, 0);
+        }
+      } else {
+        if (params.url.indexOf('?') == -1) {
+          params.url += '?';
+        }
+
+        var query = [];
+
+        for (var key in params.data) {
+          query.push(Mura.escape(key) + '=' + Mura.escape(params.data[key]));
+        }
+
+        if (typeof params.data['muraPointInTime'] == 'undefined' && typeof Mura.pointInTime != 'undefined') {
+          query.push('muraPointInTime=' + Mura.escape(Mura.pointInTime));
+        }
+
+        query = query.join('&');
+        req.open(params.type.toUpperCase(), params.url + '&' + query, params.async);
+
+        for (var p in params.xhrFields) {
+          if (p in req) {
+            req[p] = params.xhrFields[p];
+          }
+        }
+
+        for (var h in params.headers) {
+          if (params.headers.hasOwnProperty(h)) {
+            req.setRequestHeader(h, params.headers[h]);
+          }
+        }
+
+        setTimeout(function () {
+          try {
+            req.send();
+          } catch (e) {
+            if (typeof params.error == 'function') {
+              if (typeof req.responseText != 'undefined') {
+                try {
+                  var data = JSON.parse.call(null, req.responseText);
+                } catch (e) {
+                  var data = req.responseText;
+                }
+
+                params.error(data, e);
+              } else {
+                params.error(req, e);
+              }
+            } else {
+              throw e;
+            }
+          }
+        }, 0);
+      }
+    },
+    isXDomainRequest: function isXDomainRequest(url) {
+      function getHostName(url) {
+        var match = url.match(/:\/\/([0-9]?\.)?(.[^/:]+)/i);
+
+        if (match != null && match.length > 2 && typeof match[2] === 'string' && match[2].length > 0) {
+          return match[2];
+        } else {
+          return null;
+        }
+      }
+
+      function getDomain(url) {
+        var hostName = getHostName(url);
+        var domain = hostName;
+
+        if (hostName != null) {
+          var parts = hostName.split('.').reverse();
+
+          if (parts != null && parts.length > 1) {
+            domain = parts[1] + '.' + parts[0];
+
+            if (hostName.toLowerCase().indexOf('.co.uk') != -1 && parts.length > 2) {
+              domain = parts[2] + '.' + domain;
+            }
+          }
+        }
+
+        return domain;
+      }
+
+      var requestDomain = getDomain(url);
+      return requestDomain && requestDomain != location.host;
+    }
+  });
 })(Mura);
-
 
 /***/ }),
 /* 346 */
 /***/ (function(module, exports, __webpack_require__) {
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-var Mura=__webpack_require__(8);
+var Mura = __webpack_require__(8);
 
-(function(Mura){
-"use strict";
+(function (Mura) {
+  "use strict";
+  /**
+  * Creates a new Mura.RequestContext
+  * @name	Mura.RequestContext
+  * @class
+  * @extends Mura.Core
+  * @memberof Mura
+  * @param	{object} request		 Siteid
+  * @param	{object} response Entity name
+  * @param	{object} requestHeaders Optional
+  * @return {Mura.RequestContext} Self
+  */
 
-/**
-* Creates a new Mura.RequestContext
-* @name	Mura.RequestContext
-* @class
-* @extends Mura.Core
-* @memberof Mura
-* @param	{object} request		 Siteid
-* @param	{object} response Entity name
-* @param	{object} requestHeaders Optional
-* @return {Mura.RequestContext} Self
-*/
+  Mura.RequestContext = Mura.Core.extend(
+  /** @lends Mura.RequestContext.prototype */
+  {
+    init: function init(request, response, requestHeaders) {
+      this.requestObject = request;
+      this.responseObject = response;
+      this._request = new Mura.Request(request, response, requestHeaders);
+      return this;
+    },
 
-Mura.RequestContext=Mura.Core.extend(
-/** @lends Mura.RequestContext.prototype */
-{
-	init: function(request, response, requestHeaders) {
-		this.requestObject=request;
-		this.responseObject=response;
-		this._request=new Mura.Request(request, response, requestHeaders);
-		return this;
-	},
+    /**
+     * setRequestHeader - Initialiazes feed
+     *
+     * @param	{string} headerName	Name of header
+     * @param	{string} value Header value
+     * @return {Mura.RequestContext}	Self
+     */
+    setRequestHeader: function setRequestHeader(headerName, value) {
+      this._request.setRequestHeader(headerName, value);
 
-	/**
-	 * setRequestHeader - Initialiazes feed
-	 *
-	 * @param	{string} headerName	Name of header
-	 * @param	{string} value Header value
-	 * @return {Mura.RequestContext}	Self
-	 */
-	setRequestHeader:function(headerName,value){
-		this._request.setRequestHeader(headerName,value);
-		return this;
-	},
+      return this;
+    },
 
-	/**
-	 * getRequestHeader - Returns a request header value
-	 *
-	 * @param	{string} headerName	Name of header
-	 * @return {string} header Value
-	 */
-	getRequestHeader:function(headerName){
-		return this._request.getRequestHeader(headerName);
-	},
+    /**
+     * getRequestHeader - Returns a request header value
+     *
+     * @param	{string} headerName	Name of header
+     * @return {string} header Value
+     */
+    getRequestHeader: function getRequestHeader(headerName) {
+      return this._request.getRequestHeader(headerName);
+    },
 
-	/**
-	 * getRequestHeaders - Returns a request header value
-	 *
-	 * @return {object} All Headers
-	 */
-	getRequestHeaders:function(){
-		return this._request.getRequestHeaders();
-	},
+    /**
+     * getRequestHeaders - Returns a request header value
+     *
+     * @return {object} All Headers
+     */
+    getRequestHeaders: function getRequestHeaders() {
+      return this._request.getRequestHeaders();
+    },
 
-	/**
-	 * request - Executes a request
-	 *
-	 * @param	{object} params		 Object
-	 * @return {Promise}						Self
-	 */
-	request:function(params){
-		return this._request.execute(params);
-	},
+    /**
+     * request - Executes a request
+     *
+     * @param	{object} params		 Object
+     * @return {Promise}						Self
+     */
+    request: function request(params) {
+      return this._request.execute(params);
+    },
 
-	/**
-	 * renderFilename - Returns "Rendered" JSON object of content
-	 *
-	 * @param	{type} filename Mura content filename
-	 * @param	{type} params Object
-	 * @return {Promise}
-	 */
-	renderFilename:function(filename, params) {
-		var query = [];
-		var self=this;
-		params = params || {};
-		params.filename = params.filename || '';
-		params.siteid = params.siteid || Mura.siteid;
+    /**
+     * renderFilename - Returns "Rendered" JSON object of content
+     *
+     * @param	{type} filename Mura content filename
+     * @param	{type} params Object
+     * @return {Promise}
+     */
+    renderFilename: function renderFilename(filename, params) {
+      var query = [];
+      var self = this;
+      params = params || {};
+      params.filename = params.filename || '';
+      params.siteid = params.siteid || Mura.siteid;
 
-		for (var key in params) {
-			if (key != 'entityname' && key != 'filename' && key !=
-				'siteid' && key != 'method') {
-				query.push(encodeURIComponent(key) + '=' + encodeURIComponent(params[key]));
-			}
-		}
+      for (var key in params) {
+        if (key != 'entityname' && key != 'filename' && key != 'siteid' && key != 'method') {
+          query.push(encodeURIComponent(key) + '=' + encodeURIComponent(params[key]));
+        }
+      }
 
-		return new Promise(function(resolve, reject) {
-			self.request({
-				async: true,
-				type: 'get',
-				url: Mura.getAPIEndpoint() + '/content/_path/' + filename + '?' + query.join('&'),
-				success: function(resp) {
-					if (resp != null && typeof location != 'undefined' && typeof resp.data != 'undefined' && typeof resp.data.redirect != 'undefined' && typeof resp.data.contentid == 'undefined') {
-						if (resp.data.redirect && resp.data.redirect != location.href) {
-							location.href = resp.data.redirect;
-						} else {
-							location.reload(true);
-						}
-					} else {
-						var item = new Mura.entities.Content({},self);
-						item.set(resp.data);
-						resolve(item);
-					}
-				},
-				error: function(resp) {
-					if (resp != null && typeof resp.data != 'undefined' && typeof resp.data != 'undefined' && typeof resolve == 'function') {
-						var item = new Mura.entities.Content({},self);
-						item.set(resp.data);
-						resolve(item);
-					} else if (typeof reject == 'function') {
-						reject(resp);
-					}
-				}
-			});
-		});
-	},
+      return new Promise(function (resolve, reject) {
+        self.request({
+          async: true,
+          type: 'get',
+          url: Mura.getAPIEndpoint() + '/content/_path/' + filename + '?' + query.join('&'),
+          success: function success(resp) {
+            if (resp != null && typeof location != 'undefined' && typeof resp.data != 'undefined' && typeof resp.data.redirect != 'undefined' && typeof resp.data.contentid == 'undefined') {
+              if (resp.data.redirect && resp.data.redirect != location.href) {
+                location.href = resp.data.redirect;
+              } else {
+                location.reload(true);
+              }
+            } else {
+              var item = new Mura.entities.Content({}, self);
+              item.set(resp.data);
+              resolve(item);
+            }
+          },
+          error: function error(resp) {
+            if (resp != null && typeof resp.data != 'undefined' && typeof resp.data != 'undefined' && typeof resolve == 'function') {
+              var item = new Mura.entities.Content({}, self);
+              item.set(resp.data);
+              resolve(item);
+            } else if (typeof reject == 'function') {
+              reject(resp);
+            }
+          }
+        });
+      });
+    },
 
-	/**
-	 * getEntity - Returns Mura.Entity instance
-	 *
-	 * @param	{string} entityname Entity Name
-	 * @param	{string} siteid		 Siteid
-	 * @return {Mura.Entity}
-	 */
-	getEntity:function(entityname, siteid) {
-		if (typeof entityname == 'string') {
-			var properties = {
-				entityname: entityname.substr(0, 1).toUpperCase() + entityname.substr(1)
-			};
-			properties.siteid = siteid || Mura.siteid;
-		} else {
-			properties = entityname;
-			properties.entityname = properties.entityname || 'Content';
-			properties.siteid = properties.siteid || Mura.siteid;
-		}
+    /**
+     * getEntity - Returns Mura.Entity instance
+     *
+     * @param	{string} entityname Entity Name
+     * @param	{string} siteid		 Siteid
+     * @return {Mura.Entity}
+     */
+    getEntity: function getEntity(entityname, siteid) {
+      if (typeof entityname == 'string') {
+        var properties = {
+          entityname: entityname.substr(0, 1).toUpperCase() + entityname.substr(1)
+        };
+        properties.siteid = siteid || Mura.siteid;
+      } else {
+        properties = entityname;
+        properties.entityname = properties.entityname || 'Content';
+        properties.siteid = properties.siteid || Mura.siteid;
+      }
 
-		properties.links={
-			permissions:Mura.getAPIEndpoint() + properties.entityname + "/permissions"
-		}
+      properties.links = {
+        permissions: Mura.getAPIEndpoint() + properties.entityname + "/permissions"
+      };
 
-		if (Mura.entities[properties.entityname]) {
-			var entity=new Mura.entities[properties.entityname](properties,this);
-			return entity;
-		} else {
-			var entity=new Mura.Entity(properties,this);
-			return entity;
-		}
-	},
+      if (Mura.entities[properties.entityname]) {
+        var entity = new Mura.entities[properties.entityname](properties, this);
+        return entity;
+      } else {
+        var entity = new Mura.Entity(properties, this);
+        return entity;
+      }
+    },
 
-	/**
-	 * declareEntity - Declare Entity with in service factory
-	 *
-	 * @param	{object} entityConfig Entity config object
-	 * @return {Promise}
-	 */
-	declareEntity:function(entityConfig) {
-		var self=this;
-		if(Mura.mode.toLowerCase() == 'rest'){
-			return new Promise(function(resolve, reject) {
-				self.request({
-					async: true,
-					type: 'POST',
-					url: Mura.getAPIEndpoint(),
-					data:{
-						method: 'declareEntity',
-						entityConfig: encodeURIComponent(JSON.stringify(entityConfig))
-					},
-					success: function(resp) {
-						if (typeof resolve =='function' && resp != null && typeof resp.data != 'undefined') {
-							resolve(resp.data);
-						} else if (typeof reject =='function' && resp != null && typeof resp.error != 'undefined') {
-							resolve(resp);
-						} else if (typeof resolve =='function'){
-							resolve(resp);
-						}
-					}
-				});
-			});
-		} else {
-			return new Promise(function(resolve, reject) {
-				self.request({
-					type: 'POST',
-					url: Mura.getAPIEndpoint() + '?method=generateCSRFTokens',
-					data: {context: ''},
-					success: function(resp) {
-						self.request({
-							async: true,
-							type: 'POST',
-							url: Mura.getAPIEndpoint(),
-							data:{
-								method: 'declareEntity',
-								entityConfig: encodeURIComponent(JSON.stringify(entityConfig)),
-								'csrf_token': resp.data.csrf_token,
-								'csrf_token_expires': resp.data.csrf_token_expires
-							},
-							success: function(resp) {
-								if (typeof resolve =='function' && resp != null && typeof resp.data != 'undefined') {
-									resolve(resp.data);
-								} else if (typeof reject =='function' && resp != null && typeof resp.error != 'undefined') {
-									resolve(resp);
-								} else if (typeof resolve =='function'){
-									resolve(resp);
-								}
-							}
-						});
-					}
-				});
-			});
-		}
-	},
+    /**
+     * declareEntity - Declare Entity with in service factory
+     *
+     * @param	{object} entityConfig Entity config object
+     * @return {Promise}
+     */
+    declareEntity: function declareEntity(entityConfig) {
+      var self = this;
 
-	/**
-	 * undeclareEntity - Delete entity class from Mura
-	 *
-	 * @param	{object} entityName
-	 * @return {Promise}
-	 */
-	undeclareEntity:function(entityName,deleteSchema) {
-		var self=this;
-		deleteSchema=deleteSchema || false;
-		if(Mura.mode.toLowerCase() == 'rest'){
-			return new Promise(function(resolve, reject) {
-				self.request({
-					async: true,
-					type: 'POST',
-					url: Mura.getAPIEndpoint(),
-					data:{
-						method: 'undeclareEntity',
-						entityName: entityName,
-						deleteSchema : deleteSchema
-					},
-					success: function(resp) {
-						if (typeof resolve =='function' && resp != null && typeof resp.data != 'undefined') {
-							resolve(resp.data);
-						} else if (typeof reject =='function' && resp != null && typeof resp.error != 'undefined') {
-							resolve(resp);
-						} else if (typeof resolve =='function'){
-							resolve(resp);
-						}
-					}
-				});
-			});
-		} else {
-			return new Promise(function(resolve, reject) {
-				self.request({
-					type: 'POST',
-					url: Mura.getAPIEndpoint() + '?method=generateCSRFTokens',
-					data: {context: ''},
-					success: function(resp) {
-						self.request({
-							async: true,
-							type: 'POST',
-							url: Mura.getAPIEndpoint(),
-							data:{
-								method: 'undeclareEntity',
-								entityName: entityName,
-								deleteSchema : deleteSchema,
-								'csrf_token': resp.data.csrf_token,
-								'csrf_token_expires': resp.data.csrf_token_expires
-							},
-							success: function(resp) {
-								if (typeof resolve =='function' && resp != null && typeof resp.data != 'undefined') {
-									resolve(resp.data);
-								} else if (typeof reject =='function' && resp != null && typeof resp.error != 'undefined') {
-									resolve(resp);
-								} else if (typeof resolve =='function'){
-									resolve(resp);
-								}
-							}
-						});
-					}
-				});
-			});
-		}
-	},
+      if (Mura.mode.toLowerCase() == 'rest') {
+        return new Promise(function (resolve, reject) {
+          self.request({
+            async: true,
+            type: 'POST',
+            url: Mura.getAPIEndpoint(),
+            data: {
+              method: 'declareEntity',
+              entityConfig: encodeURIComponent(JSON.stringify(entityConfig))
+            },
+            success: function success(resp) {
+              if (typeof resolve == 'function' && resp != null && typeof resp.data != 'undefined') {
+                resolve(resp.data);
+              } else if (typeof reject == 'function' && resp != null && typeof resp.error != 'undefined') {
+                resolve(resp);
+              } else if (typeof resolve == 'function') {
+                resolve(resp);
+              }
+            }
+          });
+        });
+      } else {
+        return new Promise(function (resolve, reject) {
+          self.request({
+            type: 'POST',
+            url: Mura.getAPIEndpoint() + '?method=generateCSRFTokens',
+            data: {
+              context: ''
+            },
+            success: function success(resp) {
+              self.request({
+                async: true,
+                type: 'POST',
+                url: Mura.getAPIEndpoint(),
+                data: {
+                  method: 'declareEntity',
+                  entityConfig: encodeURIComponent(JSON.stringify(entityConfig)),
+                  'csrf_token': resp.data.csrf_token,
+                  'csrf_token_expires': resp.data.csrf_token_expires
+                },
+                success: function success(resp) {
+                  if (typeof resolve == 'function' && resp != null && typeof resp.data != 'undefined') {
+                    resolve(resp.data);
+                  } else if (typeof reject == 'function' && resp != null && typeof resp.error != 'undefined') {
+                    resolve(resp);
+                  } else if (typeof resolve == 'function') {
+                    resolve(resp);
+                  }
+                }
+              });
+            }
+          });
+        });
+      }
+    },
 
-	/**
-	 * getFeed - Return new instance of Mura.Feed
-	 *
-	 * @param	{type} entityname Entity name
-	 * @return {Mura.Feed}
-	 */
-	getFeed:function(entityname,siteid) {
-			siteid=siteid || Mura.siteid;
-			var feed=new Mura.Feed(siteid, entityname, this);
-			return feed;
-	},
+    /**
+     * undeclareEntity - Delete entity class from Mura
+     *
+     * @param	{object} entityName
+     * @return {Promise}
+     */
+    undeclareEntity: function undeclareEntity(entityName, deleteSchema) {
+      var self = this;
+      deleteSchema = deleteSchema || false;
 
-	/**
-	 * getCurrentUser - Return Mura.Entity for current user
-	 *
-	 * @param	{object} params Load parameters, fields:listoffields
-	 * @return {Promise}
-	 */
-	getCurrentUser:function(params) {
-			var self=this;
-			params=params || {};
-			params.fields=params.fields || '';
-			return new Promise(function(resolve, reject) {
-				if (Mura.currentUser) {
-					resolve(Mura.currentUser);
-				} else {
-					self.request({
-						async: true,
-						type: 'get',
-						url: Mura.getAPIEndpoint() +
-							'findCurrentUser?fields=' + params.fields + '&_cacheid=' +
-							Math.random(),
-						success: function(resp) {
-							if (typeof resolve =='function') {
-								Mura.currentUser = self.getEntity('user');
-								Mura.currentUser.set(resp.data);
-								resolve(Mura.currentUser);
-							}
-						},
-						error: function(resp) {
-							if (typeof resolve =='function') {
-								Mura.currentUser=self.getEntity('user')
-								Mura.currentUser.set( resp.data);
-								resolve(Mura.currentUser);
-							}
-						}
-					});
-				}
-			});
-	},
+      if (Mura.mode.toLowerCase() == 'rest') {
+        return new Promise(function (resolve, reject) {
+          self.request({
+            async: true,
+            type: 'POST',
+            url: Mura.getAPIEndpoint(),
+            data: {
+              method: 'undeclareEntity',
+              entityName: entityName,
+              deleteSchema: deleteSchema
+            },
+            success: function success(resp) {
+              if (typeof resolve == 'function' && resp != null && typeof resp.data != 'undefined') {
+                resolve(resp.data);
+              } else if (typeof reject == 'function' && resp != null && typeof resp.error != 'undefined') {
+                resolve(resp);
+              } else if (typeof resolve == 'function') {
+                resolve(resp);
+              }
+            }
+          });
+        });
+      } else {
+        return new Promise(function (resolve, reject) {
+          self.request({
+            type: 'POST',
+            url: Mura.getAPIEndpoint() + '?method=generateCSRFTokens',
+            data: {
+              context: ''
+            },
+            success: function success(resp) {
+              self.request({
+                async: true,
+                type: 'POST',
+                url: Mura.getAPIEndpoint(),
+                data: {
+                  method: 'undeclareEntity',
+                  entityName: entityName,
+                  deleteSchema: deleteSchema,
+                  'csrf_token': resp.data.csrf_token,
+                  'csrf_token_expires': resp.data.csrf_token_expires
+                },
+                success: function success(resp) {
+                  if (typeof resolve == 'function' && resp != null && typeof resp.data != 'undefined') {
+                    resolve(resp.data);
+                  } else if (typeof reject == 'function' && resp != null && typeof resp.error != 'undefined') {
+                    resolve(resp);
+                  } else if (typeof resolve == 'function') {
+                    resolve(resp);
+                  }
+                }
+              });
+            }
+          });
+        });
+      }
+    },
 
-	/**
-	 * findQuery - Returns Mura.EntityCollection with properties that match params
-	 *
-	 * @param	{object} params Object of matching params
-	 * @return {Promise}
-	 */
-	findQuery:function(params) {
-			var self=this;
-			params = params || {};
-			params.entityname = params.entityname || 'content';
-			params.siteid = params.siteid || Mura.siteid;
-			params.method = params.method || 'findQuery';
-			params['_cacheid'] == Math.random();
-			return new Promise(function(resolve, reject) {
-				self.request({
-					type: 'get',
-					url: Mura.getAPIEndpoint(),
-					data: params,
-					success: function(resp) {
-						var collection = new Mura.EntityCollection(resp.data,self)
-						if (typeof resolve == 'function') {
-							resolve(collection);
-						}
-					},
-					error:function(resp){
-						console.log(resp);
-					}
-				});
-			});
-	},
+    /**
+     * getFeed - Return new instance of Mura.Feed
+     *
+     * @param	{type} entityname Entity name
+     * @return {Mura.Feed}
+     */
+    getFeed: function getFeed(entityname, siteid) {
+      siteid = siteid || Mura.siteid;
+      var feed = new Mura.Feed(siteid, entityname, this);
+      return feed;
+    },
 
-	/**
-	 * login - Logs user into Mura
-	 *
-	 * @param	{string} username Username
-	 * @param	{string} password Password
-	 * @param	{string} siteid	 Siteid
-	 * @return {Promise}
-	 */
-	login:function(username, password, siteid) {
-		siteid = siteid || Mura.siteid;
-		var self=this;
-		return new Promise(function(resolve, reject) {
-			self.request({
-				type: 'post',
-				url: Mura.getAPIEndpoint() +
-						'?method=generateCSRFTokens',
-				data: {
-						siteid: siteid,
-						context: 'login'
-				},
-				success: function(resp) {
-					self.request({
-						async: true,
-						type: 'post',
-						url: Mura.getAPIEndpoint(),
-						data: {
-							siteid: siteid,
-							username: username,
-							password: password,
-							method: 'login',
-							'csrf_token': resp.data.csrf_token,
-							'csrf_token_expires': resp.data.csrf_token_expires
-						},
-						success: function(resp) {
-							resolve(resp.data);
-						}
-					});
-				}
-			});
-		});
-	},
+    /**
+     * getCurrentUser - Return Mura.Entity for current user
+     *
+     * @param	{object} params Load parameters, fields:listoffields
+     * @return {Promise}
+     */
+    getCurrentUser: function getCurrentUser(params) {
+      var self = this;
+      params = params || {};
+      params.fields = params.fields || '';
+      return new Promise(function (resolve, reject) {
+        if (Mura.currentUser) {
+          resolve(Mura.currentUser);
+        } else {
+          self.request({
+            async: true,
+            type: 'get',
+            url: Mura.getAPIEndpoint() + 'findCurrentUser?fields=' + params.fields + '&_cacheid=' + Math.random(),
+            success: function success(resp) {
+              if (typeof resolve == 'function') {
+                Mura.currentUser = self.getEntity('user');
+                Mura.currentUser.set(resp.data);
+                resolve(Mura.currentUser);
+              }
+            },
+            error: function error(resp) {
+              if (typeof resolve == 'function') {
+                Mura.currentUser = self.getEntity('user');
+                Mura.currentUser.set(resp.data);
+                resolve(Mura.currentUser);
+              }
+            }
+          });
+        }
+      });
+    },
 
-	/**
-	* openGate - Open's content gate when using MXP
-	*
-	* @param	{string} contentid Optional: default's to Mura.contentid
-	* @return {Promise}
-	* @memberof {class
-	*/
-	openGate:function(contentid) {
-		var self=this;
-		contentid=contentid || Mura.contentid;
-		if(contentid){
-			if(Mura.mode.toLowerCase() == 'rest'){
-				return new Promise(function(resolve, reject) {
-					self.request({
-						async: true,
-						type: 'POST',
-						url: Mura.getAPIEndpoint() + '/gatedasset/open',
-						data:{
-							contentid: contentid
-						},
-						success: function(resp) {
-							if (typeof resolve =='function' && typeof resp.data != 'undefined') {
-								resolve(resp.data);
-							} else if (typeof reject =='function' && typeof resp.error != 'undefined') {
-								resolve(resp);
-							} else if (typeof resolve =='function'){
-								resolve(resp);
-							}
-						}
-					});
-				});
-			} else {
-				return new Promise(function(resolve, reject) {
-					self.request({
-						type: 'POST',
-						url: Mura.getAPIEndpoint() + '?method=generateCSRFTokens',
-						data: {context: contentid},
-						success: function(resp) {
-							self.request({
-								async: true,
-								type: 'POST',
-								url: Mura.getAPIEndpoint() + '/gatedasset/open',
-								data:{
-									contentid: contentid
-								},
-								success: function(resp) {
-									if (typeof resolve =='function' && typeof resp.data != 'undefined') {
-										resolve(resp.data);
-									} else if (typeof reject =='function' && typeof resp.error != 'undefined') {
-										resolve(resp);
-									} else if (typeof resolve =='function'){
-										resolve(resp);
-									}
-								}
-							});
-						}
-					});
-				});
-			}
-		}
-	},
+    /**
+     * findQuery - Returns Mura.EntityCollection with properties that match params
+     *
+     * @param	{object} params Object of matching params
+     * @return {Promise}
+     */
+    findQuery: function findQuery(params) {
+      var self = this;
+      params = params || {};
+      params.entityname = params.entityname || 'content';
+      params.siteid = params.siteid || Mura.siteid;
+      params.method = params.method || 'findQuery';
+      params['_cacheid'] == Math.random();
+      return new Promise(function (resolve, reject) {
+        self.request({
+          type: 'get',
+          url: Mura.getAPIEndpoint(),
+          data: params,
+          success: function success(resp) {
+            var collection = new Mura.EntityCollection(resp.data, self);
 
-	/**
-	 * logout - Logs user out
-	 *
-	 * @param	{type} siteid Siteid
-	 * @return {Promise}
-	 */
-	logout:function(siteid) {
-		siteid = siteid || Mura.siteid;
-		var self=this;
-		return new Promise(function(resolve, reject) {
-			self.request({
-				async: true,
-				type: 'post',
-				url: Mura.getAPIEndpoint(),
-				data: {
-					siteid: siteid,
-					method: 'logout'
-				},
-				success: function(resp) {
-					resolve(resp.data);
-				}
-			});
-		});
-	},
+            if (typeof resolve == 'function') {
+              resolve(collection);
+            }
+          },
+          error: function error(resp) {
+            console.log(resp);
+          }
+        });
+      });
+    },
 
-	/**
-	 * get - Make GET request
-	 *
-	 * @param	{url} url	URL
-	 * @param	{object} data Data to send to url
-	 * @return {Promise}
-	 */
-	get:function(url, data, eventHandler) {
-		if(typeof url == 'object'){
-			data=url.data;
-			eventHander=url;
-			url=url.url;
-		} else {
-			eventHandler=eventHandler || {};
-		}
+    /**
+     * login - Logs user into Mura
+     *
+     * @param	{string} username Username
+     * @param	{string} password Password
+     * @param	{string} siteid	 Siteid
+     * @return {Promise}
+     */
+    login: function login(username, password, siteid) {
+      siteid = siteid || Mura.siteid;
+      var self = this;
+      return new Promise(function (resolve, reject) {
+        self.request({
+          type: 'post',
+          url: Mura.getAPIEndpoint() + '?method=generateCSRFTokens',
+          data: {
+            siteid: siteid,
+            context: 'login'
+          },
+          success: function success(resp) {
+            self.request({
+              async: true,
+              type: 'post',
+              url: Mura.getAPIEndpoint(),
+              data: {
+                siteid: siteid,
+                username: username,
+                password: password,
+                method: 'login',
+                'csrf_token': resp.data.csrf_token,
+                'csrf_token_expires': resp.data.csrf_token_expires
+              },
+              success: function success(resp) {
+                resolve(resp.data);
+              }
+            });
+          }
+        });
+      });
+    },
 
-		Mura.normalizeRequestHandler(eventHandler);
+    /**
+    * openGate - Open's content gate when using MXP
+    *
+    * @param	{string} contentid Optional: default's to Mura.contentid
+    * @return {Promise}
+    * @memberof {class
+    */
+    openGate: function openGate(contentid) {
+      var self = this;
+      contentid = contentid || Mura.contentid;
 
-		var self=this;
-		data = data || {};
+      if (contentid) {
+        if (Mura.mode.toLowerCase() == 'rest') {
+          return new Promise(function (resolve, reject) {
+            self.request({
+              async: true,
+              type: 'POST',
+              url: Mura.getAPIEndpoint() + '/gatedasset/open',
+              data: {
+                contentid: contentid
+              },
+              success: function success(resp) {
+                if (typeof resolve == 'function' && typeof resp.data != 'undefined') {
+                  resolve(resp.data);
+                } else if (typeof reject == 'function' && typeof resp.error != 'undefined') {
+                  resolve(resp);
+                } else if (typeof resolve == 'function') {
+                  resolve(resp);
+                }
+              }
+            });
+          });
+        } else {
+          return new Promise(function (resolve, reject) {
+            self.request({
+              type: 'POST',
+              url: Mura.getAPIEndpoint() + '?method=generateCSRFTokens',
+              data: {
+                context: contentid
+              },
+              success: function success(resp) {
+                self.request({
+                  async: true,
+                  type: 'POST',
+                  url: Mura.getAPIEndpoint() + '/gatedasset/open',
+                  data: {
+                    contentid: contentid
+                  },
+                  success: function success(resp) {
+                    if (typeof resolve == 'function' && typeof resp.data != 'undefined') {
+                      resolve(resp.data);
+                    } else if (typeof reject == 'function' && typeof resp.error != 'undefined') {
+                      resolve(resp);
+                    } else if (typeof resolve == 'function') {
+                      resolve(resp);
+                    }
+                  }
+                });
+              }
+            });
+          });
+        }
+      }
+    },
 
-		return new Promise(function(resolve, reject) {
+    /**
+     * logout - Logs user out
+     *
+     * @param	{type} siteid Siteid
+     * @return {Promise}
+     */
+    logout: function logout(siteid) {
+      siteid = siteid || Mura.siteid;
+      var self = this;
+      return new Promise(function (resolve, reject) {
+        self.request({
+          async: true,
+          type: 'post',
+          url: Mura.getAPIEndpoint(),
+          data: {
+            siteid: siteid,
+            method: 'logout'
+          },
+          success: function success(resp) {
+            resolve(resp.data);
+          }
+        });
+      });
+    },
 
-			if(typeof resolve == 'function'){
-				eventHandler.success=resolve;
-			}
+    /**
+     * get - Make GET request
+     *
+     * @param	{url} url	URL
+     * @param	{object} data Data to send to url
+     * @return {Promise}
+     */
+    get: function get(url, data, eventHandler) {
+      if (_typeof(url) == 'object') {
+        data = url.data;
+        eventHander = url;
+        url = url.url;
+      } else {
+        eventHandler = eventHandler || {};
+      }
 
-			if(typeof reject == 'function'){
-				eventHandler.error=reject;
-			}
+      Mura.normalizeRequestHandler(eventHandler);
+      var self = this;
+      data = data || {};
+      return new Promise(function (resolve, reject) {
+        if (typeof resolve == 'function') {
+          eventHandler.success = resolve;
+        }
 
-			return self.request({
-				type: 'get',
-				url: url,
-				data: data,
-				success: eventHandler.success,
-				error: eventHandler.error,
-				progress:eventHandler.progress,
-				abort: eventHandler.abort
-			});
-		});
-	},
+        if (typeof reject == 'function') {
+          eventHandler.error = reject;
+        }
 
-	/**
-	 * post - Make POST request
-	 *
-	 * @param	{url} url	URL
-	 * @param	{object} data Data to send to url
-	 * @return {Promise}
-	 */
-	post:function(url, data, eventHandler) {
-		if(typeof url == 'object'){
-			data=url.data;
-			eventHander=url;
-			url=url.url;
-		} else {
-			eventHandler=eventHandler || {};
-		}
+        return self.request({
+          type: 'get',
+          url: url,
+          data: data,
+          success: eventHandler.success,
+          error: eventHandler.error,
+          progress: eventHandler.progress,
+          abort: eventHandler.abort
+        });
+      });
+    },
 
-		Mura.normalizeRequestHandler(eventHandler);
+    /**
+     * post - Make POST request
+     *
+     * @param	{url} url	URL
+     * @param	{object} data Data to send to url
+     * @return {Promise}
+     */
+    post: function post(url, data, eventHandler) {
+      if (_typeof(url) == 'object') {
+        data = url.data;
+        eventHander = url;
+        url = url.url;
+      } else {
+        eventHandler = eventHandler || {};
+      }
 
-		var self=this;
-		data = data || {};
+      Mura.normalizeRequestHandler(eventHandler);
+      var self = this;
+      data = data || {};
+      return new Promise(function (resolve, reject) {
+        if (typeof resolve == 'function') {
+          eventHandler.success = resolve;
+        }
 
-		return new Promise(function(resolve, reject) {
+        if (typeof reject == 'function') {
+          eventHandler.error = reject;
+        }
 
-			if(typeof resolve == 'function'){
-				eventHandler.success=resolve;
-			}
+        return self.request({
+          type: 'post',
+          url: url,
+          data: data,
+          success: eventHandler.success,
+          error: eventHandler.error,
+          progress: eventHandler.progress,
+          abort: eventHandler.abort
+        });
+      });
+    },
 
-			if(typeof reject == 'function'){
-				eventHandler.error=reject;
-			}
-
-			return self.request({
-				type: 'post',
-				url: url,
-				data: data,
-				success: eventHandler.success,
-				error: eventHandler.error,
-				progress:eventHandler.progress,
-				abort: eventHandler.abort
-			});
-		});
-	},
-
-	/**
-	 * Request Headers
-	**/
-	requestHeaders:{}
-
-});
+    /**
+     * Request Headers
+    **/
+    requestHeaders: {}
+  });
 })(Mura);
-
 
 /***/ }),
 /* 347 */
 /***/ (function(module, exports, __webpack_require__) {
 
-
-var Mura=__webpack_require__(8);
+var Mura = __webpack_require__(8);
 /**
  * Creates a new Mura.Cache
  * @name Mura.Cache
@@ -15201,110 +15159,112 @@ var Mura=__webpack_require__(8);
  * @return {Mura.Cache}
  */
 
-Mura.Cache=Mura.Core.extend(
-	/** @lends Mura.Cache.prototype */
-	{
-	init:function(){
-		this.cache={};
-		return this;
-	},
 
-	/**
-	 * getKey - Returns Key value associated with key Name
-	 *
-	 * @param	{string} keyName Key Name
-	 * @return {*}				 Key Value
-	 */
-	getKey:function(keyName){
-		return Mura.hashCode(keyName);
-	},
+Mura.Cache = Mura.Core.extend(
+/** @lends Mura.Cache.prototype */
+{
+  init: function init() {
+    this.cache = {};
+    return this;
+  },
 
-	/**
-	 * get - Returns the value associated with key name
-	 *
-	 * @param	{string} keyName	description
-	 * @param	{*} keyValue Default Value
-	 * @return {*}
-	 */
-	get:function(keyName,keyValue){
-		var key=this.getKey(keyName);
-		if(typeof this.cache[key] != 'undefined'){
-			return this.cache[key].keyValue;
-		} else if (typeof keyValue != 'undefined') {
-			this.set(keyName,keyValue,key);
-			return this.cache[key].keyValue;
-		} else {
-			return;
-		}
-	},
+  /**
+   * getKey - Returns Key value associated with key Name
+   *
+   * @param	{string} keyName Key Name
+   * @return {*}				 Key Value
+   */
+  getKey: function getKey(keyName) {
+    return Mura.hashCode(keyName);
+  },
 
-	/**
-	 * set - Sets and returns key value
-	 *
-	 * @param	{string} keyName	Key Name
-	 * @param	{*} keyValue Key Value
-	 * @param	{string} key			Key
-	 * @return {*}
-	 */
-	set:function(keyName,keyValue,key){
-		key=key || this.getKey(keyName);
-		this.cache[key]={name:keyName,value:keyValue};
-		return keyValue;
-	},
+  /**
+   * get - Returns the value associated with key name
+   *
+   * @param	{string} keyName	description
+   * @param	{*} keyValue Default Value
+   * @return {*}
+   */
+  get: function get(keyName, keyValue) {
+    var key = this.getKey(keyName);
 
-	/**
-	 * has - Returns if the key name has a value in the cache
-	 *
-	 * @param	{string} keyName Key Name
-	 * @return {boolean}
-	 */
-	has:function(keyName){
-		return typeof this.cache[getKey(keyName)] != 'undefined';
-	},
+    if (typeof this.cache[key] != 'undefined') {
+      return this.cache[key].keyValue;
+    } else if (typeof keyValue != 'undefined') {
+      this.set(keyName, keyValue, key);
+      return this.cache[key].keyValue;
+    } else {
+      return;
+    }
+  },
 
-	/**
-	 * getAll - Returns object containing all key and key values
-	 *
-	 * @return {object}
-	 */
-	getAll:function(){
-		return this.cache;
-	},
+  /**
+   * set - Sets and returns key value
+   *
+   * @param	{string} keyName	Key Name
+   * @param	{*} keyValue Key Value
+   * @param	{string} key			Key
+   * @return {*}
+   */
+  set: function set(keyName, keyValue, key) {
+    key = key || this.getKey(keyName);
+    this.cache[key] = {
+      name: keyName,
+      value: keyValue
+    };
+    return keyValue;
+  },
 
-	/**
-	 * purgeAll - Purges all key/value pairs from cache
-	 *
-	 * @return {object}	Self
-	 */
-	purgeAll:function(){
-		this.cache={};
-		return this;
-	},
+  /**
+   * has - Returns if the key name has a value in the cache
+   *
+   * @param	{string} keyName Key Name
+   * @return {boolean}
+   */
+  has: function has(keyName) {
+    return typeof this.cache[getKey(keyName)] != 'undefined';
+  },
 
-	/**
-	 * purge - Purges specific key name from cache
-	 *
-	 * @param	{string} keyName Key Name
-	 * @return {object}				 Self
-	 */
-	purge:function(keyName){
-		var key=this.getKey(keyName)
-		if( typeof this.cache[key] != 'undefined')
-		delete this.cache[key];
-		return this;
-	}
+  /**
+   * getAll - Returns object containing all key and key values
+   *
+   * @return {object}
+   */
+  getAll: function getAll() {
+    return this.cache;
+  },
+
+  /**
+   * purgeAll - Purges all key/value pairs from cache
+   *
+   * @return {object}	Self
+   */
+  purgeAll: function purgeAll() {
+    this.cache = {};
+    return this;
+  },
+
+  /**
+   * purge - Purges specific key name from cache
+   *
+   * @param	{string} keyName Key Name
+   * @return {object}				 Self
+   */
+  purge: function purge(keyName) {
+    var key = this.getKey(keyName);
+    if (typeof this.cache[key] != 'undefined') delete this.cache[key];
+    return this;
+  }
 });
-
-Mura.datacache=new Mura.Cache();
-
+Mura.datacache = new Mura.Cache();
 
 /***/ }),
 /* 348 */
 /***/ (function(module, exports, __webpack_require__) {
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-var Mura=__webpack_require__(8);
-
+var Mura = __webpack_require__(8);
 /**
 * Creates a new Mura.Entity
 * @name	Mura.Entity
@@ -15315,920 +15275,898 @@ var Mura=__webpack_require__(8);
 * @return {Mura.Entity}
 */
 
+
 Mura.Entity = Mura.Core.extend(
 /** @lends Mura.Entity.prototype */
 {
-	init: function(properties,requestcontext) {
-		properties = properties || {};
-		properties.entityname = properties.entityname || 'content';
-		properties.siteid = properties.siteid || Mura.siteid;
-		this.set(properties);
-
-		if (typeof this.properties.isnew == 'undefined') {
-			this.properties.isnew = 1;
-		}
-
-		if (this.properties.isnew) {
-			this.set('isdirty', true);
-		} else {
-			this.set('isdirty', false);
-		}
-
-		if (typeof this.properties.isdeleted ==	'undefined') {
-			this.properties.isdeleted = false;
-		}
-
-		this._requestcontext=requestcontext || Mura._requestcontext;
-
-		this.cachePut();
-
-		return this;
-	},
-
-	/**
-	 * setRequestContext - Sets the RequestContext
-	 *
-	 * @RequestContext	{Mura.RequestContext} Mura.RequestContext List of fields
-	 * @return {Mura.Feed}				Self
-	 */
-	setRequestContext: function(requestcontext) {
-		this._requestcontext=requestcontext;
-		return this;
-	},
-
-	/**
-	 * getEnpoint - Returns API endpoint for entity type
-	 *
-	 * @return {string} All Headers
-	 */
-	getApiEndPoint:function(){
-		return	Mura.getAPIEndpoint() + this.get('entityname') + '/';
-	},
-
-	/**
-	 * invoke - Invokes a method
-	 *
-	 * @param	{string} name Method to call
-	 * @param	{object} params Arguments to submit to method
-	 * @param	{string} method GET or POST
-	 * @return {any}
-	 */
-	invoke:function(name,params,method,eventHandler){
-		if(typeof name == 'object'){
-			params=name.params || {};
-			method=name.method || 'get';
-			eventHandler=name;
-			name=name.name;
-		} else {
-			eventHandler=eventHandler || {};
-		}
-
-		Mura.normalizeRequestHandler(eventHandler);
-
-		var self = this;
-
-		if(typeof method=='undefined' && typeof params=='string'){
-			method=params;
-			params={};
-		}
-
-		params=params || {};
-		method=method || "post";
-
-		if(this[name]=='function'){
-			return this[name].apply(this,params);
-		}
-
-		return new Promise(function(resolve,reject) {
-
-			if(typeof resolve == 'function'){
-				eventHandler.success=resolve;
-			}
-
-			if(typeof reject == 'function'){
-				eventHandler.error=reject;
-			}
-
-			if(params instanceof FormData){
-				params.append('_cacheid',Math.random());
-			} else {
-				params._cacheid=Math.random();
-			}
-
-			self._requestcontext.request({
-				type: method.toLowerCase(),
-				url: self.getApiEndPoint() + name,
-				data: params,
-				success: function(resp) {
-					if (resp.data != 'undefined'	) {
-						if (typeof 	eventHandler.success ==	'function') {
-							eventHandler.success(resp.data);
-						}
-					} else {
-						if (typeof eventHandler.error == 'function') {
-							eventHandler.error(resp);
-						}
-					}
-				},
-				error: function(resp) {
-					resp=Mura.parseString(resp.response);
-					if (typeof eventHandler.error == 'function'){
-						eventHandler.error(resp);
-					}
-				},
-				progress:eventHandler.progress,
-				abort: eventHandler.abort
-			});
-		});
-	},
-
-	/**
-	 * invokeWithCSRF - Proxies method call to remote api, but first generates CSRF tokens based on name
-	 *
-	 * @param	{string} name Method to call
-	 * @param	{object} params Arguments to submit to method
-	 * @param	{string} method GET or POST
-	 * @return {Promise} All Headers
-	 */
-	invokeWithCSRF:function(name,params,method,eventHandler){
-		if(typeof name == 'object'){
-			params=name.params || {};
-			method=name.method || 'get';
-			eventHandler=name;
-			name=name.name;
-		} else {
-			eventHandler=eventHandler || {};
-		}
-
-		Mura.normalizeRequestHandler(eventHandler);
-
-		if(Mura.mode.toLowerCase() == 'rest'){
-
-			return new Promise(function(resolve,reject) {
-				return self.invoke(
-					name,
-					params,
-					method,
-					eventHandler
-				).then(resolve,reject);
-			});
-		} else {
-			var self = this;
-			return new Promise(function(resolve,reject) {
-				if(typeof resolve == 'function'){
-					eventHandler.success=resolve;
-				}
-
-				if(typeof reject == 'function'){
-					eventHandler.error=reject;
-				}
-				self._requestcontext.request({
-					type: 'post',
-					url: Mura.getAPIEndpoint() + '?method=generateCSRFTokens',
-					data: {
-						siteid: self.get('siteid'),
-						context: name
-					},
-					success: function(resp) {
-
-						if(params instanceof FormData){
-							params.append('csrf_token',resp.data.csrf_token);
-							params.append('csrf_token_expires',resp.data.csrf_token_expires);
-						} else {
-							params=Mura.extend(params,resp.data);
-						}
-
-						if (resp.data != 'undefined'	) {
-							self.invoke(
-								name,
-								params,
-								method,
-								eventHandler
-							).then(resolve,reject);
-						} else {
-							if (typeof eventHandler.error == 'function'){
-								eventHandler.error(resp);
-							}
-						}
-					},
-					error: function(resp) {
-						resp=Mura.parseString(resp.response);
-						if (typeof eventHandler.error == 'function'){
-							eventHandler.error(resp);
-						}
-					}
-				});
-			});
-		}
-	},
-
-	/**
-	 * exists - Returns if the entity was previously saved
-	 *
-	 * @return {boolean}
-	 */
-	exists: function() {
-		return this.has('isnew') && !this.get('isnew');
-	},
-
-	/**
-	 * get - Retrieves property value from entity
-	 *
-	 * @param	{string} propertyName Property Name
-	 * @param	{*} defaultValue Default Value
-	 * @return {*}							Property Value
-	 */
-	get: function(propertyName, defaultValue) {
-		if (typeof this.properties.links != 'undefined' &&
-			typeof this.properties.links[propertyName] != 'undefined') {
-			var self = this;
-			if (typeof this.properties[propertyName] == 'object') {
-				return new Promise(function(resolve,reject) {
-					if ('items' in self.properties[propertyName]) {
-						var returnObj = new Mura.EntityCollection(self.properties[propertyName],self._requestcontext);
-					} else {
-						if (Mura.entities[self.properties[propertyName].entityname]) {
-							var returnObj = new Mura.entities[self.properties[propertyName ].entityname](self.properties[propertyName],self._requestcontext);
-						} else {
-							var returnObj = new Mura.Entity(self.properties[propertyName],self._requestcontext);
-						}
-					}
-					if (typeof resolve == 'function') {
-						resolve(returnObj);
-					}
-				});
-			} else {
-				if (typeof defaultValue == 'object') {
-					var params = defaultValue;
-				} else {
-					var params = {};
-				}
-				return new Promise(function(resolve,reject) {
-					self._requestcontext.request({
-						type: 'get',
-						url: self.properties.links[propertyName],
-						params: params,
-						success: function(resp) {
-							if (
-								'items' in resp.data
-							) {
-								var returnObj = new Mura.EntityCollection(resp.data,self._requestcontext);
-							} else {
-								if (Mura.entities[self.entityname]) {
-									var returnObj = new Mura.entities[self.entityname](resp.data,self._requestcontext);
-								} else {
-									var returnObj = new Mura.Entity(resp.data,self._requestcontext);
-								}
-							}
-							//Dont cache if there are custom params
-							if (Mura.isEmptyObject(params)) {
-								self.set(propertyName,resp.data);
-							}
-							if (typeof resolve == 'function') {
-								resolve(returnObj);
-							}
-						},
-						error: function(resp){
-							resp=Mura.parseString(resp.response);
-							if (typeof reject == 'function'){
-								reject(resp);
-							}
-						}
-					});
-				});
-			}
-		} else if (typeof this.properties[propertyName] != 'undefined') {
-			return this.properties[propertyName];
-		} else if (typeof defaultValue != 'undefined') {
-			this.properties[propertyName] = defaultValue;
-			return this.properties[propertyName];
-		} else {
-			return '';
-		}
-	},
-
-	/**
-	 * set - Sets property value
-	 *
-	 * @param	{string} propertyName	Property Name
-	 * @param	{*} propertyValue Property Value
-	 * @return {Mura.Entity} Self
-	 */
-	set: function(propertyName, propertyValue) {
-		if (typeof propertyName == 'object') {
-			this.properties = Mura.deepExtend(this.properties,propertyName);
-			this.set('isdirty', true);
-		} else if (typeof this.properties[propertyName] == 'undefined' || this.properties[propertyName] != propertyValue) {
-			this.properties[propertyName] = propertyValue;
-			this.set('isdirty', true);
-		}
-
-		return this;
-	},
-
-
-	/**
-	 * has - Returns is the entity has a certain property within it
-	 *
-	 * @param	{string} propertyName Property Name
-	 * @return {type}
-	 */
-	has: function(propertyName) {
-		return typeof this.properties[propertyName] !=
-			'undefined' || (typeof this.properties.links !=
-			'undefined' && typeof this.properties.links[propertyName] != 'undefined');
-	},
-
-
-	/**
-	 * getAll - Returns all of the entities properties
-	 *
-	 * @return {object}
-	 */
-	getAll: function() {
-		return this.properties;
-	},
-
-
-	/**
-	 * load - Loads entity from JSON API
-	 *
-	 * @return {Promise}
-	 */
-	load: function() {
-		return this.loadBy('id', this.get('id'));
-	},
-
-
-	/**
-	 * new - Loads properties of a new instance from JSON API
-	 *
-	 * @param	{type} params Property values that you would like your new entity to have
-	 * @return {Promise}
-	 */
-	'new': function(params) {
-		var self = this;
-		return new Promise(function(resolve, reject) {
-			params = Mura.extend({
-				entityname: self.get('entityname'),
-				method: 'findNew',
-				siteid: self.get('siteid'),
-				'_cacheid': Math.random()
-			},
-				params
-			);
-			Mura.get(Mura.getAPIEndpoint(), params).then(
-				function(resp) {
-					self.set(resp.data);
-					if (typeof resolve == 'function') {
-						resolve(self);
-					}
-			});
-		});
-	},
-
-	/**
-	 * checkSchema - Checks the schema for Mura ORM entities
-	 *
-	 * @return {Promise}
-	 */
-	'checkSchema': function() {
-		var self = this;
-		return new Promise(function(resolve, reject) {
-			if(Mura.mode.toLowerCase() == 'rest'){
-				self._requestcontext.request({
-					type: 'post',
-					url: Mura.getAPIEndpoint(),
-					data:{
-						entityname: self.get('entityname'),
-						method: 'checkSchema',
-						siteid: self.get('siteid'),
-						'_cacheid': Math.random()
-					},
-					success: function(	resp) {
-						if (resp.data != 'undefined'	) {
-							if (typeof resolve ==	'function') {
-								resolve(self);
-							}
-						} else {
-							self.set('errors',resp.error);
-							if (typeof reject == 'function') {
-								reject(self);
-							}
-						}
-					}
-				});
-			} else {
-				self._requestcontext.request({
-					type: 'post',
-					url: Mura.getAPIEndpoint() + '?method=generateCSRFTokens',
-					data: {
-						siteid: self.get('siteid'),
-						context: ''
-					},
-					success: function(resp) {
-						self._requestcontext.request({
-							type: 'post',
-							url: Mura.getAPIEndpoint(),
-							data: Mura
-							.extend(
-							{
-								entityname: self.get('entityname'),
-								method: 'checkSchema',
-								siteid: self.get('siteid'),
-								'_cacheid': Math.random()
-							}, {
-								'csrf_token': resp.data.csrf_token,
-								'csrf_token_expires': resp.data.csrf_token_expires
-							}),
-							success: function(	resp) {
-								if (resp.data != 'undefined'	) {
-									if (typeof resolve ==	'function') {
-										resolve(self);
-									}
-								} else {
-									self.set('errors',resp.error);
-									if (typeof reject == 'function') {
-										reject(self);
-									}
-								}
-							},
-							error: function(resp) {
-								this.success(Mura.parseString(resp.response));
-							}
-						});
-					},
-					error: function(resp) {
-						this.success(Mura.parseString(resp.response));
-					}
-				});
-			}
-		});
-
-	},
-
-	/**
-	 * undeclareEntity - Undeclares an Mura ORM entity with service factory
-	 *
-	 * @return {Promise}
-	 */
-	'undeclareEntity': function(deleteSchema) {
-		deleteSchema=deleteSchema || false;
-		var self = this;
-		return new Promise(function(resolve, reject) {
-			if(Mura.mode.toLowerCase() == 'rest'){
-				self._requestcontext.request({
-					type: 'post',
-					url: Mura.getAPIEndpoint(),
-					data: {
-						entityname: self.get('entityname'),
-						deleteSchema: deleteSchema,
-						method: 'undeclareEntity',
-						siteid: self.get('siteid'),
-						'_cacheid': Math.random()
-					},
-					success: function(	resp) {
-						if (resp.data != 'undefined'	) {
-							if (typeof resolve ==	'function') {
-								resolve(self);
-							}
-						} else {
-							self.set('errors',resp.error);
-							if (typeof reject == 'function') {
-								reject(self);
-							}
-						}
-					},
-					error:function(resp){
-						this.success(Mura.parseString(resp.response));
-					}
-				});
-			} else {
-				return self._requestcontext.request({
-					type: 'post',
-					url: Mura.getAPIEndpoint() + '?method=generateCSRFTokens',
-					data: {
-						siteid: self.get('siteid'),
-						context: ''
-					},
-					success: function(resp) {
-						self._requestcontext.request({
-							type: 'post',
-							url: Mura.getAPIEndpoint(),
-							data: Mura
-							.extend(	{
-								entityname: self.get('entityname'),
-								method: 'undeclareEntity',
-								siteid: self.get('siteid'),
-								'_cacheid': Math.random()
-							}, {
-								'csrf_token': resp.data.csrf_token,
-								'csrf_token_expires': resp.data.csrf_token_expires
-							}),
-							success: function(resp) {
-								if (resp.data != 'undefined'	) {
-									if (typeof resolve ==	'function') {
-										resolve(self);
-									}
-								} else {
-									self.set('errors',resp.error);
-									if (typeof reject == 'function') {
-										reject(self);
-									}
-								}
-							}
-						});
-					},
-					error: function(resp) {
-						this.success(Mura.parseString(resp.response));
-					}
-				});
-			}
-		});
-
-	},
-
-
-	/**
-	 * loadBy - Loads entity by property and value
-	 *
-	 * @param	{string} propertyName	The primary load property to filter against
-	 * @param	{string|number} propertyValue The value to match the propert against
-	 * @param	{object} params				Addition parameters
-	 * @return {Promise}
-	 */
-	loadBy: function(propertyName, propertyValue, params) {
-		propertyName = propertyName || 'id';
-		propertyValue = propertyValue || this.get(propertyName) || 'null';
-		var self = this;
-		if (propertyName == 'id') {
-			var cachedValue = Mura.datacache.get(propertyValue);
-			if (typeof cachedValue != 'undefined') {
-				this.set(cachedValue);
-				return new Promise(function(resolve,reject) {
-					resolve(self);
-				});
-			}
-		}
-		return new Promise(function(resolve, reject) {
-			params = Mura.extend({
-				entityname: self.get('entityname').toLowerCase(),
-				method: 'findQuery',
-				siteid: self.get( 'siteid'),
-				'_cacheid': Math.random(),
-			},
-				params
-			);
-			if (params.entityname == 'content' ||	params.entityname ==	'contentnav') {
-				params.includeHomePage = 1;
-				params.showNavOnly = 0;
-				params.showExcludeSearch = 1;
-			}
-			params[propertyName] = propertyValue;
-			Mura.findQuery(params).then(
-				function(collection) {
-					if (collection.get('items').length) {
-						self.set(collection.get('items')[0].getAll());
-					}
-					if (typeof resolve == 'function') {
-						resolve(self);
-					}
-			},function(resp){
-				resp=Mura.parseString(resp.response);
-				if (typeof reject == 'function'){
-					reject(resp);
-				}
-			});
-		});
-	},
-
-	/**
-	 * validate - Validates instance
-	 *
-	 * @param	{string} fields List of properties to validate, defaults to all
-	 * @return {Promise}
-	 */
-	validate: function(fields) {
-		fields = fields || '';
-		var self = this;
-		var data = Mura.deepExtend({}, self.getAll());
-		data.fields = fields;
-		return new Promise(function(resolve, reject) {
-			self._requestcontext.request({
-				type: 'post',
-				url: Mura.getAPIEndpoint() + '?method=validate',
-				data: {
-					data: Mura.escape( data),
-					validations: '{}',
-					version: 4
-				},
-				success: function(resp) {
-					if (resp.data !=	'undefined') {
-						self.set('errors',resp.data)
-					} else {
-						self.set('errors',resp.error);
-					}
-					if (typeof resolve ==	'function') {
-						resolve(self);
-					}
-				}
-			});
-		});
-	},
-
-
-	/**
-	 * hasErrors - Returns if the entity has any errors
-	 *
-	 * @return {boolean}
-	 */
-	hasErrors: function() {
-		var errors = this.get('errors', {});
-		return (typeof errors == 'string' && errors !='') || (typeof errors == 'object' && !Mura.isEmptyObject(errors));
-	},
-
-
-	/**
-	 * getErrors - Returns entites errors property
-	 *
-	 * @return {object}
-	 */
-	getErrors: function() {
-		return this.get('errors', {});
-	},
-
-
-	/**
-	 * save - Saves entity to JSON API
-	 *
-	 * @return {Promise}
-	 */
-	save: function(eventHandler) {
-		eventHandler=eventHandler || {};
-
-		Mura.normalizeRequestHandler(eventHandler);
-
-		var self = this;
-
-		if (!this.get('isdirty')) {
-			return new Promise(function(resolve, reject) {
-				if(typeof resolve == 'function'){
-					eventHandler.success=resolve;
-				}
-				if (typeof eventHandler.success =='function') {
-					eventHandler.success(self);
-				}
-			});
-		}
-		if (!this.get('id')) {
-			return new Promise(function(resolve, reject) {
-				var temp = Mura.deepExtend({},self.getAll());
-				self._requestcontext.request({
-					type: 'get',
-					url: Mura.getAPIEndpoint() + self.get('entityname') + '/new',
-					success: function(resp) {
-						self.set(resp.data);
-						self.set(temp);
-						self.set('id',resp.data.id);
-						self.set('isdirty',true);
-						self.cachePut();
-						self.save(eventHandler).then(
-							resolve,
-							reject
-						);
-					},
-					error: eventHandler.error,
-					abort: eventHandler.abort
-				});
-			});
-		} else {
-			return new Promise(function(resolve, reject) {
-
-				if(typeof resolve == 'function'){
-					eventHandler.success=resolve;
-				}
-
-				if(typeof reject == 'function'){
-					eventHandler.error=reject;
-				}
-
-				var context = self.get('id');
-				if(Mura.mode.toLowerCase() == 'rest'){
-					self._requestcontext.request({
-						type: 'post',
-						url: Mura.getAPIEndpoint() + '?method=save',
-						data:	self.getAll(),
-						success: function(	resp) {
-							if (resp.data != 'undefined') {
-								self.set(resp.data)
-								self.set('isdirty',false );
-								if (self.get('saveerrors') ||
-									Mura.isEmptyObject(self.getErrors())
-								) {
-									if (typeof eventHandler.success ==	'function') {
-											eventHandler.success(self);
-									}
-								} else {
-									if (typeof eventHandler.error == 'function') {
-											eventHandler.error(self);
-									}
-								}
-							} else {
-								self.set('errors',resp.error);
-								if (typeof eventHandler.error == 'function') {
-									eventHandler.error(self);
-								}
-							}
-						},
-						progress:eventHandler.progress,
-						abort: eventHandler.abort
-					});
-				} else {
-					self._requestcontext.request({
-						type: 'post',
-						url: Mura.getAPIEndpoint() + '?method=generateCSRFTokens',
-						data: {
-							siteid: self.get('siteid'),
-							context: context
-						},
-						success: function(resp) {
-							self._requestcontext.request({
-								type: 'post',
-								url: Mura.getAPIEndpoint() + '?method=save',
-								data: Mura
-								.extend( self.getAll(), {
-										'csrf_token': resp.data.csrf_token,
-										'csrf_token_expires': resp.data.csrf_token_expires
-									}
-								),
-								success: function(	resp) {
-									if (resp.data != 'undefined'	) {
-										self.set(resp.data)
-										self.set('isdirty',false );
-										if (self.get('saveerrors') ||
-											Mura.isEmptyObject(self.getErrors())
-										) {
-											if (typeof eventHandler.success ==	'function') {
-												eventHandler.success(self);
-											}
-										} else {
-											if (typeof eventHandler.error == 'function') {
-												eventHandler.error(self);
-											}
-										}
-									} else {
-										self.set('errors',resp.error);
-										if (typeof eventHandler.error == 'function') {
-											eventHandler.error(self);
-										}
-									}
-								},
-								progress:eventHandler.progress,
-								abort: eventHandler.abort
-							});
-						},
-						error: function(resp) {
-							this.success(resp );
-						},
-						abort: eventHandler.abort
-					});
-				}
-			});
-		}
-	},
-
-	/**
-	 * delete - Deletes entity
-	 *
-	 * @return {Promise}
-	 */
-	'delete': function(eventHandler) {
-		eventHandler=eventHandler || {};
-
-		Mura.normalizeRequestHandler(eventHandler);
-
-		var self = this;
-		if(Mura.mode.toLowerCase() == 'rest'){
-			return new Promise(function(resolve, reject) {
-
-				if(typeof resolve == 'function'){
-					eventHandler.success=resolve;
-				}
-
-				if(typeof reject == 'function'){
-					eventHandler.error=reject;
-				}
-
-				self._requestcontext.request({
-					type: 'post',
-					url: Mura.getAPIEndpoint() + '?method=delete',
-					data: {
-						siteid: self.get('siteid'),
-						id: self.get('id'),
-						entityname: self.get('entityname')
-					},
-					success: function() {
-						self.set('isdeleted',true);
-						self.cachePurge();
-						if (typeof eventHandler.success == 'function') {
-							eventHandler.success(self);
-						}
-					},
-					error: eventHandler.error,
-					progress:eventHandler.progress,
-					abort: eventHandler.abort
-				});
-			});
-		} else {
-			return new Promise(function(resolve, reject) {
-				if(typeof resolve == 'function'){
-					eventHandler.success=resolve;
-				}
-
-				if(typeof reject == 'function'){
-					eventHandler.error=reject;
-				}
-
-				self._requestcontext.request({
-					type: 'post',
-					url: Mura.getAPIEndpoint() + '?method=generateCSRFTokens',
-					data: {
-						siteid: self.get('siteid'),
-						context: self.get('id')
-					},
-					success: function(resp) {
-						self._requestcontext.request({
-							type: 'post',
-							url: Mura.getAPIEndpoint() + '?method=delete',
-							data: {
-								siteid: self.get('siteid'),
-								id: self.get('id'),
-								entityname: self.get('entityname'),
-								'csrf_token': resp.data.csrf_token,
-								'csrf_token_expires': resp.data.csrf_token_expires
-							},
-							success: function() {
-								self.set('isdeleted',true);
-								self.cachePurge();
-								if (typeof eventHandler.success == 'function') {
-									eventHandler.success(self);
-								}
-							},
-							error: eventHandler.error,
-							progress:eventHandler.progress,
-							abort: eventHandler.abort
-						});
-					},
-					error: eventHandler.error,
-					abort: eventHandler.abort
-				});
-			});
-		}
-	},
-
-	/**
-	 * getFeed - Returns a Mura.Feed instance of this current entitie's type and siteid
-	 *
-	 * @return {object}
-	 */
-	getFeed: function() {
-		var siteid = get('siteid') || Mura.siteid;
-		var feed=this._requestcontext.getFeed(this.get('entityName'));
-		return feed;
-	},
-
-	/**
-	 * cachePurge - Purges this entity from client cache
-	 *
-	 * @return {object}	Self
-	 */
-	cachePurge: function() {
-		Mura.datacache.purge(this.get('id'));
-		return this;
-	},
-
-	/**
-	 * cachePut - Places this entity into client cache
-	 *
-	 * @return {object}	Self
-	 */
-	cachePut: function() {
-		if (!this.get('isnew')) {
-			Mura.datacache.set(this.get('id'), this);
-		}
-		return this;
-	}
-
+  init: function init(properties, requestcontext) {
+    properties = properties || {};
+    properties.entityname = properties.entityname || 'content';
+    properties.siteid = properties.siteid || Mura.siteid;
+    this.set(properties);
+
+    if (typeof this.properties.isnew == 'undefined') {
+      this.properties.isnew = 1;
+    }
+
+    if (this.properties.isnew) {
+      this.set('isdirty', true);
+    } else {
+      this.set('isdirty', false);
+    }
+
+    if (typeof this.properties.isdeleted == 'undefined') {
+      this.properties.isdeleted = false;
+    }
+
+    this._requestcontext = requestcontext || Mura._requestcontext;
+    this.cachePut();
+    return this;
+  },
+
+  /**
+   * setRequestContext - Sets the RequestContext
+   *
+   * @RequestContext	{Mura.RequestContext} Mura.RequestContext List of fields
+   * @return {Mura.Feed}				Self
+   */
+  setRequestContext: function setRequestContext(requestcontext) {
+    this._requestcontext = requestcontext;
+    return this;
+  },
+
+  /**
+   * getEnpoint - Returns API endpoint for entity type
+   *
+   * @return {string} All Headers
+   */
+  getApiEndPoint: function getApiEndPoint() {
+    return Mura.getAPIEndpoint() + this.get('entityname') + '/';
+  },
+
+  /**
+   * invoke - Invokes a method
+   *
+   * @param	{string} name Method to call
+   * @param	{object} params Arguments to submit to method
+   * @param	{string} method GET or POST
+   * @return {any}
+   */
+  invoke: function invoke(name, params, method, eventHandler) {
+    if (_typeof(name) == 'object') {
+      params = name.params || {};
+      method = name.method || 'get';
+      eventHandler = name;
+      name = name.name;
+    } else {
+      eventHandler = eventHandler || {};
+    }
+
+    Mura.normalizeRequestHandler(eventHandler);
+    var self = this;
+
+    if (typeof method == 'undefined' && typeof params == 'string') {
+      method = params;
+      params = {};
+    }
+
+    params = params || {};
+    method = method || "post";
+
+    if (this[name] == 'function') {
+      return this[name].apply(this, params);
+    }
+
+    return new Promise(function (resolve, reject) {
+      if (typeof resolve == 'function') {
+        eventHandler.success = resolve;
+      }
+
+      if (typeof reject == 'function') {
+        eventHandler.error = reject;
+      }
+
+      if (params instanceof FormData) {
+        params.append('_cacheid', Math.random());
+      } else {
+        params._cacheid = Math.random();
+      }
+
+      self._requestcontext.request({
+        type: method.toLowerCase(),
+        url: self.getApiEndPoint() + name,
+        data: params,
+        success: function success(resp) {
+          if (resp.data != 'undefined') {
+            if (typeof eventHandler.success == 'function') {
+              eventHandler.success(resp.data);
+            }
+          } else {
+            if (typeof eventHandler.error == 'function') {
+              eventHandler.error(resp);
+            }
+          }
+        },
+        error: function error(resp) {
+          resp = Mura.parseString(resp.response);
+
+          if (typeof eventHandler.error == 'function') {
+            eventHandler.error(resp);
+          }
+        },
+        progress: eventHandler.progress,
+        abort: eventHandler.abort
+      });
+    });
+  },
+
+  /**
+   * invokeWithCSRF - Proxies method call to remote api, but first generates CSRF tokens based on name
+   *
+   * @param	{string} name Method to call
+   * @param	{object} params Arguments to submit to method
+   * @param	{string} method GET or POST
+   * @return {Promise} All Headers
+   */
+  invokeWithCSRF: function invokeWithCSRF(name, params, method, eventHandler) {
+    if (_typeof(name) == 'object') {
+      params = name.params || {};
+      method = name.method || 'get';
+      eventHandler = name;
+      name = name.name;
+    } else {
+      eventHandler = eventHandler || {};
+    }
+
+    Mura.normalizeRequestHandler(eventHandler);
+
+    if (Mura.mode.toLowerCase() == 'rest') {
+      return new Promise(function (resolve, reject) {
+        return self.invoke(name, params, method, eventHandler).then(resolve, reject);
+      });
+    } else {
+      var self = this;
+      return new Promise(function (resolve, reject) {
+        if (typeof resolve == 'function') {
+          eventHandler.success = resolve;
+        }
+
+        if (typeof reject == 'function') {
+          eventHandler.error = reject;
+        }
+
+        self._requestcontext.request({
+          type: 'post',
+          url: Mura.getAPIEndpoint() + '?method=generateCSRFTokens',
+          data: {
+            siteid: self.get('siteid'),
+            context: name
+          },
+          success: function success(resp) {
+            if (params instanceof FormData) {
+              params.append('csrf_token', resp.data.csrf_token);
+              params.append('csrf_token_expires', resp.data.csrf_token_expires);
+            } else {
+              params = Mura.extend(params, resp.data);
+            }
+
+            if (resp.data != 'undefined') {
+              self.invoke(name, params, method, eventHandler).then(resolve, reject);
+            } else {
+              if (typeof eventHandler.error == 'function') {
+                eventHandler.error(resp);
+              }
+            }
+          },
+          error: function error(resp) {
+            resp = Mura.parseString(resp.response);
+
+            if (typeof eventHandler.error == 'function') {
+              eventHandler.error(resp);
+            }
+          }
+        });
+      });
+    }
+  },
+
+  /**
+   * exists - Returns if the entity was previously saved
+   *
+   * @return {boolean}
+   */
+  exists: function exists() {
+    return this.has('isnew') && !this.get('isnew');
+  },
+
+  /**
+   * get - Retrieves property value from entity
+   *
+   * @param	{string} propertyName Property Name
+   * @param	{*} defaultValue Default Value
+   * @return {*}							Property Value
+   */
+  get: function get(propertyName, defaultValue) {
+    if (typeof this.properties.links != 'undefined' && typeof this.properties.links[propertyName] != 'undefined') {
+      var self = this;
+
+      if (_typeof(this.properties[propertyName]) == 'object') {
+        return new Promise(function (resolve, reject) {
+          if ('items' in self.properties[propertyName]) {
+            var returnObj = new Mura.EntityCollection(self.properties[propertyName], self._requestcontext);
+          } else {
+            if (Mura.entities[self.properties[propertyName].entityname]) {
+              var returnObj = new Mura.entities[self.properties[propertyName].entityname](self.properties[propertyName], self._requestcontext);
+            } else {
+              var returnObj = new Mura.Entity(self.properties[propertyName], self._requestcontext);
+            }
+          }
+
+          if (typeof resolve == 'function') {
+            resolve(returnObj);
+          }
+        });
+      } else {
+        if (_typeof(defaultValue) == 'object') {
+          var params = defaultValue;
+        } else {
+          var params = {};
+        }
+
+        return new Promise(function (resolve, reject) {
+          self._requestcontext.request({
+            type: 'get',
+            url: self.properties.links[propertyName],
+            params: params,
+            success: function success(resp) {
+              if ('items' in resp.data) {
+                var returnObj = new Mura.EntityCollection(resp.data, self._requestcontext);
+              } else {
+                if (Mura.entities[self.entityname]) {
+                  var returnObj = new Mura.entities[self.entityname](resp.data, self._requestcontext);
+                } else {
+                  var returnObj = new Mura.Entity(resp.data, self._requestcontext);
+                }
+              } //Dont cache if there are custom params
+
+
+              if (Mura.isEmptyObject(params)) {
+                self.set(propertyName, resp.data);
+              }
+
+              if (typeof resolve == 'function') {
+                resolve(returnObj);
+              }
+            },
+            error: function error(resp) {
+              resp = Mura.parseString(resp.response);
+
+              if (typeof reject == 'function') {
+                reject(resp);
+              }
+            }
+          });
+        });
+      }
+    } else if (typeof this.properties[propertyName] != 'undefined') {
+      return this.properties[propertyName];
+    } else if (typeof defaultValue != 'undefined') {
+      this.properties[propertyName] = defaultValue;
+      return this.properties[propertyName];
+    } else {
+      return '';
+    }
+  },
+
+  /**
+   * set - Sets property value
+   *
+   * @param	{string} propertyName	Property Name
+   * @param	{*} propertyValue Property Value
+   * @return {Mura.Entity} Self
+   */
+  set: function set(propertyName, propertyValue) {
+    if (_typeof(propertyName) == 'object') {
+      this.properties = Mura.deepExtend(this.properties, propertyName);
+      this.set('isdirty', true);
+    } else if (typeof this.properties[propertyName] == 'undefined' || this.properties[propertyName] != propertyValue) {
+      this.properties[propertyName] = propertyValue;
+      this.set('isdirty', true);
+    }
+
+    return this;
+  },
+
+  /**
+   * has - Returns is the entity has a certain property within it
+   *
+   * @param	{string} propertyName Property Name
+   * @return {type}
+   */
+  has: function has(propertyName) {
+    return typeof this.properties[propertyName] != 'undefined' || typeof this.properties.links != 'undefined' && typeof this.properties.links[propertyName] != 'undefined';
+  },
+
+  /**
+   * getAll - Returns all of the entities properties
+   *
+   * @return {object}
+   */
+  getAll: function getAll() {
+    return this.properties;
+  },
+
+  /**
+   * load - Loads entity from JSON API
+   *
+   * @return {Promise}
+   */
+  load: function load() {
+    return this.loadBy('id', this.get('id'));
+  },
+
+  /**
+   * new - Loads properties of a new instance from JSON API
+   *
+   * @param	{type} params Property values that you would like your new entity to have
+   * @return {Promise}
+   */
+  'new': function _new(params) {
+    var self = this;
+    return new Promise(function (resolve, reject) {
+      params = Mura.extend({
+        entityname: self.get('entityname'),
+        method: 'findNew',
+        siteid: self.get('siteid'),
+        '_cacheid': Math.random()
+      }, params);
+      Mura.get(Mura.getAPIEndpoint(), params).then(function (resp) {
+        self.set(resp.data);
+
+        if (typeof resolve == 'function') {
+          resolve(self);
+        }
+      });
+    });
+  },
+
+  /**
+   * checkSchema - Checks the schema for Mura ORM entities
+   *
+   * @return {Promise}
+   */
+  'checkSchema': function checkSchema() {
+    var self = this;
+    return new Promise(function (resolve, reject) {
+      if (Mura.mode.toLowerCase() == 'rest') {
+        self._requestcontext.request({
+          type: 'post',
+          url: Mura.getAPIEndpoint(),
+          data: {
+            entityname: self.get('entityname'),
+            method: 'checkSchema',
+            siteid: self.get('siteid'),
+            '_cacheid': Math.random()
+          },
+          success: function success(resp) {
+            if (resp.data != 'undefined') {
+              if (typeof resolve == 'function') {
+                resolve(self);
+              }
+            } else {
+              self.set('errors', resp.error);
+
+              if (typeof reject == 'function') {
+                reject(self);
+              }
+            }
+          }
+        });
+      } else {
+        self._requestcontext.request({
+          type: 'post',
+          url: Mura.getAPIEndpoint() + '?method=generateCSRFTokens',
+          data: {
+            siteid: self.get('siteid'),
+            context: ''
+          },
+          success: function success(resp) {
+            self._requestcontext.request({
+              type: 'post',
+              url: Mura.getAPIEndpoint(),
+              data: Mura.extend({
+                entityname: self.get('entityname'),
+                method: 'checkSchema',
+                siteid: self.get('siteid'),
+                '_cacheid': Math.random()
+              }, {
+                'csrf_token': resp.data.csrf_token,
+                'csrf_token_expires': resp.data.csrf_token_expires
+              }),
+              success: function success(resp) {
+                if (resp.data != 'undefined') {
+                  if (typeof resolve == 'function') {
+                    resolve(self);
+                  }
+                } else {
+                  self.set('errors', resp.error);
+
+                  if (typeof reject == 'function') {
+                    reject(self);
+                  }
+                }
+              },
+              error: function error(resp) {
+                this.success(Mura.parseString(resp.response));
+              }
+            });
+          },
+          error: function error(resp) {
+            this.success(Mura.parseString(resp.response));
+          }
+        });
+      }
+    });
+  },
+
+  /**
+   * undeclareEntity - Undeclares an Mura ORM entity with service factory
+   *
+   * @return {Promise}
+   */
+  'undeclareEntity': function undeclareEntity(deleteSchema) {
+    deleteSchema = deleteSchema || false;
+    var self = this;
+    return new Promise(function (resolve, reject) {
+      if (Mura.mode.toLowerCase() == 'rest') {
+        self._requestcontext.request({
+          type: 'post',
+          url: Mura.getAPIEndpoint(),
+          data: {
+            entityname: self.get('entityname'),
+            deleteSchema: deleteSchema,
+            method: 'undeclareEntity',
+            siteid: self.get('siteid'),
+            '_cacheid': Math.random()
+          },
+          success: function success(resp) {
+            if (resp.data != 'undefined') {
+              if (typeof resolve == 'function') {
+                resolve(self);
+              }
+            } else {
+              self.set('errors', resp.error);
+
+              if (typeof reject == 'function') {
+                reject(self);
+              }
+            }
+          },
+          error: function error(resp) {
+            this.success(Mura.parseString(resp.response));
+          }
+        });
+      } else {
+        return self._requestcontext.request({
+          type: 'post',
+          url: Mura.getAPIEndpoint() + '?method=generateCSRFTokens',
+          data: {
+            siteid: self.get('siteid'),
+            context: ''
+          },
+          success: function success(resp) {
+            self._requestcontext.request({
+              type: 'post',
+              url: Mura.getAPIEndpoint(),
+              data: Mura.extend({
+                entityname: self.get('entityname'),
+                method: 'undeclareEntity',
+                siteid: self.get('siteid'),
+                '_cacheid': Math.random()
+              }, {
+                'csrf_token': resp.data.csrf_token,
+                'csrf_token_expires': resp.data.csrf_token_expires
+              }),
+              success: function success(resp) {
+                if (resp.data != 'undefined') {
+                  if (typeof resolve == 'function') {
+                    resolve(self);
+                  }
+                } else {
+                  self.set('errors', resp.error);
+
+                  if (typeof reject == 'function') {
+                    reject(self);
+                  }
+                }
+              }
+            });
+          },
+          error: function error(resp) {
+            this.success(Mura.parseString(resp.response));
+          }
+        });
+      }
+    });
+  },
+
+  /**
+   * loadBy - Loads entity by property and value
+   *
+   * @param	{string} propertyName	The primary load property to filter against
+   * @param	{string|number} propertyValue The value to match the propert against
+   * @param	{object} params				Addition parameters
+   * @return {Promise}
+   */
+  loadBy: function loadBy(propertyName, propertyValue, params) {
+    propertyName = propertyName || 'id';
+    propertyValue = propertyValue || this.get(propertyName) || 'null';
+    var self = this;
+
+    if (propertyName == 'id') {
+      var cachedValue = Mura.datacache.get(propertyValue);
+
+      if (typeof cachedValue != 'undefined') {
+        this.set(cachedValue);
+        return new Promise(function (resolve, reject) {
+          resolve(self);
+        });
+      }
+    }
+
+    return new Promise(function (resolve, reject) {
+      params = Mura.extend({
+        entityname: self.get('entityname').toLowerCase(),
+        method: 'findQuery',
+        siteid: self.get('siteid'),
+        '_cacheid': Math.random()
+      }, params);
+
+      if (params.entityname == 'content' || params.entityname == 'contentnav') {
+        params.includeHomePage = 1;
+        params.showNavOnly = 0;
+        params.showExcludeSearch = 1;
+      }
+
+      params[propertyName] = propertyValue;
+      Mura.findQuery(params).then(function (collection) {
+        if (collection.get('items').length) {
+          self.set(collection.get('items')[0].getAll());
+        }
+
+        if (typeof resolve == 'function') {
+          resolve(self);
+        }
+      }, function (resp) {
+        resp = Mura.parseString(resp.response);
+
+        if (typeof reject == 'function') {
+          reject(resp);
+        }
+      });
+    });
+  },
+
+  /**
+   * validate - Validates instance
+   *
+   * @param	{string} fields List of properties to validate, defaults to all
+   * @return {Promise}
+   */
+  validate: function validate(fields) {
+    fields = fields || '';
+    var self = this;
+    var data = Mura.deepExtend({}, self.getAll());
+    data.fields = fields;
+    return new Promise(function (resolve, reject) {
+      self._requestcontext.request({
+        type: 'post',
+        url: Mura.getAPIEndpoint() + '?method=validate',
+        data: {
+          data: Mura.escape(data),
+          validations: '{}',
+          version: 4
+        },
+        success: function success(resp) {
+          if (resp.data != 'undefined') {
+            self.set('errors', resp.data);
+          } else {
+            self.set('errors', resp.error);
+          }
+
+          if (typeof resolve == 'function') {
+            resolve(self);
+          }
+        }
+      });
+    });
+  },
+
+  /**
+   * hasErrors - Returns if the entity has any errors
+   *
+   * @return {boolean}
+   */
+  hasErrors: function hasErrors() {
+    var errors = this.get('errors', {});
+    return typeof errors == 'string' && errors != '' || _typeof(errors) == 'object' && !Mura.isEmptyObject(errors);
+  },
+
+  /**
+   * getErrors - Returns entites errors property
+   *
+   * @return {object}
+   */
+  getErrors: function getErrors() {
+    return this.get('errors', {});
+  },
+
+  /**
+   * save - Saves entity to JSON API
+   *
+   * @return {Promise}
+   */
+  save: function save(eventHandler) {
+    eventHandler = eventHandler || {};
+    Mura.normalizeRequestHandler(eventHandler);
+    var self = this;
+
+    if (!this.get('isdirty')) {
+      return new Promise(function (resolve, reject) {
+        if (typeof resolve == 'function') {
+          eventHandler.success = resolve;
+        }
+
+        if (typeof eventHandler.success == 'function') {
+          eventHandler.success(self);
+        }
+      });
+    }
+
+    if (!this.get('id')) {
+      return new Promise(function (resolve, reject) {
+        var temp = Mura.deepExtend({}, self.getAll());
+
+        self._requestcontext.request({
+          type: 'get',
+          url: Mura.getAPIEndpoint() + self.get('entityname') + '/new',
+          success: function success(resp) {
+            self.set(resp.data);
+            self.set(temp);
+            self.set('id', resp.data.id);
+            self.set('isdirty', true);
+            self.cachePut();
+            self.save(eventHandler).then(resolve, reject);
+          },
+          error: eventHandler.error,
+          abort: eventHandler.abort
+        });
+      });
+    } else {
+      return new Promise(function (resolve, reject) {
+        if (typeof resolve == 'function') {
+          eventHandler.success = resolve;
+        }
+
+        if (typeof reject == 'function') {
+          eventHandler.error = reject;
+        }
+
+        var context = self.get('id');
+
+        if (Mura.mode.toLowerCase() == 'rest') {
+          self._requestcontext.request({
+            type: 'post',
+            url: Mura.getAPIEndpoint() + '?method=save',
+            data: self.getAll(),
+            success: function success(resp) {
+              if (resp.data != 'undefined') {
+                self.set(resp.data);
+                self.set('isdirty', false);
+
+                if (self.get('saveerrors') || Mura.isEmptyObject(self.getErrors())) {
+                  if (typeof eventHandler.success == 'function') {
+                    eventHandler.success(self);
+                  }
+                } else {
+                  if (typeof eventHandler.error == 'function') {
+                    eventHandler.error(self);
+                  }
+                }
+              } else {
+                self.set('errors', resp.error);
+
+                if (typeof eventHandler.error == 'function') {
+                  eventHandler.error(self);
+                }
+              }
+            },
+            progress: eventHandler.progress,
+            abort: eventHandler.abort
+          });
+        } else {
+          self._requestcontext.request({
+            type: 'post',
+            url: Mura.getAPIEndpoint() + '?method=generateCSRFTokens',
+            data: {
+              siteid: self.get('siteid'),
+              context: context
+            },
+            success: function success(resp) {
+              self._requestcontext.request({
+                type: 'post',
+                url: Mura.getAPIEndpoint() + '?method=save',
+                data: Mura.extend(self.getAll(), {
+                  'csrf_token': resp.data.csrf_token,
+                  'csrf_token_expires': resp.data.csrf_token_expires
+                }),
+                success: function success(resp) {
+                  if (resp.data != 'undefined') {
+                    self.set(resp.data);
+                    self.set('isdirty', false);
+
+                    if (self.get('saveerrors') || Mura.isEmptyObject(self.getErrors())) {
+                      if (typeof eventHandler.success == 'function') {
+                        eventHandler.success(self);
+                      }
+                    } else {
+                      if (typeof eventHandler.error == 'function') {
+                        eventHandler.error(self);
+                      }
+                    }
+                  } else {
+                    self.set('errors', resp.error);
+
+                    if (typeof eventHandler.error == 'function') {
+                      eventHandler.error(self);
+                    }
+                  }
+                },
+                progress: eventHandler.progress,
+                abort: eventHandler.abort
+              });
+            },
+            error: function error(resp) {
+              this.success(resp);
+            },
+            abort: eventHandler.abort
+          });
+        }
+      });
+    }
+  },
+
+  /**
+   * delete - Deletes entity
+   *
+   * @return {Promise}
+   */
+  'delete': function _delete(eventHandler) {
+    eventHandler = eventHandler || {};
+    Mura.normalizeRequestHandler(eventHandler);
+    var self = this;
+
+    if (Mura.mode.toLowerCase() == 'rest') {
+      return new Promise(function (resolve, reject) {
+        if (typeof resolve == 'function') {
+          eventHandler.success = resolve;
+        }
+
+        if (typeof reject == 'function') {
+          eventHandler.error = reject;
+        }
+
+        self._requestcontext.request({
+          type: 'post',
+          url: Mura.getAPIEndpoint() + '?method=delete',
+          data: {
+            siteid: self.get('siteid'),
+            id: self.get('id'),
+            entityname: self.get('entityname')
+          },
+          success: function success() {
+            self.set('isdeleted', true);
+            self.cachePurge();
+
+            if (typeof eventHandler.success == 'function') {
+              eventHandler.success(self);
+            }
+          },
+          error: eventHandler.error,
+          progress: eventHandler.progress,
+          abort: eventHandler.abort
+        });
+      });
+    } else {
+      return new Promise(function (resolve, reject) {
+        if (typeof resolve == 'function') {
+          eventHandler.success = resolve;
+        }
+
+        if (typeof reject == 'function') {
+          eventHandler.error = reject;
+        }
+
+        self._requestcontext.request({
+          type: 'post',
+          url: Mura.getAPIEndpoint() + '?method=generateCSRFTokens',
+          data: {
+            siteid: self.get('siteid'),
+            context: self.get('id')
+          },
+          success: function success(resp) {
+            self._requestcontext.request({
+              type: 'post',
+              url: Mura.getAPIEndpoint() + '?method=delete',
+              data: {
+                siteid: self.get('siteid'),
+                id: self.get('id'),
+                entityname: self.get('entityname'),
+                'csrf_token': resp.data.csrf_token,
+                'csrf_token_expires': resp.data.csrf_token_expires
+              },
+              success: function success() {
+                self.set('isdeleted', true);
+                self.cachePurge();
+
+                if (typeof eventHandler.success == 'function') {
+                  eventHandler.success(self);
+                }
+              },
+              error: eventHandler.error,
+              progress: eventHandler.progress,
+              abort: eventHandler.abort
+            });
+          },
+          error: eventHandler.error,
+          abort: eventHandler.abort
+        });
+      });
+    }
+  },
+
+  /**
+   * getFeed - Returns a Mura.Feed instance of this current entitie's type and siteid
+   *
+   * @return {object}
+   */
+  getFeed: function getFeed() {
+    var siteid = get('siteid') || Mura.siteid;
+
+    var feed = this._requestcontext.getFeed(this.get('entityName'));
+
+    return feed;
+  },
+
+  /**
+   * cachePurge - Purges this entity from client cache
+   *
+   * @return {object}	Self
+   */
+  cachePurge: function cachePurge() {
+    Mura.datacache.purge(this.get('id'));
+    return this;
+  },
+
+  /**
+   * cachePut - Places this entity into client cache
+   *
+   * @return {object}	Self
+   */
+  cachePut: function cachePut() {
+    if (!this.get('isnew')) {
+      Mura.datacache.set(this.get('id'), this);
+    }
+
+    return this;
+  }
 });
-
 
 /***/ }),
 /* 349 */
 /***/ (function(module, exports, __webpack_require__) {
 
-
-var Mura=__webpack_require__(8);
-
+var Mura = __webpack_require__(8);
 /**
 * Creates a new Mura.entities.Content
 * @name Mura.entities.Content
@@ -16239,101 +16177,105 @@ var Mura=__webpack_require__(8);
 * @return {Mura.Entity}
 */
 
+
 Mura.entities.Content = Mura.Entity.extend(
 /** @lends Mura.entities.Content.prototype */
 {
-	/**
-	 * hasParent - Returns true if content has a parent.
-	 *
-	 * @return {boolean}
-	 */
-	hasParent:function(){
-		var parentid=this.get('parentid');
-		if(!parentid || ['00000000000000000000000000000000END','00000000000000000000000000000000003','00000000000000000000000000000000004','00000000000000000000000000000000099'].find(function(value){return value===parentid})){
-			return false;
-		} else {
-			return true;
-		}
-	},
+  /**
+   * hasParent - Returns true if content has a parent.
+   *
+   * @return {boolean}
+   */
+  hasParent: function hasParent() {
+    var parentid = this.get('parentid');
 
-	/**
-	 * renderDisplayRegion - Returns a string with display region markup.
-	 *
-	 * @return {string}
-	 */
-	renderDisplayRegion:function(region){
-		return Mura.buildDisplayRegion(this.get('displayregions')[region])
-	},
+    if (!parentid || ['00000000000000000000000000000000END', '00000000000000000000000000000000003', '00000000000000000000000000000000004', '00000000000000000000000000000000099'].find(function (value) {
+      return value === parentid;
+    })) {
+      return false;
+    } else {
+      return true;
+    }
+  },
 
-	/**
-	 * dspRegion - Appends a display region to a element.
-	 *
-	 * @return {self}
-	 */
-	dspRegion:function(selector,region,label){
-		if(Mura.isNumeric(region) && region <= this.get('displayregionnames').length){
-			region=this.get('displayregionnames')[region-1];
-		}
-		Mura(selector).processDisplayRegion(this.get('displayregions')[region],label);
-		return this;
-	},
+  /**
+   * renderDisplayRegion - Returns a string with display region markup.
+   *
+   * @return {string}
+   */
+  renderDisplayRegion: function renderDisplayRegion(region) {
+    return Mura.buildDisplayRegion(this.get('displayregions')[region]);
+  },
 
-	/**
-	 * getRelatedContent - Gets related content sets by name
-	 *
-	 * @param	{string} relatedContentSetName
-	 * @param	{object} params
-	 * @return {Mura.EntityCollection}
-	 */
-	getRelatedContent:function(relatedContentSetName,params){
-		var self=this;
+  /**
+   * dspRegion - Appends a display region to a element.
+   *
+   * @return {self}
+   */
+  dspRegion: function dspRegion(selector, region, label) {
+    if (Mura.isNumeric(region) && region <= this.get('displayregionnames').length) {
+      region = this.get('displayregionnames')[region - 1];
+    }
 
-		relatedContentSetName=relatedContentSetName || '';
+    Mura(selector).processDisplayRegion(this.get('displayregions')[region], label);
+    return this;
+  },
 
-		return new Promise(function(resolve,reject) {
-			var query = [];
-			params = params || {};
-			params.siteid = self.get('siteid') || Mura.siteid;
-			for (var key in params) {
-				if (key != 'entityname' && key != 'filename' && key != 'siteid' && key != 'method') {
-					query.push(encodeURIComponent(key) + '=' + encodeURIComponent(params[key]));
-				}
-			}
-			self._requestcontext.request({
-				type: 'get',
-				url: Mura.getAPIEndpoint() +
-					'/content/' + self.get('contentid') + '/relatedcontent/' + relatedContentSetName + '?' +
-					query.join('&'),
-				params: params,
-				success: function(resp) {
-					if(typeof resp.data.items != 'undefined'){
-						var returnObj = new Mura.EntityCollection(resp.data,self._requestcontext);
-					} else {
-						var returnObj = new Mura.Entity({siteid:Mura.siteid},self._requestcontext);
-						for(var p in resp.data){
-							if(resp.data.hasOwnProperty(p)){
-								returnObj.set(p,new Mura.EntityCollection(resp.data[p],self._requestcontext));
-							}
-						}
-					}
-					if (typeof resolve == 'function') {
-						resolve(returnObj);
-					}
-				},
-				error: reject
-			});
-		});
-	}
+  /**
+   * getRelatedContent - Gets related content sets by name
+   *
+   * @param	{string} relatedContentSetName
+   * @param	{object} params
+   * @return {Mura.EntityCollection}
+   */
+  getRelatedContent: function getRelatedContent(relatedContentSetName, params) {
+    var self = this;
+    relatedContentSetName = relatedContentSetName || '';
+    return new Promise(function (resolve, reject) {
+      var query = [];
+      params = params || {};
+      params.siteid = self.get('siteid') || Mura.siteid;
+
+      for (var key in params) {
+        if (key != 'entityname' && key != 'filename' && key != 'siteid' && key != 'method') {
+          query.push(encodeURIComponent(key) + '=' + encodeURIComponent(params[key]));
+        }
+      }
+
+      self._requestcontext.request({
+        type: 'get',
+        url: Mura.getAPIEndpoint() + '/content/' + self.get('contentid') + '/relatedcontent/' + relatedContentSetName + '?' + query.join('&'),
+        params: params,
+        success: function success(resp) {
+          if (typeof resp.data.items != 'undefined') {
+            var returnObj = new Mura.EntityCollection(resp.data, self._requestcontext);
+          } else {
+            var returnObj = new Mura.Entity({
+              siteid: Mura.siteid
+            }, self._requestcontext);
+
+            for (var p in resp.data) {
+              if (resp.data.hasOwnProperty(p)) {
+                returnObj.set(p, new Mura.EntityCollection(resp.data[p], self._requestcontext));
+              }
+            }
+          }
+
+          if (typeof resolve == 'function') {
+            resolve(returnObj);
+          }
+        },
+        error: reject
+      });
+    });
+  }
 });
-
 
 /***/ }),
 /* 350 */
 /***/ (function(module, exports, __webpack_require__) {
 
-
-var Mura=__webpack_require__(8);
-
+var Mura = __webpack_require__(8);
 /**
 * Creates a new Mura.entities.User
 * @name Mura.entities.User
@@ -16344,97 +16286,104 @@ var Mura=__webpack_require__(8);
 * @return {Mura.Entity}
 */
 
+
 Mura.entities.User = Mura.Entity.extend(
 /** @lends Mura.entities.User.prototype */
 {
-	/**
-	 * isInGroup - Returns if the CURRENT USER is in a group
-	 *
-	 * @param	{string} group	Name of group
-	 * @param	{boolean} isPublic	If you want to check public or private (system) groups
-	 * @return {boolean}
-	 */
-	isInGroup:function(group,siteid,isPublic){
-		siteid=siteid || Mura.siteid;
-		var a=this.get('memberships');
-		if(!Array.isArray(a)){
-			console.log('Method design for use with currentuser() only');
-			return false;
-		}
-		if(typeof isPublic !='undefined'){
-			return a.indexOf(group + ";" + siteid + ";" + isPublic) >= 0;
-		} else {
-			return a.indexOf(group + ";" + siteid + ";0") >= 0 || a.indexOf(group + ";" + siteid + ";1") >= 0;
-		}
-	},
+  /**
+   * isInGroup - Returns if the CURRENT USER is in a group
+   *
+   * @param	{string} group	Name of group
+   * @param	{boolean} isPublic	If you want to check public or private (system) groups
+   * @return {boolean}
+   */
+  isInGroup: function isInGroup(group, siteid, isPublic) {
+    siteid = siteid || Mura.siteid;
+    var a = this.get('memberships');
 
-	/**
-	 * isSuperUser - Returns if the CURRENT USER is a super user
-	 *
-	 * @return {boolean}
-	 */
-	isSuperUser:function(){
-		var a=this.get('memberships');
-		if(!Array.isArray(a)){
-			console.log('Method design for use with currentuser() only');
-			return false;
-		}
-		return a.indexOf('S2') >= 0;
-	},
+    if (!Array.isArray(a)) {
+      console.log('Method design for use with currentuser() only');
+      return false;
+    }
 
-	/**
-	 * isAdminUser - Returns if the CURRENT USER is a admin user
-	 *
-	 * @return {boolean}
-	 */
-	isAdminUser:function(siteid){
-		siteid=siteid || Mura.siteid;
-		var a=this.get('memberships');
-		if(!Array.isArray(a)){
-			console.log('Method design for use with currentuser() only');
-			return false;
-		}
-		return (this.isSuperUser() || a.indexOf("Admin;" + siteid + ";0") >= 0);
-	},
+    if (typeof isPublic != 'undefined') {
+      return a.indexOf(group + ";" + siteid + ";" + isPublic) >= 0;
+    } else {
+      return a.indexOf(group + ";" + siteid + ";0") >= 0 || a.indexOf(group + ";" + siteid + ";1") >= 0;
+    }
+  },
 
-	/**
-	 * isSystemUser - Returns if the CURRENT USER is a system/adminstrative user
-	 *
-	 * @return {boolean}
-	 */
-	isSystemUser:function(siteid){
-		siteid=siteid || Mura.siteid;
-		var a=this.get('memberships');
-		if(!Array.isArray(a)){
-			console.log('Method design for use with currentuser() only');
-			return false;
-		}
-		return (this.isAdminUser() || a.indexOf("S2IsPrivate;" + siteid ) >= 0);
-	},
+  /**
+   * isSuperUser - Returns if the CURRENT USER is a super user
+   *
+   * @return {boolean}
+   */
+  isSuperUser: function isSuperUser() {
+    var a = this.get('memberships');
 
-	/**
-	 * isLoggedIn - Returns if the CURRENT USER is logged in
-	 *
-	 * @return {boolean}
-	 */
-	isLoggedIn:function(){
-		var a=this.get('isloggedin');
-		if(a===''){
-			return false;
-		} else {
-			return a;
-		}
-	}
+    if (!Array.isArray(a)) {
+      console.log('Method design for use with currentuser() only');
+      return false;
+    }
+
+    return a.indexOf('S2') >= 0;
+  },
+
+  /**
+   * isAdminUser - Returns if the CURRENT USER is a admin user
+   *
+   * @return {boolean}
+   */
+  isAdminUser: function isAdminUser(siteid) {
+    siteid = siteid || Mura.siteid;
+    var a = this.get('memberships');
+
+    if (!Array.isArray(a)) {
+      console.log('Method design for use with currentuser() only');
+      return false;
+    }
+
+    return this.isSuperUser() || a.indexOf("Admin;" + siteid + ";0") >= 0;
+  },
+
+  /**
+   * isSystemUser - Returns if the CURRENT USER is a system/adminstrative user
+   *
+   * @return {boolean}
+   */
+  isSystemUser: function isSystemUser(siteid) {
+    siteid = siteid || Mura.siteid;
+    var a = this.get('memberships');
+
+    if (!Array.isArray(a)) {
+      console.log('Method design for use with currentuser() only');
+      return false;
+    }
+
+    return this.isAdminUser() || a.indexOf("S2IsPrivate;" + siteid) >= 0;
+  },
+
+  /**
+   * isLoggedIn - Returns if the CURRENT USER is logged in
+   *
+   * @return {boolean}
+   */
+  isLoggedIn: function isLoggedIn() {
+    var a = this.get('isloggedin');
+
+    if (a === '') {
+      return false;
+    } else {
+      return a;
+    }
+  }
 });
-
 
 /***/ }),
 /* 351 */
 /***/ (function(module, exports, __webpack_require__) {
 
-
-var Mura=__webpack_require__(8);
-
+var Mura = __webpack_require__(8);
 /**
  * Creates a new Mura.EntityCollection
  * @name	Mura.EntityCollection
@@ -16445,223 +16394,220 @@ var Mura=__webpack_require__(8);
  * @return {Mura.EntityCollection} Self
  */
 
-Mura.EntityCollection=Mura.Entity.extend(
-	/** @lends Mura.EntityCollection.prototype */
-	{
 
-	init:function(properties,requestcontext){
-		properties=properties || {};
-		this.set(properties);
-		this._requestcontext=requestcontext || Mura._requestcontext;
-		var self=this;
-		if(Array.isArray(self.get('items'))){
-			self.set('items',self.get('items').map(function(obj){
-				var entityname=obj.entityname.substr(0, 1).toUpperCase() + obj.entityname.substr(1);
-				if(Mura.entities[entityname]){
-					return new Mura.entities[entityname](obj,self._requestcontext);
-				} else {
-					return new Mura.Entity(obj,self._requestcontext);
-				}
-			}));
-		}
+Mura.EntityCollection = Mura.Entity.extend(
+/** @lends Mura.EntityCollection.prototype */
+{
+  init: function init(properties, requestcontext) {
+    properties = properties || {};
+    this.set(properties);
+    this._requestcontext = requestcontext || Mura._requestcontext;
+    var self = this;
 
-		return this;
-	},
+    if (Array.isArray(self.get('items'))) {
+      self.set('items', self.get('items').map(function (obj) {
+        var entityname = obj.entityname.substr(0, 1).toUpperCase() + obj.entityname.substr(1);
 
-	/**
-	 * length - Returns length entity collection
-	 *
-	 * @return {number}		 integer
-	 */
-	length:function(){
-		return this.properties.items.length;
-	},
+        if (Mura.entities[entityname]) {
+          return new Mura.entities[entityname](obj, self._requestcontext);
+        } else {
+          return new Mura.Entity(obj, self._requestcontext);
+        }
+      }));
+    }
 
-	/**
-	 * item - Return entity in collection at index
-	 *
-	 * @param	{nuymber} idx Index
-	 * @return {object}		 Mura.Entity
-	 */
-	item:function(idx){
-		return this.properties.items[idx];
-	},
+    return this;
+  },
 
-	/**
-	 * index - Returns index of item in collection
-	 *
-	 * @param	{object} item Entity instance
-	 * @return {number}			Index of entity
-	 */
-	index:function(item){
-		return this.properties.items.indexOf(item);
-	},
+  /**
+   * length - Returns length entity collection
+   *
+   * @return {number}		 integer
+   */
+  length: function length() {
+    return this.properties.items.length;
+  },
 
-	/**
-	 * indexOf - Returns index of item in collection
-	 *
-	 * @param	{object} item Entity instance
-	 * @return {number}			Index of entity
-	 */
-	indexOf:function(item){
-		return this.properties.items.indexOf(item);
-	},
+  /**
+   * item - Return entity in collection at index
+   *
+   * @param	{nuymber} idx Index
+   * @return {object}		 Mura.Entity
+   */
+  item: function item(idx) {
+    return this.properties.items[idx];
+  },
 
-	/**
-	 * getAll - Returns object with of all entities and properties
-	 *
-	 * @return {object}
-	 */
-	getAll:function(){
-		var self=this;
-		if(typeof self.properties.items != 'undefined'){
-			return Mura.extend(
-				{},
-				self.properties,
-				{
-					items:self.properties.items.map(function(obj){
-						return obj.getAll();
-					})
-				}
-			);
-		} else if(typeof self.properties.properties != 'undefined'){
-			return Mura.extend(
-				{},
-				self.properties,
-				{
-					properties:self.properties.properties.map(function(obj){
-						return obj.getAll();
-					})
-				}
-			);
-		}
-	},
+  /**
+   * index - Returns index of item in collection
+   *
+   * @param	{object} item Entity instance
+   * @return {number}			Index of entity
+   */
+  index: function index(item) {
+    return this.properties.items.indexOf(item);
+  },
 
-	/**
-	 * each - Passes each entity in collection through function
-	 *
-	 * @param	{function} fn Function
-	 * @return {object}	Self
-	 */
-	each:function(fn){
-		this.properties.items.forEach( function(item,idx){
-			if(typeof fn.call == 'undefined'){
-				fn(item,idx);
-			} else {
-				fn.call(item,item,idx);
-			}
-		});
-		return this;
-	},
+  /**
+   * indexOf - Returns index of item in collection
+   *
+   * @param	{object} item Entity instance
+   * @return {number}			Index of entity
+   */
+  indexOf: function indexOf(item) {
+    return this.properties.items.indexOf(item);
+  },
 
-			/**
-	 * each - Passes each entity in collection through function
-	 *
-	 * @param	{function} fn Function
-	 * @return {object}	Self
-	 */
-	forEach:function(fn){
-		return this.each(fn);
-	},
+  /**
+   * getAll - Returns object with of all entities and properties
+   *
+   * @return {object}
+   */
+  getAll: function getAll() {
+    var self = this;
 
-	/**
-	 * sort - Sorts collection
-	 *
-	 * @param	{function} fn Sorting function
-	 * @return {object}	 Self
-	 */
-	sort:function(fn){
-		this.properties.items.sort(fn);
-		return this;
-	},
+    if (typeof self.properties.items != 'undefined') {
+      return Mura.extend({}, self.properties, {
+        items: self.properties.items.map(function (obj) {
+          return obj.getAll();
+        })
+      });
+    } else if (typeof self.properties.properties != 'undefined') {
+      return Mura.extend({}, self.properties, {
+        properties: self.properties.properties.map(function (obj) {
+          return obj.getAll();
+        })
+      });
+    }
+  },
 
-	/**
-	 * filter - Returns new Mura.EntityCollection of entities in collection that pass filter
-	 *
-	 * @param	{function} fn Filter function
-	 * @return {Mura.EntityCollection}
-	 */
-	filter:function(fn){
-		var newProps={};
-		for(var p in this.properties){
-			if(this.properties.hasOwnProperty(p) && p != 'items' && p != 'links'){
-				newProps[p]=this.properties[p];
-			}
-		}
-		var collection=new Mura.EntityCollection(newProps,this._requestcontext);
-		return collection.set('items',this.properties.items.filter( function(item,idx){
-			if(typeof fn.call == 'undefined'){
-				return fn(item,idx);
-			} else {
-				return fn.call(item,item,idx);
-			}
-		}));
-	},
+  /**
+   * each - Passes each entity in collection through function
+   *
+   * @param	{function} fn Function
+   * @return {object}	Self
+   */
+  each: function each(fn) {
+    this.properties.items.forEach(function (item, idx) {
+      if (typeof fn.call == 'undefined') {
+        fn(item, idx);
+      } else {
+        fn.call(item, item, idx);
+      }
+    });
+    return this;
+  },
 
-	 /**
-	 * map - Returns new Array returned from map function
-	 *
-	 * @param	{function} fn Filter function
-	 * @return {Array}
-	 */
-	map:function(fn){
-		return this.properties.items.map( function(item,idx){
-			if(typeof fn.call == 'undefined'){
-				return fn(item,idx);
-			} else {
-				return fn.call(item,item,idx);
-			}
-		});
-	},
+  /**
+  * each - Passes each entity in collection through function
+  *
+  * @param	{function} fn Function
+  * @return {object}	Self
+  */
+  forEach: function forEach(fn) {
+    return this.each(fn);
+  },
 
-	 /**
-	 * reverse - Returns new Array returned from map function
-	 *
-	 * @param	{function} fn Sorting function
-	 * @return {object}	 collection
-	 */
-	reverse:function(fn){
-		var newProps={};
-		for(var p in this.properties){
-			if(this.properties.hasOwnProperty(p) && p != 'items' && p != 'links'){
-				newProps[p]=this.properties[p];
-			}
-		}
-		var collection=new Mura.EntityCollection(newProps,this._requestcontext);
-		collection.set('items',this.properties.items.reverse());
-		return collection;
-	},
+  /**
+   * sort - Sorts collection
+   *
+   * @param	{function} fn Sorting function
+   * @return {object}	 Self
+   */
+  sort: function sort(fn) {
+    this.properties.items.sort(fn);
+    return this;
+  },
 
-	 /**
-	 * reduce - Returns value from	reduce function
-	 *
-	 * @param	{function} fn Reduce function
-	 * @param	{any} initialValue Starting accumulator value
-	 * @return {accumulator}
-	 */
-	reduce:function(fn,initialValue){
-		initialValue=initialValue||0;
-		return this.properties.items.reduce(
-			function(accumulator,item,idx,array){
-				if(typeof fn.call == 'undefined'){
-					return fn(accumulator,item,idx,array);
-				} else {
-					return fn.call(item,accumulator,item,idx,array);
-				}
-			},
-			initialValue
-		);
-	}
+  /**
+   * filter - Returns new Mura.EntityCollection of entities in collection that pass filter
+   *
+   * @param	{function} fn Filter function
+   * @return {Mura.EntityCollection}
+   */
+  filter: function filter(fn) {
+    var newProps = {};
+
+    for (var p in this.properties) {
+      if (this.properties.hasOwnProperty(p) && p != 'items' && p != 'links') {
+        newProps[p] = this.properties[p];
+      }
+    }
+
+    var collection = new Mura.EntityCollection(newProps, this._requestcontext);
+    return collection.set('items', this.properties.items.filter(function (item, idx) {
+      if (typeof fn.call == 'undefined') {
+        return fn(item, idx);
+      } else {
+        return fn.call(item, item, idx);
+      }
+    }));
+  },
+
+  /**
+  * map - Returns new Array returned from map function
+  *
+  * @param	{function} fn Filter function
+  * @return {Array}
+  */
+  map: function map(fn) {
+    return this.properties.items.map(function (item, idx) {
+      if (typeof fn.call == 'undefined') {
+        return fn(item, idx);
+      } else {
+        return fn.call(item, item, idx);
+      }
+    });
+  },
+
+  /**
+  * reverse - Returns new Array returned from map function
+  *
+  * @param	{function} fn Sorting function
+  * @return {object}	 collection
+  */
+  reverse: function reverse(fn) {
+    var newProps = {};
+
+    for (var p in this.properties) {
+      if (this.properties.hasOwnProperty(p) && p != 'items' && p != 'links') {
+        newProps[p] = this.properties[p];
+      }
+    }
+
+    var collection = new Mura.EntityCollection(newProps, this._requestcontext);
+    collection.set('items', this.properties.items.reverse());
+    return collection;
+  },
+
+  /**
+  * reduce - Returns value from	reduce function
+  *
+  * @param	{function} fn Reduce function
+  * @param	{any} initialValue Starting accumulator value
+  * @return {accumulator}
+  */
+  reduce: function reduce(fn, initialValue) {
+    initialValue = initialValue || 0;
+    return this.properties.items.reduce(function (accumulator, item, idx, array) {
+      if (typeof fn.call == 'undefined') {
+        return fn(accumulator, item, idx, array);
+      } else {
+        return fn.call(item, accumulator, item, idx, array);
+      }
+    }, initialValue);
+  }
 });
-
 
 /***/ }),
 /* 352 */
 /***/ (function(module, exports, __webpack_require__) {
 
+var _Mura$Core$extend;
 
-var Mura=__webpack_require__(8);
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
+var Mura = __webpack_require__(8);
 /**
  * Creates a new Mura.Feed
  * @name  Mura.Feed
@@ -16673,600 +16619,529 @@ var Mura=__webpack_require__(8);
  * @return {Mura.Feed}            Self
  */
 
- /**
-  * @ignore
-  */
-
-Mura.Feed = Mura.Core.extend(
-	/** @lends Mura.Feed.prototype */
-	{
-		init: function(siteid, entityname, requestcontext) {
-			this.queryString = entityname + '/?_cacheid=' + Math.random();
-			this.propIndex = 0;
-
-			this._requestcontext=requestcontext || Mura._requestcontext;
-
-			return this;
-		},
-
-		/**
-		 * fields - List fields to retrieve from API
-		 *
-		 * @param  {string} fields List of fields
-		 * @return {Mura.Feed}        Self
-		 */
-		fields: function(fields) {
-			if(typeof fields != 'undefined' && fields){
-				this.queryString += '&fields=' + encodeURIComponent(fields);
-			}
-			return this;
-		},
-
-		/**
-		 * setRequestContext - Sets the RequestContext
-		 *
-		 * @RequestContext  {Mura.RequestContext} Mura.RequestContext List of fields
-		 * @return {Mura.Feed}        Self
-		 */
-		setRequestContext: function(RequestContext) {
-			this._requestcontext=RequestContext;
-			return this;
-		},
-
-		/**
-		 * contentPoolID - Sets items per page
-		 *
-		 * @param  {string} contentPoolID Items per page
-		 * @return {Mura.Feed}              Self
-		 */
-		contentPoolID: function(contentPoolID) {
-			this.queryString += '&contentpoolid=' + encodeURIComponent(
-				contentPoolID);
-			return this;
-		},
-
-		/**
-		 * name - Sets the name of the content feed to use
-		 *
-		 * @param  {string} name Name of feed as defined in admin
-		 * @return {Mura.Feed}              Self
-		 */
-		name: function(name) {
-			this.queryString += '&feedname=' + encodeURIComponent(
-				name);
-			return this;
-		},
-
-		/**
-		 * contentPoolID - Sets items per page
-		 *
-		 * @param  {string} feedID Items per page
-		 * @return {Mura.Feed}              Self
-		 */
-		feedID: function(feedID) {
-			this.queryString += '&feedid=' + encodeURIComponent(
-				feedID);
-			return this;
-		},
-
-		/**
-		 * where - Optional method for starting query chain
-		 *
-		 * @param  {string} property Property name
-		 * @return {Mura.Feed}          Self
-		 */
-		where: function(property) {
-			if (property) {
-				return this.andProp(property);
-			}
-			return this;
-		},
-
-		/**
-		 * prop - Add new property value
-		 *
-		 * @param  {string} property Property name
-		 * @return {Mura.Feed}          Self
-		 */
-		prop: function(property) {
-			return this.andProp(property);
-		},
-
-		/**
-		 * andProp - Add new AND property value
-		 *
-		 * @param  {string} property Property name
-		 * @return {Mura.Feed}          Self
-		 */
-		andProp: function(property) {
-			this.queryString += '&' + encodeURIComponent(property + '[' + this.propIndex + ']') +
-				'=';
-			this.propIndex++;
-			return this;
-		},
-
-		/**
-		 * orProp - Add new OR property value
-		 *
-		 * @param  {string} property Property name
-		 * @return {Mura.Feed}          Self
-		 */
-		orProp: function(property) {
-			this.queryString += '&or' + encodeURIComponent('[' + this.propIndex + ']') + '&';
-			this.propIndex++;
-			this.queryString += encodeURIComponent(property +'[' + this.propIndex + ']') +
-				'=';
-			this.propIndex++;
-			return this;
-		},
-
-		/**
-		 * isEQ - Checks if preceding property value is EQ to criteria
-		 *
-		 * @param  {*} criteria Criteria
-		 * @return {Mura.Feed}          Self
-		 */
-		isEQ: function(criteria) {
-			if (typeof criteria== 'undefined' || criteria === '' || criteria ==	null) {
-				criteria = 'null';
-			}
-			this.queryString += encodeURIComponent(criteria);
-			return this;
-		},
-
-		/**
-		 * isNEQ - Checks if preceding property value is NEQ to criteria
-		 *
-		 * @param  {*} criteria Criteria
-		 * @return {Mura.Feed}          Self
-		 */
-		isNEQ: function(criteria) {
-			if (typeof criteria == 'undefined' || criteria === '' || criteria == null) {
-				criteria = 'null';
-			}
-			this.queryString += encodeURIComponent('neq^' + criteria);
-			return this;
-		},
-
-		/**
-		 * isLT - Checks if preceding property value is LT to criteria
-		 *
-		 * @param  {*} criteria Criteria
-		 * @return {Mura.Feed}          Self
-		 */
-		isLT: function(criteria) {
-			if (typeof criteria == 'undefined' || criteria === '' || criteria == null) {
-				criteria = 'null';
-			}
-			this.queryString += encodeURIComponent('lt^' + criteria);
-			return this;
-		},
-
-		/**
-		 * isLTE - Checks if preceding property value is LTE to criteria
-		 *
-		 * @param  {*} criteria Criteria
-		 * @return {Mura.Feed}          Self
-		 */
-		isLTE: function(criteria) {
-			if (typeof criteria == 'undefined' || criteria === '' || criteria ==
-				null) {
-				criteria = 'null';
-			}
-			this.queryString += encodeURIComponent('lte^' + criteria);
-			return this;
-		},
-
-		/**
-		 * isGT - Checks if preceding property value is GT to criteria
-		 *
-		 * @param  {*} criteria Criteria
-		 * @return {Mura.Feed}          Self
-		 */
-		isGT: function(criteria) {
-			if (typeof criteria == 'undefined' || criteria === '' || criteria == null) {
-				criteria = 'null';
-			}
-			this.queryString += encodeURIComponent('gt^' + criteria);
-			return this;
-		},
-
-		/**
-		 * isGTE - Checks if preceding property value is GTE to criteria
-		 *
-		 * @param  {*} criteria Criteria
-		 * @return {Mura.Feed}          Self
-		 */
-		isGTE: function(criteria) {
-			if (typeof criteria == 'undefined' || criteria === '' || criteria ==
-				null) {
-				criteria = 'null';
-			}
-			this.queryString += encodeURIComponent('gte^' + criteria);
-			return this;
-		},
-
-		/**
-		 * isIn - Checks if preceding property value is IN to list of criterias
-		 *
-		 * @param  {*} criteria Criteria List
-		 * @return {Mura.Feed}          Self
-		 */
-		isIn: function(criteria) {
-			this.queryString += encodeURIComponent('in^' + criteria);
-			return this;
-		},
-
-		/**
-		 * isNotIn - Checks if preceding property value is NOT IN to list of criterias
-		 *
-		 * @param  {*} criteria Criteria List
-		 * @return {Mura.Feed}          Self
-		 */
-		isNotIn: function(criteria) {
-			this.queryString += encodeURIComponent('notin^' + criteria);
-			return this;
-		},
-
-		/**
-		 * containsValue - Checks if preceding property value is CONTAINS the value of criteria
-		 *
-		 * @param  {*} criteria Criteria
-		 * @return {Mura.Feed}          Self
-		 */
-		containsValue: function(criteria) {
-			this.queryString += encodeURIComponent('containsValue^' + criteria);
-			return this;
-		},
-		contains: function(criteria) {
-			this.queryString += encodeURIComponent('containsValue^' + criteria);
-			return this;
-		},
-
-		/**
-		 * beginsWith - Checks if preceding property value BEGINS WITH criteria
-		 *
-		 * @param  {*} criteria Criteria
-		 * @return {Mura.Feed}          Self
-		 */
-		beginsWith: function(criteria) {
-			this.queryString += encodeURIComponent('begins^' + criteria);
-			return this;
-		},
-
-		/**
-		 * endsWith - Checks if preceding property value ENDS WITH criteria
-		 *
-		 * @param  {*} criteria Criteria
-		 * @return {Mura.Feed}          Self
-		 */
-		endsWith: function(criteria) {
-			this.queryString += encodeURIComponent('ends^' + criteria);
-			return this;
-		},
+/**
+ * @ignore
+ */
 
 
-		/**
-		 * openGrouping - Start new logical condition grouping
-		 *
-		 * @return {Mura.Feed}          Self
-		 */
-		openGrouping: function() {
-			this.queryString += '&openGrouping' + encodeURIComponent('[' + this.propIndex + ']');
-			this.propIndex++;
-			return this;
-		},
+Mura.Feed = Mura.Core.extend((_Mura$Core$extend = {
+  init: function init(siteid, entityname, requestcontext) {
+    this.queryString = entityname + '/?_cacheid=' + Math.random();
+    this.propIndex = 0;
+    this._requestcontext = requestcontext || Mura._requestcontext;
+    return this;
+  },
 
-		/**
-		 * openGrouping - Starts new logical condition grouping
-		 *
-		 * @return {Mura.Feed}          Self
-		 */
-		andOpenGrouping: function() {
-			this.queryString += '&andOpenGrouping' + encodeURIComponent('[' + this.propIndex + ']');
-			this.propIndex++;
-			return this;
-		},
+  /**
+   * fields - List fields to retrieve from API
+   *
+   * @param  {string} fields List of fields
+   * @return {Mura.Feed}        Self
+   */
+  fields: function fields(_fields) {
+    if (typeof _fields != 'undefined' && _fields) {
+      this.queryString += '&fields=' + encodeURIComponent(_fields);
+    }
 
-		/**
-		 * orOpenGrouping - Starts new logical condition grouping
-		 *
-		 * @return {Mura.Feed}          Self
-		 */
-		orOpenGrouping: function() {
-			this.queryString += '&orOpenGrouping' + encodeURIComponent('[' + this.propIndex + ']');
-			this.propIndex++;
-			return this;
-		},
+    return this;
+  },
 
-		/**
-		 * openGrouping - Closes logical condition grouping
-		 *
-		 * @return {Mura.Feed}          Self
-		 */
-		closeGrouping: function() {
-			this.queryString += '&closeGrouping' + encodeURIComponent('[' + this.propIndex + ']');
-			this.propIndex++;
-			return this;
-		},
+  /**
+   * setRequestContext - Sets the RequestContext
+   *
+   * @RequestContext  {Mura.RequestContext} Mura.RequestContext List of fields
+   * @return {Mura.Feed}        Self
+   */
+  setRequestContext: function setRequestContext(RequestContext) {
+    this._requestcontext = RequestContext;
+    return this;
+  },
 
-		/**
-		 * sort - Set desired sort or return collection
-		 *
-		 * @param  {string} property  Property
-		 * @param  {string} direction Sort direction
-		 * @return {Mura.Feed}           Self
-		 */
-		sort: function(property, direction) {
-			direction = direction || 'asc';
-			if (direction == 'desc') {
-				this.queryString += '&sort' + encodeURIComponent('[' + this.propIndex + ']') + '=' + encodeURIComponent('-' + property);
-			} else {
-				this.queryString += '&sort' +encodeURIComponent('[' + this.propIndex + ']') + '=' + encodeURIComponent(property);
-			}
-			this.propIndex++;
-			return this;
-		},
+  /**
+   * contentPoolID - Sets items per page
+   *
+   * @param  {string} contentPoolID Items per page
+   * @return {Mura.Feed}              Self
+   */
+  contentPoolID: function contentPoolID(_contentPoolID) {
+    this.queryString += '&contentpoolid=' + encodeURIComponent(_contentPoolID);
+    return this;
+  },
 
-		/**
-		 * itemsPerPage - Sets items per page
-		 *
-		 * @param  {number} itemsPerPage Items per page
-		 * @return {Mura.Feed}              Self
-		 */
-		itemsPerPage: function(itemsPerPage) {
-			this.queryString += '&itemsPerPage=' + encodeURIComponent(itemsPerPage);
-			return this;
-		},
+  /**
+   * name - Sets the name of the content feed to use
+   *
+   * @param  {string} name Name of feed as defined in admin
+   * @return {Mura.Feed}              Self
+   */
+  name: function name(_name) {
+    this.queryString += '&feedname=' + encodeURIComponent(_name);
+    return this;
+  },
 
-		/**
-		 * pageIndex - Sets items per page
-		 *
-		 * @param  {number} pageIndex page to start at
-		 */
-		pageIndex: function(pageIndex) {
-			this.queryString += '&pageIndex=' + encodeURIComponent(pageIndex);
-			return this;
-		},
+  /**
+   * contentPoolID - Sets items per page
+   *
+   * @param  {string} feedID Items per page
+   * @return {Mura.Feed}              Self
+   */
+  feedID: function feedID(_feedID) {
+    this.queryString += '&feedid=' + encodeURIComponent(_feedID);
+    return this;
+  },
 
-		/**
-		 * maxItems - Sets max items to return
-		 *
-		 * @param  {number} maxItems Items to return
-		 * @return {Mura.Feed}              Self
-		 */
-		maxItems: function(maxItems) {
-			this.queryString += '&maxItems=' + encodeURIComponent(maxItems);
-			return this;
-		},
+  /**
+   * where - Optional method for starting query chain
+   *
+   * @param  {string} property Property name
+   * @return {Mura.Feed}          Self
+   */
+  where: function where(property) {
+    if (property) {
+      return this.andProp(property);
+    }
 
-		/**
-		 * distinct - Sets to select distinct values of select fields
-		 *
-		 * @param  {boolean} distinct Whether to to select distinct values
-		 * @return {Mura.Feed}              Self
-		 */
-		distinct: function(distinct) {
-			if(typeof distinct=='undefined'){
-				distinct=true;
-			}
-			this.queryString += '&distinct=' + encodeURIComponent(distinct);
-			return this;
-		},
+    return this;
+  },
 
-		/**
-		 * aggregate - Define aggregate values that you would like (sum,max,min,cout,avg,groupby)
-		 *
-		 * @param  {string} type Type of aggregation (sum,max,min,cout,avg,groupby)
-		 * @param  {string} property property
-		 * @return {Mura.Feed}	Self
-		 */
-		aggregate: function(type,property) {
-			if(type == 'count' && typeof property=='undefined'){
-				property='*';
-			}
+  /**
+   * prop - Add new property value
+   *
+   * @param  {string} property Property name
+   * @return {Mura.Feed}          Self
+   */
+  prop: function prop(property) {
+    return this.andProp(property);
+  },
 
-			if(typeof type != 'undefined' && typeof property!='undefined'){
-				this.queryString += '&' + encodeURIComponent( type + '[' + this.propIndex + ']') + '=' + property;
-				this.propIndex++;
-			}
-			return this;
-		},
+  /**
+   * andProp - Add new AND property value
+   *
+   * @param  {string} property Property name
+   * @return {Mura.Feed}          Self
+   */
+  andProp: function andProp(property) {
+    this.queryString += '&' + encodeURIComponent(property + '[' + this.propIndex + ']') + '=';
+    this.propIndex++;
+    return this;
+  },
 
-		/**
-		 * liveOnly - Set whether to return all content or only content that is currently live.
-		 * This only works if the user has module level access to the current site's content
-		 *
-		 * @param  {number} liveOnly 0 or 1
-		 * @return {Mura.Feed}              Self
-		 */
-		liveOnly: function(liveOnly) {
-			this.queryString += '&liveOnly=' + encodeURIComponent(liveOnly);
-			return this;
-		},
+  /**
+   * orProp - Add new OR property value
+   *
+   * @param  {string} property Property name
+   * @return {Mura.Feed}          Self
+   */
+  orProp: function orProp(property) {
+    this.queryString += '&or' + encodeURIComponent('[' + this.propIndex + ']') + '&';
+    this.propIndex++;
+    this.queryString += encodeURIComponent(property + '[' + this.propIndex + ']') + '=';
+    this.propIndex++;
+    return this;
+  },
 
-		/**
-		 * groupBy - Sets property or properties to group by
-		 *
-		 * @param  {string} groupBy
-		 * @return {Mura.Feed}              Self
-		 */
-		 groupBy: function(property) {
- 			if(typeof property!='undefined'){
- 				this.queryString += '&' + encodeURIComponent('groupBy[' + this.propIndex + ']') + '=' + property;
- 				this.propIndex++;
- 			}
- 			return this;
- 		},
+  /**
+   * isEQ - Checks if preceding property value is EQ to criteria
+   *
+   * @param  {*} criteria Criteria
+   * @return {Mura.Feed}          Self
+   */
+  isEQ: function isEQ(criteria) {
+    if (typeof criteria == 'undefined' || criteria === '' || criteria == null) {
+      criteria = 'null';
+    }
 
-		/**
-		 * maxItems - Sets max items to return
-		 *
-		 * @param  {number} maxItems Items to return
-		 * @return {Mura.Feed}              Self
-		 */
-		maxItems: function(maxItems) {
-			this.queryString += '&maxItems=' + encodeURIComponent(maxItems);
-			return this;
-		},
+    this.queryString += encodeURIComponent(criteria);
+    return this;
+  },
 
-		/**
-		 * showNavOnly - Sets to include the homepage
-		 *
-		 * @param  {boolean} showNavOnly Whether to return items that have been excluded from search
-		 * @return {Mura.Feed}              Self
-		 */
-		showNavOnly: function(showNavOnly) {
-			this.queryString += '&showNavOnly=' + encodeURIComponent(showNavOnly);
-			return this;
-		},
+  /**
+   * isNEQ - Checks if preceding property value is NEQ to criteria
+   *
+   * @param  {*} criteria Criteria
+   * @return {Mura.Feed}          Self
+   */
+  isNEQ: function isNEQ(criteria) {
+    if (typeof criteria == 'undefined' || criteria === '' || criteria == null) {
+      criteria = 'null';
+    }
 
-		/**
-		 * expand - Sets which linked properties to return expanded values
-		 *
-		 * @param  {string} expand List of properties to expand, use 'all' for all.
-		 * @return {Mura.Feed}              Self
-		 */
-		expand: function(expand) {
-			if(typeof expand == 'undefined'){
-				expand = 'all';
-			}
-			if(expand){
-				this.queryString += '&expand=' + encodeURIComponent(expand);
-			}
-			return this;
-		},
+    this.queryString += encodeURIComponent('neq^' + criteria);
+    return this;
+  },
 
-		/**
-		 * expandDepth - Set the depth that expanded links are expanded
-		 *
-		 * @param  {number} expandDepth Number of levels to expand, defaults to 1
-		 * @return {Mura.Feed}              Self
-		 */
-		expandDepth: function(expandDepth) {
-			expandDepth = expandDepth || 1;
-			if(Mura.isNumeric(expandDepth) && Number(parseFloat(expandDepth)) > 1){
-				this.queryString += '&expandDepth=' + encodeURIComponent(expandDepth);
-			}
-			return this;
-		},
+  /**
+   * isLT - Checks if preceding property value is LT to criteria
+   *
+   * @param  {*} criteria Criteria
+   * @return {Mura.Feed}          Self
+   */
+  isLT: function isLT(criteria) {
+    if (typeof criteria == 'undefined' || criteria === '' || criteria == null) {
+      criteria = 'null';
+    }
 
-		/**
-		 * no - Sets to include the homepage
-		 *
-		 * @param  {boolean} showExcludeSearch Whether to return items that have been excluded from search
-		 * @return {Mura.Feed}              Self
-		 */
-		showExcludeSearch: function(showExcludeSearch) {
-			this.queryString += '&showExcludeSearch=' + encodeURIComponent(showExcludeSearch);
-			return this;
-		},
+    this.queryString += encodeURIComponent('lt^' + criteria);
+    return this;
+  },
 
-		/**
-		 * no - Sets to whether to require all categoryids in list of just one.
-		 *
-		 * @param  {boolean} useCategoryIntersect Whether require a match for all categories
-		 * @return {Mura.Feed}              Self
-		 */
-		useCategoryIntersect: function(useCategoryIntersect) {
-			this.queryString += '&useCategoryIntersect=' + encodeURIComponent(useCategoryIntersect);
-			return this;
-		},
+  /**
+   * isLTE - Checks if preceding property value is LTE to criteria
+   *
+   * @param  {*} criteria Criteria
+   * @return {Mura.Feed}          Self
+   */
+  isLTE: function isLTE(criteria) {
+    if (typeof criteria == 'undefined' || criteria === '' || criteria == null) {
+      criteria = 'null';
+    }
 
-		/**
-		 * includeHomepage - Sets to include the home page
-		 *
-		 * @param  {boolean} showExcludeSearch Whether to return the homepage
-		 * @return {Mura.Feed}              Self
-		 */
-		includeHomepage: function(includeHomepage) {
-			this.queryString += '&includehomepage=' + encodeURIComponent(includeHomepage);
-			return this;
-		},
+    this.queryString += encodeURIComponent('lte^' + criteria);
+    return this;
+  },
 
-		/**
-		 * innerJoin - Sets entity to INNER JOIN
-		 *
-		 * @param  {string} relatedEntity Related entity
-		 * @return {Mura.Feed}              Self
-		 */
-		innerJoin: function(relatedEntity) {
-			this.queryString += '&innerJoin' + encodeURIComponent('[' + this.propIndex + ']') + '=' +	encodeURIComponent(relatedEntity);
-			this.propIndex++;
-			return this;
-		},
+  /**
+   * isGT - Checks if preceding property value is GT to criteria
+   *
+   * @param  {*} criteria Criteria
+   * @return {Mura.Feed}          Self
+   */
+  isGT: function isGT(criteria) {
+    if (typeof criteria == 'undefined' || criteria === '' || criteria == null) {
+      criteria = 'null';
+    }
 
-		/**
-		 * leftJoin - Sets entity to LEFT JOIN
-		 *
-		 * @param  {string} relatedEntity Related entity
-		 * @return {Mura.Feed}              Self
-		 */
-		leftJoin: function(relatedEntity) {
-			this.queryString += '&leftJoin' + encodeURIComponent('[' + this.propIndex + ']') + '=' + encodeURIComponent(relatedEntity);
-			this.propIndex++;
-			return this;
-		},
+    this.queryString += encodeURIComponent('gt^' + criteria);
+    return this;
+  },
 
-		/**
-		 * Query - Return Mura.EntityCollection fetched from JSON API
-		 * @return {Promise}
-		 */
-		getQuery: function(params) {
-			var self = this;
+  /**
+   * isGTE - Checks if preceding property value is GTE to criteria
+   *
+   * @param  {*} criteria Criteria
+   * @return {Mura.Feed}          Self
+   */
+  isGTE: function isGTE(criteria) {
+    if (typeof criteria == 'undefined' || criteria === '' || criteria == null) {
+      criteria = 'null';
+    }
 
-			if(typeof params != 'undefined'){
-				for(var p in params){
-					if(params.hasOwnProperty(p)){
-						if(typeof self[p] == 'function'){
-							self[p](params[p]);
-						} else {
-							self.andProp(p).isEQ(params[p]);
-						}
-					}
-				}
-			}
+    this.queryString += encodeURIComponent('gte^' + criteria);
+    return this;
+  },
 
-			return new Promise(function(resolve, reject) {
-				if (Mura.getAPIEndpoint().charAt(Mura.getAPIEndpoint().length - 1) == "/") {
-					var apiEndpoint = Mura.getAPIEndpoint();
-				} else {
-					var apiEndpoint = Mura.getAPIEndpoint() + '/';
-				}
-				self._requestcontext.request({
-					type: 'get',
-					url: apiEndpoint + self.queryString,
-					success: function(resp) {
-						if (resp.data != 'undefined'  ) {
-							var returnObj = new Mura.EntityCollection(resp.data,self._requestcontext);
+  /**
+   * isIn - Checks if preceding property value is IN to list of criterias
+   *
+   * @param  {*} criteria Criteria List
+   * @return {Mura.Feed}          Self
+   */
+  isIn: function isIn(criteria) {
+    this.queryString += encodeURIComponent('in^' + criteria);
+    return this;
+  },
 
-							if (typeof resolve == 'function') {
-								resolve(returnObj);
-							}
-						} else if (typeof reject == 'function') {
-							reject(resp);
-						}
-					},
-					error: function(resp) {
-						resp=Mura.parseString(resp.response);
-						if (typeof reject == 'function'){
-							reject(resp);
-						}
-					}
-				});
-			});
-		}
-	});
+  /**
+   * isNotIn - Checks if preceding property value is NOT IN to list of criterias
+   *
+   * @param  {*} criteria Criteria List
+   * @return {Mura.Feed}          Self
+   */
+  isNotIn: function isNotIn(criteria) {
+    this.queryString += encodeURIComponent('notin^' + criteria);
+    return this;
+  },
 
+  /**
+   * containsValue - Checks if preceding property value is CONTAINS the value of criteria
+   *
+   * @param  {*} criteria Criteria
+   * @return {Mura.Feed}          Self
+   */
+  containsValue: function containsValue(criteria) {
+    this.queryString += encodeURIComponent('containsValue^' + criteria);
+    return this;
+  },
+  contains: function contains(criteria) {
+    this.queryString += encodeURIComponent('containsValue^' + criteria);
+    return this;
+  },
+
+  /**
+   * beginsWith - Checks if preceding property value BEGINS WITH criteria
+   *
+   * @param  {*} criteria Criteria
+   * @return {Mura.Feed}          Self
+   */
+  beginsWith: function beginsWith(criteria) {
+    this.queryString += encodeURIComponent('begins^' + criteria);
+    return this;
+  },
+
+  /**
+   * endsWith - Checks if preceding property value ENDS WITH criteria
+   *
+   * @param  {*} criteria Criteria
+   * @return {Mura.Feed}          Self
+   */
+  endsWith: function endsWith(criteria) {
+    this.queryString += encodeURIComponent('ends^' + criteria);
+    return this;
+  },
+
+  /**
+   * openGrouping - Start new logical condition grouping
+   *
+   * @return {Mura.Feed}          Self
+   */
+  openGrouping: function openGrouping() {
+    this.queryString += '&openGrouping' + encodeURIComponent('[' + this.propIndex + ']');
+    this.propIndex++;
+    return this;
+  },
+
+  /**
+   * openGrouping - Starts new logical condition grouping
+   *
+   * @return {Mura.Feed}          Self
+   */
+  andOpenGrouping: function andOpenGrouping() {
+    this.queryString += '&andOpenGrouping' + encodeURIComponent('[' + this.propIndex + ']');
+    this.propIndex++;
+    return this;
+  },
+
+  /**
+   * orOpenGrouping - Starts new logical condition grouping
+   *
+   * @return {Mura.Feed}          Self
+   */
+  orOpenGrouping: function orOpenGrouping() {
+    this.queryString += '&orOpenGrouping' + encodeURIComponent('[' + this.propIndex + ']');
+    this.propIndex++;
+    return this;
+  },
+
+  /**
+   * openGrouping - Closes logical condition grouping
+   *
+   * @return {Mura.Feed}          Self
+   */
+  closeGrouping: function closeGrouping() {
+    this.queryString += '&closeGrouping' + encodeURIComponent('[' + this.propIndex + ']');
+    this.propIndex++;
+    return this;
+  },
+
+  /**
+   * sort - Set desired sort or return collection
+   *
+   * @param  {string} property  Property
+   * @param  {string} direction Sort direction
+   * @return {Mura.Feed}           Self
+   */
+  sort: function sort(property, direction) {
+    direction = direction || 'asc';
+
+    if (direction == 'desc') {
+      this.queryString += '&sort' + encodeURIComponent('[' + this.propIndex + ']') + '=' + encodeURIComponent('-' + property);
+    } else {
+      this.queryString += '&sort' + encodeURIComponent('[' + this.propIndex + ']') + '=' + encodeURIComponent(property);
+    }
+
+    this.propIndex++;
+    return this;
+  },
+
+  /**
+   * itemsPerPage - Sets items per page
+   *
+   * @param  {number} itemsPerPage Items per page
+   * @return {Mura.Feed}              Self
+   */
+  itemsPerPage: function itemsPerPage(_itemsPerPage) {
+    this.queryString += '&itemsPerPage=' + encodeURIComponent(_itemsPerPage);
+    return this;
+  },
+
+  /**
+   * pageIndex - Sets items per page
+   *
+   * @param  {number} pageIndex page to start at
+   */
+  pageIndex: function pageIndex(_pageIndex) {
+    this.queryString += '&pageIndex=' + encodeURIComponent(_pageIndex);
+    return this;
+  },
+
+  /**
+   * maxItems - Sets max items to return
+   *
+   * @param  {number} maxItems Items to return
+   * @return {Mura.Feed}              Self
+   */
+  maxItems: function maxItems(_maxItems) {
+    this.queryString += '&maxItems=' + encodeURIComponent(_maxItems);
+    return this;
+  },
+
+  /**
+   * distinct - Sets to select distinct values of select fields
+   *
+   * @param  {boolean} distinct Whether to to select distinct values
+   * @return {Mura.Feed}              Self
+   */
+  distinct: function distinct(_distinct) {
+    if (typeof _distinct == 'undefined') {
+      _distinct = true;
+    }
+
+    this.queryString += '&distinct=' + encodeURIComponent(_distinct);
+    return this;
+  },
+
+  /**
+   * aggregate - Define aggregate values that you would like (sum,max,min,cout,avg,groupby)
+   *
+   * @param  {string} type Type of aggregation (sum,max,min,cout,avg,groupby)
+   * @param  {string} property property
+   * @return {Mura.Feed}	Self
+   */
+  aggregate: function aggregate(type, property) {
+    if (type == 'count' && typeof property == 'undefined') {
+      property = '*';
+    }
+
+    if (typeof type != 'undefined' && typeof property != 'undefined') {
+      this.queryString += '&' + encodeURIComponent(type + '[' + this.propIndex + ']') + '=' + property;
+      this.propIndex++;
+    }
+
+    return this;
+  },
+
+  /**
+   * liveOnly - Set whether to return all content or only content that is currently live.
+   * This only works if the user has module level access to the current site's content
+   *
+   * @param  {number} liveOnly 0 or 1
+   * @return {Mura.Feed}              Self
+   */
+  liveOnly: function liveOnly(_liveOnly) {
+    this.queryString += '&liveOnly=' + encodeURIComponent(_liveOnly);
+    return this;
+  },
+
+  /**
+   * groupBy - Sets property or properties to group by
+   *
+   * @param  {string} groupBy
+   * @return {Mura.Feed}              Self
+   */
+  groupBy: function groupBy(property) {
+    if (typeof property != 'undefined') {
+      this.queryString += '&' + encodeURIComponent('groupBy[' + this.propIndex + ']') + '=' + property;
+      this.propIndex++;
+    }
+
+    return this;
+  }
+}, _defineProperty(_Mura$Core$extend, "maxItems", function maxItems(_maxItems2) {
+  this.queryString += '&maxItems=' + encodeURIComponent(_maxItems2);
+  return this;
+}), _defineProperty(_Mura$Core$extend, "showNavOnly", function showNavOnly(_showNavOnly) {
+  this.queryString += '&showNavOnly=' + encodeURIComponent(_showNavOnly);
+  return this;
+}), _defineProperty(_Mura$Core$extend, "expand", function expand(_expand) {
+  if (typeof _expand == 'undefined') {
+    _expand = 'all';
+  }
+
+  if (_expand) {
+    this.queryString += '&expand=' + encodeURIComponent(_expand);
+  }
+
+  return this;
+}), _defineProperty(_Mura$Core$extend, "expandDepth", function expandDepth(_expandDepth) {
+  _expandDepth = _expandDepth || 1;
+
+  if (Mura.isNumeric(_expandDepth) && Number(parseFloat(_expandDepth)) > 1) {
+    this.queryString += '&expandDepth=' + encodeURIComponent(_expandDepth);
+  }
+
+  return this;
+}), _defineProperty(_Mura$Core$extend, "showExcludeSearch", function showExcludeSearch(_showExcludeSearch) {
+  this.queryString += '&showExcludeSearch=' + encodeURIComponent(_showExcludeSearch);
+  return this;
+}), _defineProperty(_Mura$Core$extend, "useCategoryIntersect", function useCategoryIntersect(_useCategoryIntersect) {
+  this.queryString += '&useCategoryIntersect=' + encodeURIComponent(_useCategoryIntersect);
+  return this;
+}), _defineProperty(_Mura$Core$extend, "includeHomepage", function includeHomepage(_includeHomepage) {
+  this.queryString += '&includehomepage=' + encodeURIComponent(_includeHomepage);
+  return this;
+}), _defineProperty(_Mura$Core$extend, "innerJoin", function innerJoin(relatedEntity) {
+  this.queryString += '&innerJoin' + encodeURIComponent('[' + this.propIndex + ']') + '=' + encodeURIComponent(relatedEntity);
+  this.propIndex++;
+  return this;
+}), _defineProperty(_Mura$Core$extend, "leftJoin", function leftJoin(relatedEntity) {
+  this.queryString += '&leftJoin' + encodeURIComponent('[' + this.propIndex + ']') + '=' + encodeURIComponent(relatedEntity);
+  this.propIndex++;
+  return this;
+}), _defineProperty(_Mura$Core$extend, "getQuery", function getQuery(params) {
+  var self = this;
+
+  if (typeof params != 'undefined') {
+    for (var p in params) {
+      if (params.hasOwnProperty(p)) {
+        if (typeof self[p] == 'function') {
+          self[p](params[p]);
+        } else {
+          self.andProp(p).isEQ(params[p]);
+        }
+      }
+    }
+  }
+
+  return new Promise(function (resolve, reject) {
+    if (Mura.getAPIEndpoint().charAt(Mura.getAPIEndpoint().length - 1) == "/") {
+      var apiEndpoint = Mura.getAPIEndpoint();
+    } else {
+      var apiEndpoint = Mura.getAPIEndpoint() + '/';
+    }
+
+    self._requestcontext.request({
+      type: 'get',
+      url: apiEndpoint + self.queryString,
+      success: function success(resp) {
+        if (resp.data != 'undefined') {
+          var returnObj = new Mura.EntityCollection(resp.data, self._requestcontext);
+
+          if (typeof resolve == 'function') {
+            resolve(returnObj);
+          }
+        } else if (typeof reject == 'function') {
+          reject(resp);
+        }
+      },
+      error: function error(resp) {
+        resp = Mura.parseString(resp.response);
+
+        if (typeof reject == 'function') {
+          reject(resp);
+        }
+      }
+    });
+  });
+}), _Mura$Core$extend));
 
 /***/ }),
 /* 353 */
 /***/ (function(module, exports, __webpack_require__) {
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-var Mura=__webpack_require__(8);
+var Mura = __webpack_require__(8); //https://github.com/malko/l.js
 
-//https://github.com/malko/l.js
 /*
 * script for js/css parallel loading with dependancies management
 * @author Jonathan Gotti < jgotti at jgotti dot net >
@@ -17287,2971 +17162,3017 @@ var Mura=__webpack_require__(8);
 * @note coding style is implied by the target usage of this script not my habbits
 */
 
-if(typeof window !='undefined' && typeof window.document != 'undefined'){
-	var isA =  function(a,b){ return a instanceof (b || Array);}
-		//-- some minifier optimisation
-		, D = document
-		, getElementsByTagName = 'getElementsByTagName'
-		, length = 'length'
-		, readyState = 'readyState'
-		, onreadystatechange = 'onreadystatechange'
-		//-- get the current script tag for further evaluation of it's eventual content
-		, scripts = D[getElementsByTagName]("script")
-		, scriptTag = scripts[scripts[length]-1]
-		, script  = scriptTag.innerHTML.replace(/^\s+|\s+$/g,'')
-	;
 
-	try {
-		var preloadsupport = w.document.createElement( "link" ).relList.supports( "preload" );
-	} catch (e) {
-		var preloadsupport = false;
-	}
+if (typeof window != 'undefined' && typeof window.document != 'undefined') {
+  var isA = function isA(a, b) {
+    return a instanceof (b || Array);
+  } //-- some minifier optimisation
+  ,
+      D = document,
+      getElementsByTagName = 'getElementsByTagName',
+      length = 'length',
+      readyState = 'readyState',
+      onreadystatechange = 'onreadystatechange' //-- get the current script tag for further evaluation of it's eventual content
+  ,
+      scripts = D[getElementsByTagName]("script"),
+      scriptTag = scripts[scripts[length] - 1],
+      script = scriptTag.innerHTML.replace(/^\s+|\s+$/g, '');
 
-	//avoid multiple inclusion to override current loader but allow tag content evaluation
-	if( ! Mura.ljs ){
-		var checkLoaded = scriptTag.src.match(/checkLoaded/)?1:0
-			//-- keep trace of header as we will make multiple access to it
-			,header  = D[getElementsByTagName]("head")[0] || D.documentElement
-			, urlParse = function(url){
-				var parts={}; // u => url, i => id, f = fallback
-				parts.u = url.replace(/#(=)?([^#]*)?/g,function(m,a,b){ parts[a?'f':'i'] = b; return '';});
-				return parts;
-			}
-			,appendElmt = function(type,attrs,cb){
-				var el = D.createElement(type), i;
-
-				if( type =='script' && cb ){ //-- this is not intended to be used for link
-					if(el[readyState]){
-						el[onreadystatechange] = function(){
-							if (el[readyState] === "loaded" || el[readyState] === "complete"){
-								el[onreadystatechange] = null;
-								cb();
-							}
-						};
-					} else{
-						el.onload = cb;
-					}
-				} else if(
-						type=='link'
-						&& typeof attrs == 'object'
-						&& typeof attrs.rel != 'undefined'
-						&& attrs.rel=='preload'
-					){
-
-						/*
-						Inspired by
-						https://github.com/filamentgroup/loadCSS/blob/master/src/loadCSS.js
-						*/
-
-						var media=attrs.media || 'all';
-						attrs.as = attrs.as || 'style';
-
-						if(!preloadsupport){
-							attrs.media='x only';
-							attrs.rel="stylesheet";
-						}
-
-						function loadCB(){
-							if( el.addEventListener ){
-								el.removeEventListener( "load", loadCB );
-							}
-							el.media = media || "all";
-						  el.rel="stylesheet";
-						}
-
-						function onloadcssdefined( cb ){
-							var sheets=document.styleSheets;
-							var resolvedHref = attrs.href;
-							var i = sheets.length;
-							while( i-- ){
-								if( sheets[ i ].href === resolvedHref ){
-									return cb();
-								}
-							}
-							setTimeout(function() {
-								onloadcssdefined( cb );
-							});
-						};
-
-						if( el.addEventListener ){
-							el.addEventListener( "load", loadCB);
-						}
-
-						el.onloadcssdefined = onloadcssdefined;
-
-						onloadcssdefined( loadCB );
-
-				}
-
-				for( i in attrs ){ attrs[i] && (el[i]=attrs[i]); }
-
-				header.appendChild(el);
-				// return e; // unused at this time so drop it
-			}
-			,load = function(url,cb){
-				if( this.aliases && this.aliases[url] ){
-					var args = this.aliases[url].slice(0);
-					isA(args) || (args=[args]);
-					cb && args.push(cb);
-					return this.load.apply(this,args);
-				}
-				if( isA(url) ){ // parallelized request
-					for( var l=url[length]; l--;){
-						this.load(url[l]);
-					}
-					cb && url.push(cb); // relaunch the dependancie queue
-					return this.load.apply(this,url);
-				}
-				if( url.match(/\.css\b/) ){
-					return this.loadcss(url,cb);
-				} else if( url.match(/\.html\b/) ){
-					return this.loadimport(url,cb);
-				} else {
-					return this.loadjs(url,cb);
-				}
-			}
-			,loaded = {}  // will handle already loaded urls
-			,loader  = {
-				aliases:{}
-				,loadjs: function(url,attrs,cb){
-					if(typeof url == 'object'){
-						if(Array.isArray(url)){
-							return loader.load.apply(this, arguments);
-						} else if(typeof attrs === 'function'){
-							cb=attrs;
-							attrs={};
-							url=attrs.href
-						} else if (typeof attrs=='string' || (typeof attrs=='object' && Array.isArray(attrs))) {
-							return loader.load.apply(this, arguments);
-						} else {
-							attrs=url;
-							url=attrs.href;
-							cb=undefined;
-						}
-					} else if (typeof attrs=='function' ) {
-						cb = attrs;
-						attrs = {};
-					} else if (typeof attrs=='string' || (typeof attrs=='object' && Array.isArray(attrs))) {
-						return loader.load.apply(this, arguments);
-					}
-					if(typeof attrs==='undefined'){
-						attrs={};
-					}
-
-					var parts = urlParse(url);
-					var partToAttrs=[['i','id'],['f','fallback'],['u','src']];
-
-					for(var i=0;i<partToAttrs.length;i++){
-						var part=partToAttrs[i];
-						if(!(part[1] in attrs) && (part[0] in parts)){
-							attrs[part[1]]=parts[part[0]];
-						}
-					}
-
-					if(typeof attrs.type === 'undefined'){
-						attrs.type='text/javascript';
-					}
-
-					var finalAttrs={};
-
-					for(var a in attrs){
-						if(a != 'fallback'){
-							finalAttrs[a]=attrs[a];
-						}
-					}
-
-					finalAttrs.onerror=function(error){
-						if( attrs.fallback ){
-							var c = error.currentTarget;
-							c.parentNode.removeChild(c);
-							finalAttrs.src=attrs.fallback;
-							appendElmt('script',attrs,cb);
-						}
-					};
+  try {
+    var preloadsupport = w.document.createElement("link").relList.supports("preload");
+  } catch (e) {
+    var preloadsupport = false;
+  } //avoid multiple inclusion to override current loader but allow tag content evaluation
 
 
-					if( loaded[finalAttrs.src] === true ){ // already loaded exec cb if any
-						cb && cb();
-						return this;
-					} else if( loaded[finalAttrs.src]!== undefined ){ // already asked for loading we append callback if any else return
-						if( cb ){
-							loaded[finalAttrs.src] = (function(ocb,cb){ return function(){ ocb && ocb(); cb && cb(); }; })(loaded[finalAttrs.src],cb);
-						}
-						return this;
-					}
-					// first time we ask this script
-					loaded[finalAttrs.src] = (function(cb){ return function(){loaded[finalAttrs.src]=true; cb && cb();};})(cb);
-					cb = function(){ loaded[url](); };
-					appendElmt('script',finalAttrs,cb);
-					return this;
-				}
-				,loadcss: function(url,attrs,cb){
+  if (!Mura.ljs) {
+    var checkLoaded = scriptTag.src.match(/checkLoaded/) ? 1 : 0 //-- keep trace of header as we will make multiple access to it
+    ,
+        header = D[getElementsByTagName]("head")[0] || D.documentElement,
+        urlParse = function urlParse(url) {
+      var parts = {}; // u => url, i => id, f = fallback
 
-					if(typeof url == 'object'){
-						if(Array.isArray(url)){
-							return loader.load.apply(this, arguments);
-						} else if(typeof attrs === 'function'){
-							cb=attrs;
-							attrs=url;
-							url=attrs.href
-						} else if (typeof attrs=='string' || (typeof attrs=='object' && Array.isArray(attrs))) {
-							return loader.load.apply(this, arguments);
-						} else {
-							attrs=url;
-							url=attrs.href;
-							cb=undefined;
-						}
-					} else if (typeof attrs=='function' ) {
-						cb = attrs;
-						attrs = {};
-					} else if (typeof attrs=='string' || (typeof attrs=='object' && Array.isArray(attrs))) {
-						return loader.load.apply(this, arguments);
-					}
+      parts.u = url.replace(/#(=)?([^#]*)?/g, function (m, a, b) {
+        parts[a ? 'f' : 'i'] = b;
+        return '';
+      });
+      return parts;
+    },
+        appendElmt = function appendElmt(type, attrs, cb) {
+      var el = D.createElement(type),
+          i;
 
-					var parts = urlParse(url);
-					parts={type:'text/css',rel:'stylesheet',href:url,id:parts.i}
+      if (type == 'script' && cb) {
+        //-- this is not intended to be used for link
+        if (el[readyState]) {
+          el[onreadystatechange] = function () {
+            if (el[readyState] === "loaded" || el[readyState] === "complete") {
+              el[onreadystatechange] = null;
+              cb();
+            }
+          };
+        } else {
+          el.onload = cb;
+        }
+      } else if (type == 'link' && _typeof(attrs) == 'object' && typeof attrs.rel != 'undefined' && attrs.rel == 'preload') {
+        var loadCB = function loadCB() {
+          if (el.addEventListener) {
+            el.removeEventListener("load", loadCB);
+          }
 
-					if(typeof attrs !=='undefined'){
-						for(var a in attrs){
-							parts[a]=attrs[a];
-						}
-					}
+          el.media = media || "all";
+          el.rel = "stylesheet";
+        };
 
-					loaded[parts.href] || appendElmt('link',parts);
-					loaded[parts.href] = true;
-					cb && cb();
-					return this;
-				}
-				,loadimport: function(url,attrs,cb){
+        var onloadcssdefined = function onloadcssdefined(cb) {
+          var sheets = document.styleSheets;
+          var resolvedHref = attrs.href;
+          var i = sheets.length;
 
-					if(typeof url == 'object'){
-						if(Array.isArray(url)){
-							return loader.load.apply(this, arguments);
-						} else if(typeof attrs === 'function'){
-							cb=attrs;
-							attrs=url;
-							url=attrs.href
-						} else if (typeof attrs=='string' || (typeof attrs=='object' && Array.isArray(attrs))) {
-							return loader.load.apply(this, arguments);
-						} else {
-							attrs=url;
-							url=attrs.href;
-							cb=undefined;
-						}
-					} else if (typeof attrs=='function' ) {
-						cb = attrs;
-						attrs = {};
-					} else if (typeof attrs=='string' || (typeof attrs=='object' && Array.isArray(attrs))) {
-						return loader.load.apply(this, arguments);
-					}
+          while (i--) {
+            if (sheets[i].href === resolvedHref) {
+              return cb();
+            }
+          }
 
-					var parts = urlParse(url);
-					parts={rel:'import',href:url,id:parts.i}
+          setTimeout(function () {
+            onloadcssdefined(cb);
+          });
+        };
 
-					if(typeof attrs !=='undefined'){
-						for(var a in attrs){
-							parts[a]=attrs[a];
-						}
-					}
+        /*
+        Inspired by
+        https://github.com/filamentgroup/loadCSS/blob/master/src/loadCSS.js
+        */
+        var media = attrs.media || 'all';
+        attrs.as = attrs.as || 'style';
 
-					loaded[parts.href] || appendElmt('link',parts);
-					loaded[parts.href] = true;
-					cb && cb();
-					return this;
-				}
-				,load: function(){
-					var argv=arguments,argc = argv[length];
-					if( argc === 1 && isA(argv[0],Function) ){
-						argv[0]();
-						return this;
-					}
-					load.call(this,argv[0], argc <= 1 ? undefined : function(){ loader.load.apply(loader,[].slice.call(argv,1));} );
-					return this;
-				}
-				,addAliases:function(aliases){
-					for(var i in aliases ){
-						this.aliases[i]= isA(aliases[i]) ? aliases[i].slice(0) : aliases[i];
-					}
-					return this;
-				}
-			}
-		;
+        if (!preloadsupport) {
+          attrs.media = 'x only';
+          attrs.rel = "stylesheet";
+        }
 
-		if( checkLoaded ){
-			var i,l,links,url;
-			for(i=0,l=scripts[length];i<l;i++){
-				(url = scripts[i].getAttribute('src')) && (loaded[url.replace(/#.*$/,'')] = true);
-			}
-			links = D[getElementsByTagName]('link');
-			for(i=0,l=links[length];i<l;i++){
-				(links[i].rel==='import' || links[i].rel==='stylesheet' || links[i].type==='text/css') && (loaded[links[i].getAttribute('href').replace(/#.*$/,'')]=true);
-			}
-		}
-		//export ljs
-		Mura.ljs = loader;
-		// eval inside tag code if any
-	}
-	scriptTag.src && script && appendElmt('script', {innerHTML: script});
+        ;
+
+        if (el.addEventListener) {
+          el.addEventListener("load", loadCB);
+        }
+
+        el.onloadcssdefined = onloadcssdefined;
+        onloadcssdefined(loadCB);
+      }
+
+      for (i in attrs) {
+        attrs[i] && (el[i] = attrs[i]);
+      }
+
+      header.appendChild(el); // return e; // unused at this time so drop it
+    },
+        _load = function load(url, cb) {
+      if (this.aliases && this.aliases[url]) {
+        var args = this.aliases[url].slice(0);
+        isA(args) || (args = [args]);
+        cb && args.push(cb);
+        return this.load.apply(this, args);
+      }
+
+      if (isA(url)) {
+        // parallelized request
+        for (var l = url[length]; l--;) {
+          this.load(url[l]);
+        }
+
+        cb && url.push(cb); // relaunch the dependancie queue
+
+        return this.load.apply(this, url);
+      }
+
+      if (url.match(/\.css\b/)) {
+        return this.loadcss(url, cb);
+      } else if (url.match(/\.html\b/)) {
+        return this.loadimport(url, cb);
+      } else {
+        return this.loadjs(url, cb);
+      }
+    },
+        loaded = {} // will handle already loaded urls
+    ,
+        loader = {
+      aliases: {},
+      loadjs: function loadjs(url, attrs, cb) {
+        if (_typeof(url) == 'object') {
+          if (Array.isArray(url)) {
+            return loader.load.apply(this, arguments);
+          } else if (typeof attrs === 'function') {
+            cb = attrs;
+            attrs = {};
+            url = attrs.href;
+          } else if (typeof attrs == 'string' || _typeof(attrs) == 'object' && Array.isArray(attrs)) {
+            return loader.load.apply(this, arguments);
+          } else {
+            attrs = url;
+            url = attrs.href;
+            cb = undefined;
+          }
+        } else if (typeof attrs == 'function') {
+          cb = attrs;
+          attrs = {};
+        } else if (typeof attrs == 'string' || _typeof(attrs) == 'object' && Array.isArray(attrs)) {
+          return loader.load.apply(this, arguments);
+        }
+
+        if (typeof attrs === 'undefined') {
+          attrs = {};
+        }
+
+        var parts = urlParse(url);
+        var partToAttrs = [['i', 'id'], ['f', 'fallback'], ['u', 'src']];
+
+        for (var i = 0; i < partToAttrs.length; i++) {
+          var part = partToAttrs[i];
+
+          if (!(part[1] in attrs) && part[0] in parts) {
+            attrs[part[1]] = parts[part[0]];
+          }
+        }
+
+        if (typeof attrs.type === 'undefined') {
+          attrs.type = 'text/javascript';
+        }
+
+        var finalAttrs = {};
+
+        for (var a in attrs) {
+          if (a != 'fallback') {
+            finalAttrs[a] = attrs[a];
+          }
+        }
+
+        finalAttrs.onerror = function (error) {
+          if (attrs.fallback) {
+            var c = error.currentTarget;
+            c.parentNode.removeChild(c);
+            finalAttrs.src = attrs.fallback;
+            appendElmt('script', attrs, cb);
+          }
+        };
+
+        if (loaded[finalAttrs.src] === true) {
+          // already loaded exec cb if any
+          cb && cb();
+          return this;
+        } else if (loaded[finalAttrs.src] !== undefined) {
+          // already asked for loading we append callback if any else return
+          if (cb) {
+            loaded[finalAttrs.src] = function (ocb, cb) {
+              return function () {
+                ocb && ocb();
+                cb && cb();
+              };
+            }(loaded[finalAttrs.src], cb);
+          }
+
+          return this;
+        } // first time we ask this script
+
+
+        loaded[finalAttrs.src] = function (cb) {
+          return function () {
+            loaded[finalAttrs.src] = true;
+            cb && cb();
+          };
+        }(cb);
+
+        cb = function cb() {
+          loaded[url]();
+        };
+
+        appendElmt('script', finalAttrs, cb);
+        return this;
+      },
+      loadcss: function loadcss(url, attrs, cb) {
+        if (_typeof(url) == 'object') {
+          if (Array.isArray(url)) {
+            return loader.load.apply(this, arguments);
+          } else if (typeof attrs === 'function') {
+            cb = attrs;
+            attrs = url;
+            url = attrs.href;
+          } else if (typeof attrs == 'string' || _typeof(attrs) == 'object' && Array.isArray(attrs)) {
+            return loader.load.apply(this, arguments);
+          } else {
+            attrs = url;
+            url = attrs.href;
+            cb = undefined;
+          }
+        } else if (typeof attrs == 'function') {
+          cb = attrs;
+          attrs = {};
+        } else if (typeof attrs == 'string' || _typeof(attrs) == 'object' && Array.isArray(attrs)) {
+          return loader.load.apply(this, arguments);
+        }
+
+        var parts = urlParse(url);
+        parts = {
+          type: 'text/css',
+          rel: 'stylesheet',
+          href: url,
+          id: parts.i
+        };
+
+        if (typeof attrs !== 'undefined') {
+          for (var a in attrs) {
+            parts[a] = attrs[a];
+          }
+        }
+
+        loaded[parts.href] || appendElmt('link', parts);
+        loaded[parts.href] = true;
+        cb && cb();
+        return this;
+      },
+      loadimport: function loadimport(url, attrs, cb) {
+        if (_typeof(url) == 'object') {
+          if (Array.isArray(url)) {
+            return loader.load.apply(this, arguments);
+          } else if (typeof attrs === 'function') {
+            cb = attrs;
+            attrs = url;
+            url = attrs.href;
+          } else if (typeof attrs == 'string' || _typeof(attrs) == 'object' && Array.isArray(attrs)) {
+            return loader.load.apply(this, arguments);
+          } else {
+            attrs = url;
+            url = attrs.href;
+            cb = undefined;
+          }
+        } else if (typeof attrs == 'function') {
+          cb = attrs;
+          attrs = {};
+        } else if (typeof attrs == 'string' || _typeof(attrs) == 'object' && Array.isArray(attrs)) {
+          return loader.load.apply(this, arguments);
+        }
+
+        var parts = urlParse(url);
+        parts = {
+          rel: 'import',
+          href: url,
+          id: parts.i
+        };
+
+        if (typeof attrs !== 'undefined') {
+          for (var a in attrs) {
+            parts[a] = attrs[a];
+          }
+        }
+
+        loaded[parts.href] || appendElmt('link', parts);
+        loaded[parts.href] = true;
+        cb && cb();
+        return this;
+      },
+      load: function load() {
+        var argv = arguments,
+            argc = argv[length];
+
+        if (argc === 1 && isA(argv[0], Function)) {
+          argv[0]();
+          return this;
+        }
+
+        _load.call(this, argv[0], argc <= 1 ? undefined : function () {
+          loader.load.apply(loader, [].slice.call(argv, 1));
+        });
+
+        return this;
+      },
+      addAliases: function addAliases(aliases) {
+        for (var i in aliases) {
+          this.aliases[i] = isA(aliases[i]) ? aliases[i].slice(0) : aliases[i];
+        }
+
+        return this;
+      }
+    };
+
+    if (checkLoaded) {
+      var i, l, links, url;
+
+      for (i = 0, l = scripts[length]; i < l; i++) {
+        (url = scripts[i].getAttribute('src')) && (loaded[url.replace(/#.*$/, '')] = true);
+      }
+
+      links = D[getElementsByTagName]('link');
+
+      for (i = 0, l = links[length]; i < l; i++) {
+        (links[i].rel === 'import' || links[i].rel === 'stylesheet' || links[i].type === 'text/css') && (loaded[links[i].getAttribute('href').replace(/#.*$/, '')] = true);
+      }
+    } //export ljs
+
+
+    Mura.ljs = loader; // eval inside tag code if any
+  }
+
+  scriptTag.src && script && appendElmt('script', {
+    innerHTML: script
+  });
 }
-
 
 /***/ }),
 /* 354 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Mura=__webpack_require__(8);
+var Mura = __webpack_require__(8);
 
-if (typeof document != 'undefined'){
-    var tocss={}
+if (typeof document != 'undefined') {
+  var tocss = {};
+  var CSSStyleDeclaration = document.createElement('div').style;
+  var fromArray;
+  var toArray;
 
-    var CSSStyleDeclaration=document.createElement('div').style;
+  for (var s in CSSStyleDeclaration) {
+    fromArray = s.split(/(?=[A-Z])/);
+    toArray = [];
 
-    var fromArray;
-    var toArray;
-    for(var s in CSSStyleDeclaration){
-        fromArray= s.split(/(?=[A-Z])/);
-        toArray=[];
-        for(var i in fromArray){
-            toArray.push(fromArray[i].toLowerCase());
-        }
-        tocss[s]=toArray.join("-")
+    for (var i in fromArray) {
+      toArray.push(fromArray[i].toLowerCase());
     }
 
-    var styleMap={
-        tocss:tocss,
-        tojs:{}
-    }
+    tocss[s] = toArray.join("-");
+  }
 
-    for(var s in tocss){ 
-        styleMap.tojs[s.toLowerCase()]=s;
-        styleMap.tojs[s]=s;
-        styleMap.tocss[s.toLowerCase()]=styleMap.tocss[s];   
-    }
+  var styleMap = {
+    tocss: tocss,
+    tojs: {}
+  };
 
-    Mura.styleMap=styleMap;
+  for (var s in tocss) {
+    styleMap.tojs[s.toLowerCase()] = s;
+    styleMap.tojs[s] = s;
+    styleMap.tocss[s.toLowerCase()] = styleMap.tocss[s];
+  }
 
+  Mura.styleMap = styleMap;
 }
 
 /***/ }),
 /* 355 */
 /***/ (function(module, exports, __webpack_require__) {
 
-
-var Mura=__webpack_require__(8);
-
-(function(Mura){
-"use strict";
-	
-/**
- * Creates a new Mura.DOMSelection
- * @name	Mura.DOMSelection
- * @class
- * @param	{object} properties Object containing values to set into object
- * @return {Mura.DOMSelection}
- * @extends Mura.Core
- * @memberof Mura
- */
-
- /**
-	* @ignore
-	*/
-
-Mura.DOMSelection = Mura.Core.extend(
-	/** @lends Mura.DOMSelection.prototype */
-	{
-
-		init: function(selection, origSelector) {
-			this.selection = selection;
-			this.origSelector = origSelector;
-
-			if (this.selection.length && this.selection[0]) {
-				this.parentNode = this.selection[0].parentNode;
-				this.childNodes = this.selection[0].childNodes;
-				this.node = selection[0];
-				this.length = this.selection.length;
-			} else {
-				this.parentNode = null;
-				this.childNodes = null;
-				this.node = null;
-				this.length = 0;
-			}
-
-			if(typeof Mura.supportPassive == 'undefined'){
-				Mura.supportsPassive = false;
-				try {
-					var opts = Object.defineProperty({}, 'passive', {
-						get: function() {
-						  Mura.supportsPassive = true;
-						}
-					});
-					window.addEventListener("testPassive", null, opts);
-					window.removeEventListener("testPassive", null, opts);
-				} catch (e) {}
-			}
-		},
-
-	/**
-	 * get - Deprecated: Returns element at index of selection, use item()
-	 *
-	 * @param	{number} index Index of selection
-	 * @return {*}
-	 */
-	get: function(index) {
-		if(typeof index != 'undefined'){
-			return this.selection[index];
-		} else {
-			return this.selection;
-		}
-	},
-
-	/**
-	 * select - Returns new Mura.DomSelection
-	 *
-	 * @param	{string} selector Selector
-	 * @return {object}
-	 */
-	select: function(selector) {
-		return Mura(selector);
-	},
-
-	/**
-	 * each - Runs function against each item in selection
-	 *
-	 * @param	{function} fn Method
-	 * @return {Mura.DOMSelection} Self
-	 */
-	each: function(fn) {
-		this.selection.forEach(function(el, idx, array) {
-			if(typeof fn.call == 'undefined'){
-				fn(el, idx, array);
-			} else {
-				fn.call(el, el, idx, array);
-			}
-		});
-		return this;
-	},
-
-	/**
-	 * each - Runs function against each item in selection
-	 *
-	 * @param	{function} fn Method
-	 * @return {Mura.DOMSelection} Self
-	 */
-	forEach: function(fn) {
-		this.selection.forEach(function(el, idx, array) {
-			if(typeof fn.call == 'undefined'){
-				fn(el, idx, array);
-			} else {
-				fn.call(el, el, idx, array);
-			}
-		});
-		return this;
-	},
-
-	/**
-	 * filter - Creates a new Mura.DomSelection instance contains selection values that pass filter function by returning true
-	 *
-	 * @param	{function} fn Filter function
-	 * @return {object}		New Mura.DOMSelection
-	 */
-	filter: function(fn) {
-		return Mura(this.selection.filter(function(el,idx, array) {
-			if(typeof fn.call == 'undefined'){
-				return fn(el, idx,array);
-			} else {
-				return fn.call(el, el, idx,array);
-			}
-		}));
-	},
-
-	/**
-	 * map - Creates a new Mura.DomSelection instance contains selection values that are returned by Map function
-	 *
-	 * @param	{function} fn Map function
-	 * @return {object}		New Mura.DOMSelection
-	 */
-	map: function(fn) {
-		return Mura(this.selection.map(function(el, idx, array) {
-			if(typeof fn.call == 'undefined'){
-				return fn(el, idx, array);
-			} else {
-				return fn.call(el, el, idx, array);
-			}
-		}));
-	},
-
-	/**
-	 * reduce - Returns value from	reduce function
-	 *
-	 * @param	{function} fn Reduce function
-	 * @param	{any} initialValue Starting accumulator value
-	 * @return {accumulator}
-	 */
-	reduce: function(fn, initialValue) {
-		initialValue = initialValue || 0;
-		return this.selection.reduce(
-			function(accumulator, item, idx, array) {
-				if(typeof fn.call == 'undefined'){
-					return fn(accumulator,item, idx, array);
-				} else {
-					return fn.call(item, accumulator,item, idx, array);
-				}
-			},
-			initialValue
-		);
-	},
-
-	/**
-	 * isNumeric - Returns if value is numeric
-	 *
-	 * @param	{*} val Value
-	 * @return {type}		 description
-	 */
-	isNumeric: function(val) {
-		if (typeof val != 'undefined') {
-			return isNumeric(val);
-		}
-		return isNumeric(this.selection[0]);
-	},
-
-	/**
-	 * processMarkup - Process Markup of selected dom elements
-	 *
-	 * @return {Promise}
-	 */
-	processMarkup: function() {
-		var self = this;
-		return new Promise(function(resolve, reject) {
-			self.each(function(el) {
-				Mura.processMarkup(el);
-			});
-		});
-	},
-
-	/**
-	 * addEventHandler - Add event event handling object
-	 *
-	 * @param	{string} selector	Selector (optional: for use with delegated events)
-	 * @param	{object} handler				description
-	 * @return {Mura.DOMSelection} Self
-	 */
-	addEventHandler:function(selector, handler){
-		if (typeof handler == 'undefined') {
-			handler = selector;
-			selector = '';
-		}
-		for (var h in handler) {
-			if(eventName.hasOwnProperty(h)){
-				if(typeof selector == 'string' && selector){
-					on(h, selector, handler[h]);
-				} else {
-					on(h,handler[h]);
-				}
-			}
-		}
-		return this;
-	},
-
-	/**
-	 * on - Add event handling method
-	 *
-	 * @param	{string} eventName Event name
-	 * @param	{string} selector	Selector (optional: for use with delegated events)
-	 * @param	{function} fn				description
-	 * @return {Mura.DOMSelection} Self
-	 */
-	on: function(eventName, selector, fn, EventListenerOptions) {
-		if(typeof EventListenerOptions == 'undefined'){
-			if(typeof fn != 'undefined' && typeof fn != 'function'){
-				EventListenerOptions=fn;
-			} else {
-				EventListenerOptions=true;
-			}
-		}
-
-		if(eventName=='touchstart' || eventName=='end'){
-			EventListenerOptions= Mura.supportsPassive ? { passive: true } : false;
-		}
-
-		if (typeof selector == 'function') {
-			fn = selector;
-			selector = '';
-		}
-		if (eventName == 'ready') {
-			if (document.readyState != 'loading') {
-				var self = this;
-				setTimeout(
-					function() {
-						self.each(function() {
-							if (selector) {
-								Mura(this).find(
-									selector
-								).each(
-									function() {
-										if(typeof fn.call =='undefined'){
-											fn(this);
-										} else {
-											fn.call(this,this);
-										}
-								});
-							} else {
-								if(typeof fn.call =='undefined'){
-									fn(this);
-								} else {
-									fn.call(this,this);
-								}
-							}
-						});
-					},
-					1
-				);
-				return this;
-			} else {
-				eventName = 'DOMContentLoaded';
-			}
-		}
-
-		this.each(function() {
-				if (typeof this.addEventListener ==
-						'function') {
-						var self = this;
-						this.addEventListener(
-								eventName,
-								function(event) {
-									if (selector) {
-										if (Mura(event.target).is(selector)) {
-											if(typeof fn.call == 'undefined'){
-												return fn(event);
-											} else {
-												return fn.call(event.target,event);
-											}
-										}
-									} else {
-										if(typeof fn.call == 'undefined'){
-											return fn(event);
-										} else {
-											return fn.call(self,event);
-										}
-									}
-								},
-								EventListenerOptions
-						);
-				}
-		});
-		return this;
-	},
-
-	/**
-	 * hover - Adds hovering events to selected dom elements
-	 *
-	 * @param	{function} handlerIn	In method
-	 * @param	{function} handlerOut Out method
-	 * @return {object}						Self
-	 */
-	hover: function(handlerIn, handlerOut, EventListenerOptions) {
-		if(typeof EventListenerOptions =='undefined' || EventListenerOptions == null){
-			EventListenerOptions= Mura.supportsPassive ? { passive: true } : false;
-		}
-		this.on('mouseover', handlerIn, EventListenerOptions);
-		this.on('mouseout', handlerOut, EventListenerOptions);
-		this.on('touchstart', handlerIn, EventListenerOptions);
-		this.on('touchend', handlerOut, EventListenerOptions);
-		return this;
-	},
-
-	/**
-	 * click - Adds onClick event handler to selection
-	 *
-	 * @param	{function} fn Handler function
-	 * @return {Mura.DOMSelection} Self
-	 */
-	click: function(fn) {
-		this.on('click', fn);
-		return this;
-	},
-
-	/**
-	 * change - Adds onChange event handler to selection
-	 *
-	 * @param	{function} fn Handler function
-	 * @return {Mura.DOMSelection} Self
-	 */
-	change: function(fn) {
-		this.on('change', fn);
-		return this;
-	},
-
-	/**
-	 * submit - Adds onSubmit event handler to selection
-	 *
-	 * @param	{function} fn Handler function
-	 * @return {Mura.DOMSelection} Self
-	 */
-	submit: function(fn) {
-		if (fn) {
-			this.on('submit', fn);
-		} else {
-			this.each(function(el) {
-				if (typeof el.submit == 'function') {
-					Mura.submitForm(el);
-				}
-			});
-		}
-		return this;
-	},
-
-	/**
-	 * ready - Adds onReady event handler to selection
-	 *
-	 * @param	{function} fn Handler function
-	 * @return {Mura.DOMSelection} Self
-	 */
-	ready: function(fn) {
-		this.on('ready', fn);
-		return this;
-	},
-
-	/**
-	 * off - Removes event handler from selection
-	 *
-	 * @param	{string} eventName Event name
-	 * @param	{function} fn			Function to remove	(optional)
-	 * @return {Mura.DOMSelection} Self
-	 */
-	off: function(eventName, fn) {
-		this.each(function(el, idx, array) {
-			if (typeof eventName != 'undefined') {
-				if (typeof fn != 'undefined') {
-					el.removeEventListener(eventName, fn);
-				} else {
-					el[eventName] = null;
-				}
-			} else {
-				if (typeof el.parentElement !=
-					'undefined' && el.parentElement &&
-					typeof el.parentElement.replaceChild !=
-					'undefined') {
-					var elClone = el.cloneNode(true);
-					el.parentElement.replaceChild(elClone, el);
-					array[idx] = elClone;
-				} else {
-					console.log("Mura: Can not remove all handlers from element without a parent node")
-				}
-			}
-		});
-		return this;
-	},
-
-	/**
-	 * unbind - Removes event handler from selection
-	 *
-	 * @param	{string} eventName Event name
-	 * @param	{function} fn			Function to remove	(optional)
-	 * @return {Mura.DOMSelection} Self
-	 */
-	unbind: function(eventName, fn) {
-		this.off(eventName, fn);
-		return this;
-	},
-
-	/**
-	 * bind - Add event handling method
-	 *
-	 * @param	{string} eventName Event name
-	 * @param	{string} selector	Selector (optional: for use with delegated events)
-	 * @param	{function} fn				description
-	 * @return {Mura.DOMSelection}					 Self
-	 */
-	bind: function(eventName, fn) {
-		this.on(eventName, fn);
-		return this;
-	},
-
-	/**
-	 * trigger - Triggers event on selection
-	 *
-	 * @param	{string} eventName	 Event name
-	 * @param	{object} eventDetail Event properties
-	 * @return {Mura.DOMSelection}						 Self
-	 */
-	trigger: function(eventName, eventDetail) {
-		eventDetail = eventDetail || {};
-		this.each(function(el) {
-			Mura.trigger(el, eventName,eventDetail);
-		});
-		return this;
-	},
-
-	/**
-	 * parent - Return new Mura.DOMSelection of the first elements parent
-	 *
-	 * @return {Mura.DOMSelection}
-	 */
-	parent: function() {
-		if (!this.selection.length) {
-			return this;
-		}
-		return Mura(this.selection[0].parentNode);
-	},
-
-	/**
-	 * children - Returns new Mura.DOMSelection or the first elements children
-	 *
-	 * @param	{string} selector Filter (optional)
-	 * @return {Mura.DOMSelection}
-	 */
-	children: function(selector) {
-		if (!this.selection.length) {
-			return this;
-		}
-		if (this.selection[0].hasChildNodes()) {
-			var children = Mura(this.selection[0].childNodes);
-			if (typeof selector == 'string') {
-				var filterFn = function() {
-					return (this.nodeType === 1 || this.nodeType === 11 ||this.nodeType === 9) &&	this.matchesSelector(selector);
-				};
-			} else {
-				var filterFn = function() {
-					return this.nodeType === 1 ||	this.nodeType === 11 ||	this.nodeType === 9;
-				};
-			}
-			return children.filter(filterFn);
-		} else {
-			return Mura([]);
-		}
-	},
-
-
-	/**
-	 * find - Returns new Mura.DOMSelection matching items under the first selection
-	 *
-	 * @param	{string} selector Selector
-	 * @return {Mura.DOMSelection}
-	 */
-	find: function(selector) {
-		if (this.selection.length && this.selection[0]) {
-			var removeId = false;
-			if (this.selection[0].nodeType == '1' ||
-				this.selection[0].nodeType == '11') {
-				var result = this.selection[0].querySelectorAll(selector);
-			} else if (this.selection[0].nodeType =='9') {
-				var result = document.querySelectorAll(selector);
-			} else {
-				var result = [];
-			}
-			return Mura(result);
-		} else {
-				return Mura([]);
-		}
-	},
-
-	/**
-	 * first - Returns first item in selection
-	 *
-	 * @return {*}
-	 */
-	first: function() {
-		if (this.selection.length) {
-			return Mura(this.selection[0]);
-		} else {
-			return Mura([]);
-		}
-	},
-
-	/**
-	 * last - Returns last item in selection
-	 *
-	 * @return {*}
-	 */
-	last: function() {
-		if (this.selection.length) {
-			return Mura(this.selection[this.selection.length - 1]);
-		} else {
-			return Mura([]);
-		}
-	},
-
-	/**
-	 * selector - Returns css selector for first item in selection
-	 *
-	 * @return {string}
-	 */
-	selector: function() {
-		var pathes = [];
-		var path, node = Mura(this.selection[0]);
-		while (node.length) {
-			var realNode = node.get(0),
-				name = realNode.localName;
-			if (!name) {
-				break;
-			}
-			if (!node.data('hastempid') && node.attr('id') && node.attr('id') != 'mura-variation-el') {
-				name = '#' + node.attr('id');
-				path = name + (path ? ' > ' + path : '');
-				break;
-			} else {
-				name = name.toLowerCase();
-				var parent = node.parent();
-				var sameTagSiblings = parent.children(name);
-				if (sameTagSiblings.length > 1) {
-					var allSiblings = parent.children();
-					var index = allSiblings.index(realNode) + 1;
-					if (index > 0) {name += ':nth-child(' + index + ')';}
-				}
-				path = name + (path ? ' > ' + path : '');
-				node = parent;
-			}
-		}
-		pathes.push(path);
-		return pathes.join(',');
-	},
-
-	/**
-	 * siblings - Returns new Mura.DOMSelection of first item's siblings
-	 *
-	 * @param	{string} selector Selector to filter siblings (optional)
-	 * @return {Mura.DOMSelection}
-	 */
-	siblings: function(selector) {
-		if (!this.selection.length) {
-			return this;
-		}
-		var el = this.selection[0];
-		if (el.hasChildNodes()) {
-			var silbings = Mura(this.selection[0].childNodes);
-			if (typeof selector == 'string') {
-				var filterFn = function() {
-					return (this.nodeType === 1 |	this.nodeType === 11 || this.nodeType === 9) && this.matchesSelector(selector);
-				};
-			} else {
-				var filterFn = function() {
-					return this.nodeType === 1 ||	this.nodeType === 11 ||	this.nodeType === 9;
-				};
-			}
-			return silbings.filter(filterFn);
-		} else {
-			return Mura([]);
-		}
-	},
-
-	/**
-	 * item - Returns item at selected index
-	 *
-	 * @param	{number} idx Index to return
-	 * @return {*}
-	 */
-	item: function(idx) {
-		return this.selection[idx];
-	},
-
-	/**
-	 * index - Returns the index of element
-	 *
-	 * @param	{*} el Element to return index of
-	 * @return {*}
-	 */
-	index: function(el) {
-		return this.selection.indexOf(el);
-	},
-
-	/**
-	 * indexOf - Returns the index of element
-	 *
-	 * @param	{*} el Element to return index of
-	 * @return {*}
-	 */
-	indexOf: function(el) {
-		return this.selection.indexOf(el);
-	},
-
-	/**
-	 * closest - Returns new Mura.DOMSelection of closest parent matching selector
-	 *
-	 * @param	{string} selector Selector
-	 * @return {Mura.DOMSelection}
-	 */
-	closest: function(selector) {
-		if (!this.selection.length) {
-			return null;
-		}
-		var el = this.selection[0];
-		for (var parent = el; parent !== null && parent.matchesSelector && !parent.matchesSelector(selector); parent = el.parentElement) {
-			el = parent;
-		};
-		if (parent) {
-			return Mura(parent)
-		} else {
-			return Mura([]);
-		}
-	},
-
-	/**
-	 * append - Appends element to items in selection
-	 *
-	 * @param	{*} el Element to append
-	 * @return {Mura.DOMSelection} Self
-	 */
-	append: function(el) {
-		this.each(function() {
-			if (typeof el == 'string') {
-				this.insertAdjacentHTML('beforeend', el);
-			} else {
-				this.appendChild(el);
-			}
-		});
-		return this;
-	},
-
-	/**
-	 * appendDisplayObject - Appends display object to selected items
-	 *
-	 * @param	{object} data Display objectparams (including object='objectkey')
-	 * @return {Promise}
-	 */
-	appendDisplayObject: function(data) {
-		var self = this;
-		delete data.method;
-		if(typeof data.transient == 'undefined'){
-			data.transient=true;
-		}
-		return new Promise(function(resolve, reject) {
-			self.each(function() {
-				var el = document.createElement('div');
-				el.setAttribute('class','mura-object');
-				for (var a in data) {
-					if(typeof data[a]=='object'){
-						el.setAttribute('data-' + a,JSON.stringify(data[a]));
-					}else {
-						el.setAttribute('data-' + a,data[a]);
-					}
-				}
-				if (typeof data.async == 'undefined') {
-					el.setAttribute('data-async',true);
-				}
-				if (typeof data.render == 'undefined') {
-					el.setAttribute('data-render','server');
-				}
-				el.setAttribute('data-instanceid',Mura.createUUID());
-				var self=this;
-				function watcher(){
-					if(Mura.markupInitted){
-						Mura(self).append(el);
-						Mura.processDisplayObject(el,true,true).then(resolve, reject);
-					} else {
-						setTimeout(watcher);
-					}
-				}
-				watcher();
-			});
-		});
-	},
-
-	/**
-	 * appendModule - Appends display object to selected items
-	 *
-	 * @param	{object} data Display objectparams (including object='objectkey')
-	 * @return {Promise}
-	 */
-	appendModule: function(data) {
-		return this.appendDisplayObject(data);
-	},
-
-	/**
-	 * insertDisplayObjectAfter - Inserts display object after selected items
-	 *
-	 * @param	{object} data Display objectparams (including object='objectkey')
-	 * @return {Promise}
-	 */
-	insertDisplayObjectAfter: function(data) {
-		var self = this;
-		delete data.method;
-		if(typeof data.transient == 'undefined'){
-			data.transient=true;
-		}
-		return new Promise(function(resolve, reject) {
-			self.each(function() {
-				var el = document.createElement('div');
-				el.setAttribute('class','mura-object');
-				for (var a in data) {
-					el.setAttribute('data-' + a,data[a]);
-				}
-				if (typeof data.async == 'undefined') {
-					el.setAttribute('data-async',true);
-				}
-				if (typeof data.render == 'undefined') {
-					el.setAttribute('data-render','server');
-				}
-				el.setAttribute('data-instanceid',Mura.createUUID());
-				var self=this;
-				function watcher(){
-					if(Mura.markupInitted){
-						Mura(self).after(el);
-						Mura.processDisplayObject(el,true,true).then(resolve, reject);
-					} else {
-						setTimeout(watcher);
-					}
-				}
-				watcher();
-			});
-		});
-	},
-
-	/**
-	 * insertModuleAfter - Appends display object to selected items
-	 *
-	 * @param	{object} data Display objectparams (including object='objectkey')
-	 * @return {Promise}
-	 */
-	insertModuleAfter: function(data) {
-		return this.insertDisplayObjectAfter(data);
-	},
-
-	/**
-	 * insertDisplayObjectBefore - Inserts display object after selected items
-	 *
-	 * @param	{object} data Display objectparams (including object='objectkey')
-	 * @return {Promise}
-	 */
-	insertDisplayObjectBefore: function(data) {
-		var self = this;
-		delete data.method;
-		if(typeof data.transient == 'undefined'){
-			data.transient=true;
-		}
-		return new Promise(function(resolve, reject) {
-			self.each(function() {
-				var el = document.createElement('div');
-				el.setAttribute('class','mura-object');
-				for (var a in data) {
-					el.setAttribute('data-' + a,data[a]);
-				}
-				if (typeof data.async == 'undefined') {
-					el.setAttribute('data-async',true);
-				}
-				if (typeof data.render == 'undefined') {
-					el.setAttribute('data-render','server');
-				}
-				el.setAttribute('data-instanceid',Mura.createUUID());
-				var self=this;
-				function watcher(){
-					if(Mura.markupInitted){
-						Mura(self).before(el);
-						Mura.processDisplayObject(el,true,true).then(resolve, reject);
-					} else {
-						setTimeout(watcher);
-					}
-				}
-				watcher();
-			});
-		});
-	},
-
-	/**
-	 * insertModuleBefore - Appends display object to selected items
-	 *
-	 * @param	{object} data Display objectparams (including object='objectkey')
-	 * @return {Promise}
-	 */
-	insertModuleBefore: function(data) {
-		return this.insertDisplayObjectBefore(data);
-	},
-
-	/**
-	 * prependDisplayObject - Prepends display object to selected items
-	 *
-	 * @param	{object} data Display objectparams (including object='objectkey')
-	 * @return {Promise}
-	 */
-	prependDisplayObject: function(data) {
-		var self = this;
-		delete data.method;
-		if(typeof data.transient == 'undefined'){
-			data.transient=true;
-		}
-		return new Promise(function(resolve, reject) {
-			self.each(function() {
-				var el = document.createElement('div');
-				el.setAttribute('class','mura-object');
-				for (var a in data) {
-					el.setAttribute('data-' + a,data[a]);
-				}
-				if (typeof data.async == 'undefined') {
-					el.setAttribute('data-async',true);
-				}
-				if (typeof data.render == 'undefined') {
-					el.setAttribute('data-render','server');
-				}
-				el.setAttribute('data-instanceid',Mura.createUUID());
-				var self=this;
-				function watcher(){
-					if(Mura.markupInitted){
-						Mura(self).prepend(el);
-						Mura.processDisplayObject(el,true,true).then(resolve, reject);
-					} else {
-						setTimeout(watcher);
-					}
-				}
-				watcher();
-			});
-		});
-	},
-
-	/**
-	 * prependModule - Prepends display object to selected items
-	 *
-	 * @param	{object} data Display objectparams (including object='objectkey')
-	 * @return {Promise}
-	 */
-	prependModule: function(data) {
-		return this.prependDisplayObject(data);
-	},
-
-	/**
-	 * processDisplayObject - Handles processing of display object params to selection
-	 *
-	 * @return {Promise}
-	 */
-	processDisplayObject: function() {
-		var self = this;
-		return new Promise(function(resolve, reject) {
-			self.each(function() {
-				Mura.processDisplayObject(
-					this,true,true).then(
-					resolve, reject
-				);
-			});
-		});
-	},
-
-	/**
-	 * processModule - Prepends display object to selected items
-	 *
-	 * @return {Promise}
-	 */
-	processModule: function() {
-		return this.processDisplayObject();
-	},
-
-	/**
-	 * prepend - Prepends element to items in selection
-	 *
-	 * @param	{*} el Element to append
-	 * @return {Mura.DOMSelection} Self
-	 */
-	prepend: function(el) {
-		this.each(function() {
-			if (typeof el == 'string') {
-				this.insertAdjacentHTML('afterbegin', el);
-			} else {
-				this.insertBefore(el, this.firstChild);
-			}
-		});
-		return this;
-	},
-
-	/**
-	 * before - Inserts element before items in selection
-	 *
-	 * @param	{*} el Element to append
-	 * @return {Mura.DOMSelection} Self
-	 */
-	before: function(el) {
-		this.each(function() {
-			if (typeof el == 'string') {
-				this.insertAdjacentHTML('beforebegin', el);
-			} else {
-				this.parentNode.insertBefore(el,this);
-			}
-		});
-		return this;
-	},
-
-	/**
-	 * after - Inserts element after items in selection
-	 *
-	 * @param	{*} el Element to append
-	 * @return {Mura.DOMSelection} Self
-	 */
-	after: function(el) {
-		this.each(function() {
-			if (typeof el == 'string') {
-				this.insertAdjacentHTML('afterend', el);
-			} else {
-				if(this.nextSibling){
-					this.parentNode.insertBefore(el, this.nextSibling);
-				} else {
-					this.parentNode.appendChild(el);
-				}
-				
-			}
-		});
-		return this;
-	},
-
-	/**
-	 * hide - Hides elements in selection
-	 *
-	 * @return {object}	Self
-	 */
-	hide: function() {
-		this.each(function(el) {
-			el.style.display = 'none';
-		});
-		return this;
-	},
-
-	/**
-	 * show - Shows elements in selection
-	 *
-	 * @return {object}	Self
-	 */
-	show: function() {
-		this.each(function(el) {
-			el.style.display = '';
-		});
-		return this;
-	},
-
-	/**
-	 * repaint - repaints elements in selection
-	 *
-	 * @return {object}	Self
-	 */
-	redraw: function() {
-		this.each(function(el) {
-			var elm = Mura(el);
-			setTimeout(
-				function() {
-					elm.show();
-				},
-				1
-			);
-		});
-		return this;
-	},
-
-	/**
-	 * remove - Removes elements in selection
-	 *
-	 * @return {object}	Self
-	 */
-	remove: function() {
-		this.each(function(el) {
-			el.parentNode && el.parentNode.removeChild(el);
-		});
-		return this;
-	},
-
-	/**
-	 * addClass - Adds class to elements in selection
-	 *
-	 * @param	{string} className Name of class
-	 * @return {Mura.DOMSelection} Self
-	 */
-	addClass: function(className) {
-		if (className.length) {
-			this.each(function(el) {
-				if (el.classList) {
-					el.classList.add(className);
-				} else {
-					el.className += ' ' + className;
-				}
-			});
-		}
-		return this;
-	},
-
-	/**
-	 * hasClass - Returns if the first element in selection has class
-	 *
-	 * @param	{string} className Class name
-	 * @return {Mura.DOMSelection} Self
-	 */
-	hasClass: function(className) {
-			return this.is("." + className);
-	},
-
-	/**
-	 * removeClass - Removes class from elements in selection
-	 *
-	 * @param	{string} className Class name
-	 * @return {Mura.DOMSelection} Self
-	 */
-	removeClass: function(className) {
-		this.each(function(el) {
-			if (el.classList) {
-				el.classList.remove(className);
-			} else if (el.className) {
-				el.className = el.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
-			}
-		});
-		return this;
-	},
-
-	/**
-	 * toggleClass - Toggles class on elements in selection
-	 *
-	 * @param	{string} className Class name
-	 * @return {Mura.DOMSelection} Self
-	 */
-	toggleClass: function(className) {
-		this.each(function(el) {
-			if (el.classList) {
-				el.classList.toggle(className);
-			} else {
-				var classes = el.className.split(' ');
-				var existingIndex = classes.indexOf(className);
-
-				if (existingIndex >= 0)
-					classes.splice(existingIndex, 1);
-				else
-					classes.push(className);
-
-				el.className = classes.join(' ');
-			}
-		});
-		return this;
-	},
-
-	/**
-	 * empty - Removes content from elements in selection
-	 *
-	 * @return {object}	Self
-	 */
-	empty: function() {
-		this.each(function(el) {
-			el.innerHTML = '';
-		});
-		return this;
-	},
-
-	/**
-	 * evalScripts - Evaluates script tags in selection elements
-	 *
-	 * @return {object}	Self
-	 */
-	evalScripts: function() {
-		if (!this.selection.length) {
-			return this;
-		}
-		this.each(function(el) {
-			Mura.evalScripts(el);
-		});
-		return this;
-	},
-
-	/**
-	 * html - Returns or sets HTML of elements in selection
-	 *
-	 * @param	{string} htmlString description
-	 * @return {object}						Self
-	 */
-	html: function(htmlString) {
-		if (typeof htmlString != 'undefined') {
-			this.each(function(el) {
-				el.innerHTML = htmlString;
-				Mura.evalScripts(el);
-			});
-			return this;
-		} else {
-			if (!this.selection.length) {
-				return '';
-			}
-			return this.selection[0].innerHTML;
-		}
-	},
-
-	/**
-	 * css - Sets css value for elements in selection
-	 *
-	 * @param	{string} ruleName Css rule name
-	 * @param	{string} value		Rule value
-	 * @return {object}					Self
-	 */
-	css: function(ruleName, value) {
-		if (!this.selection.length) {
-			return this;
-		}
-		if (typeof ruleName == 'undefined' && typeof value == 'undefined') {
-			try {
-				return getComputedStyle(this.selection[0]);
-			} catch (e) {
-				console.log(e)
-				return {};
-			}
-		} else if (typeof ruleName == 'object') {
-			this.each(function(el) {
-				try {
-					for (var p in ruleName) {
-						el.style[Mura.styleMap.tojs[p]] = ruleName[p];
-					}
-				} catch (e) {console.log(e)}
-			});
-		} else if (typeof value != 'undefined') {
-			this.each(function(el) {
-				try {
-					el.style[Mura.styleMap.tojs[ruleName]] = value;
-				} catch (e) {console.log(e)}
-			});
-			return this;
-		} else {
-			try {
-				return getComputedStyle(this.selection[	0])[Mura.styleMap.tojs[ruleName]];
-			} catch (e) {console.log(e)}
-		}
-	},
-
-	/**
-	 * calculateDisplayObjectStyles - Looks at data attrs and sets appropriate styles
-	 *
-	 * @return {object}	Self
-	 */
-	 calculateDisplayObjectStyles: function(windowResponse) {
-		
- 		this.each(function(el) {
-
-			function handleBackround(styles){
-				var hasLayeredBg=(styles && typeof styles.backgroundColor != 'undefined' && styles.backgroundColor
-				&& typeof styles.backgroundImage != 'undefined' && styles.backgroundImage);	
-				
-				if(hasLayeredBg){
-					styles.backgroundImage='linear-gradient(' + styles.backgroundColor + ', ' + styles.backgroundColor +' ), ' + styles.backgroundImage;
-				}
-
-				hasLayeredBg=(styles && typeof styles.backgroundcolor != 'undefined' && styles.backgroundcolor
-				&& typeof styles.backgroundimage != 'undefined' && styles.backgroundimage);	
-				
-				if(hasLayeredBg){
-					styles.backgroundImage='linear-gradient(' + styles.backgroundcolor + ', ' + styles.backgroundcolor +' ), ' + styles.backgroundimage;
-				}
-			}
-
-			function handleTextColor(sheet,selector,styles){
-				try{
-					if(styles.color){
-						var style=selector + ', ' + selector + ' label, ' + selector + ' p, ' + selector + ' h1, ' + selector + ' h2, ' + selector + ' h3, ' + selector + ' h4, ' + selector + ' h5, ' + selector + ' h6, ' +selector + ' a:link, ' + selector + ' a:visited, '  + selector + ' a:hover, ' + selector + ' .breadcrumb-item + .breadcrumb-item::before, ' + selector + ' a:active { color:' + styles.color + ';} ';
-						sheet.insertRule(
-							style,
-							sheet.cssRules.length
-						);
-						sheet.insertRule(
-							selector + ' * {color:inherit}',
-							sheet.cssRules.length
-						);
-						sheet.insertRule(
-							selector + ' hr { border-color:' + styles.color + ';}',
-							sheet.cssRules.length
-						);
-					}
-				} catch (e){
-					console.log("error adding color: " + styles.color);
-					console.log(e);
-				}
-			}
-			 
-			var obj=Mura(el);
-			var breakpoints=['mura-xs','mura-sm','mura-md','mura-lg'];
-			var objBreakpoint='mura-sm';
-			
-			for(var b=0;b<breakpoints.length;b++){
-				if(obj.is('.' + breakpoints[b])){
-					objBreakpoint=breakpoints[b];
-					break;
-				}
-			}
-			
-			var fullsize=breakpoints.indexOf('mura-' + Mura.getBreakpoint()) >= breakpoints.indexOf(objBreakpoint);
-			
-			Mura.windowResponsiveModules=Mura.windowResponsiveModules||{};
-			Mura.windowResponsiveModules[obj.data('instanceid')]=false;
-
- 			obj = (obj.node) ? obj : Mura(obj);
- 			var self = obj.node;
- 			if (obj.data('class')) {
- 				var classes = obj.data('class');
- 				if (typeof classes != 'Array') {
- 					var classes = classes.split(' ');
- 				}
- 				for (var c = 0; c < classes.length; c++) {
- 					if (!obj.hasClass(classes[c])) {
- 						obj.addClass(classes[c]);
- 					}
- 				}
- 			}
- 			if (obj.data('cssclass')) {
- 				var classes = obj.data('cssclass');
- 				if (typeof classes != 'array') {
- 					var classes = classes.split(' ');
- 				}
- 				for (var c = 0; c < classes.length; c++) {
- 					if (!obj.hasClass(classes[c])) {
- 						obj.addClass(classes[c]);
- 					}
- 				}
- 			}
- 			if(obj.data('cssid')){
- 				obj.attr('id',obj.data('cssid'));
- 			} else {
- 				obj.removeAttr('id');
- 			}
-
-			var styleSupport=obj.data('stylesupport') || {};
-			
-			if(typeof styleSupport == 'string'){
-				try{
-					styleSupport=JSON.parse.call(null,styleSupport)
-				} catch(e){
-					styleSupport={};
-				}
-				if(typeof styleSupport == 'string'){
-					styleSupport={};
-				}
-			}
-			var objectstyles={};
-
-			if(styleSupport && styleSupport.objectstyles){
-				objectstyles=styleSupport.objectstyles;
-			}
-
-			obj.removeAttr('style');
-			if(!fullsize){
-				delete objectstyles.margin;
-				delete objectstyles.marginLeft;
-				delete objectstyles.marginRight;
-				delete objectstyles.marginTop;
-				delete objectstyles.marginBottom;
-			}
-
-			if(!fullsize || (fullsize && !(
-				obj.css('marginTop')=='0px'
-				&& obj.css('marginBottom')=='0px'
-				&& obj.css('marginLeft')=='0px'
-				&& obj.css('marginRight')=='0px'
-			))){
-				Mura.windowResponsiveModules[obj.data('instanceid')]=true;
-			}
-
-			if(!windowResponse){
-				var sheet=Mura.getStyleSheet('mura-styles-' + obj.data('instanceid'));
-
-					while (sheet.cssRules.length) {
-						sheet.deleteRule(0);
-					}
-				
-				var objectAccumulator={};
-					
-				if(typeof objectstyles == 'string'){
-					objectstyles={};
-				}
-				objectstyles=objectstyles || {};
-
-				handleBackround(objectstyles);
-	
-				var selector='div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
-				var dyncss='';
-				objectAccumulator=Mura.extend(objectAccumulator,objectstyles);
-				for(var s in objectAccumulator){
-					if(objectAccumulator.hasOwnProperty(s)){
-						if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
-							dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]]  + ': ' + objectAccumulator[s] + '!important;';
-						} else {
-							obj.css(s,objectAccumulator[s]);
-						}		
-					}
-				}
-				if(dyncss){
-					try {
-						//console.log(selector + ' {' + dyncss+ '}')
-						sheet.insertRule(
-							selector + ' {' + dyncss+ '}',
-							sheet.cssRules.length
-						);
-					} catch (e){
-						console.log(selector + ' {' + dyncss+ '}')
-						console.log(e);
-					}
-				}
-
-				handleTextColor(sheet,selector,objectstyles);
-				
-				if(typeof styleSupport['object_lg_styles'] == 'string'){
-					styleSupport['object_lg_styles']={};
-				}
-				styleSupport['object_lg_styles']=styleSupport['object_lg_styles'] || {};
-				var selector='@media (min-width: 992px) and (max-width: 1199px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
-				var selector2='@media (min-width: 1292px) and (max-width: 1399px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
-				var dyncss='';
-
-				handleBackround(styleSupport['object_lg_styles']);
-
-				objectAccumulator=Mura.extend(objectAccumulator,styleSupport['object_lg_styles']);
-				for(var s in objectAccumulator){
-					if(objectAccumulator.hasOwnProperty(s)){
-						if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
-							dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]]  + ': ' + objectAccumulator[s] + '!important;';
-						}		
-					}
-				}
-				if(dyncss){
-					try {
-						sheet.insertRule(
-							selector + ' {' + dyncss+ '}',
-							sheet.cssRules.length
-						);
-						sheet.insertRule(
-							selector2 + ' {' + dyncss+ '}',
-							sheet.cssRules.length
-						);
-					} catch (e){
-						console.log(selector + ' {' + dyncss+ '}}')
-						console.log(e);
-					}
-				}
-
-				handleTextColor(sheet,selector,objectAccumulator);
-				handleTextColor(sheet,selector2,objectAccumulator);
-
-				if(typeof styleSupport['object_md_styles'] == 'string'){
-					styleSupport['object_md_styles']={};
-				}
-				styleSupport['object_md_styles']=styleSupport['object_md_styles'] || {};
-				var selector='@media (min-width: 768px) and (max-width: 991px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
-				var selector2='@media (min-width: 1068px) and (max-width: 1291px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
-				var dyncss='';
-
-				handleBackround(styleSupport['object_md_styles']);
-
-				objectAccumulator=Mura.extend(objectAccumulator,styleSupport['object_md_styles']);
-				for(var s in objectAccumulator){
-					if(objectAccumulator.hasOwnProperty(s)){
-						if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
-							dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]]  + ': ' + objectAccumulator[s] + '!important;';
-						}		
-					}
-				}
-				if(dyncss){
-					try {
-						sheet.insertRule(
-							selector + ' {' + dyncss+ '}',
-							sheet.cssRules.length
-						);
-						sheet.insertRule(
-							selector2 + ' {' + dyncss+ '}',
-							sheet.cssRules.length
-						);
-					} catch (e){
-						console.log(selector + ' {' + dyncss+ '}}')
-						console.log(e);
-					}
-				}
-
-				handleTextColor(sheet,selector,objectAccumulator);
-				handleTextColor(sheet,selector2,objectAccumulator);
-
-				if(typeof styleSupport['object_sm_styles'] == 'string'){
-					styleSupport['object_sm_styles']={};
-				}
-				styleSupport['object_sm_styles']=styleSupport['object_sm_styles'] || {};
-				var selector='@media (min-width: 576px) and (max-width: 767px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
-				var selector2='@media (min-width: 876px) and (max-width: 1067px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
-				var dyncss='';
-
-				handleBackround(styleSupport['object_sm_styles']);
-
-				objectAccumulator=Mura.extend(objectAccumulator,styleSupport['object_sm_styles']);
-				for(var s in objectAccumulator){
-					if(objectAccumulator.hasOwnProperty(s)){
-						if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
-							dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]]  + ': ' + objectAccumulator[s] + '!important;';
-						}		
-					}
-				}
-				if(dyncss){
-					try {
-						sheet.insertRule(
-							selector + ' {' + dyncss+ '}',
-							sheet.cssRules.length
-						);
-						sheet.insertRule(
-							selector2 + ' {' + dyncss+ '}',
-							sheet.cssRules.length
-						);
-					} catch (e){
-						console.log(selector + ' {' + dyncss+ '}}')
-						console.log(e);
-					}
-				}
-
-				handleTextColor(sheet,selector,objectAccumulator);
-				handleTextColor(sheet,selector2,objectAccumulator);
-
-				if(typeof styleSupport['object_xs_styles'] == 'string'){
-					styleSupport['object_xs_styles']={};
-				}
-				styleSupport['object_xs_styles']=styleSupport['object_xs_styles'] || {};
-				var selector='@media (max-width: 575px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
-				var selector2='@media (max-width: 875px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
-				var dyncss='';
-
-				handleBackround(styleSupport['object_xs_styles']);
-
-				objectAccumulator=Mura.extend(objectAccumulator,styleSupport['object_xs_styles']);
-				for(var s in objectAccumulator){
-					if(objectAccumulator.hasOwnProperty(s)){
-						if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
-							dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]]  + ': ' + objectAccumulator[s] + '!important;';
-						}		
-					}
-				}
-				if(dyncss){
-					try {
-						//console.log(selector + ' {' + dyncss+ '}}')
-						sheet.insertRule(
-							selector + ' {' + dyncss+ '}',
-							sheet.cssRules.length
-						);
-						sheet.insertRule(
-							selector2 + ' {' + dyncss+ '}',
-							sheet.cssRules.length
-						);
-					} catch (e){
-						console.log(selector + ' {' + dyncss+ '}}')
-						console.log(e);
-					}
-				}
-
-				handleTextColor(sheet,selector,objectAccumulator);
-				handleTextColor(sheet,selector2,objectAccumulator);
-
-				if(styleSupport.css){
-					var styles=styleSupport.css.split('}');
-					if(Array.isArray(styles) && styles.length){
-						styles.forEach(function(style){
-							var styleParts=style.split("{");
-							if(styleParts.length > 1){
-								var selectors=styleParts[0].split(',');
-								selectors.forEach(function(subSelector){
-									try{
-										var subStyle='div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] ' + subSelector.replace(/\$self/g,'') + '{' + styleParts[1] + '}';
-										sheet.insertRule(
-											subStyle,
-											sheet.cssRules.length
-										);
-										if(Mura.editing){
-											console.log('Applying dynamic styles:' + subStyle);
-										}
-									} catch(e){
-										if(Mura.editing){
-											console.log('Error applying dynamic styles:' + subStyle);
-											console.log(e);
-										}
-									}
-								});
-							}
-						});
-					}
-				}
-			}
- 			
-			var metaWrapper=obj.children('.mura-object-meta-wrapper');
-			if(metaWrapper.length){
-				styleSupport.metastyles=styleSupport.metastyles || {}; 
-				var meta=metaWrapper.children('.mura-object-meta');
-				if(meta.length){
-					var metastyles={};
-					if(styleSupport && styleSupport.metastyles){
-						metastyles=styleSupport.metastyles;
-					}
-
-					var hasLayeredBg=false;
-
-					if(!windowResponse){
-						var metaAccumulator={};
-						if(typeof metastyles == 'string'){
-							metastyles={};
-						}
-						metastyles=metastyles || {};
-						var selector='div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';	
-						var dyncss='';
-
-						handleBackround(metastyles);
-
-						metaAccumulator=Mura.extend(metaAccumulator,metastyles);
-						for(var s in metaAccumulator){
-							if(metaAccumulator.hasOwnProperty(s)){
-								if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
-									dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]]  + ': ' + metaAccumulator[s] + '!important;';
-								} else {
-									meta.css(s,metaAccumulator[s]);
-								}		
-							}
-						}
-						if(dyncss){
-							try {
-								//console.log(selector + ' {' + dyncss+ '}')
-								sheet.insertRule(
-									selector + ' {' + dyncss+ '}',
-									sheet.cssRules.length
-								);
-							} catch (e){
-								console.log(selector + ' {' + dyncss+ '}')
-								console.log(e);
-							}
-						}
-
-						try {
-							if( metastyles.color){
-								var style=selector + ', ' + selector + ' label, ' + selector + ' p, ' + selector + ' h1, ' + selector + ' h2, ' + selector + ' h3, ' + selector + ' h4, ' + selector + ' h5, ' + selector + ' h6, ' +selector + ' a:link, ' + selector + ' a:visited, '  + selector + ' a:hover, ' + selector + ' .breadcrumb-item + .breadcrumb-item::before, ' + selector + ' a:active { color:' + metastyles.color + ';} ';
-								sheet.insertRule(
-									style,
-									sheet.cssRules.length
-								);
-								sheet.insertRule(
-									selector + ' * {color:inherit}',
-									sheet.cssRules.length
-								);
-								sheet.insertRule(
-									selector + ' hr { border-color:' + metastyles.color + ';}',
-									sheet.cssRules.length
-								);
-							}
-						} catch (e){
-							console.log("error adding color: " + metastyles.color);
-							console.log(e);
-						}
-
-						if(typeof styleSupport['meta_lg_styles'] == 'string'){
-							styleSupport['meta_lg_styles']={};
-						}
-						styleSupport['meta_lg_styles']=styleSupport['meta_lg_styles'] || {}; 
-						var selector='@media (min-width: 992px) and (max-width: 1199px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
-						var selector2='@media (min-width: 1292px) and (max-width: 1399px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
-						var dyncss='';
-
-						handleBackround(styleSupport['meta_lg_styles']);
-
-						metaAccumulator=Mura.extend(metaAccumulator,styleSupport['meta_lg_styles']);
-						for(var s in metaAccumulator){
-							if(metaAccumulator.hasOwnProperty(s)){
-								if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
-									dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]]  + ': ' + metaAccumulator[s] + '!important;';
-								}		
-							}
-						}
-						if(dyncss){
-							try {
-								sheet.insertRule(
-									selector + ' {' + dyncss+ '}',
-									sheet.cssRules.length
-								);
-								sheet.insertRule(
-									selector2 + ' {' + dyncss+ '}',
-									sheet.cssRules.length
-								);
-							} catch (e){
-								console.log(selector + ' {' + dyncss+ '}}')
-								console.log(e);
-							}
-						}
-						
-						if(typeof styleSupport['meta_md_styles'] == 'string'){
-							styleSupport['meta_md_styles']={};
-						}
-						styleSupport['meta_md_styles']=styleSupport['meta_md_styles'] || {}; 
-						var selector='@media (min-width: 768px) an (max-width: 991px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
-						var selector2='@media (min-width: 1068px) an (max-width: 1291px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
-						var dyncss='';
-
-						handleBackround(styleSupport['meta_md_styles']);
-
-						metaAccumulator=Mura.extend(metaAccumulator,styleSupport['meta_md_styles']);
-						for(var s in metaAccumulator){
-							if(metaAccumulator.hasOwnProperty(s)){
-								if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
-									dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]]  + ': ' + metaAccumulator[s] + '!important;';
-								}		
-							}
-						}
-						if(dyncss){
-							try {
-								sheet.insertRule(
-									selector + ' {' + dyncss+ '}',
-									sheet.cssRules.length
-								);
-								sheet.insertRule(
-									selector2 + ' {' + dyncss+ '}',
-									sheet.cssRules.length
-								);
-							} catch (e){
-								console.log(selector + ' {' + dyncss+ '}}')
-								console.log(e);
-							}
-						}
-
-						if(typeof styleSupport['meta_sm_styles'] == 'string'){
-							styleSupport['meta_sm_styles']={};
-						}
-						styleSupport['meta_sm_styles']=styleSupport['meta_sm_styles'] || {}; 
-						var selector='@media (min-width: 576px) an (max-width: 767) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
-						var selector2='@media (min-width: 876px) an (max-width: 1067) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
-						var dyncss='';
-
-						handleBackround(styleSupport['meta_sm_styles']);
-
-						metaAccumulator=Mura.extend(metaAccumulator,styleSupport['meta_sm_styles']);
-						for(var s in metaAccumulator){
-							if(metaAccumulator.hasOwnProperty(s)){
-								if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
-									dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]]  + ': ' + metaAccumulator[s] + '!important;';
-								}		
-							}
-						}
-						if(dyncss){
-							try {
-								sheet.insertRule(
-									selector + ' {' + dyncss+ '}',
-									sheet.cssRules.length
-								);
-								sheet.insertRule(
-									selector2 + ' {' + dyncss+ '}',
-									sheet.cssRules.length
-								);
-							} catch (e){
-								console.log(selector + ' {' + dyncss+ '}}')
-								console.log(e);
-							}
-						}
-
-						if(typeof styleSupport['meta_xs_styles'] == 'string'){
-							styleSupport['meta_xs_styles']={};
-						}
-						styleSupport['meta_xs_styles']=styleSupport['meta_xs_styles'] || {}; 
-						var selector='@media (max-width: 575) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
-						var selector2='@media (max-width: 875) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
-						var dyncss='';
-
-						handleBackround(styleSupport['meta_xs_styles']);	
-
-						metaAccumulator=Mura.extend(metaAccumulator,styleSupport['meta_xs_styles']);
-						for(var s in metaAccumulator){
-							if(metaAccumulator.hasOwnProperty(s)){
-								if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
-									dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]]  + ': ' + metaAccumulator[s] + '!important;';
-								}		
-							}
-						}
-						if(dyncss){
-							try {
-								sheet.insertRule(
-									selector + ' {' + dyncss+ '}',
-									sheet.cssRules.length
-								);
-								sheet.insertRule(
-									selector2 + ' {' + dyncss+ '}',
-									sheet.cssRules.length
-								);
-							} catch (e){
-								console.log(selector + ' {' + dyncss+ '}}')
-								console.log(e);
-							}
-						}
-					}
-
-					if(obj.data('metacssid')){
-						meta.attr('id',obj.data('metacssid'));
-					}
-					if(obj.data('metacssclass')){
-						obj.data('metacssclass').split(' ').forEach(function(c){
-							if (!meta.hasClass(c)) {
-								meta.addClass(c);
-							}
-						})
-					}
-
-
-					if(obj.is('.mura-object-label-left, .mura-object-label-right')){
-						var left=meta.css('marginLeft');
-						var right=meta.css('marginRight')
-						if(!(left=='0px' && right=='0px') && left.charAt(0) != "-" && right.charAt(0) != "-"){
-							meta.css('width','calc(50% - (' + left + ' + ' + right + '))');
-						}
-					}
-				
-				}
-			}
-
-			
-			var contentstyles={};
-			
-			if(styleSupport && styleSupport.contentstyles && typeof contentstyles !='string'){
-				contentstyles=styleSupport.contentstyles;
-			}
-
-			var content=obj.children('.mura-object-content').first();
-
-			var selector='div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
-
-			var hasLayeredBg=false;
-
-			if(!windowResponse){
-				var contentAccumulator={};
-
-				contentstyles=contentstyles || {};
-				var selector='div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
-				var dyncss='';
-
-				handleBackround(contentstyles);
-
-				contentAccumulator=Mura.extend(contentAccumulator,contentstyles);
-				for(var s in contentAccumulator){
-					if(contentAccumulator.hasOwnProperty(s)){
-						if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
-							dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]]  + ': ' + contentAccumulator[s] + '!important;';
-						} else {
-							content.css(s,contentAccumulator[s]);
-						}		
-					}
-				}
-				if(dyncss){
-					try {
-						//console.log(selector + ' {' + dyncss+ '}')
-						sheet.insertRule(
-							selector + ' {' + dyncss+ '}',
-							sheet.cssRules.length
-						);
-					} catch (e){
-						console.log(selector + ' {' + dyncss+ '}')
-						console.log(e);
-					}
-				}
-				try {
-					if(contentstyles.color){
-						var style=selector + ', ' + selector + ' label, ' + selector + ' p, ' + selector + ' h1, ' + selector + ' h2, ' + selector + ' h3, ' + selector + ' h4, ' + selector + ' h5, ' + selector + ' h6, ' +selector + ' a:link, ' + selector + ' a:visited, '  + selector + ' a:hover, ' + selector + ' .breadcrumb-item + .breadcrumb-item::before, ' + selector + ' a:active { color:' + contentstyles.color + ';} ';
-						sheet.insertRule(
-							style,
-							sheet.cssRules.length
-						);
-						sheet.insertRule(
-							selector + ' * {color:inherit}',
-							sheet.cssRules.length
-						);
-						sheet.insertRule(
-							selector + ' hr { border-color:' + contentstyles.color + ';}',
-							sheet.cssRules.length
-						);
-					}
-				} catch (e){
-					console.log("error adding color: " + contentstyles.color);
-					console.log(e);
-				}
-
-				if(typeof styleSupport['content_lg_styles'] == 'string'){
-					styleSupport['content_lg_styles']={};
-				}
-				styleSupport['content_lg_styles']=styleSupport['content_lg_styles'] || {}; 
-				var selector='@media (max-width: 992px) and (max-width: 1199px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
-				var selector2='@media (max-width: 1292px) and (max-width: 1499px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
-				var dyncss='';
-
-				handleBackround(styleSupport['content_md_styles']);
-
-				contentAccumulator=Mura.extend(contentAccumulator,styleSupport['content_lg_styles']);
-				for(var s in contentAccumulator){
-					if(contentAccumulator.hasOwnProperty(s)){
-						if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
-							dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]]  + ': ' + contentAccumulator[s] + '!important;';
-						}		
-					}
-				}
-				if(dyncss){
-					try {
-						sheet.insertRule(
-							selector + ' {' + dyncss+ '}',
-							sheet.cssRules.length
-						);
-						sheet.insertRule(
-							selector2 + ' {' + dyncss+ '}',
-							sheet.cssRules.length
-						);
-					} catch (e){
-						console.log(selector + ' {' + dyncss+ '}}')
-						console.log(e);
-					}
-				}
-
-				if(typeof styleSupport['content_md_styles'] == 'string'){
-					styleSupport['content_md_styles']={};
-				}
-				styleSupport['content_md_styles']=styleSupport['content_md_styles'] || {}; 
-				var selector='@media (min-width: 768px) and (max-width: 991px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
-				var selector2='@media (min-width: 1068px) and (max-width: 1291px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
-				var dyncss='';
-
-				handleBackround(styleSupport['content_md_styles']);
-
-				contentAccumulator=Mura.extend(contentAccumulator,styleSupport['content_md_styles']);
-				for(var s in contentAccumulator){
-					if(contentAccumulator.hasOwnProperty(s)){
-						if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
-							dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]]  + ': ' + contentAccumulator[s] + '!important;';
-						}		
-					}
-				}
-				if(dyncss){
-					try {
-						sheet.insertRule(
-							selector + ' {' + dyncss+ '}',
-							sheet.cssRules.length
-						);
-						sheet.insertRule(
-							selector2 + ' {' + dyncss+ '}',
-							sheet.cssRules.length
-						);
-					} catch (e){
-						console.log(selector + ' {' + dyncss+ '}}')
-						console.log(e);
-						
-					}
-				}
-
-				if(typeof styleSupport['content_sm_styles'] == 'string'){
-					styleSupport['content_sm_styles']={};
-				}
-				styleSupport['content_sm_styles']=styleSupport['content_sm_styles'] || {}; 
-				var selector='@media (min-width: 576px) and (max-width: 767px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
-				var selector2='@media (min-width: 876px) and (max-width: 1067px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
-				var dyncss='';
-
-				handleBackround(styleSupport['content_sm_styles']);
-
-				contentAccumulator=Mura.extend(contentAccumulator,styleSupport['content_sm_styles']);
-				for(var s in contentAccumulator){
-					if(contentAccumulator.hasOwnProperty(s)){
-						if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
-							dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]]  + ': ' + contentAccumulator[s] + '!important;';
-						}		
-					}
-				}
-				if(dyncss){
-					try {
-						sheet.insertRule(
-							selector + ' {' + dyncss+ '}',
-							sheet.cssRules.length
-						);
-						sheet.insertRule(
-							selector2 + ' {' + dyncss+ '}',
-							sheet.cssRules.length
-						);
-					} catch (e){
-						console.log(selector + ' {' + dyncss+ '}}')
-						console.log(e);
-					}
-				}
-
-				if(typeof styleSupport['content_xs_styles'] == 'string'){
-					styleSupport['content_xs_styles']={};
-				}
-				styleSupport['content_xs_styles']=styleSupport['content_xs_styles'] || {}; 
-				var selector='@media (max-width: 575px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
-				var selector2='@media (max-width: 875px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
-				var dyncss='';
-
-				handleBackround(styleSupport['content_xs_styles']);
-
-				contentAccumulator=Mura.extend(contentAccumulator,styleSupport['content_xs_styles']);
-				for(var s in contentAccumulator){
-					if(contentAccumulator.hasOwnProperty(s)){
-						if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
-							dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]]  + ': ' + contentAccumulator[s] + '!important;';
-						}		
-					}
-				}
-				if(dyncss){
-					try {
-						sheet.insertRule(
-							selector + ' {' + dyncss+ '}',
-							sheet.cssRules.length
-						);
-						sheet.insertRule(
-							selector2 + ' {' + dyncss+ '}',
-							sheet.cssRules.length
-						);
-					} catch (e){
-						console.log(selector + ' {' + dyncss+ '}}')
-						console.log(e);
-					}
-				}
-			}
-
-			if(obj.data('contentcssid')){
-				content.attr('id',obj.data('contentcssid'));
-			}
-			if(obj.data('contentcssclass')){
-				obj.data('contentcssclass').split(' ').forEach(function(c){
-					if (!content.hasClass(c)) {
-						content.addClass(c);
-					}
-				})
-			}
-				
-			if(content.hasClass('container')){
-				metaWrapper.addClass('container');
-			} else {
-				metaWrapper.removeClass('container');
-			}
-
-			if(contentstyles){
-				content.removeAttr('style');
-				//content.css(contentstyles);
-			}
-
-			if(obj.is('.mura-object-label-left, .mura-object-label-right')){
-				var left=content.css('marginLeft');
-				var right=content.css('marginRight')
-				if(!(left=='0px' && right=='0px') && left.charAt(0) != "-" && right.charAt(0) != "-"){
-					if(fullsize){
-						content.css('width','calc(50% - (' + left + ' + ' + right + '))');
-					}
-					Mura.windowResponsiveModules[obj.data('instanceid')]=true;
-				}
-			}
-
-			var left=obj.css('marginLeft');
-			var right=obj.css('marginRight')
-			
-			if(!obj.is('.mura-center') && !(left=='0px' && right=='0px') && !(left=='auto' || right=='auto') && left.charAt(0) != "-" && right.charAt(0) != "-"){
-				if(fullsize){
-					var width='100%';
-
-					if(obj.is('.mura-one')){
-						width='8.33%';
-					} else if(obj.is('.mura-two')){
-						width='16.66%';
-					} else if(obj.is('.mura-three')){
-						width='25%';
-					} else if(obj.is('.mura-four')){
-						width='33.33%';
-					} else if(obj.is('.mura-five')){
-						width='41.66%';
-					} else if(obj.is('.mura-six')){
-						width='50%';
-					} else if(obj.is('.mura-seven')){
-						width='58.33';
-					} else if(obj.is('.mura-eigth')){
-						width='66.66%';
-					} else if(obj.is('.mura-nine')){
-						width='75%';
-					} else if(obj.is('.mura-ten')){
-						width='83.33%';
-					} else if(obj.is('.mura-eleven')){
-						width='91.66%';
-					} else if(obj.is('.mura-twelve')){
-						width='100%';
-					} else if(obj.is('.mura-one-third')){
-						width='33.33%';
-					} else if(obj.is('.mura-two-thirds')){
-						width='66.66%';
-					} else if(obj.is('.mura-one-half')){
-						width='50%';
-					} else {
-						width='100%';
-					}
-					obj.css('width','calc(' + width + ' - (' + left + ' + ' + right + '))');
-				}
-				Mura.windowResponsiveModules[obj.data('instanceid')]=true;
-			}
-
-			if(obj.css('paddingTop').replace(/[^0-9]/g,'') != '0' || obj.css('paddingLeft').replace(/[^0-9]/g,'') != '0'){
-				obj.addClass('mura-object-pin-tools');
-			} else {
-				obj.removeClass('mura-object-pin-tools');
-			}
-
- 		});
-
- 		return this;
- 	},
-
-	/**
-	 * text - Gets or sets the text content of each element in the selection
-	 *
-	 * @param	{string} textString Text string
-	 * @return {object}						Self
-	 */
-	text: function(textString) {
-		if (typeof textString != 'undefined') {
-			this.each(function(el) {
-				el.textContent = textString;
-			});
-			return this;
-		} else {
-			return this.selection[0].textContent;
-		}
-	},
-
-	/**
-	 * is - Returns if the first element in the select matches the selector
-	 *
-	 * @param	{string} selector description
-	 * @return {boolean}
-	 */
-	is: function(selector) {
-		if (!this.selection.length) {
-			return false;
-		}
-		try {
-			if (typeof this.selection[0] !== "undefined") {
-			 	return this.selection[0].matchesSelector && this.selection[0].matchesSelector(selector);
-			} else {
-				return false;
-			}
-		} catch(e){
-			return false;
-		}
-	},
-
-	/**
-	 * hasAttr - Returns is the first element in the selection has an attribute
-	 *
-	 * @param	{string} attributeName description
-	 * @return {boolean}
-	 */
-	hasAttr: function(attributeName) {
-		if (!this.selection.length) {
-			return false;
-		}
-		return typeof this.selection[0].hasAttribute ==
-			'function' && this.selection[0].hasAttribute(
-					attributeName);
-	},
-
-	/**
-	 * hasData - Returns if the first element in the selection has data attribute
-	 *
-	 * @param	{sting} attributeName Data atttribute name
-	 * @return {boolean}
-	 */
-	hasData: function(attributeName) {
-		if (!this.selection.length) {
-			return false;
-		}
-		return this.hasAttr('data-' + attributeName);
-	},
-
-
-	/**
-	 * offsetParent - Returns first element in selection's offsetParent
-	 *
-	 * @return {object}	offsetParent
-	 */
-	offsetParent: function() {
-		if (!this.selection.length) {
-			return this;
-		}
-		var el = this.selection[0];
-		return el.offsetParent || el;
-	},
-
-	/**
-	 * outerHeight - Returns first element in selection's outerHeight
-	 *
-	 * @param	{boolean} withMargin Whether to include margin
-	 * @return {number}
-	 */
-	outerHeight: function(withMargin) {
-		if (!this.selection.length) {
-			return this;
-		}
-		if (typeof withMargin == 'undefined') {
-			function outerHeight(el) {
-				var height = el.offsetHeight;
-				var style = getComputedStyle(el);
-				height += parseInt(style.marginTop) + parseInt(style.marginBottom);
-				return height;
-			}
-			return outerHeight(this.selection[0]);
-		} else {
-			return this.selection[0].offsetHeight;
-		}
-	},
-
-	/**
-	 * height - Returns height of first element in selection or set height for elements in selection
-	 *
-	 * @param	{number} height	Height (option)
-	 * @return {object}				Self
-	 */
-	height: function(height) {
-		if (!this.selection.length) {
-			return this;
-		}
-		if (typeof width != 'undefined') {
-			if (!isNaN(height)) {
-					height += 'px';
-			}
-			this.css('height', height);
-			return this;
-		}
-		var el = this.selection[0];
-		//var type=el.constructor.name.toLowerCase();
-		if (typeof window !='undefined' && typeof window.document != 'undefined' && el === window) {
-			return innerHeight
-		} else if (el === document) {
-			var body = document.body;
-			var html = document.documentElement;
-			return Math.max(body.scrollHeight, body.offsetHeight,
-				html.clientHeight, html.scrollHeight,
-				html.offsetHeight)
-		}
-		var styles = getComputedStyle(el);
-		var margin = parseFloat(styles['marginTop']) + parseFloat(styles['marginBottom']);
-		return Math.ceil(el.offsetHeight + margin);
-	},
-
-	/**
-	 * width - Returns width of first element in selection or set width for elements in selection
-	 *
-	 * @param	{number} width Width (optional)
-	 * @return {object}			 Self
-	 */
-	width: function(width) {
-		if (!this.selection.length) {
-			return this;
-		}
-		if (typeof width != 'undefined') {
-			if (!isNaN(width)) {
-				width += 'px';
-			}
-			this.css('width', width);
-			return this;
-		}
-		var el = this.selection[0];
-		//var type=el.constructor.name.toLowerCase();
-		if (typeof window !='undefined' && typeof window.document != 'undefined' && el === window) {
-			return innerWidth
-		} else if (el === document) {
-			var body = document.body;
-			var html = document.documentElement;
-		return Math.max(body.scrollWidth, body.offsetWidth,
-				html.clientWidth, html.scrolWidth,
-				html.offsetWidth)
-		}
-		return getComputedStyle(el).width;
-	},
-
-	/**
-	 * width - Returns outerWidth of first element in selection
-	 *
-	 * @return {number}
-	 */
-	outerWidth: function() {
-		if (!this.selection.length) {
-			return 0;
-		}
-		var el = this.selection[0];
-		var width = el.offsetWidth;
-		var style = getComputedStyle(el);
-
-		width += parseInt(style.marginLeft) + parseInt(style.marginRight);
-		return width;
-	},
-
-	/**
-	 * scrollTop - Returns the scrollTop of the current document
-	 *
-	 * @return {object}
-	 */
-	scrollTop: function() {
-		if (!this.selection.length) {
-			return 0;
-		}
-		var el = this.selection[0];
-		if(typeof el.scrollTop != 'undefined'){
-			return el.scrollTop;
-		} else {
-			return	window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
-		}
-	},
-
-	/**
-	 * offset - Returns offset of first element in selection
-	 *
-	 * @return {object}
-	 */
-	offset: function() {
-		if (!this.selection.length) {
-			return this;
-		}
-		var box = this.selection[0].getBoundingClientRect();
-		return {
-			top: box.top + (pageYOffset || document.scrollTop) -
-					(document.clientTop || 0),
-			left: box.left + (pageXOffset || document.scrollLeft) -
-					(document.clientLeft || 0)
-		};
-	},
-
-	/**
-	 * removeAttr - Removes attribute from elements in selection
-	 *
-	 * @param	{string} attributeName Attribute name
-	 * @return {object}							 Self
-	 */
-	removeAttr: function(attributeName) {
-		if (!this.selection.length) {
-				return this;
-		}
-		this.each(function(el) {
-			if (el && typeof el.removeAttribute == 'function') {
-				el.removeAttribute(attributeName);
-			}
-		});
-		return this;
-	},
-
-	/**
-	 * changeElementType - Changes element type of elements in selection
-	 *
-	 * @param	{string} type Element type to change to
-	 * @return {Mura.DOMSelection} Self
-	 */
-	changeElementType: function(type) {
-		if (!this.selection.length) {
-			return this;
-		}
-		this.each(function(el) {
-			Mura.changeElementType(el, type)
-		});
-		return this;
-	},
-
-	/**
-	 * val - Set the value of elements in selection
-	 *
-	 * @param	{*} value Value
-	 * @return {Mura.DOMSelection} Self
-	 */
-	val: function(value) {
-		if (!this.selection.length) {
-			return this;
-		}
-		if (typeof value != 'undefined') {
-			this.each(function(el) {
-				if (el.tagName == 'radio') {
-					if (el.value == value) {
-						el.checked = true;
-					} else {
-						el.checked = false;
-					}
-				} else {
-					el.value = value;
-				}
-			});
-			return this;
-		} else {
-			if (Object.prototype.hasOwnProperty.call(this.selection[0], 'value') ||
-				typeof this.selection[0].value != 'undefined') {
-				return this.selection[0].value;
-			} else {
-				return '';
-			}
-		}
-	},
-
-	/**
-	 * attr - Returns attribute value of first element in selection or set attribute value for elements in selection
-	 *
-	 * @param	{string} attributeName Attribute name
-	 * @param	{*} value				 Value (optional)
-	 * @return {Mura.DOMSelection} Self
-	 */
-	attr: function(attributeName, value) {
-		if (!this.selection.length) {
-			return this;
-		}
-		if (typeof value == 'undefined' && typeof attributeName =='undefined') {
-			return Mura.getAttributes(this.selection[0]);
-		} else if (typeof attributeName == 'object') {
-			this.each(function(el) {
-				if (el.setAttribute) {
-					for (var p in attributeName) {
-						el.setAttribute(p,attributeName[p]);
-					}
-				}
-			});
-			return this;
-		} else if (typeof value != 'undefined') {
-			this.each(function(el) {
-				if (el.setAttribute) {
-					el.setAttribute(attributeName,value);
-				}
-			});
-			return this;
-		} else {
-			if (this.selection[0] && this.selection[0].getAttribute) {
-				return this.selection[0].getAttribute(attributeName);
-			} else {
-				return undefined;
-			}
-
-		}
-	},
-
-	/**
-	 * data - Returns data attribute value of first element in selection or set data attribute value for elements in selection
-	 *
-	 * @param	{string} attributeName Attribute name
-	 * @param	{*} value				 Value (optional)
-	 * @return {Mura.DOMSelection} Self
-	 */
-	data: function(attributeName, value) {
-		if (!this.selection.length) {
-			return this;
-		}
-		if (typeof value == 'undefined' && typeof attributeName == 'undefined') {
-			return Mura.getData(this.selection[0]);
-		} else if (typeof attributeName == 'object') {
-			this.each(function(el) {
-				for (var p in attributeName) {
-					el.setAttribute("data-" + p,attributeName[p]);
-				}
-			});
-			return this;
-		} else if (typeof value != 'undefined') {
-			this.each(function(el) {
-				el.setAttribute("data-" + attributeName, value);
-			});
-			return this;
-		} else if (this.selection[0] && this.selection[	0].getAttribute) {
-			return Mura.parseString(this.selection[0].getAttribute("data-" + attributeName));
-		} else {
-			return undefined;
-		}
-	},
-
-	/**
-	 * prop - Returns attribute value of first element in selection or set attribute value for elements in selection
-	 *
-	 * @param	{string} attributeName Attribute name
-	 * @param	{*} value				 Value (optional)
-	 * @return {Mura.DOMSelection} Self
-	 */
-	prop: function(attributeName, value) {
-			if (!this.selection.length) {
-				return this;
-			}
-			if (typeof value == 'undefined' && typeof attributeName == 'undefined') {
-				return Mura.getProps(this.selection[0]);
-			} else if (typeof attributeName == 'object') {
-				this.each(function(el) {
-					for (var p in attributeName) {
-						el.setAttribute(p,attributeName[p]);
-					}
-				});
-				return this;
-			} else if (typeof value != 'undefined') {
-				this.each(function(el) {
-					el.setAttribute(attributeName,value);
-				});
-				return this;
-			} else {
-				return Mura.parseString(this.selection[0].getAttribute(attributeName));
-			}
-	},
-
-	/**
-	 * fadeOut - Fades out elements in selection
-	 *
-	 * @return {Mura.DOMSelection} Self
-	 */
-	fadeOut: function() {
-		this.each(function(el) {
-			el.style.opacity = 1;
-			(function fade() {
-				if ((el.style.opacity -= .1) < 	0) {
-					el.style.opacity=0;
-					el.style.display = "none";
-				} else {
-					requestAnimationFrame(fade);
-				}
-			})();
-		});
-		return this;
-	},
-
-	/**
-	 * fadeIn - Fade in elements in selection
-	 *
-	 * @param	{string} display Display value
-	 * @return {Mura.DOMSelection} Self
-	 */
-	fadeIn: function(display) {
-			this.each(function(el) {
-				el.style.opacity = 0;
-				el.style.display = display ||	"block";
-				(function fade() {
-					var val = parseFloat(el.style.opacity);
-					if (!((val += .1) > 1)) {
-						el.style.opacity = val;
-						requestAnimationFrame(fade);
-					}
-				})();
-			});
-			return this;
-	},
-
-	/**
-	 * toggle - Toggles display object elements in selection
-	 *
-	 * @return {Mura.DOMSelection} Self
-	 */
-	toggle: function() {
-		this.each(function(el) {
-			if (typeof el.style.display ==
-				'undefined' || el.style.display ==
-				'') {
-				el.style.display = 'none';
-			} else {
-				el.style.display = '';
-			}
-		});
-		return this;
-	},
-	/**
-	 * slideToggle - Place holder
-	 *
-	 * @return {Mura.DOMSelection} Self
-	 */
-	slideToggle: function() {
-		this.each(function(el) {
-			if (typeof el.style.display ==
-				'undefined' || el.style.display ==
-				'') {
-				el.style.display = 'none';
-			} else {
-				el.style.display = '';
-			}
-		});
-		return this;
-	},
-
-	/**
-	 * focus - sets focus of the first select element
-	 *
-	 * @return {self}
-	 */
-	focus: function() {
-		if (!this.selection.length) {
-			return this;
-		}
-		this.selection[0].focus();
-		return this;
-	},
-
-	/**
-	 * renderEditableAttr- Returns a string with editable attriute markup markup.
-	 *
-	 * @param	{object} params Keys: name, type, required, validation, message, label
-	 * @return {self}
-	 */
-	makeEditableAttr:function(params){
-		if (!this.selection.length) {
-			return this;
-		}
-		var value=this.selection[0].innerHTML;
-		params=params || {};
-		if(!params.name){
-			return this;
-		}
-		params.type=params.type || "text";
-		if(typeof params.required == 'undefined'){
-			params.required=false;
-		}
-		if(typeof params.validation == 'undefined'){
-			params.validation='';
-		}
-		if(typeof params.message == 'undefined'){
-			params.message='';
-		}
-		if(typeof params.label == 'undefined'){
-			params.label=params.name;
-		}
-		var outerClass="mura-editable mura-inactive";
-		var innerClass="mura-inactive mura-editable-attribute";
-		if(params.type=="htmlEditor"){
-			outerClass += " mura-region mura-region-loose";
-			innerClass += " mura-region-local";
-		} else {
-			outerClass += " inline";
-			innerClass += " inline";
-		}
-		var innerClass="mura-inactive mura-editable-attribute";
-		/*
-		<div class="mura-editable mura-inactive inline">
-		<label class="mura-editable-label" style="">TITLE</label>
-		<div contenteditable="false" id="mura-editable-attribute-title" class="mura-inactive mura-editable-attribute inline" data-attribute="title" data-type="text" data-required="false" data-message="" data-label="title">About</div>
-		</div>
-
-		<div class="mura-region mura-region-loose mura-editable mura-inactive">
-		<label class="mura-editable-label" style="">BODY</label>
-		<div contenteditable="false" id="mura-editable-attribute-body" class="mura-region-local mura-inactive mura-editable-attribute" data-attribute="body" data-type="htmlEditor" data-required="false" data-message="" data-label="body" data-loose="true" data-perm="true" data-inited="false"></div>
-		</div>
-		*/
-		var markup='<div class="' + outerClass + '">';
-		markup +='<div contenteditable="false" id="mura-editable-attribute-' + params.name +' class="' + innerClass + '" ';
-		markup += ' data-attribute="' + params.name + '" ';
-		markup += ' data-type="' + params.type + '" ';
-		markup += ' data-required="' + params.required + '" ';
-		markup += ' data-message="' + params.message + '" ';
-		markup += ' data-label="' + params.label + '"';
-		if(params.type == 'htmlEditor'){
-			markup += ' data-loose="true" data-perm="true" data-inited="false"';
-		}
-		markup += '>' + value + '</div>';
-		markup += '<label class="mura-editable-label" style="display:none">' + params.label.toUpperCase() + '</label>';
-		markup +=	'</div>';
-		this.selection[0].innerHTML=markup;
-		Mura.evalScripts(this.selection[0]);
-		return this;
-	},
-
-	/**
-	* processDisplayRegion - Renders and processes the display region data returned from Mura.renderFilename()
-	*
-	* @param	{any} data Region data to render
-	* @return {Promise}
-	*/
-	processDisplayRegion:function(data,label){
-		if (typeof data == 'undefined' || !this.selection.length) {
-				return this.processMarkup();
-		}
-		this.html(Mura.buildDisplayRegion(data));
-		if(label != 'undefined'){
-			this.find('label.mura-editable-label').html('DISPLAY REGION : ' + data.label);
-		}
-		return this.processMarkup();
-	},
-
-	/**
-	 * appendDisplayObject - Appends display object to selected items
-	 *
-	 * @param	{object} data Display objectparams (including object='objectkey')
-	 * @return {Promise}
-	 */
-	dspObject:function(data){
-		return this.appendDisplayObject(data);
-	}
-});
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+var Mura = __webpack_require__(8);
+
+(function (Mura) {
+  "use strict";
+  /**
+   * Creates a new Mura.DOMSelection
+   * @name	Mura.DOMSelection
+   * @class
+   * @param	{object} properties Object containing values to set into object
+   * @return {Mura.DOMSelection}
+   * @extends Mura.Core
+   * @memberof Mura
+   */
+
+  /**
+  * @ignore
+  */
+
+  Mura.DOMSelection = Mura.Core.extend(
+  /** @lends Mura.DOMSelection.prototype */
+  {
+    init: function init(selection, origSelector) {
+      this.selection = selection;
+      this.origSelector = origSelector;
+
+      if (this.selection.length && this.selection[0]) {
+        this.parentNode = this.selection[0].parentNode;
+        this.childNodes = this.selection[0].childNodes;
+        this.node = selection[0];
+        this.length = this.selection.length;
+      } else {
+        this.parentNode = null;
+        this.childNodes = null;
+        this.node = null;
+        this.length = 0;
+      }
+
+      if (typeof Mura.supportPassive == 'undefined') {
+        Mura.supportsPassive = false;
+
+        try {
+          var opts = Object.defineProperty({}, 'passive', {
+            get: function get() {
+              Mura.supportsPassive = true;
+            }
+          });
+          window.addEventListener("testPassive", null, opts);
+          window.removeEventListener("testPassive", null, opts);
+        } catch (e) {}
+      }
+    },
+
+    /**
+     * get - Deprecated: Returns element at index of selection, use item()
+     *
+     * @param	{number} index Index of selection
+     * @return {*}
+     */
+    get: function get(index) {
+      if (typeof index != 'undefined') {
+        return this.selection[index];
+      } else {
+        return this.selection;
+      }
+    },
+
+    /**
+     * select - Returns new Mura.DomSelection
+     *
+     * @param	{string} selector Selector
+     * @return {object}
+     */
+    select: function select(selector) {
+      return Mura(selector);
+    },
+
+    /**
+     * each - Runs function against each item in selection
+     *
+     * @param	{function} fn Method
+     * @return {Mura.DOMSelection} Self
+     */
+    each: function each(fn) {
+      this.selection.forEach(function (el, idx, array) {
+        if (typeof fn.call == 'undefined') {
+          fn(el, idx, array);
+        } else {
+          fn.call(el, el, idx, array);
+        }
+      });
+      return this;
+    },
+
+    /**
+     * each - Runs function against each item in selection
+     *
+     * @param	{function} fn Method
+     * @return {Mura.DOMSelection} Self
+     */
+    forEach: function forEach(fn) {
+      this.selection.forEach(function (el, idx, array) {
+        if (typeof fn.call == 'undefined') {
+          fn(el, idx, array);
+        } else {
+          fn.call(el, el, idx, array);
+        }
+      });
+      return this;
+    },
+
+    /**
+     * filter - Creates a new Mura.DomSelection instance contains selection values that pass filter function by returning true
+     *
+     * @param	{function} fn Filter function
+     * @return {object}		New Mura.DOMSelection
+     */
+    filter: function filter(fn) {
+      return Mura(this.selection.filter(function (el, idx, array) {
+        if (typeof fn.call == 'undefined') {
+          return fn(el, idx, array);
+        } else {
+          return fn.call(el, el, idx, array);
+        }
+      }));
+    },
+
+    /**
+     * map - Creates a new Mura.DomSelection instance contains selection values that are returned by Map function
+     *
+     * @param	{function} fn Map function
+     * @return {object}		New Mura.DOMSelection
+     */
+    map: function map(fn) {
+      return Mura(this.selection.map(function (el, idx, array) {
+        if (typeof fn.call == 'undefined') {
+          return fn(el, idx, array);
+        } else {
+          return fn.call(el, el, idx, array);
+        }
+      }));
+    },
+
+    /**
+     * reduce - Returns value from	reduce function
+     *
+     * @param	{function} fn Reduce function
+     * @param	{any} initialValue Starting accumulator value
+     * @return {accumulator}
+     */
+    reduce: function reduce(fn, initialValue) {
+      initialValue = initialValue || 0;
+      return this.selection.reduce(function (accumulator, item, idx, array) {
+        if (typeof fn.call == 'undefined') {
+          return fn(accumulator, item, idx, array);
+        } else {
+          return fn.call(item, accumulator, item, idx, array);
+        }
+      }, initialValue);
+    },
+
+    /**
+     * isNumeric - Returns if value is numeric
+     *
+     * @param	{*} val Value
+     * @return {type}		 description
+     */
+    isNumeric: function (_isNumeric) {
+      function isNumeric(_x) {
+        return _isNumeric.apply(this, arguments);
+      }
+
+      isNumeric.toString = function () {
+        return _isNumeric.toString();
+      };
+
+      return isNumeric;
+    }(function (val) {
+      if (typeof val != 'undefined') {
+        return isNumeric(val);
+      }
+
+      return isNumeric(this.selection[0]);
+    }),
+
+    /**
+     * processMarkup - Process Markup of selected dom elements
+     *
+     * @return {Promise}
+     */
+    processMarkup: function processMarkup() {
+      var self = this;
+      return new Promise(function (resolve, reject) {
+        self.each(function (el) {
+          Mura.processMarkup(el);
+        });
+      });
+    },
+
+    /**
+     * addEventHandler - Add event event handling object
+     *
+     * @param	{string} selector	Selector (optional: for use with delegated events)
+     * @param	{object} handler				description
+     * @return {Mura.DOMSelection} Self
+     */
+    addEventHandler: function addEventHandler(selector, handler) {
+      if (typeof handler == 'undefined') {
+        handler = selector;
+        selector = '';
+      }
+
+      for (var h in handler) {
+        if (eventName.hasOwnProperty(h)) {
+          if (typeof selector == 'string' && selector) {
+            on(h, selector, handler[h]);
+          } else {
+            on(h, handler[h]);
+          }
+        }
+      }
+
+      return this;
+    },
+
+    /**
+     * on - Add event handling method
+     *
+     * @param	{string} eventName Event name
+     * @param	{string} selector	Selector (optional: for use with delegated events)
+     * @param	{function} fn				description
+     * @return {Mura.DOMSelection} Self
+     */
+    on: function on(eventName, selector, fn, EventListenerOptions) {
+      if (typeof EventListenerOptions == 'undefined') {
+        if (typeof fn != 'undefined' && typeof fn != 'function') {
+          EventListenerOptions = fn;
+        } else {
+          EventListenerOptions = true;
+        }
+      }
+
+      if (eventName == 'touchstart' || eventName == 'end') {
+        EventListenerOptions = Mura.supportsPassive ? {
+          passive: true
+        } : false;
+      }
+
+      if (typeof selector == 'function') {
+        fn = selector;
+        selector = '';
+      }
+
+      if (eventName == 'ready') {
+        if (document.readyState != 'loading') {
+          var self = this;
+          setTimeout(function () {
+            self.each(function () {
+              if (selector) {
+                Mura(this).find(selector).each(function () {
+                  if (typeof fn.call == 'undefined') {
+                    fn(this);
+                  } else {
+                    fn.call(this, this);
+                  }
+                });
+              } else {
+                if (typeof fn.call == 'undefined') {
+                  fn(this);
+                } else {
+                  fn.call(this, this);
+                }
+              }
+            });
+          }, 1);
+          return this;
+        } else {
+          eventName = 'DOMContentLoaded';
+        }
+      }
+
+      this.each(function () {
+        if (typeof this.addEventListener == 'function') {
+          var self = this;
+          this.addEventListener(eventName, function (event) {
+            if (selector) {
+              if (Mura(event.target).is(selector)) {
+                if (typeof fn.call == 'undefined') {
+                  return fn(event);
+                } else {
+                  return fn.call(event.target, event);
+                }
+              }
+            } else {
+              if (typeof fn.call == 'undefined') {
+                return fn(event);
+              } else {
+                return fn.call(self, event);
+              }
+            }
+          }, EventListenerOptions);
+        }
+      });
+      return this;
+    },
+
+    /**
+     * hover - Adds hovering events to selected dom elements
+     *
+     * @param	{function} handlerIn	In method
+     * @param	{function} handlerOut Out method
+     * @return {object}						Self
+     */
+    hover: function hover(handlerIn, handlerOut, EventListenerOptions) {
+      if (typeof EventListenerOptions == 'undefined' || EventListenerOptions == null) {
+        EventListenerOptions = Mura.supportsPassive ? {
+          passive: true
+        } : false;
+      }
+
+      this.on('mouseover', handlerIn, EventListenerOptions);
+      this.on('mouseout', handlerOut, EventListenerOptions);
+      this.on('touchstart', handlerIn, EventListenerOptions);
+      this.on('touchend', handlerOut, EventListenerOptions);
+      return this;
+    },
+
+    /**
+     * click - Adds onClick event handler to selection
+     *
+     * @param	{function} fn Handler function
+     * @return {Mura.DOMSelection} Self
+     */
+    click: function click(fn) {
+      this.on('click', fn);
+      return this;
+    },
+
+    /**
+     * change - Adds onChange event handler to selection
+     *
+     * @param	{function} fn Handler function
+     * @return {Mura.DOMSelection} Self
+     */
+    change: function change(fn) {
+      this.on('change', fn);
+      return this;
+    },
+
+    /**
+     * submit - Adds onSubmit event handler to selection
+     *
+     * @param	{function} fn Handler function
+     * @return {Mura.DOMSelection} Self
+     */
+    submit: function submit(fn) {
+      if (fn) {
+        this.on('submit', fn);
+      } else {
+        this.each(function (el) {
+          if (typeof el.submit == 'function') {
+            Mura.submitForm(el);
+          }
+        });
+      }
+
+      return this;
+    },
+
+    /**
+     * ready - Adds onReady event handler to selection
+     *
+     * @param	{function} fn Handler function
+     * @return {Mura.DOMSelection} Self
+     */
+    ready: function ready(fn) {
+      this.on('ready', fn);
+      return this;
+    },
+
+    /**
+     * off - Removes event handler from selection
+     *
+     * @param	{string} eventName Event name
+     * @param	{function} fn			Function to remove	(optional)
+     * @return {Mura.DOMSelection} Self
+     */
+    off: function off(eventName, fn) {
+      this.each(function (el, idx, array) {
+        if (typeof eventName != 'undefined') {
+          if (typeof fn != 'undefined') {
+            el.removeEventListener(eventName, fn);
+          } else {
+            el[eventName] = null;
+          }
+        } else {
+          if (typeof el.parentElement != 'undefined' && el.parentElement && typeof el.parentElement.replaceChild != 'undefined') {
+            var elClone = el.cloneNode(true);
+            el.parentElement.replaceChild(elClone, el);
+            array[idx] = elClone;
+          } else {
+            console.log("Mura: Can not remove all handlers from element without a parent node");
+          }
+        }
+      });
+      return this;
+    },
+
+    /**
+     * unbind - Removes event handler from selection
+     *
+     * @param	{string} eventName Event name
+     * @param	{function} fn			Function to remove	(optional)
+     * @return {Mura.DOMSelection} Self
+     */
+    unbind: function unbind(eventName, fn) {
+      this.off(eventName, fn);
+      return this;
+    },
+
+    /**
+     * bind - Add event handling method
+     *
+     * @param	{string} eventName Event name
+     * @param	{string} selector	Selector (optional: for use with delegated events)
+     * @param	{function} fn				description
+     * @return {Mura.DOMSelection}					 Self
+     */
+    bind: function bind(eventName, fn) {
+      this.on(eventName, fn);
+      return this;
+    },
+
+    /**
+     * trigger - Triggers event on selection
+     *
+     * @param	{string} eventName	 Event name
+     * @param	{object} eventDetail Event properties
+     * @return {Mura.DOMSelection}						 Self
+     */
+    trigger: function trigger(eventName, eventDetail) {
+      eventDetail = eventDetail || {};
+      this.each(function (el) {
+        Mura.trigger(el, eventName, eventDetail);
+      });
+      return this;
+    },
+
+    /**
+     * parent - Return new Mura.DOMSelection of the first elements parent
+     *
+     * @return {Mura.DOMSelection}
+     */
+    parent: function parent() {
+      if (!this.selection.length) {
+        return this;
+      }
+
+      return Mura(this.selection[0].parentNode);
+    },
+
+    /**
+     * children - Returns new Mura.DOMSelection or the first elements children
+     *
+     * @param	{string} selector Filter (optional)
+     * @return {Mura.DOMSelection}
+     */
+    children: function children(selector) {
+      if (!this.selection.length) {
+        return this;
+      }
+
+      if (this.selection[0].hasChildNodes()) {
+        var children = Mura(this.selection[0].childNodes);
+
+        if (typeof selector == 'string') {
+          var filterFn = function filterFn() {
+            return (this.nodeType === 1 || this.nodeType === 11 || this.nodeType === 9) && this.matchesSelector(selector);
+          };
+        } else {
+          var filterFn = function filterFn() {
+            return this.nodeType === 1 || this.nodeType === 11 || this.nodeType === 9;
+          };
+        }
+
+        return children.filter(filterFn);
+      } else {
+        return Mura([]);
+      }
+    },
+
+    /**
+     * find - Returns new Mura.DOMSelection matching items under the first selection
+     *
+     * @param	{string} selector Selector
+     * @return {Mura.DOMSelection}
+     */
+    find: function find(selector) {
+      if (this.selection.length && this.selection[0]) {
+        var removeId = false;
+
+        if (this.selection[0].nodeType == '1' || this.selection[0].nodeType == '11') {
+          var result = this.selection[0].querySelectorAll(selector);
+        } else if (this.selection[0].nodeType == '9') {
+          var result = document.querySelectorAll(selector);
+        } else {
+          var result = [];
+        }
+
+        return Mura(result);
+      } else {
+        return Mura([]);
+      }
+    },
+
+    /**
+     * first - Returns first item in selection
+     *
+     * @return {*}
+     */
+    first: function first() {
+      if (this.selection.length) {
+        return Mura(this.selection[0]);
+      } else {
+        return Mura([]);
+      }
+    },
+
+    /**
+     * last - Returns last item in selection
+     *
+     * @return {*}
+     */
+    last: function last() {
+      if (this.selection.length) {
+        return Mura(this.selection[this.selection.length - 1]);
+      } else {
+        return Mura([]);
+      }
+    },
+
+    /**
+     * selector - Returns css selector for first item in selection
+     *
+     * @return {string}
+     */
+    selector: function selector() {
+      var pathes = [];
+      var path,
+          node = Mura(this.selection[0]);
+
+      while (node.length) {
+        var realNode = node.get(0),
+            name = realNode.localName;
+
+        if (!name) {
+          break;
+        }
+
+        if (!node.data('hastempid') && node.attr('id') && node.attr('id') != 'mura-variation-el') {
+          name = '#' + node.attr('id');
+          path = name + (path ? ' > ' + path : '');
+          break;
+        } else {
+          name = name.toLowerCase();
+          var parent = node.parent();
+          var sameTagSiblings = parent.children(name);
+
+          if (sameTagSiblings.length > 1) {
+            var allSiblings = parent.children();
+            var index = allSiblings.index(realNode) + 1;
+
+            if (index > 0) {
+              name += ':nth-child(' + index + ')';
+            }
+          }
+
+          path = name + (path ? ' > ' + path : '');
+          node = parent;
+        }
+      }
+
+      pathes.push(path);
+      return pathes.join(',');
+    },
+
+    /**
+     * siblings - Returns new Mura.DOMSelection of first item's siblings
+     *
+     * @param	{string} selector Selector to filter siblings (optional)
+     * @return {Mura.DOMSelection}
+     */
+    siblings: function siblings(selector) {
+      if (!this.selection.length) {
+        return this;
+      }
+
+      var el = this.selection[0];
+
+      if (el.hasChildNodes()) {
+        var silbings = Mura(this.selection[0].childNodes);
+
+        if (typeof selector == 'string') {
+          var filterFn = function filterFn() {
+            return (this.nodeType === 1 | this.nodeType === 11 || this.nodeType === 9) && this.matchesSelector(selector);
+          };
+        } else {
+          var filterFn = function filterFn() {
+            return this.nodeType === 1 || this.nodeType === 11 || this.nodeType === 9;
+          };
+        }
+
+        return silbings.filter(filterFn);
+      } else {
+        return Mura([]);
+      }
+    },
+
+    /**
+     * item - Returns item at selected index
+     *
+     * @param	{number} idx Index to return
+     * @return {*}
+     */
+    item: function item(idx) {
+      return this.selection[idx];
+    },
+
+    /**
+     * index - Returns the index of element
+     *
+     * @param	{*} el Element to return index of
+     * @return {*}
+     */
+    index: function index(el) {
+      return this.selection.indexOf(el);
+    },
+
+    /**
+     * indexOf - Returns the index of element
+     *
+     * @param	{*} el Element to return index of
+     * @return {*}
+     */
+    indexOf: function indexOf(el) {
+      return this.selection.indexOf(el);
+    },
+
+    /**
+     * closest - Returns new Mura.DOMSelection of closest parent matching selector
+     *
+     * @param	{string} selector Selector
+     * @return {Mura.DOMSelection}
+     */
+    closest: function closest(selector) {
+      if (!this.selection.length) {
+        return null;
+      }
+
+      var el = this.selection[0];
+
+      for (var parent = el; parent !== null && parent.matchesSelector && !parent.matchesSelector(selector); parent = el.parentElement) {
+        el = parent;
+      }
+
+      ;
+
+      if (parent) {
+        return Mura(parent);
+      } else {
+        return Mura([]);
+      }
+    },
+
+    /**
+     * append - Appends element to items in selection
+     *
+     * @param	{*} el Element to append
+     * @return {Mura.DOMSelection} Self
+     */
+    append: function append(el) {
+      this.each(function () {
+        if (typeof el == 'string') {
+          this.insertAdjacentHTML('beforeend', el);
+        } else {
+          this.appendChild(el);
+        }
+      });
+      return this;
+    },
+
+    /**
+     * appendDisplayObject - Appends display object to selected items
+     *
+     * @param	{object} data Display objectparams (including object='objectkey')
+     * @return {Promise}
+     */
+    appendDisplayObject: function appendDisplayObject(data) {
+      var self = this;
+      delete data.method;
+
+      if (typeof data["transient"] == 'undefined') {
+        data["transient"] = true;
+      }
+
+      return new Promise(function (resolve, reject) {
+        self.each(function () {
+          var el = document.createElement('div');
+          el.setAttribute('class', 'mura-object');
+
+          for (var a in data) {
+            if (_typeof(data[a]) == 'object') {
+              el.setAttribute('data-' + a, JSON.stringify(data[a]));
+            } else {
+              el.setAttribute('data-' + a, data[a]);
+            }
+          }
+
+          if (typeof data.async == 'undefined') {
+            el.setAttribute('data-async', true);
+          }
+
+          if (typeof data.render == 'undefined') {
+            el.setAttribute('data-render', 'server');
+          }
+
+          el.setAttribute('data-instanceid', Mura.createUUID());
+          var self = this;
+
+          function watcher() {
+            if (Mura.markupInitted) {
+              Mura(self).append(el);
+              Mura.processDisplayObject(el, true, true).then(resolve, reject);
+            } else {
+              setTimeout(watcher);
+            }
+          }
+
+          watcher();
+        });
+      });
+    },
+
+    /**
+     * appendModule - Appends display object to selected items
+     *
+     * @param	{object} data Display objectparams (including object='objectkey')
+     * @return {Promise}
+     */
+    appendModule: function appendModule(data) {
+      return this.appendDisplayObject(data);
+    },
+
+    /**
+     * insertDisplayObjectAfter - Inserts display object after selected items
+     *
+     * @param	{object} data Display objectparams (including object='objectkey')
+     * @return {Promise}
+     */
+    insertDisplayObjectAfter: function insertDisplayObjectAfter(data) {
+      var self = this;
+      delete data.method;
+
+      if (typeof data["transient"] == 'undefined') {
+        data["transient"] = true;
+      }
+
+      return new Promise(function (resolve, reject) {
+        self.each(function () {
+          var el = document.createElement('div');
+          el.setAttribute('class', 'mura-object');
+
+          for (var a in data) {
+            el.setAttribute('data-' + a, data[a]);
+          }
+
+          if (typeof data.async == 'undefined') {
+            el.setAttribute('data-async', true);
+          }
+
+          if (typeof data.render == 'undefined') {
+            el.setAttribute('data-render', 'server');
+          }
+
+          el.setAttribute('data-instanceid', Mura.createUUID());
+          var self = this;
+
+          function watcher() {
+            if (Mura.markupInitted) {
+              Mura(self).after(el);
+              Mura.processDisplayObject(el, true, true).then(resolve, reject);
+            } else {
+              setTimeout(watcher);
+            }
+          }
+
+          watcher();
+        });
+      });
+    },
+
+    /**
+     * insertModuleAfter - Appends display object to selected items
+     *
+     * @param	{object} data Display objectparams (including object='objectkey')
+     * @return {Promise}
+     */
+    insertModuleAfter: function insertModuleAfter(data) {
+      return this.insertDisplayObjectAfter(data);
+    },
+
+    /**
+     * insertDisplayObjectBefore - Inserts display object after selected items
+     *
+     * @param	{object} data Display objectparams (including object='objectkey')
+     * @return {Promise}
+     */
+    insertDisplayObjectBefore: function insertDisplayObjectBefore(data) {
+      var self = this;
+      delete data.method;
+
+      if (typeof data["transient"] == 'undefined') {
+        data["transient"] = true;
+      }
+
+      return new Promise(function (resolve, reject) {
+        self.each(function () {
+          var el = document.createElement('div');
+          el.setAttribute('class', 'mura-object');
+
+          for (var a in data) {
+            el.setAttribute('data-' + a, data[a]);
+          }
+
+          if (typeof data.async == 'undefined') {
+            el.setAttribute('data-async', true);
+          }
+
+          if (typeof data.render == 'undefined') {
+            el.setAttribute('data-render', 'server');
+          }
+
+          el.setAttribute('data-instanceid', Mura.createUUID());
+          var self = this;
+
+          function watcher() {
+            if (Mura.markupInitted) {
+              Mura(self).before(el);
+              Mura.processDisplayObject(el, true, true).then(resolve, reject);
+            } else {
+              setTimeout(watcher);
+            }
+          }
+
+          watcher();
+        });
+      });
+    },
+
+    /**
+     * insertModuleBefore - Appends display object to selected items
+     *
+     * @param	{object} data Display objectparams (including object='objectkey')
+     * @return {Promise}
+     */
+    insertModuleBefore: function insertModuleBefore(data) {
+      return this.insertDisplayObjectBefore(data);
+    },
+
+    /**
+     * prependDisplayObject - Prepends display object to selected items
+     *
+     * @param	{object} data Display objectparams (including object='objectkey')
+     * @return {Promise}
+     */
+    prependDisplayObject: function prependDisplayObject(data) {
+      var self = this;
+      delete data.method;
+
+      if (typeof data["transient"] == 'undefined') {
+        data["transient"] = true;
+      }
+
+      return new Promise(function (resolve, reject) {
+        self.each(function () {
+          var el = document.createElement('div');
+          el.setAttribute('class', 'mura-object');
+
+          for (var a in data) {
+            el.setAttribute('data-' + a, data[a]);
+          }
+
+          if (typeof data.async == 'undefined') {
+            el.setAttribute('data-async', true);
+          }
+
+          if (typeof data.render == 'undefined') {
+            el.setAttribute('data-render', 'server');
+          }
+
+          el.setAttribute('data-instanceid', Mura.createUUID());
+          var self = this;
+
+          function watcher() {
+            if (Mura.markupInitted) {
+              Mura(self).prepend(el);
+              Mura.processDisplayObject(el, true, true).then(resolve, reject);
+            } else {
+              setTimeout(watcher);
+            }
+          }
+
+          watcher();
+        });
+      });
+    },
+
+    /**
+     * prependModule - Prepends display object to selected items
+     *
+     * @param	{object} data Display objectparams (including object='objectkey')
+     * @return {Promise}
+     */
+    prependModule: function prependModule(data) {
+      return this.prependDisplayObject(data);
+    },
+
+    /**
+     * processDisplayObject - Handles processing of display object params to selection
+     *
+     * @return {Promise}
+     */
+    processDisplayObject: function processDisplayObject() {
+      var self = this;
+      return new Promise(function (resolve, reject) {
+        self.each(function () {
+          Mura.processDisplayObject(this, true, true).then(resolve, reject);
+        });
+      });
+    },
+
+    /**
+     * processModule - Prepends display object to selected items
+     *
+     * @return {Promise}
+     */
+    processModule: function processModule() {
+      return this.processDisplayObject();
+    },
+
+    /**
+     * prepend - Prepends element to items in selection
+     *
+     * @param	{*} el Element to append
+     * @return {Mura.DOMSelection} Self
+     */
+    prepend: function prepend(el) {
+      this.each(function () {
+        if (typeof el == 'string') {
+          this.insertAdjacentHTML('afterbegin', el);
+        } else {
+          this.insertBefore(el, this.firstChild);
+        }
+      });
+      return this;
+    },
+
+    /**
+     * before - Inserts element before items in selection
+     *
+     * @param	{*} el Element to append
+     * @return {Mura.DOMSelection} Self
+     */
+    before: function before(el) {
+      this.each(function () {
+        if (typeof el == 'string') {
+          this.insertAdjacentHTML('beforebegin', el);
+        } else {
+          this.parentNode.insertBefore(el, this);
+        }
+      });
+      return this;
+    },
+
+    /**
+     * after - Inserts element after items in selection
+     *
+     * @param	{*} el Element to append
+     * @return {Mura.DOMSelection} Self
+     */
+    after: function after(el) {
+      this.each(function () {
+        if (typeof el == 'string') {
+          this.insertAdjacentHTML('afterend', el);
+        } else {
+          if (this.nextSibling) {
+            this.parentNode.insertBefore(el, this.nextSibling);
+          } else {
+            this.parentNode.appendChild(el);
+          }
+        }
+      });
+      return this;
+    },
+
+    /**
+     * hide - Hides elements in selection
+     *
+     * @return {object}	Self
+     */
+    hide: function hide() {
+      this.each(function (el) {
+        el.style.display = 'none';
+      });
+      return this;
+    },
+
+    /**
+     * show - Shows elements in selection
+     *
+     * @return {object}	Self
+     */
+    show: function show() {
+      this.each(function (el) {
+        el.style.display = '';
+      });
+      return this;
+    },
+
+    /**
+     * repaint - repaints elements in selection
+     *
+     * @return {object}	Self
+     */
+    redraw: function redraw() {
+      this.each(function (el) {
+        var elm = Mura(el);
+        setTimeout(function () {
+          elm.show();
+        }, 1);
+      });
+      return this;
+    },
+
+    /**
+     * remove - Removes elements in selection
+     *
+     * @return {object}	Self
+     */
+    remove: function remove() {
+      this.each(function (el) {
+        el.parentNode && el.parentNode.removeChild(el);
+      });
+      return this;
+    },
+
+    /**
+     * addClass - Adds class to elements in selection
+     *
+     * @param	{string} className Name of class
+     * @return {Mura.DOMSelection} Self
+     */
+    addClass: function addClass(className) {
+      if (className.length) {
+        this.each(function (el) {
+          if (el.classList) {
+            el.classList.add(className);
+          } else {
+            el.className += ' ' + className;
+          }
+        });
+      }
+
+      return this;
+    },
+
+    /**
+     * hasClass - Returns if the first element in selection has class
+     *
+     * @param	{string} className Class name
+     * @return {Mura.DOMSelection} Self
+     */
+    hasClass: function hasClass(className) {
+      return this.is("." + className);
+    },
+
+    /**
+     * removeClass - Removes class from elements in selection
+     *
+     * @param	{string} className Class name
+     * @return {Mura.DOMSelection} Self
+     */
+    removeClass: function removeClass(className) {
+      this.each(function (el) {
+        if (el.classList) {
+          el.classList.remove(className);
+        } else if (el.className) {
+          el.className = el.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
+        }
+      });
+      return this;
+    },
+
+    /**
+     * toggleClass - Toggles class on elements in selection
+     *
+     * @param	{string} className Class name
+     * @return {Mura.DOMSelection} Self
+     */
+    toggleClass: function toggleClass(className) {
+      this.each(function (el) {
+        if (el.classList) {
+          el.classList.toggle(className);
+        } else {
+          var classes = el.className.split(' ');
+          var existingIndex = classes.indexOf(className);
+          if (existingIndex >= 0) classes.splice(existingIndex, 1);else classes.push(className);
+          el.className = classes.join(' ');
+        }
+      });
+      return this;
+    },
+
+    /**
+     * empty - Removes content from elements in selection
+     *
+     * @return {object}	Self
+     */
+    empty: function empty() {
+      this.each(function (el) {
+        el.innerHTML = '';
+      });
+      return this;
+    },
+
+    /**
+     * evalScripts - Evaluates script tags in selection elements
+     *
+     * @return {object}	Self
+     */
+    evalScripts: function evalScripts() {
+      if (!this.selection.length) {
+        return this;
+      }
+
+      this.each(function (el) {
+        Mura.evalScripts(el);
+      });
+      return this;
+    },
+
+    /**
+     * html - Returns or sets HTML of elements in selection
+     *
+     * @param	{string} htmlString description
+     * @return {object}						Self
+     */
+    html: function html(htmlString) {
+      if (typeof htmlString != 'undefined') {
+        this.each(function (el) {
+          el.innerHTML = htmlString;
+          Mura.evalScripts(el);
+        });
+        return this;
+      } else {
+        if (!this.selection.length) {
+          return '';
+        }
+
+        return this.selection[0].innerHTML;
+      }
+    },
+
+    /**
+     * css - Sets css value for elements in selection
+     *
+     * @param	{string} ruleName Css rule name
+     * @param	{string} value		Rule value
+     * @return {object}					Self
+     */
+    css: function css(ruleName, value) {
+      if (!this.selection.length) {
+        return this;
+      }
+
+      if (typeof ruleName == 'undefined' && typeof value == 'undefined') {
+        try {
+          return getComputedStyle(this.selection[0]);
+        } catch (e) {
+          console.log(e);
+          return {};
+        }
+      } else if (_typeof(ruleName) == 'object') {
+        this.each(function (el) {
+          try {
+            for (var p in ruleName) {
+              el.style[Mura.styleMap.tojs[p]] = ruleName[p];
+            }
+          } catch (e) {
+            console.log(e);
+          }
+        });
+      } else if (typeof value != 'undefined') {
+        this.each(function (el) {
+          try {
+            el.style[Mura.styleMap.tojs[ruleName]] = value;
+          } catch (e) {
+            console.log(e);
+          }
+        });
+        return this;
+      } else {
+        try {
+          return getComputedStyle(this.selection[0])[Mura.styleMap.tojs[ruleName]];
+        } catch (e) {
+          console.log(e);
+        }
+      }
+    },
+
+    /**
+     * calculateDisplayObjectStyles - Looks at data attrs and sets appropriate styles
+     *
+     * @return {object}	Self
+     */
+    calculateDisplayObjectStyles: function calculateDisplayObjectStyles(windowResponse) {
+      this.each(function (el) {
+        function handleBackround(styles) {
+          var hasLayeredBg = styles && typeof styles.backgroundColor != 'undefined' && styles.backgroundColor && typeof styles.backgroundImage != 'undefined' && styles.backgroundImage;
+
+          if (hasLayeredBg) {
+            styles.backgroundImage = 'linear-gradient(' + styles.backgroundColor + ', ' + styles.backgroundColor + ' ), ' + styles.backgroundImage;
+          }
+
+          hasLayeredBg = styles && typeof styles.backgroundcolor != 'undefined' && styles.backgroundcolor && typeof styles.backgroundimage != 'undefined' && styles.backgroundimage;
+
+          if (hasLayeredBg) {
+            styles.backgroundImage = 'linear-gradient(' + styles.backgroundcolor + ', ' + styles.backgroundcolor + ' ), ' + styles.backgroundimage;
+          }
+        }
+
+        function handleTextColor(sheet, selector, styles) {
+          try {
+            if (styles.color) {
+              var style = selector + ', ' + selector + ' label, ' + selector + ' p, ' + selector + ' h1, ' + selector + ' h2, ' + selector + ' h3, ' + selector + ' h4, ' + selector + ' h5, ' + selector + ' h6, ' + selector + ' a:link, ' + selector + ' a:visited, ' + selector + ' a:hover, ' + selector + ' .breadcrumb-item + .breadcrumb-item::before, ' + selector + ' a:active { color:' + styles.color + ';} ';
+              sheet.insertRule(style, sheet.cssRules.length);
+              sheet.insertRule(selector + ' * {color:inherit}', sheet.cssRules.length);
+              sheet.insertRule(selector + ' hr { border-color:' + styles.color + ';}', sheet.cssRules.length);
+            }
+          } catch (e) {
+            console.log("error adding color: " + styles.color);
+            console.log(e);
+          }
+        }
+
+        var obj = Mura(el);
+        var breakpoints = ['mura-xs', 'mura-sm', 'mura-md', 'mura-lg'];
+        var objBreakpoint = 'mura-sm';
+
+        for (var b = 0; b < breakpoints.length; b++) {
+          if (obj.is('.' + breakpoints[b])) {
+            objBreakpoint = breakpoints[b];
+            break;
+          }
+        }
+
+        var fullsize = breakpoints.indexOf('mura-' + Mura.getBreakpoint()) >= breakpoints.indexOf(objBreakpoint);
+        Mura.windowResponsiveModules = Mura.windowResponsiveModules || {};
+        Mura.windowResponsiveModules[obj.data('instanceid')] = false;
+        obj = obj.node ? obj : Mura(obj);
+        var self = obj.node;
+
+        if (obj.data('class')) {
+          var classes = obj.data('class');
+
+          if (typeof classes != 'Array') {
+            var classes = classes.split(' ');
+          }
+
+          for (var c = 0; c < classes.length; c++) {
+            if (!obj.hasClass(classes[c])) {
+              obj.addClass(classes[c]);
+            }
+          }
+        }
+
+        if (obj.data('cssclass')) {
+          var classes = obj.data('cssclass');
+
+          if (typeof classes != 'array') {
+            var classes = classes.split(' ');
+          }
+
+          for (var c = 0; c < classes.length; c++) {
+            if (!obj.hasClass(classes[c])) {
+              obj.addClass(classes[c]);
+            }
+          }
+        }
+
+        if (obj.data('cssid')) {
+          obj.attr('id', obj.data('cssid'));
+        } else {
+          obj.removeAttr('id');
+        }
+
+        var styleSupport = obj.data('stylesupport') || {};
+
+        if (typeof styleSupport == 'string') {
+          try {
+            styleSupport = JSON.parse.call(null, styleSupport);
+          } catch (e) {
+            styleSupport = {};
+          }
+
+          if (typeof styleSupport == 'string') {
+            styleSupport = {};
+          }
+        }
+
+        var objectstyles = {};
+
+        if (styleSupport && styleSupport.objectstyles) {
+          objectstyles = styleSupport.objectstyles;
+        }
+
+        obj.removeAttr('style');
+
+        if (!fullsize) {
+          delete objectstyles.margin;
+          delete objectstyles.marginLeft;
+          delete objectstyles.marginRight;
+          delete objectstyles.marginTop;
+          delete objectstyles.marginBottom;
+        }
+
+        if (!fullsize || fullsize && !(obj.css('marginTop') == '0px' && obj.css('marginBottom') == '0px' && obj.css('marginLeft') == '0px' && obj.css('marginRight') == '0px')) {
+          Mura.windowResponsiveModules[obj.data('instanceid')] = true;
+        }
+
+        if (!windowResponse) {
+          var sheet = Mura.getStyleSheet('mura-styles-' + obj.data('instanceid'));
+
+          while (sheet.cssRules.length) {
+            sheet.deleteRule(0);
+          }
+
+          var objectAccumulator = {};
+
+          if (typeof objectstyles == 'string') {
+            objectstyles = {};
+          }
+
+          objectstyles = objectstyles || {};
+          handleBackround(objectstyles);
+          var selector = 'div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
+          var dyncss = '';
+          objectAccumulator = Mura.extend(objectAccumulator, objectstyles);
+
+          for (var s in objectAccumulator) {
+            if (objectAccumulator.hasOwnProperty(s)) {
+              if (typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined') {
+                dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]] + ': ' + objectAccumulator[s] + '!important;';
+              } else {
+                obj.css(s, objectAccumulator[s]);
+              }
+            }
+          }
+
+          if (dyncss) {
+            try {
+              //console.log(selector + ' {' + dyncss+ '}')
+              sheet.insertRule(selector + ' {' + dyncss + '}', sheet.cssRules.length);
+            } catch (e) {
+              console.log(selector + ' {' + dyncss + '}');
+              console.log(e);
+            }
+          }
+
+          handleTextColor(sheet, selector, objectstyles);
+
+          if (typeof styleSupport['object_lg_styles'] == 'string') {
+            styleSupport['object_lg_styles'] = {};
+          }
+
+          styleSupport['object_lg_styles'] = styleSupport['object_lg_styles'] || {};
+          var selector = '@media (min-width: 992px) and (max-width: 1199px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
+          var selector2 = '@media (min-width: 1292px) and (max-width: 1399px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
+          var dyncss = '';
+          handleBackround(styleSupport['object_lg_styles']);
+          objectAccumulator = Mura.extend(objectAccumulator, styleSupport['object_lg_styles']);
+
+          for (var s in objectAccumulator) {
+            if (objectAccumulator.hasOwnProperty(s)) {
+              if (typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined') {
+                dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]] + ': ' + objectAccumulator[s] + '!important;';
+              }
+            }
+          }
+
+          if (dyncss) {
+            try {
+              sheet.insertRule(selector + ' {' + dyncss + '}', sheet.cssRules.length);
+              sheet.insertRule(selector2 + ' {' + dyncss + '}', sheet.cssRules.length);
+            } catch (e) {
+              console.log(selector + ' {' + dyncss + '}}');
+              console.log(e);
+            }
+          }
+
+          handleTextColor(sheet, selector, objectAccumulator);
+          handleTextColor(sheet, selector2, objectAccumulator);
+
+          if (typeof styleSupport['object_md_styles'] == 'string') {
+            styleSupport['object_md_styles'] = {};
+          }
+
+          styleSupport['object_md_styles'] = styleSupport['object_md_styles'] || {};
+          var selector = '@media (min-width: 768px) and (max-width: 991px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
+          var selector2 = '@media (min-width: 1068px) and (max-width: 1291px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
+          var dyncss = '';
+          handleBackround(styleSupport['object_md_styles']);
+          objectAccumulator = Mura.extend(objectAccumulator, styleSupport['object_md_styles']);
+
+          for (var s in objectAccumulator) {
+            if (objectAccumulator.hasOwnProperty(s)) {
+              if (typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined') {
+                dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]] + ': ' + objectAccumulator[s] + '!important;';
+              }
+            }
+          }
+
+          if (dyncss) {
+            try {
+              sheet.insertRule(selector + ' {' + dyncss + '}', sheet.cssRules.length);
+              sheet.insertRule(selector2 + ' {' + dyncss + '}', sheet.cssRules.length);
+            } catch (e) {
+              console.log(selector + ' {' + dyncss + '}}');
+              console.log(e);
+            }
+          }
+
+          handleTextColor(sheet, selector, objectAccumulator);
+          handleTextColor(sheet, selector2, objectAccumulator);
+
+          if (typeof styleSupport['object_sm_styles'] == 'string') {
+            styleSupport['object_sm_styles'] = {};
+          }
+
+          styleSupport['object_sm_styles'] = styleSupport['object_sm_styles'] || {};
+          var selector = '@media (min-width: 576px) and (max-width: 767px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
+          var selector2 = '@media (min-width: 876px) and (max-width: 1067px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
+          var dyncss = '';
+          handleBackround(styleSupport['object_sm_styles']);
+          objectAccumulator = Mura.extend(objectAccumulator, styleSupport['object_sm_styles']);
+
+          for (var s in objectAccumulator) {
+            if (objectAccumulator.hasOwnProperty(s)) {
+              if (typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined') {
+                dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]] + ': ' + objectAccumulator[s] + '!important;';
+              }
+            }
+          }
+
+          if (dyncss) {
+            try {
+              sheet.insertRule(selector + ' {' + dyncss + '}', sheet.cssRules.length);
+              sheet.insertRule(selector2 + ' {' + dyncss + '}', sheet.cssRules.length);
+            } catch (e) {
+              console.log(selector + ' {' + dyncss + '}}');
+              console.log(e);
+            }
+          }
+
+          handleTextColor(sheet, selector, objectAccumulator);
+          handleTextColor(sheet, selector2, objectAccumulator);
+
+          if (typeof styleSupport['object_xs_styles'] == 'string') {
+            styleSupport['object_xs_styles'] = {};
+          }
+
+          styleSupport['object_xs_styles'] = styleSupport['object_xs_styles'] || {};
+          var selector = '@media (max-width: 575px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
+          var selector2 = '@media (max-width: 875px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]';
+          var dyncss = '';
+          handleBackround(styleSupport['object_xs_styles']);
+          objectAccumulator = Mura.extend(objectAccumulator, styleSupport['object_xs_styles']);
+
+          for (var s in objectAccumulator) {
+            if (objectAccumulator.hasOwnProperty(s)) {
+              if (typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined') {
+                dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]] + ': ' + objectAccumulator[s] + '!important;';
+              }
+            }
+          }
+
+          if (dyncss) {
+            try {
+              //console.log(selector + ' {' + dyncss+ '}}')
+              sheet.insertRule(selector + ' {' + dyncss + '}', sheet.cssRules.length);
+              sheet.insertRule(selector2 + ' {' + dyncss + '}', sheet.cssRules.length);
+            } catch (e) {
+              console.log(selector + ' {' + dyncss + '}}');
+              console.log(e);
+            }
+          }
+
+          handleTextColor(sheet, selector, objectAccumulator);
+          handleTextColor(sheet, selector2, objectAccumulator);
+
+          if (styleSupport.css) {
+            var styles = styleSupport.css.split('}');
+
+            if (Array.isArray(styles) && styles.length) {
+              styles.forEach(function (style) {
+                var styleParts = style.split("{");
+
+                if (styleParts.length > 1) {
+                  var selectors = styleParts[0].split(',');
+                  selectors.forEach(function (subSelector) {
+                    try {
+                      var subStyle = 'div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] ' + subSelector.replace(/\$self/g, '') + '{' + styleParts[1] + '}';
+                      sheet.insertRule(subStyle, sheet.cssRules.length);
+
+                      if (Mura.editing) {
+                        console.log('Applying dynamic styles:' + subStyle);
+                      }
+                    } catch (e) {
+                      if (Mura.editing) {
+                        console.log('Error applying dynamic styles:' + subStyle);
+                        console.log(e);
+                      }
+                    }
+                  });
+                }
+              });
+            }
+          }
+        }
+
+        var metaWrapper = obj.children('.mura-object-meta-wrapper');
+
+        if (metaWrapper.length) {
+          styleSupport.metastyles = styleSupport.metastyles || {};
+          var meta = metaWrapper.children('.mura-object-meta');
+
+          if (meta.length) {
+            var metastyles = {};
+
+            if (styleSupport && styleSupport.metastyles) {
+              metastyles = styleSupport.metastyles;
+            }
+
+            var hasLayeredBg = false;
+
+            if (!windowResponse) {
+              var metaAccumulator = {};
+
+              if (typeof metastyles == 'string') {
+                metastyles = {};
+              }
+
+              metastyles = metastyles || {};
+              var selector = 'div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
+              var dyncss = '';
+              handleBackround(metastyles);
+              metaAccumulator = Mura.extend(metaAccumulator, metastyles);
+
+              for (var s in metaAccumulator) {
+                if (metaAccumulator.hasOwnProperty(s)) {
+                  if (typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined') {
+                    dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]] + ': ' + metaAccumulator[s] + '!important;';
+                  } else {
+                    meta.css(s, metaAccumulator[s]);
+                  }
+                }
+              }
+
+              if (dyncss) {
+                try {
+                  //console.log(selector + ' {' + dyncss+ '}')
+                  sheet.insertRule(selector + ' {' + dyncss + '}', sheet.cssRules.length);
+                } catch (e) {
+                  console.log(selector + ' {' + dyncss + '}');
+                  console.log(e);
+                }
+              }
+
+              try {
+                if (metastyles.color) {
+                  var style = selector + ', ' + selector + ' label, ' + selector + ' p, ' + selector + ' h1, ' + selector + ' h2, ' + selector + ' h3, ' + selector + ' h4, ' + selector + ' h5, ' + selector + ' h6, ' + selector + ' a:link, ' + selector + ' a:visited, ' + selector + ' a:hover, ' + selector + ' .breadcrumb-item + .breadcrumb-item::before, ' + selector + ' a:active { color:' + metastyles.color + ';} ';
+                  sheet.insertRule(style, sheet.cssRules.length);
+                  sheet.insertRule(selector + ' * {color:inherit}', sheet.cssRules.length);
+                  sheet.insertRule(selector + ' hr { border-color:' + metastyles.color + ';}', sheet.cssRules.length);
+                }
+              } catch (e) {
+                console.log("error adding color: " + metastyles.color);
+                console.log(e);
+              }
+
+              if (typeof styleSupport['meta_lg_styles'] == 'string') {
+                styleSupport['meta_lg_styles'] = {};
+              }
+
+              styleSupport['meta_lg_styles'] = styleSupport['meta_lg_styles'] || {};
+              var selector = '@media (min-width: 992px) and (max-width: 1199px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
+              var selector2 = '@media (min-width: 1292px) and (max-width: 1399px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
+              var dyncss = '';
+              handleBackround(styleSupport['meta_lg_styles']);
+              metaAccumulator = Mura.extend(metaAccumulator, styleSupport['meta_lg_styles']);
+
+              for (var s in metaAccumulator) {
+                if (metaAccumulator.hasOwnProperty(s)) {
+                  if (typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined') {
+                    dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]] + ': ' + metaAccumulator[s] + '!important;';
+                  }
+                }
+              }
+
+              if (dyncss) {
+                try {
+                  sheet.insertRule(selector + ' {' + dyncss + '}', sheet.cssRules.length);
+                  sheet.insertRule(selector2 + ' {' + dyncss + '}', sheet.cssRules.length);
+                } catch (e) {
+                  console.log(selector + ' {' + dyncss + '}}');
+                  console.log(e);
+                }
+              }
+
+              if (typeof styleSupport['meta_md_styles'] == 'string') {
+                styleSupport['meta_md_styles'] = {};
+              }
+
+              styleSupport['meta_md_styles'] = styleSupport['meta_md_styles'] || {};
+              var selector = '@media (min-width: 768px) an (max-width: 991px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
+              var selector2 = '@media (min-width: 1068px) an (max-width: 1291px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
+              var dyncss = '';
+              handleBackround(styleSupport['meta_md_styles']);
+              metaAccumulator = Mura.extend(metaAccumulator, styleSupport['meta_md_styles']);
+
+              for (var s in metaAccumulator) {
+                if (metaAccumulator.hasOwnProperty(s)) {
+                  if (typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined') {
+                    dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]] + ': ' + metaAccumulator[s] + '!important;';
+                  }
+                }
+              }
+
+              if (dyncss) {
+                try {
+                  sheet.insertRule(selector + ' {' + dyncss + '}', sheet.cssRules.length);
+                  sheet.insertRule(selector2 + ' {' + dyncss + '}', sheet.cssRules.length);
+                } catch (e) {
+                  console.log(selector + ' {' + dyncss + '}}');
+                  console.log(e);
+                }
+              }
+
+              if (typeof styleSupport['meta_sm_styles'] == 'string') {
+                styleSupport['meta_sm_styles'] = {};
+              }
+
+              styleSupport['meta_sm_styles'] = styleSupport['meta_sm_styles'] || {};
+              var selector = '@media (min-width: 576px) an (max-width: 767) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
+              var selector2 = '@media (min-width: 876px) an (max-width: 1067) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
+              var dyncss = '';
+              handleBackround(styleSupport['meta_sm_styles']);
+              metaAccumulator = Mura.extend(metaAccumulator, styleSupport['meta_sm_styles']);
+
+              for (var s in metaAccumulator) {
+                if (metaAccumulator.hasOwnProperty(s)) {
+                  if (typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined') {
+                    dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]] + ': ' + metaAccumulator[s] + '!important;';
+                  }
+                }
+              }
+
+              if (dyncss) {
+                try {
+                  sheet.insertRule(selector + ' {' + dyncss + '}', sheet.cssRules.length);
+                  sheet.insertRule(selector2 + ' {' + dyncss + '}', sheet.cssRules.length);
+                } catch (e) {
+                  console.log(selector + ' {' + dyncss + '}}');
+                  console.log(e);
+                }
+              }
+
+              if (typeof styleSupport['meta_xs_styles'] == 'string') {
+                styleSupport['meta_xs_styles'] = {};
+              }
+
+              styleSupport['meta_xs_styles'] = styleSupport['meta_xs_styles'] || {};
+              var selector = '@media (max-width: 575) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
+              var selector2 = '@media (max-width: 875) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta';
+              var dyncss = '';
+              handleBackround(styleSupport['meta_xs_styles']);
+              metaAccumulator = Mura.extend(metaAccumulator, styleSupport['meta_xs_styles']);
+
+              for (var s in metaAccumulator) {
+                if (metaAccumulator.hasOwnProperty(s)) {
+                  if (typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined') {
+                    dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]] + ': ' + metaAccumulator[s] + '!important;';
+                  }
+                }
+              }
+
+              if (dyncss) {
+                try {
+                  sheet.insertRule(selector + ' {' + dyncss + '}', sheet.cssRules.length);
+                  sheet.insertRule(selector2 + ' {' + dyncss + '}', sheet.cssRules.length);
+                } catch (e) {
+                  console.log(selector + ' {' + dyncss + '}}');
+                  console.log(e);
+                }
+              }
+            }
+
+            if (obj.data('metacssid')) {
+              meta.attr('id', obj.data('metacssid'));
+            }
+
+            if (obj.data('metacssclass')) {
+              obj.data('metacssclass').split(' ').forEach(function (c) {
+                if (!meta.hasClass(c)) {
+                  meta.addClass(c);
+                }
+              });
+            }
+
+            if (obj.is('.mura-object-label-left, .mura-object-label-right')) {
+              var left = meta.css('marginLeft');
+              var right = meta.css('marginRight');
+
+              if (!(left == '0px' && right == '0px') && left.charAt(0) != "-" && right.charAt(0) != "-") {
+                meta.css('width', 'calc(50% - (' + left + ' + ' + right + '))');
+              }
+            }
+          }
+        }
+
+        var contentstyles = {};
+
+        if (styleSupport && styleSupport.contentstyles && typeof contentstyles != 'string') {
+          contentstyles = styleSupport.contentstyles;
+        }
+
+        var content = obj.children('.mura-object-content').first();
+        var selector = 'div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
+        var hasLayeredBg = false;
+
+        if (!windowResponse) {
+          var contentAccumulator = {};
+          contentstyles = contentstyles || {};
+          var selector = 'div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
+          var dyncss = '';
+          handleBackround(contentstyles);
+          contentAccumulator = Mura.extend(contentAccumulator, contentstyles);
+
+          for (var s in contentAccumulator) {
+            if (contentAccumulator.hasOwnProperty(s)) {
+              if (typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined') {
+                dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]] + ': ' + contentAccumulator[s] + '!important;';
+              } else {
+                content.css(s, contentAccumulator[s]);
+              }
+            }
+          }
+
+          if (dyncss) {
+            try {
+              //console.log(selector + ' {' + dyncss+ '}')
+              sheet.insertRule(selector + ' {' + dyncss + '}', sheet.cssRules.length);
+            } catch (e) {
+              console.log(selector + ' {' + dyncss + '}');
+              console.log(e);
+            }
+          }
+
+          try {
+            if (contentstyles.color) {
+              var style = selector + ', ' + selector + ' label, ' + selector + ' p, ' + selector + ' h1, ' + selector + ' h2, ' + selector + ' h3, ' + selector + ' h4, ' + selector + ' h5, ' + selector + ' h6, ' + selector + ' a:link, ' + selector + ' a:visited, ' + selector + ' a:hover, ' + selector + ' .breadcrumb-item + .breadcrumb-item::before, ' + selector + ' a:active { color:' + contentstyles.color + ';} ';
+              sheet.insertRule(style, sheet.cssRules.length);
+              sheet.insertRule(selector + ' * {color:inherit}', sheet.cssRules.length);
+              sheet.insertRule(selector + ' hr { border-color:' + contentstyles.color + ';}', sheet.cssRules.length);
+            }
+          } catch (e) {
+            console.log("error adding color: " + contentstyles.color);
+            console.log(e);
+          }
+
+          if (typeof styleSupport['content_lg_styles'] == 'string') {
+            styleSupport['content_lg_styles'] = {};
+          }
+
+          styleSupport['content_lg_styles'] = styleSupport['content_lg_styles'] || {};
+          var selector = '@media (max-width: 992px) and (max-width: 1199px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
+          var selector2 = '@media (max-width: 1292px) and (max-width: 1499px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
+          var dyncss = '';
+          handleBackround(styleSupport['content_md_styles']);
+          contentAccumulator = Mura.extend(contentAccumulator, styleSupport['content_lg_styles']);
+
+          for (var s in contentAccumulator) {
+            if (contentAccumulator.hasOwnProperty(s)) {
+              if (typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined') {
+                dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]] + ': ' + contentAccumulator[s] + '!important;';
+              }
+            }
+          }
+
+          if (dyncss) {
+            try {
+              sheet.insertRule(selector + ' {' + dyncss + '}', sheet.cssRules.length);
+              sheet.insertRule(selector2 + ' {' + dyncss + '}', sheet.cssRules.length);
+            } catch (e) {
+              console.log(selector + ' {' + dyncss + '}}');
+              console.log(e);
+            }
+          }
+
+          if (typeof styleSupport['content_md_styles'] == 'string') {
+            styleSupport['content_md_styles'] = {};
+          }
+
+          styleSupport['content_md_styles'] = styleSupport['content_md_styles'] || {};
+          var selector = '@media (min-width: 768px) and (max-width: 991px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
+          var selector2 = '@media (min-width: 1068px) and (max-width: 1291px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
+          var dyncss = '';
+          handleBackround(styleSupport['content_md_styles']);
+          contentAccumulator = Mura.extend(contentAccumulator, styleSupport['content_md_styles']);
+
+          for (var s in contentAccumulator) {
+            if (contentAccumulator.hasOwnProperty(s)) {
+              if (typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined') {
+                dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]] + ': ' + contentAccumulator[s] + '!important;';
+              }
+            }
+          }
+
+          if (dyncss) {
+            try {
+              sheet.insertRule(selector + ' {' + dyncss + '}', sheet.cssRules.length);
+              sheet.insertRule(selector2 + ' {' + dyncss + '}', sheet.cssRules.length);
+            } catch (e) {
+              console.log(selector + ' {' + dyncss + '}}');
+              console.log(e);
+            }
+          }
+
+          if (typeof styleSupport['content_sm_styles'] == 'string') {
+            styleSupport['content_sm_styles'] = {};
+          }
+
+          styleSupport['content_sm_styles'] = styleSupport['content_sm_styles'] || {};
+          var selector = '@media (min-width: 576px) and (max-width: 767px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
+          var selector2 = '@media (min-width: 876px) and (max-width: 1067px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
+          var dyncss = '';
+          handleBackround(styleSupport['content_sm_styles']);
+          contentAccumulator = Mura.extend(contentAccumulator, styleSupport['content_sm_styles']);
+
+          for (var s in contentAccumulator) {
+            if (contentAccumulator.hasOwnProperty(s)) {
+              if (typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined') {
+                dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]] + ': ' + contentAccumulator[s] + '!important;';
+              }
+            }
+          }
+
+          if (dyncss) {
+            try {
+              sheet.insertRule(selector + ' {' + dyncss + '}', sheet.cssRules.length);
+              sheet.insertRule(selector2 + ' {' + dyncss + '}', sheet.cssRules.length);
+            } catch (e) {
+              console.log(selector + ' {' + dyncss + '}}');
+              console.log(e);
+            }
+          }
+
+          if (typeof styleSupport['content_xs_styles'] == 'string') {
+            styleSupport['content_xs_styles'] = {};
+          }
+
+          styleSupport['content_xs_styles'] = styleSupport['content_xs_styles'] || {};
+          var selector = '@media (max-width: 575px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
+          var selector2 = '@media (max-width: 875px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
+          var dyncss = '';
+          handleBackround(styleSupport['content_xs_styles']);
+          contentAccumulator = Mura.extend(contentAccumulator, styleSupport['content_xs_styles']);
+
+          for (var s in contentAccumulator) {
+            if (contentAccumulator.hasOwnProperty(s)) {
+              if (typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined') {
+                dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]] + ': ' + contentAccumulator[s] + '!important;';
+              }
+            }
+          }
+
+          if (dyncss) {
+            try {
+              sheet.insertRule(selector + ' {' + dyncss + '}', sheet.cssRules.length);
+              sheet.insertRule(selector2 + ' {' + dyncss + '}', sheet.cssRules.length);
+            } catch (e) {
+              console.log(selector + ' {' + dyncss + '}}');
+              console.log(e);
+            }
+          }
+        }
+
+        if (obj.data('contentcssid')) {
+          content.attr('id', obj.data('contentcssid'));
+        }
+
+        if (obj.data('contentcssclass')) {
+          obj.data('contentcssclass').split(' ').forEach(function (c) {
+            if (!content.hasClass(c)) {
+              content.addClass(c);
+            }
+          });
+        }
+
+        if (content.hasClass('container')) {
+          metaWrapper.addClass('container');
+        } else {
+          metaWrapper.removeClass('container');
+        }
+
+        if (contentstyles) {
+          content.removeAttr('style'); //content.css(contentstyles);
+        }
+
+        if (obj.is('.mura-object-label-left, .mura-object-label-right')) {
+          var left = content.css('marginLeft');
+          var right = content.css('marginRight');
+
+          if (!(left == '0px' && right == '0px') && left.charAt(0) != "-" && right.charAt(0) != "-") {
+            if (fullsize) {
+              content.css('width', 'calc(50% - (' + left + ' + ' + right + '))');
+            }
+
+            Mura.windowResponsiveModules[obj.data('instanceid')] = true;
+          }
+        }
+
+        var left = obj.css('marginLeft');
+        var right = obj.css('marginRight');
+
+        if (!obj.is('.mura-center') && !(left == '0px' && right == '0px') && !(left == 'auto' || right == 'auto') && left.charAt(0) != "-" && right.charAt(0) != "-") {
+          if (fullsize) {
+            var width = '100%';
+
+            if (obj.is('.mura-one')) {
+              width = '8.33%';
+            } else if (obj.is('.mura-two')) {
+              width = '16.66%';
+            } else if (obj.is('.mura-three')) {
+              width = '25%';
+            } else if (obj.is('.mura-four')) {
+              width = '33.33%';
+            } else if (obj.is('.mura-five')) {
+              width = '41.66%';
+            } else if (obj.is('.mura-six')) {
+              width = '50%';
+            } else if (obj.is('.mura-seven')) {
+              width = '58.33';
+            } else if (obj.is('.mura-eigth')) {
+              width = '66.66%';
+            } else if (obj.is('.mura-nine')) {
+              width = '75%';
+            } else if (obj.is('.mura-ten')) {
+              width = '83.33%';
+            } else if (obj.is('.mura-eleven')) {
+              width = '91.66%';
+            } else if (obj.is('.mura-twelve')) {
+              width = '100%';
+            } else if (obj.is('.mura-one-third')) {
+              width = '33.33%';
+            } else if (obj.is('.mura-two-thirds')) {
+              width = '66.66%';
+            } else if (obj.is('.mura-one-half')) {
+              width = '50%';
+            } else {
+              width = '100%';
+            }
+
+            obj.css('width', 'calc(' + width + ' - (' + left + ' + ' + right + '))');
+          }
+
+          Mura.windowResponsiveModules[obj.data('instanceid')] = true;
+        }
+
+        if (obj.css('paddingTop').replace(/[^0-9]/g, '') != '0' || obj.css('paddingLeft').replace(/[^0-9]/g, '') != '0') {
+          obj.addClass('mura-object-pin-tools');
+        } else {
+          obj.removeClass('mura-object-pin-tools');
+        }
+      });
+      return this;
+    },
+
+    /**
+     * text - Gets or sets the text content of each element in the selection
+     *
+     * @param	{string} textString Text string
+     * @return {object}						Self
+     */
+    text: function text(textString) {
+      if (typeof textString != 'undefined') {
+        this.each(function (el) {
+          el.textContent = textString;
+        });
+        return this;
+      } else {
+        return this.selection[0].textContent;
+      }
+    },
+
+    /**
+     * is - Returns if the first element in the select matches the selector
+     *
+     * @param	{string} selector description
+     * @return {boolean}
+     */
+    is: function is(selector) {
+      if (!this.selection.length) {
+        return false;
+      }
+
+      try {
+        if (typeof this.selection[0] !== "undefined") {
+          return this.selection[0].matchesSelector && this.selection[0].matchesSelector(selector);
+        } else {
+          return false;
+        }
+      } catch (e) {
+        return false;
+      }
+    },
+
+    /**
+     * hasAttr - Returns is the first element in the selection has an attribute
+     *
+     * @param	{string} attributeName description
+     * @return {boolean}
+     */
+    hasAttr: function hasAttr(attributeName) {
+      if (!this.selection.length) {
+        return false;
+      }
+
+      return typeof this.selection[0].hasAttribute == 'function' && this.selection[0].hasAttribute(attributeName);
+    },
+
+    /**
+     * hasData - Returns if the first element in the selection has data attribute
+     *
+     * @param	{sting} attributeName Data atttribute name
+     * @return {boolean}
+     */
+    hasData: function hasData(attributeName) {
+      if (!this.selection.length) {
+        return false;
+      }
+
+      return this.hasAttr('data-' + attributeName);
+    },
+
+    /**
+     * offsetParent - Returns first element in selection's offsetParent
+     *
+     * @return {object}	offsetParent
+     */
+    offsetParent: function offsetParent() {
+      if (!this.selection.length) {
+        return this;
+      }
+
+      var el = this.selection[0];
+      return el.offsetParent || el;
+    },
+
+    /**
+     * outerHeight - Returns first element in selection's outerHeight
+     *
+     * @param	{boolean} withMargin Whether to include margin
+     * @return {number}
+     */
+    outerHeight: function outerHeight(withMargin) {
+      if (!this.selection.length) {
+        return this;
+      }
+
+      if (typeof withMargin == 'undefined') {
+        var outerHeight = function outerHeight(el) {
+          var height = el.offsetHeight;
+          var style = getComputedStyle(el);
+          height += parseInt(style.marginTop) + parseInt(style.marginBottom);
+          return height;
+        };
+
+        return outerHeight(this.selection[0]);
+      } else {
+        return this.selection[0].offsetHeight;
+      }
+    },
+
+    /**
+     * height - Returns height of first element in selection or set height for elements in selection
+     *
+     * @param	{number} height	Height (option)
+     * @return {object}				Self
+     */
+    height: function height(_height) {
+      if (!this.selection.length) {
+        return this;
+      }
+
+      if (typeof width != 'undefined') {
+        if (!isNaN(_height)) {
+          _height += 'px';
+        }
+
+        this.css('height', _height);
+        return this;
+      }
+
+      var el = this.selection[0]; //var type=el.constructor.name.toLowerCase();
+
+      if (typeof window != 'undefined' && typeof window.document != 'undefined' && el === window) {
+        return innerHeight;
+      } else if (el === document) {
+        var body = document.body;
+        var html = document.documentElement;
+        return Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
+      }
+
+      var styles = getComputedStyle(el);
+      var margin = parseFloat(styles['marginTop']) + parseFloat(styles['marginBottom']);
+      return Math.ceil(el.offsetHeight + margin);
+    },
+
+    /**
+     * width - Returns width of first element in selection or set width for elements in selection
+     *
+     * @param	{number} width Width (optional)
+     * @return {object}			 Self
+     */
+    width: function (_width) {
+      function width(_x2) {
+        return _width.apply(this, arguments);
+      }
+
+      width.toString = function () {
+        return _width.toString();
+      };
+
+      return width;
+    }(function (width) {
+      if (!this.selection.length) {
+        return this;
+      }
+
+      if (typeof width != 'undefined') {
+        if (!isNaN(width)) {
+          width += 'px';
+        }
+
+        this.css('width', width);
+        return this;
+      }
+
+      var el = this.selection[0]; //var type=el.constructor.name.toLowerCase();
+
+      if (typeof window != 'undefined' && typeof window.document != 'undefined' && el === window) {
+        return innerWidth;
+      } else if (el === document) {
+        var body = document.body;
+        var html = document.documentElement;
+        return Math.max(body.scrollWidth, body.offsetWidth, html.clientWidth, html.scrolWidth, html.offsetWidth);
+      }
+
+      return getComputedStyle(el).width;
+    }),
+
+    /**
+     * width - Returns outerWidth of first element in selection
+     *
+     * @return {number}
+     */
+    outerWidth: function outerWidth() {
+      if (!this.selection.length) {
+        return 0;
+      }
+
+      var el = this.selection[0];
+      var width = el.offsetWidth;
+      var style = getComputedStyle(el);
+      width += parseInt(style.marginLeft) + parseInt(style.marginRight);
+      return width;
+    },
+
+    /**
+     * scrollTop - Returns the scrollTop of the current document
+     *
+     * @return {object}
+     */
+    scrollTop: function scrollTop() {
+      if (!this.selection.length) {
+        return 0;
+      }
+
+      var el = this.selection[0];
+
+      if (typeof el.scrollTop != 'undefined') {
+        return el.scrollTop;
+      } else {
+        return window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
+      }
+    },
+
+    /**
+     * offset - Returns offset of first element in selection
+     *
+     * @return {object}
+     */
+    offset: function offset() {
+      if (!this.selection.length) {
+        return this;
+      }
+
+      var box = this.selection[0].getBoundingClientRect();
+      return {
+        top: box.top + (pageYOffset || document.scrollTop) - (document.clientTop || 0),
+        left: box.left + (pageXOffset || document.scrollLeft) - (document.clientLeft || 0)
+      };
+    },
+
+    /**
+     * removeAttr - Removes attribute from elements in selection
+     *
+     * @param	{string} attributeName Attribute name
+     * @return {object}							 Self
+     */
+    removeAttr: function removeAttr(attributeName) {
+      if (!this.selection.length) {
+        return this;
+      }
+
+      this.each(function (el) {
+        if (el && typeof el.removeAttribute == 'function') {
+          el.removeAttribute(attributeName);
+        }
+      });
+      return this;
+    },
+
+    /**
+     * changeElementType - Changes element type of elements in selection
+     *
+     * @param	{string} type Element type to change to
+     * @return {Mura.DOMSelection} Self
+     */
+    changeElementType: function changeElementType(type) {
+      if (!this.selection.length) {
+        return this;
+      }
+
+      this.each(function (el) {
+        Mura.changeElementType(el, type);
+      });
+      return this;
+    },
+
+    /**
+     * val - Set the value of elements in selection
+     *
+     * @param	{*} value Value
+     * @return {Mura.DOMSelection} Self
+     */
+    val: function val(value) {
+      if (!this.selection.length) {
+        return this;
+      }
+
+      if (typeof value != 'undefined') {
+        this.each(function (el) {
+          if (el.tagName == 'radio') {
+            if (el.value == value) {
+              el.checked = true;
+            } else {
+              el.checked = false;
+            }
+          } else {
+            el.value = value;
+          }
+        });
+        return this;
+      } else {
+        if (Object.prototype.hasOwnProperty.call(this.selection[0], 'value') || typeof this.selection[0].value != 'undefined') {
+          return this.selection[0].value;
+        } else {
+          return '';
+        }
+      }
+    },
+
+    /**
+     * attr - Returns attribute value of first element in selection or set attribute value for elements in selection
+     *
+     * @param	{string} attributeName Attribute name
+     * @param	{*} value				 Value (optional)
+     * @return {Mura.DOMSelection} Self
+     */
+    attr: function attr(attributeName, value) {
+      if (!this.selection.length) {
+        return this;
+      }
+
+      if (typeof value == 'undefined' && typeof attributeName == 'undefined') {
+        return Mura.getAttributes(this.selection[0]);
+      } else if (_typeof(attributeName) == 'object') {
+        this.each(function (el) {
+          if (el.setAttribute) {
+            for (var p in attributeName) {
+              el.setAttribute(p, attributeName[p]);
+            }
+          }
+        });
+        return this;
+      } else if (typeof value != 'undefined') {
+        this.each(function (el) {
+          if (el.setAttribute) {
+            el.setAttribute(attributeName, value);
+          }
+        });
+        return this;
+      } else {
+        if (this.selection[0] && this.selection[0].getAttribute) {
+          return this.selection[0].getAttribute(attributeName);
+        } else {
+          return undefined;
+        }
+      }
+    },
+
+    /**
+     * data - Returns data attribute value of first element in selection or set data attribute value for elements in selection
+     *
+     * @param	{string} attributeName Attribute name
+     * @param	{*} value				 Value (optional)
+     * @return {Mura.DOMSelection} Self
+     */
+    data: function data(attributeName, value) {
+      if (!this.selection.length) {
+        return this;
+      }
+
+      if (typeof value == 'undefined' && typeof attributeName == 'undefined') {
+        return Mura.getData(this.selection[0]);
+      } else if (_typeof(attributeName) == 'object') {
+        this.each(function (el) {
+          for (var p in attributeName) {
+            el.setAttribute("data-" + p, attributeName[p]);
+          }
+        });
+        return this;
+      } else if (typeof value != 'undefined') {
+        this.each(function (el) {
+          el.setAttribute("data-" + attributeName, value);
+        });
+        return this;
+      } else if (this.selection[0] && this.selection[0].getAttribute) {
+        return Mura.parseString(this.selection[0].getAttribute("data-" + attributeName));
+      } else {
+        return undefined;
+      }
+    },
+
+    /**
+     * prop - Returns attribute value of first element in selection or set attribute value for elements in selection
+     *
+     * @param	{string} attributeName Attribute name
+     * @param	{*} value				 Value (optional)
+     * @return {Mura.DOMSelection} Self
+     */
+    prop: function prop(attributeName, value) {
+      if (!this.selection.length) {
+        return this;
+      }
+
+      if (typeof value == 'undefined' && typeof attributeName == 'undefined') {
+        return Mura.getProps(this.selection[0]);
+      } else if (_typeof(attributeName) == 'object') {
+        this.each(function (el) {
+          for (var p in attributeName) {
+            el.setAttribute(p, attributeName[p]);
+          }
+        });
+        return this;
+      } else if (typeof value != 'undefined') {
+        this.each(function (el) {
+          el.setAttribute(attributeName, value);
+        });
+        return this;
+      } else {
+        return Mura.parseString(this.selection[0].getAttribute(attributeName));
+      }
+    },
+
+    /**
+     * fadeOut - Fades out elements in selection
+     *
+     * @return {Mura.DOMSelection} Self
+     */
+    fadeOut: function fadeOut() {
+      this.each(function (el) {
+        el.style.opacity = 1;
+
+        (function fade() {
+          if ((el.style.opacity -= .1) < 0) {
+            el.style.opacity = 0;
+            el.style.display = "none";
+          } else {
+            requestAnimationFrame(fade);
+          }
+        })();
+      });
+      return this;
+    },
+
+    /**
+     * fadeIn - Fade in elements in selection
+     *
+     * @param	{string} display Display value
+     * @return {Mura.DOMSelection} Self
+     */
+    fadeIn: function fadeIn(display) {
+      this.each(function (el) {
+        el.style.opacity = 0;
+        el.style.display = display || "block";
+
+        (function fade() {
+          var val = parseFloat(el.style.opacity);
+
+          if (!((val += .1) > 1)) {
+            el.style.opacity = val;
+            requestAnimationFrame(fade);
+          }
+        })();
+      });
+      return this;
+    },
+
+    /**
+     * toggle - Toggles display object elements in selection
+     *
+     * @return {Mura.DOMSelection} Self
+     */
+    toggle: function toggle() {
+      this.each(function (el) {
+        if (typeof el.style.display == 'undefined' || el.style.display == '') {
+          el.style.display = 'none';
+        } else {
+          el.style.display = '';
+        }
+      });
+      return this;
+    },
+
+    /**
+     * slideToggle - Place holder
+     *
+     * @return {Mura.DOMSelection} Self
+     */
+    slideToggle: function slideToggle() {
+      this.each(function (el) {
+        if (typeof el.style.display == 'undefined' || el.style.display == '') {
+          el.style.display = 'none';
+        } else {
+          el.style.display = '';
+        }
+      });
+      return this;
+    },
+
+    /**
+     * focus - sets focus of the first select element
+     *
+     * @return {self}
+     */
+    focus: function focus() {
+      if (!this.selection.length) {
+        return this;
+      }
+
+      this.selection[0].focus();
+      return this;
+    },
+
+    /**
+     * renderEditableAttr- Returns a string with editable attriute markup markup.
+     *
+     * @param	{object} params Keys: name, type, required, validation, message, label
+     * @return {self}
+     */
+    makeEditableAttr: function makeEditableAttr(params) {
+      if (!this.selection.length) {
+        return this;
+      }
+
+      var value = this.selection[0].innerHTML;
+      params = params || {};
+
+      if (!params.name) {
+        return this;
+      }
+
+      params.type = params.type || "text";
+
+      if (typeof params.required == 'undefined') {
+        params.required = false;
+      }
+
+      if (typeof params.validation == 'undefined') {
+        params.validation = '';
+      }
+
+      if (typeof params.message == 'undefined') {
+        params.message = '';
+      }
+
+      if (typeof params.label == 'undefined') {
+        params.label = params.name;
+      }
+
+      var outerClass = "mura-editable mura-inactive";
+      var innerClass = "mura-inactive mura-editable-attribute";
+
+      if (params.type == "htmlEditor") {
+        outerClass += " mura-region mura-region-loose";
+        innerClass += " mura-region-local";
+      } else {
+        outerClass += " inline";
+        innerClass += " inline";
+      }
+
+      var innerClass = "mura-inactive mura-editable-attribute";
+      /*
+      <div class="mura-editable mura-inactive inline">
+      <label class="mura-editable-label" style="">TITLE</label>
+      <div contenteditable="false" id="mura-editable-attribute-title" class="mura-inactive mura-editable-attribute inline" data-attribute="title" data-type="text" data-required="false" data-message="" data-label="title">About</div>
+      </div>
+      	<div class="mura-region mura-region-loose mura-editable mura-inactive">
+      <label class="mura-editable-label" style="">BODY</label>
+      <div contenteditable="false" id="mura-editable-attribute-body" class="mura-region-local mura-inactive mura-editable-attribute" data-attribute="body" data-type="htmlEditor" data-required="false" data-message="" data-label="body" data-loose="true" data-perm="true" data-inited="false"></div>
+      </div>
+      */
+
+      var markup = '<div class="' + outerClass + '">';
+      markup += '<div contenteditable="false" id="mura-editable-attribute-' + params.name + ' class="' + innerClass + '" ';
+      markup += ' data-attribute="' + params.name + '" ';
+      markup += ' data-type="' + params.type + '" ';
+      markup += ' data-required="' + params.required + '" ';
+      markup += ' data-message="' + params.message + '" ';
+      markup += ' data-label="' + params.label + '"';
+
+      if (params.type == 'htmlEditor') {
+        markup += ' data-loose="true" data-perm="true" data-inited="false"';
+      }
+
+      markup += '>' + value + '</div>';
+      markup += '<label class="mura-editable-label" style="display:none">' + params.label.toUpperCase() + '</label>';
+      markup += '</div>';
+      this.selection[0].innerHTML = markup;
+      Mura.evalScripts(this.selection[0]);
+      return this;
+    },
+
+    /**
+    * processDisplayRegion - Renders and processes the display region data returned from Mura.renderFilename()
+    *
+    * @param	{any} data Region data to render
+    * @return {Promise}
+    */
+    processDisplayRegion: function processDisplayRegion(data, label) {
+      if (typeof data == 'undefined' || !this.selection.length) {
+        return this.processMarkup();
+      }
+
+      this.html(Mura.buildDisplayRegion(data));
+
+      if (label != 'undefined') {
+        this.find('label.mura-editable-label').html('DISPLAY REGION : ' + data.label);
+      }
+
+      return this.processMarkup();
+    },
+
+    /**
+     * appendDisplayObject - Appends display object to selected items
+     *
+     * @param	{object} data Display objectparams (including object='objectkey')
+     * @return {Promise}
+     */
+    dspObject: function dspObject(data) {
+      return this.appendDisplayObject(data);
+    }
+  });
 })(Mura);
-
 
 /***/ }),
 /* 356 */
 /***/ (function(module, exports, __webpack_require__) {
 
-
-var Mura =__webpack_require__(8);
-
+var Mura = __webpack_require__(8);
 /**
  * Creates a new Mura.UI instance
  * @name Mura.UI
@@ -20260,102 +20181,93 @@ var Mura =__webpack_require__(8);
  * @memberof Mura
  */
 
-Mura.UI=Mura.Core.extend(
-  /** @lends Mura.UI.prototype */
-  {
-	rb:{},
-	context:{},
-	onAfterRender:function(){},
-	onBeforeRender:function(){},
-	trigger:function(eventName){
-		var $eventName=eventName.toLowerCase();
-		if(typeof this.context.targetEl != 'undefined'){
-			var obj=Mura(this.context.targetEl).closest('.mura-object');
-			if(obj.length && typeof obj.node != 'undefined'){
-				if(typeof this.handlers[$eventName] != 'undefined'){
-					var $handlers=this.handlers[$eventName];
-					for(var i=0;i < $handlers.length;i++){
-						if(typeof $handlers[i].call == 'undefined'){
-							$handlers[i](this);
-						} else {
-							$handlers[i].call(this,this);
-						}
-					}
-				}
-				if(typeof this[eventName] == 'function'){
-					if(typeof this[eventName].call == 'undefined'){
-						this[eventName](this);
-					} else {
-						this[eventName].call(this,this);
-					}
-				}
-				var fnName='on' + eventName.substring(0,1).toUpperCase() + eventName.substring(1,eventName.length);
-				if(typeof this[fnName] == 'function'){
-					if(typeof this[fnName].call == 'undefined'){
-						this[fnName](this);
-					} else {
-						this[fnName].call(this,this);
-					}
-				}
-			}
-		}
-		return this;
-	},
 
-	/* This method is deprecated, use renderClient and renderServer instead */
-	render:function(){
-		Mura(this.context.targetEl).html(Mura.templates[context.object](this.context));
-		this.trigger('afterRender');
-		return this;
-	},
+Mura.UI = Mura.Core.extend(
+/** @lends Mura.UI.prototype */
+{
+  rb: {},
+  context: {},
+  onAfterRender: function onAfterRender() {},
+  onBeforeRender: function onBeforeRender() {},
+  trigger: function trigger(eventName) {
+    var $eventName = eventName.toLowerCase();
 
-	/*
-		This method's current implementation is to support backward compatibility
+    if (typeof this.context.targetEl != 'undefined') {
+      var obj = Mura(this.context.targetEl).closest('.mura-object');
 
-		Typically it would look like:
+      if (obj.length && typeof obj.node != 'undefined') {
+        if (typeof this.handlers[$eventName] != 'undefined') {
+          var $handlers = this.handlers[$eventName];
 
-		Mura(this.context.targetEl).html(Mura.templates[context.object](this.context));
-		this.trigger('afterRender');
-	*/
-	renderClient:function(){
-		return this.render();
-	},
+          for (var i = 0; i < $handlers.length; i++) {
+            if (typeof $handlers[i].call == 'undefined') {
+              $handlers[i](this);
+            } else {
+              $handlers[i].call(this, this);
+            }
+          }
+        }
 
+        if (typeof this[eventName] == 'function') {
+          if (typeof this[eventName].call == 'undefined') {
+            this[eventName](this);
+          } else {
+            this[eventName].call(this, this);
+          }
+        }
 
-	renderServer:function(){
-		return '';
-	},
+        var fnName = 'on' + eventName.substring(0, 1).toUpperCase() + eventName.substring(1, eventName.length);
 
-	hydrate:function(){
+        if (typeof this[fnName] == 'function') {
+          if (typeof this[fnName].call == 'undefined') {
+            this[fnName](this);
+          } else {
+            this[fnName].call(this, this);
+          }
+        }
+      }
+    }
 
-	},
+    return this;
+  },
 
-	destroy:function(){
-		
-	},
+  /* This method is deprecated, use renderClient and renderServer instead */
+  render: function render() {
+    Mura(this.context.targetEl).html(Mura.templates[context.object](this.context));
+    this.trigger('afterRender');
+    return this;
+  },
 
-	reset:function(self,empty){
-		
-	},
-
-	init:function(args){
-		this.context=args;
-		this.registerHelpers();
-		return this;
-	},
-
-	registerHelpers:function(){
-
-	}
+  /*
+  	This method's current implementation is to support backward compatibility
+  		Typically it would look like:
+  		Mura(this.context.targetEl).html(Mura.templates[context.object](this.context));
+  	this.trigger('afterRender');
+  */
+  renderClient: function renderClient() {
+    return this.render();
+  },
+  renderServer: function renderServer() {
+    return '';
+  },
+  hydrate: function hydrate() {},
+  destroy: function destroy() {},
+  reset: function reset(self, empty) {},
+  init: function init(args) {
+    this.context = args;
+    this.registerHelpers();
+    return this;
+  },
+  registerHelpers: function registerHelpers() {}
 });
-
 
 /***/ }),
 /* 357 */
 /***/ (function(module, exports, __webpack_require__) {
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-var Mura=__webpack_require__(8);
+var Mura = __webpack_require__(8);
 /**
  * Creates a new Mura.UI.Form
  * @name	Mura.UI.Form
@@ -20364,1585 +20276,1408 @@ var Mura=__webpack_require__(8);
  * @memberof	Mura
  */
 
-Mura.UI.Form=Mura.UI.extend(
+
+Mura.UI.Form = Mura.UI.extend(
 /** @lends Mura.DisplayObject.Form.prototype */
 {
-	context:{},
-	ormform: false,
-	formJSON:{},
-	data:{},
-	columns:[],
-	currentpage: 0,
-	entity: {},
-	fields:{},
-	filters: {},
-	datasets: [],
-	sortfield: '',
-	sortdir: '',
-	inlineerrors: true,
-	properties: {},
-	rendered: {},
-	renderqueue: 0,
-	//templateList: ['file','error','textblock','checkbox','checkbox_static','dropdown','dropdown_static','radio','radio_static','nested','textarea','textfield','form','paging','list','table','view','hidden','section'],
-	formInit: false,
-	responsemessage: "",
-	rb: {
-		generalwrapperclass:"well",
-		generalwrapperbodyclass:"",
-		formwrapperclass: "well",
-		formwrapperbodyclass: "",
-		formfieldwrapperclass: "control-group",
-		formfieldlabelclass:"control-label",
-		formerrorwrapperclass: "",
-		formresponsewrapperclass: "",
-		formgeneralcontrolclass:"form-control",
-		forminputclass:"form-control",
-		formselectclass:"form-control",
-		formtextareaclass:"form-control",
-		formfileclass:"form-control",
-		formtextblockclass:"form-control",
-		formcheckboxclass:"",
-		formcheckboxlabelclass:"checkbox",
-		formcheckboxwrapperclass:"",
-		formradioclass:"",
-		formradiowrapperclass:"",
-		formradiolabelclass:"radio",
-		formbuttonwrapperclass:"btn-group",
-		formbuttoninnerclass:"",
-		formbuttonclass:"btn btn-default",
-		formrequiredwrapperclass:"",
-		formbuttonsubmitclass :"form-submit",
-		formbuttonsubmitlabel : "Submit",
-		formbuttonsubmitwaitlabel : "Please Wait...",
-		formbuttonnextclass:"form-nav",
-		formbuttonnextlabel : "Next",
-		formbuttonbackclass:"form-nav",
-		formbuttonbacklabel : "Back",
-		formbuttoncancelclass:"btn-primary pull-right",
-		formbuttoncancellabel :"Cancel",
-		formrequiredlabel:"Required"
-	},
-	renderClient:function(){
-
-		if(this.context.mode == undefined){
-			this.context.mode = 'form';
-		}
-
-		var ident = "mura-form-" + this.context.instanceid;
-
-		this.context.formEl = "#" + ident;
-
-		this.context.html = "<div id='"+ident+"'></div>";
-
-		Mura(this.context.targetEl).html( this.context.html );
-
-		if (this.context.view == 'form') {
-			this.getForm();
-		}
-		else {
-			this.getList();
-		}
-
-		return this;
-	},
-
-	getTemplates:function() {
-
-		var self = this;
-
-		if (self.context.view == 'form') {
-			self.loadForm();
-		} else {
-			self.loadList();
-		}
-
-		/*
-		if(Mura.templatesLoaded.length){
-			var temp = Mura.templateList.pop();
-
-			Mura.ajax(
-				{
-					url:Mura.assetpath + '/includes/display_objects/form/templates/' + temp + '.hb',
-					type:'get',
-					xhrFields:{ withCredentials: false },
-					success:function(data) {
-						Mura.templates[temp] = Mura.Handlebars.compile(data);
-						if(!Mura.templateList.length) {
-							if (self.context.view == 'form') {
-								self.loadForm();
-							} else {
-								self.loadList();
-							}
-						} else {
-							self.getTemplates();
-						}
-					}
-				}
-			);
-
-		}
-		*/
-	},
-
-	getPageFieldList:function(){
-
-		var page=this.currentpage;
-		var fields = this.formJSON.form.pages[page];
-		var result=[];
-
-		for(var f=0;f < fields.length;f++){
-			//console.log("add: " + self.formJSON.form.fields[fields[f]].name);
-			result.push(this.formJSON.form.fields[fields[f]].name);
-		}
-
-		//console.log(result);
-
-		return result.join(',');
-	},
-
-	renderField:function(fieldtype,field) {
-		var self = this;
-		var templates = Mura.templates;
-		var template = fieldtype;
-
-		if( field.datasetid != "" && self.isormform)
-			field.options = self.formJSON.datasets[field.datasetid].options;
-		else if(field.datasetid != "") {
-			field.dataset = self.formJSON.datasets[field.datasetid];
-		}
-
-		self.setDefault( fieldtype,field );
-
-		if (fieldtype == "nested") {
-			var nested_context = {};
-			nested_context.objectid = field.formid;
-			nested_context.paging = 'single';
-			nested_context.mode = 'nested';
-			nested_context.prefix = field.name + '_';
-			nested_context.master = this;
-
-			var data={};
-			data.objectid=nested_context.objectid;
-			data.formid=nested_context.objectid;
-			data.object='form';
-			data.siteid=self.context.siteid || Mura.siteid;
-			data.contentid=Mura.contentid;
-			data.contenthistid=Mura.contenthistid;
-
-			Mura.get(
-				 Mura.getAPIEndpoint() + '?method=processAsyncObject',
-				 data)
-				 .then(function(resp){
-					var tempContext=Mura.extend({},nested_context);
-
-					delete tempContext.targetEl;
-
-					var context=Mura.deepExtend({},tempContext,resp.data)
-
-					context.targetEl=self.context.targetEl;
-
-					var nestedForm = new Mura.UI.Form( context );
-
-					Mura(".field-container-" + self.context.objectid,self.context.formEl).append('<div id="nested-'+field.formid+'"></div>');
-
-					context.formEl = document.getElementById('nested-'+field.formid);
-
-					nestedForm.getForm();
-
-					var html = Mura.templates[template](field);
-
-					Mura(".field-container-" + self.context.objectid,self.context.formEl).append(html);
-
-				 });
-
-		}
-		else {
-			if(fieldtype == "checkbox") {
-				if(self.ormform) {
-					field.selected = [];
-
-					var ds = self.formJSON.datasets[field.datasetid];
-
-					for (var i in ds.datarecords) {
-						if(ds.datarecords[i].selected && ds.datarecords[i].selected == 1)
-							field.selected.push(i);
-					}
-
-					field.selected = field.selected.join(",");
-				}
-				else {
-					template = template + "_static";
-				}
-			}
-			else if(fieldtype == "dropdown") {
-				if(!self.ormform) {
-					template = template + "_static";
-				}
-			}
-			else if(fieldtype == "radio") {
-				if(!self.ormform) {
-					template = template + "_static";
-				}
-			}
-
-			var html = Mura.templates[template](field);
-
-			Mura(".field-container-" + self.context.objectid,self.context.formEl).append(html);
-		}
-
-	},
-
-	setDefault:function(fieldtype,field) {
-		var self = this;
-
-		switch( fieldtype ) {
-			case "textfield":
-			case "textarea":
-				if(self.data[self.context.prefix + field.name]){
-					field.value = self.data[self.context.prefix + field.name];
-				}
-			 break;
-			case "checkbox":
-			var ds = self.formJSON.datasets[field.datasetid];
-				for(var i=0;i<ds.datarecords.length;i++) {
-					if (self.ormform) {
-						var sourceid = ds.source + "id";
-						ds.datarecords[i].selected = 0;
-						ds.datarecords[i].isselected = 0;
-
-						if(self.data[self.context.prefix + field.name].items && self.data[self.context.prefix + field.name].items.length) {
-							for(var x = 0;x < self.data[self.context.prefix + field.name].items.length;x++) {
-								if (ds.datarecords[i].id == self.data[self.context.prefix + field.name].items[x][sourceid]) {
-									ds.datarecords[i].isselected = 1;
-									ds.datarecords[i].selected = 1;
-								}
-							}
-						}
-					}
-					else {
-						if (self.data[self.context.prefix + field.name] && ds.datarecords[i].value && self.data[self.context.prefix + field.name].indexOf(ds.datarecords[i].value) > -1) {
-							ds.datarecords[i].isselected = 1;
-							ds.datarecords[i].selected = 1;
-						}
-						else {
-							ds.datarecords[i].selected = 0;
-							ds.datarecords[i].isselected = 0;
-						}
-					}
-				}
-			break;
-			case "radio":
-			case "dropdown":
-				var ds = self.formJSON.datasets[field.datasetid];
-				for(var i=0;i<ds.datarecords.length;i++) {
-					if(self.ormform) {
-						if(ds.datarecords[i].id == self.data[field.name+'id']) {
-							ds.datarecords[i].isselected = 1;
-							field.selected = self.data[field.name+'id'];
-						}
-						else {
-							ds.datarecords[i].selected = 0;
-							ds.datarecords[i].isselected = 0;
-						}
-					}
-					else {
-						 if(ds.datarecords[i].value == self.data[self.context.prefix + field.name]) {
-							ds.datarecords[i].isselected = 1;
-							field.selected = self.data[self.context.prefix + field.name];
-						}
-						else {
-							ds.datarecords[i].isselected = 0;
-						}
-					}
-				}
-			break;
-		}
-	},
-
-	renderData:function() {
-		var self = this;
-
-		if(self.datasets.length == 0){
-			if (self.renderqueue == 0) {
-				self.renderForm();
-			}
-			return;
-		}
-
-		var dataset = self.formJSON.datasets[self.datasets.pop()];
-
-		if(dataset.sourcetype && dataset.sourcetype != 'muraorm'){
-			self.renderData();
-			return;
-		}
-
-		if(dataset.sourcetype=='muraorm'){
-			dataset.options = [];
-			self.renderqueue++;
-
-			Mura.getFeed( dataset.source )
-				.getQuery()
-				.then( function(collection) {
-					collection.each(function(item) {
-						var itemid = item.get('id');
-						dataset.datarecordorder.push( itemid );
-						dataset.datarecords[itemid] = item.getAll();
-						dataset.datarecords[itemid]['value'] = itemid;
-						dataset.datarecords[itemid]['datarecordid'] = itemid;
-						dataset.datarecords[itemid]['datasetid'] = dataset.datasetid;
-						dataset.datarecords[itemid]['isselected'] = 0;
-						dataset.options.push( dataset.datarecords[itemid] );
-					});
-				})
-				.then(function() {
-					self.renderqueue--;
-					self.renderData();
-					if (self.renderqueue == 0) {
-						self.renderForm();
-					}
-				});
-		} else {
-			if (self.renderqueue == 0) {
-				self.renderForm();
-			}
-		}
-	},
-
-	renderForm: function( ) {
-		var self = this;
-
-		//console.log("render form: " + self.currentpage);
-		if(typeof self.context.prefix =='undefined'){
-			self.context.prefix='';
-		}
-
-		Mura(".field-container-" + self.context.objectid,self.context.formEl).empty();
-
-		if(!self.formInit) {
-			self.initForm();
-		}
-
-		var fields = self.formJSON.form.pages[self.currentpage];
-
-		for(var i = 0;i < fields.length;i++) {
-			var field =	self.formJSON.form.fields[fields[i]];
-			//try {
-				if( field.fieldtype.fieldtype != undefined && field.fieldtype.fieldtype != "") {
-					self.renderField(field.fieldtype.fieldtype,field);
-				}
-			//} catch(e){
-				//console.log('Error rendering form field:');
-				//console.log(field);
-			//}
-		}
-
-		if(self.ishuman && self.currentpage==(self.formJSON.form.pages.length-1)){
-			Mura(".field-container-" + self.context.objectid,self.context.formEl).append(self.ishuman);
-		}
-
-		if (self.context.mode == 'form') {
-			self.renderPaging();
-		}
-
-		Mura.processMarkup(".field-container-" + self.context.objectid,self.context.formEl);
-
-		self.trigger('afterRender');
-
-	},
-
-	renderPaging:function() {
-
-		var self = this;
-		var submitlabel=(typeof self.formJSON.form.formattributes != 'undefined' && typeof self.formJSON.form.formattributes.submitlabel != 'undefined' && self.formJSON.form.formattributes.submitlabel) ? self.formJSON.form.formattributes.submitlabel : self.rb.formbuttonsubmitlabel;
-
-		Mura(".error-container-" + self.context.objectid,self.context.formEl).empty();
-		Mura(".paging-container-" + self.context.objectid,self.context.formEl).empty();
-
-		if(self.formJSON.form.pages.length == 1) {
-			Mura(".paging-container-" + self.context.objectid,self.context.formEl).append(Mura.templates['paging']({page:self.currentpage+1,label:submitlabel,"class":Mura.trim("mura-form-submit " + self.rb.formbuttonsubmitclass)}));
-		}
-		else {
-			if(self.currentpage == 0) {
-				Mura(".paging-container-" + self.context.objectid,self.context.formEl).append(Mura.templates['paging']({page:1,label:self.rb.formbuttonnextlabel,"class":Mura.trim("mura-form-nav mura-form-next " + self.rb.formbuttonnextclass)}));
-			} else {
-				Mura(".paging-container-" + self.context.objectid,self.context.formEl).append(Mura.templates['paging']({page:self.currentpage-1,label:self.rb.formbuttonbacklabel,"class":Mura.trim("mura-form-nav mura-form-back " + self.rb.formbuttonbackclass)}));
-
-				if(self.currentpage+1 < self.formJSON.form.pages.length) {
-					Mura(".paging-container-" + self.context.objectid,self.context.formEl).append(Mura.templates['paging']({page:self.currentpage+1,label:self.rb.formbuttonnextlabel,"class":Mura.trim("mura-form-nav mura-form-next " + self.rb.formbuttonnextclass)}));
-				}
-				else {
-					Mura(".paging-container-" + self.context.objectid,self.context.formEl).append(Mura.templates['paging']({page:self.currentpage+1,label:submitlabel,"class":Mura.trim("mura-form-submit " + self.rb.formbuttonsubmitclass)}));
-				}
-			}
-
-			if(self.backlink != undefined && self.backlink.length)
-				Mura(".paging-container-" + self.context.objectid,self.context.formEl).append(Mura.templates['paging']({page:self.currentpage+1,label:self.rb.formbuttoncancellabel,"class":Mura.trim("mura-form-nav mura-form-cancel " + self.rb.formbuttoncancelclass)}));
-		}
-
-		var submitHandler=function() {
-			self.submitForm();
-		};
-
-		Mura(".mura-form-submit",self.context.formEl).off('click',submitHandler).on('click',submitHandler);
-
-		Mura(".mura-form-cancel",self.context.formEl).click( function() {
-			self.getTableData( self.backlink );
-		});
-
-
-		var formNavHandler=function(e) {
-
-			if(Mura(e.target).is('.mura-form-submit')){
-				return;
-			}
-
-			self.setDataValues();
-
-			var keepGoing=self.onPageSubmit.call(self.context.targetEl);
-			if(typeof keepGoing != 'undefined' && !keepGoing){
-				return;
-			}
-
-			var button = this;
-
-			if(self.ormform) {
-				Mura.getEntity(self.entity)
-				.set(
-					self.data
-				)
-				.validate(self.getPageFieldList())
-				.then(
-					function( entity ) {
-						if(entity.hasErrors()){
-							self.showErrors( entity.properties.errors );
-						} else {
-							self.currentpage = Mura(button).data('page');
-							self.renderForm();
-						}
-					}
-				);
-			} else {
-				var data=Mura.extend({}, self.data, self.context);
-				data.validateform=true;
-				data.formid=data.objectid;
-				data.siteid=data.siteid || Mura.siteid;
-				data.fields=self.getPageFieldList();
-
-				delete data.filename;
-				delete data.def;
-				delete data.ishuman;
-				delete data.targetEl;
-				delete data.html;
-
-
-				Mura.ajax({
-					type: 'post',
-					url: Mura.getAPIEndpoint() +
-						'?method=generateCSRFTokens',
-					data: {
-						siteid: data.siteid,
-						context: data.formid
-					},
-					success: function(resp) {
-						data['csrf_token_expires']=resp.data['csrf_token_expires'];
-						data['csrf_token']=resp.data['csrf_token'];
-
-						Mura.post(
-							Mura.getAPIEndpoint() + '?method=processAsyncObject',
-							data
-						).then(function(resp){
-							if(typeof resp.data.errors == 'object' && !Mura.isEmptyObject(resp.data.errors)){
-								self.showErrors( resp.data.errors );
-							} else if(typeof resp.data.redirect != 'undefined') {
-								if(resp.data.redirect && resp.data.redirect != location.href){
-									location.href=resp.data.redirect;
-								} else {
-									location.reload(true);
-								}
-							} else {
-								self.currentpage = Mura(button).data('page');
-								if(self.currentpage >= self.formJSON.form.pages.length){
-									self.currentpage=self.formJSON.form.pages.length-1;
-								}
-								self.renderForm();
-							}
-						});
-					}
-				});
-			}
-
-			/*
-			}
-			else {
-				console.log('oops!');
-			}
-			*/
-		};
-
-		Mura(".mura-form-nav",self.context.formEl).off('click',formNavHandler).on('click',formNavHandler);
-	},
-
-	setDataValues: function() {
-		var self = this;
-		var multi = {};
-		var item = {};
-		var valid = [];
-		var currentPage = {};
-
-		Mura(".field-container-" + self.context.objectid + " input, .field-container-" + self.context.objectid + " select, .field-container-" + self.context.objectid + " textarea").each( function() {
-
-			currentPage[Mura(this).attr('name')]=true;
-
-			if( Mura(this).is('[type="checkbox"]')) {
-				if ( multi[Mura(this).attr('name')] == undefined )
-					multi[Mura(this).attr('name')] = [];
-
-				if( this.checked ) {
-					if (self.ormform) {
-						item = {};
-						item['id'] = Mura.createUUID();
-						item[self.entity + 'id'] = self.data.id;
-						item[Mura(this).attr('source') + 'id'] = Mura(this).val();
-						item['key'] = Mura(this).val();
-
-						multi[Mura(this).attr('name')].push(item);
-					}
-					else {
-						multi[Mura(this).attr('name')].push(Mura(this).val());
-					}
-				}
-			}
-			else if( Mura(this).is('[type="radio"]')) {
-				if( this.checked ) {
-					self.data[ Mura(this).attr('name') ] = Mura(this).val();
-					valid[ Mura(this).attr('name') ] = self.data[name];
-				}
-			}
-			else {
-				self.data[ Mura(this).attr('name') ] = Mura(this).val();
-				valid[ Mura(this).attr('name') ] = self.data[Mura(this).attr('name')];
-			}
-		});
-
-		for(var i in multi) {
-			if(self.ormform) {
-				self.data[ i ].cascade = "replace";
-				self.data[ i ].items = multi[ i ];
-				valid[ i ] = self.data[i];
-			}
-			else {
-				self.data[ i ] = multi[i].join(",");
-				valid[ i ] = multi[i].join(",");
-			}
-		}
-
-		if(Mura.formdata){
-			var frm=document.getElementById('frm' + self.context.objectid);
-			for(var p in currentPage){
-				if(currentPage.hasOwnProperty(p) && typeof self.data[p] != 'undefined'){
-					if(p.indexOf("_attachment") > -1 && typeof frm[p] != 'undefined'){
-						self.attachments[p]=frm[p].files[0];
-					}
-				}
-			}
-		}
-
-		return valid;
-
-	},
-
-	validate: function( entity,fields ) {
-		return true;
-	},
-
-	getForm: function( entityid,backlink ) {
-		var self = this;
-		var formJSON = {};
-		var entityName = '';
-
-		if(entityid != undefined){
-			self.entityid = entityid;
-		} else {
-			delete self.entityid;
-		}
-
-		if(backlink != undefined){
-			self.backlink = backlink;
-		} else {
-			delete self.backlink;
-		}
-
-		/*
-		if(Mura.templateList.length) {
-			self.getTemplates( entityid );
-		}
-		else {
-		*/
-			self.loadForm();
-		//}
-	},
-
-	loadForm: function( data ) {
-		var self = this;
-
-		//console.log('a');
-		//console.log(self.formJSOrenderN);
-
-		formJSON = JSON.parse(self.context.def);
-
-		// old forms
-		if(!formJSON.form.pages) {
-			formJSON.form.pages = [];
-			formJSON.form.pages[0] = formJSON.form.fieldorder;
-			formJSON.form.fieldorder = [];
-		}
-
-
-		if(typeof formJSON.datasets != 'undefined'){
-			for(var d in formJSON.datasets){
-				if(typeof formJSON.datasets[d].DATARECORDS != 'undefined'){
-					formJSON.datasets[d].datarecords=formJSON.datasets[d].DATARECORDS;
-					delete formJSON.datasets[d].DATARECORDS;
-				}
-				if(typeof formJSON.datasets[d].DATARECORDORDER != 'undefined'){
-					formJSON.datasets[d].datarecordorder=formJSON.datasets[d].DATARECORDORDER;
-					delete formJSON.datasets[d].DATARECORDORDER;
-				}
-			}
-		}
-
-		entityName = self.context.filename.replace(/\W+/g, "");
-		self.entity = entityName;
-		self.formJSON = formJSON;
-		self.fields = formJSON.form.fields;
-		self.responsemessage = self.context.responsemessage;
-		self.ishuman=self.context.ishuman;
-
-		if (formJSON.form.formattributes && formJSON.form.formattributes.Muraormentities == 1) {
-			self.ormform = true;
-		}
-
-		for(var i=0;i < self.formJSON.datasets;i++){
-			self.datasets.push(i);
-		}
-
-		if(self.ormform) {
-			self.entity = entityName;
-
-			if(self.entityid == undefined) {
-				Mura.get(
-					Mura.getAPIEndpoint() +'/'+ entityName + '/new?expand=all&ishuman=true'
-				).then(function(resp) {
-					self.data = resp.data;
-					self.renderData();
-				});
-			}
-			else {
-				Mura.get(
-					Mura.getAPIEndpoint()	+ '/'+ entityName + '/' + self.entityid + '?expand=all&ishuman=true'
-				).then(function(resp) {
-					self.data = resp.data;
-					self.renderData();
-				});
-			}
-		}
-		else {
-			self.renderData();
-		}
-		/*
-		Mura.get(
-				Mura.getAPIEndpoint() + '/content/' + self.context.objectid
-				 + '?fields=body,title,filename,responsemessage&ishuman=true'
-				).then(function(data) {
-				 	formJSON = JSON.parse( data.data.body );
-
-					// old forms
-					if(!formJSON.form.pages) {
-						formJSON.form.pages = [];
-						formJSON.form.pages[0] = formJSON.form.fieldorder;
-						formJSON.form.fieldorder = [];
-					}
-
-					entityName = data.data.filename.replace(/\W+/g, "");
-					self.entity = entityName;
-				 	self.formJSON = formJSON;
-				 	self.fields = formJSON.form.fields;
-				 	self.responsemessage = data.data.responsemessage;
-					self.ishuman=data.data.ishuman;
-
-					if (formJSON.form.formattributes && formJSON.form.formattributes.Muraormentities == 1) {
-						self.ormform = true;
-					}
-
-					for(var i=0;i < self.formJSON.datasets;i++){
-						self.datasets.push(i);
-					}
-
-					if(self.ormform) {
-					 	self.entity = entityName;
-
-					 	if(self.entityid == undefined) {
-							Mura.get(
-								Mura.getAPIEndpoint() +'/'+ entityName + '/new?expand=all&ishuman=true'
-							).then(function(resp) {
-								self.data = resp.data;
-								self.renderData();
-							});
-					 	}
-					 	else {
-							Mura.get(
-								Mura.getAPIEndpoint()	+ '/'+ entityName + '/' + self.entityid + '?expand=all&ishuman=true'
-							).then(function(resp) {
-								self.data = resp.data;
-								self.renderData();
-							});
-						}
-					}
-					else {
-						self.renderData();
-					}
-				 }
-			);
-
-		*/
-	},
-
-	initForm: function() {
-		var self = this;
-		Mura(self.context.formEl).empty();
-
-		if(self.context.mode != undefined && self.context.mode == 'nested') {
-			var html = Mura.templates['nested'](self.context);
-		}
-		else {
-			var html = Mura.templates['form'](self.context);
-		}
-
-		Mura(self.context.formEl).append(html);
-
-		self.currentpage = 0;
-		self.attachments={};
-		self.formInit=true;
-		Mura.trackEvent({category:'Form',action:'Impression',label:self.context.name,objectid:self.context.objectid,nonInteraction:true});
-	},
-
-	onSubmit: function(){
-		return true;
-	},
-
-	onPageSubmit: function(){
-		return true;
-	},
-
-	submitForm: function() {
-
-		var self = this;
-		var valid = self.setDataValues();
-		Mura(".error-container-" + self.context.objectid,self.context.formEl).empty();
-
-		var keepGoing=this.onSubmit.call(this.context.targetEl);
-		if(typeof keepGoing != 'undefined' && !keepGoing){
-			return;
-		}
-
-		delete self.data.isNew;
-
-		var frm=Mura(self.context.formEl).find('form');
-		frm.find('.mura-form-submit').html(self.rb.formbuttonsubmitwaitlabel);
-		frm.trigger('formSubmit');
-
-		if(self.ormform) {
-			//console.log('a!');
-			Mura.getEntity(self.entity)
-			.set(
-				self.data
-			)
-			.save()
-			.then(
-				function( entity ) {
-					if(self.backlink != undefined) {
-						self.getTableData( self.location );
-						return;
-					}
-
-					if(typeof resp.data.redirect != 'undefined'){
-						if(resp.data.redirect && resp.data.redirect != location.href){
-							location.href=resp.data.redirect;
-						} else {
-							location.reload(true);
-						}
-					} else {
-						Mura(self.context.formEl).html( Mura.templates['success'](data) );
-						self.trigger('afterResponseRender');
-					}
-				},
-				function( entity ) {
-					self.showErrors( entity.properties.errors );
-					self.trigger('afterErrorRender');
-				}
-			);
-		}
-		else {
-			//console.log('b!');
-
-			if(!Mura.formdata){
-				var data=Mura.extend({},self.context,self.data);
-				data.saveform=true;
-				data.formid=data.objectid;
-				data.siteid=self.context.siteid || data.siteid || Mura.siteid;
-				data.contentid=Mura.contentid || '';
-				data.contenthistid=Mura.contenthistid || '';
-
-				delete data.filename;
-				delete data.def;
-				delete data.ishuman;
-				delete data.targetEl;
-				delete data.html;
-
-				if(data.responsechart){
-					var frm=Mura(self.context.targetEl);
-					var polllist=new Array();
-					frm.find("input[type='radio']").each(function(){
-						polllist.push(Mura(this).val());
-					});
-					if(polllist.length > 0) {data.polllist=polllist.toString();}
-				}
-
-				var tokenArgs={
-					siteid: data.siteid,
-					context: data.formid
-				}
-
-			} else {
-				var rawdata=Mura.extend({},self.context,self.data);
-				rawdata.saveform=true;
-				rawdata.formid=rawdata.objectid;
-				rawdata.siteid=self.context.siteid || rawdata.siteid || Mura.siteid;
-				rawdata.contentid=Mura.contentid || '';
-				rawdata.contenthistid=Mura.contenthistid || '';
-
-				delete rawdata.filename;
-				delete rawdata.def;
-				delete rawdata.ishuman;
-				delete rawdata.targetEl;
-				delete rawdata.html;
-
-				var tokenArgs={
-					siteid: rawdata.siteid,
-					context: rawdata.formid
-				}
-
-				if(rawdata.responsechart){
-					var frm=Mura(self.context.targetEl);
-					var polllist=new Array();
-					frm.find("input[type='radio']").each(function(){
-						polllist.push(Mura(this).val());
-					});
-					if(polllist.length > 0) {rawdata.polllist=polllist.toString();}
-				}
-
-				var data=new FormData();
-
-				for(var p in rawdata){
-					if(rawdata.hasOwnProperty(p)){
-						if(typeof self.attachments[p] != 'undefined'){
-							data.append(p,self.attachments[p]);
-						} else {
-							data.append(p,rawdata[p]);
-						}
-					}
-				}
-			}
-
-			Mura.ajax({
-				type: 'post',
-				url: Mura.getAPIEndpoint() +
-					'?method=generateCSRFTokens',
-				data: tokenArgs,
-				success: function(resp) {
-
-					if(!Mura.formdata){
-						data['csrf_token_expires']=resp.data['csrf_token_expires'];
-						data['csrf_token']=resp.data['csrf_token'];
-					} else {
-						data.append('csrf_token_expires',resp.data['csrf_token_expires']);
-						data.append('csrf_token',resp.data['csrf_token']);
-					}
-
-					Mura.post(
-						 Mura.getAPIEndpoint() + '?method=processAsyncObject',
-						 data)
-						 .then(function(resp){
-							 if(typeof resp.data.errors == 'object' && !Mura.isEmptyObject(resp.data.errors )){
-								 self.showErrors( resp.data.errors );
-								 self.trigger('afterErrorRender');
-							 } else {
-
-								 Mura(self.context.formEl)
-									 .find('form')
-									 .trigger('formSubmitSuccess');
-
-								 Mura.trackEvent({
-									 category:'Form',
-									 action:'Conversion',
-									 label:self.context.name,
-									 objectid:self.context.objectid}
-								 ).then(function(){
-									 if(typeof resp.data.redirect != 'undefined'){
-										 if(resp.data.redirect && resp.data.redirect != location.href){
-											 location.href=resp.data.redirect;
-										 } else {
-											 location.reload(true);
-										 }
-									 } else {
-										 Mura(self.context.formEl).html( Mura.templates['success'](resp.data) );
-										 self.trigger('afterResponseRender');
-									 }
-								 });
-						 	}
-						},
-						function(resp){
-							self.showErrors( {"systemerror":"We're sorry, a system error has occurred. Please try again later."} );
-							self.trigger('afterErrorRender');
-						});
-				}
-			});
-		}
-
-	},
-
-	showErrors: function( errors ) {
-		var self = this;
-		var frm=Mura(this.context.formEl);
-		var frmErrors=frm.find(".error-container-" + self.context.objectid);
-
-		frm.find('.mura-form-submit').html(self.rb.formbuttonsubmitlabel);
-		frm.find('.mura-response-error').remove();
-
-		console.log(errors);
-
-		//var errorData = {};
-
-		/*
-		for(var i in self.fields) {
-			var field = self.fields[i];
-
-			if( errors[ field.name ] ) {
-				var error = {};
-				error.message = field.validatemessage && field.validatemessage.length ? field.validatemessage : errors[field.name];
-				error.field = field.name;
-				error.label = field.label;
-				errorData[field.name] = error;
-			}
-
-		}
-		*/
-
-		for(var e in errors) {
-			if( typeof self.fields[e] != 'undefined' ) {
-				var field = self.fields[e]
-				var error = {};
-				error.message = field.validatemessage && field.validatemessage.length ? field.validatemessage : errors[field.name];
-				error.field = field.name;
-				error.label = field.label;
-				//errorData[e] = error;
-			} else {
-				var error = {};
-				error.message = errors[e];
-				error.field = '';
-				error.label = '';
-				//errorData[e] = error;
-			}
-
-			if(this.inlineerrors){
-				var label=Mura(this.context.formEl).find('label[data-for="' + e + '"]');
-
-				if(label.length){
-					label.node.insertAdjacentHTML('afterend',Mura.templates['error'](error));
-				} else {
-					frmErrors.append(Mura.templates['error'](error));
-				}
-			} else {
-				frmErrors.append(Mura.templates['error'](error));
-			}
-		}
-
-		Mura(self.context.formEl).find('.g-recaptcha-container').each(function(el){
-			grecaptcha.reset(el.getAttribute('data-widgetid'));
-		});
-
-		var errorsSel=Mura(this.context.formEl).find('.mura-response-error');
-
-		if(errorsSel.length){
-			errorsSel=errorsSel.first().node;
-			if(!Mura.isScrolledIntoView(errorsSel) && typeof errorsSel.scrollIntoView != 'undefined'){
-				errorsSel.scrollIntoView(true);
-			}
-		}
-	},
-
-
-	// lists
-	getList: function() {
-		var self = this;
-
-		var entityName = '';
-
-		/*
-		if(Mura.templateList.length) {
-			self.getTemplates();
-		}
-		else {
-		*/
-			self.loadList();
-		//}
-	},
-
-	filterResults: function() {
-		var self = this;
-		var before = "";
-		var after = "";
-
-		self.filters.filterby = Mura("#results-filterby",self.context.formEl).val();
-		self.filters.filterkey = Mura("#results-keywords",self.context.formEl).val();
-
-		if( Mura("#date1",self.context.formEl).length ) {
-			if(Mura("#date1",self.context.formEl).val().length) {
-				self.filters.from = Mura("#date1",self.context.formEl).val() + " " + Mura("#hour1",self.context.formEl).val() + ":00:00";
-				self.filters.fromhour = Mura("#hour1",self.context.formEl).val();
-				self.filters.fromdate = Mura("#date1",self.context.formEl).val();
-			}
-			else {
-				self.filters.from = "";
-				self.filters.fromhour = 0;
-				self.filters.fromdate = "";
-			}
-
-			if(Mura("#date2",self.context.formEl).val().length) {
-				self.filters.to = Mura("#date2",self.context.formEl).val() + " " + Mura("#hour2",self.context.formEl).val() + ":00:00";
-				self.filters.tohour = Mura("#hour2",self.context.formEl).val();
-				self.filters.todate = Mura("#date2",self.context.formEl).val();
-			}
-			else {
-				self.filters.to = "";
-				self.filters.tohour = 0;
-				self.filters.todate = "";
-			}
-		}
-
-		self.getTableData();
-	},
-
-	downloadResults: function() {
-		var self = this;
-
-		self.filterResults();
-
-	},
-
-
-	loadList: function() {
-		var self = this;
-
-		formJSON = self.context.formdata;
-		entityName = dself.context.filename.replace(/\W+/g, "");
-		self.entity = entityName;
-		self.formJSON = formJSON;
-
-		if (formJSON.form.formattributes && formJSON.form.formattributes.Muraormentities == 1) {
-			self.ormform = true;
-		}
-		else {
-			Mura(self.context.formEl).append("Unsupported for pre-Mura 7.0 MuraORM Forms.");
-			return;
-		}
-
-		self.getTableData();
-
-		/*
-		Mura.get(
-			Mura.getAPIEndpoint() + 'content/' + self.context.objectid
-			 + '?fields=body,title,filename,responsemessage'
-			).then(function(data) {
-			 	formJSON = JSON.parse( data.data.body );
-				entityName = data.data.filename.replace(/\W+/g, "");
-				self.entity = entityName;
-			 	self.formJSON = formJSON;
-
-				if (formJSON.form.formattributes && formJSON.form.formattributes.Muraormentities == 1) {
-					self.ormform = true;
-				}
-				else {
-					Mura(self.context.formEl).append("Unsupported for pre-Mura 7.0 MuraORM Forms.");
-					return;
-				}
-
-				self.getTableData();
-		});
-		*/
-	},
-
-	getTableData: function( navlink ) {
-		var self = this;
-
-		Mura.get(
-			Mura.getAPIEndpoint()	+ self.entity + '/listviewdescriptor'
-		).then(function(resp) {
-				self.columns = resp.data;
-			Mura.get(
-				Mura.getAPIEndpoint() + self.entity + '/propertydescriptor/'
-			).then(function(resp) {
-				self.properties = self.cleanProps(resp.data);
-				if( navlink == undefined) {
-					navlink = Mura.getAPIEndpoint() + self.entity + '?sort=' + self.sortdir + self.sortfield;
-					var fields = [];
-					for(var i = 0;i < self.columns.length;i++) {
-						fields.push(self.columns[i].column);
-					}
-					navlink = navlink + "&fields=" + fields.join(",");
-
-					if (self.filters.filterkey && self.filters.filterkey != '') {
-						navlink = navlink + "&" + self.filters.filterby + "=contains^" + self.filters.filterkey;
-					}
-
-					if (self.filters.from && self.filters.from != '') {
-						navlink = navlink + "&created[1]=gte^" + self.filters.from;
-					}
-					if (self.filters.to && self.filters.to != '') {
-						navlink = navlink + "&created[2]=lte^" + self.filters.to;
-					}
-				}
-
-				Mura.get(
-					navlink
-				).then(function(resp) {
-					self.data = resp.data;
-					self.location = self.data.links.self;
-
-					var tableData = {rows:self.data,columns:self.columns,properties:self.properties,filters:self.filters};
-					self.renderTable( tableData );
-				});
-
-			});
-		});
-
-	},
-
-	renderTable: function( tableData ) {
-		var self = this;
-
-		var html = Mura.templates['table'](tableData);
-		Mura(self.context.formEl).html( html );
-
-		if (self.context.view == 'list') {
-			Mura("#date-filters",self.context.formEl).empty();
-			Mura("#btn-results-download",self.context.formEl).remove();
-		}
-		else {
-			if (self.context.render == undefined) {
-				Mura(".datepicker", self.context.formEl).datepicker();
-			}
-
-			Mura("#btn-results-download",self.context.formEl).click( function() {
-				self.downloadResults();
-			});
-		}
-
-		Mura("#btn-results-search",self.context.formEl).click( function() {
-			self.filterResults();
-		});
-
-
-		Mura(".data-edit",self.context.formEl).click( function() {
-			self.renderCRUD( Mura(this).attr('data-value'),Mura(this).attr('data-pos'));
-		});
-		Mura(".data-view",self.context.formEl).click( function() {
-			self.loadOverview(Mura(this).attr('data-value'),Mura(this).attr('data-pos'));
-		});
-		Mura(".data-nav",self.context.formEl).click( function() {
-			self.getTableData( Mura(this).attr('data-value') );
-		});
-
-		Mura(".data-sort").click( function() {
-
-			var sortfield = Mura(this).attr('data-value');
-
-			if(sortfield == self.sortfield && self.sortdir == '')
-				self.sortdir = '-';
-			else
-				self.sortdir = '';
-
-			self.sortfield = Mura(this).attr('data-value');
-			self.getTableData();
-
-		});
-	},
-
-
-	loadOverview: function(itemid,pos) {
-		var self = this;
-
-		Mura.get(
-			Mura.getAPIEndpoint() + entityName + '/' + itemid + '?expand=all'
-			).then(function(resp) {
-				self.item = resp.data;
-
-				self.renderOverview();
-		});
-	},
-
-	renderOverview: function() {
-		var self = this;
-
-		//console.log('ia');
-		//console.log(self.item);
-
-		Mura(self.context.formEl).empty();
-
-		var html = Mura.templates['view'](self.item);
-		Mura(self.context.formEl).append(html);
-
-		Mura(".nav-back",self.context.formEl).click( function() {
-			self.getTableData( self.location );
-		});
-	},
-
-	renderCRUD: function( itemid,pos ) {
-		var self = this;
-
-		self.formInit = 0;
-		self.initForm();
-
-		self.getForm(itemid,self.data.links.self);
-	},
-
-	cleanProps: function( props ) {
-		var propsOrdered = {};
-		var propsRet = {};
-		var ct = 100000;
-
-		delete props.isnew;
-		delete props.created;
-		delete props.lastUpdate;
-		delete props.errors;
-		delete props.saveErrors;
-		delete props.instance;
-		delete props.instanceid;
-		delete props.frommuracache;
-		delete props[self.entity + "id"];
-
-		for(var i in props) {
-			if( props[i].orderno != undefined) {
-				propsOrdered[props[i].orderno] = props[i];
-			}
-			else {
-				propsOrdered[ct++] = props[i];
-			}
-		}
-
-		Object.keys(propsOrdered)
-			.sort()
-				.forEach(function(v, i) {
-				propsRet[v] = propsOrdered[v];
-		});
-
-		return propsRet;
-	},
-
-	registerHelpers: function() {
-		var self = this;
-
-		Mura.extend(self.rb,Mura.rb);
-
-		Mura.Handlebars.registerHelper('eachColRow',function(row, columns, options) {
-			var ret = "";
-			for(var i = 0;i < columns.length;i++) {
-				ret = ret + options.fn(row[columns[i].column]);
-			}
-			return ret;
-		});
-
-		Mura.Handlebars.registerHelper('eachProp',function(data, options) {
-			var ret = "";
-			var obj = {};
-
-			for(var i in self.properties) {
-				obj.displayName = self.properties[i].displayName;
-				if( self.properties[i].fieldtype == "one-to-one" ) {
-					obj.displayValue = data[ self.properties[i].cfc ].val;
-				}
-				else
-					obj.displayValue = data[ self.properties[i].column ];
-
-				ret = ret + options.fn(obj);
-			}
-			return ret;
-		});
-
-		Mura.Handlebars.registerHelper('eachKey',function(properties, by, options) {
-			var ret = "";
-			var item = "";
-			for(var i in properties) {
-				item = properties[i];
-
-				if(item.column == by)
-					item.selected = "Selected";
-
-				if(item.rendertype == 'textfield')
-					ret = ret + options.fn(item);
-			}
-
-			return ret;
-		});
-
-		Mura.Handlebars.registerHelper('eachHour',function(hour, options) {
-			var ret = "";
-			var h = 0;
-			var val = "";
-
-			for(var i = 0;i < 24;i++) {
-
-				if(i == 0 ) {
-					val = {label:"12 AM",num:i};
-				}
-				else if(i <12 ) {
-					h = i;
-					val = {label:h + " AM",num:i};
-				}
-				else if(i == 12 ) {
-					h = i;
-					val = {label:h + " PM",num:i};
-				}
-				else {
-					h = i-12;
-					val = {label:h + " PM",num:i};
-				}
-
-				if(hour == i)
-					val.selected = "selected";
-
-				ret = ret + options.fn(val);
-			}
-			return ret;
-		});
-
-		Mura.Handlebars.registerHelper('eachColButton',function(row, options) {
-			var ret = "";
-
-			row.label='View';
-			row.type='data-view';
-
-			// only do view if there are more properties than columns
-			if( Object.keys(self.properties).length > self.columns.length) {
-				ret = ret + options.fn(row);
-			}
-
-			if( self.context.view == 'edit') {
-				row.label='Edit';
-				row.type='data-edit';
-
-				ret = ret + options.fn(row);
-			}
-
-			return ret;
-		});
-
-		Mura.Handlebars.registerHelper('eachCheck',function(checks, selected, options) {
-			var ret = "";
-
-			for(var i = 0;i < checks.length;i++) {
-				if( selected.indexOf( checks[i].id ) > -1 )
-					checks[i].isselected = 1;
-				else
-				 	checks[i].isselected = 0;
-
-				ret = ret + options.fn(checks[i]);
-			}
-			return ret;
-		});
-
-		Mura.Handlebars.registerHelper('eachStatic',function(dataset, options) {
-			var ret = "";
-
-			for(var i = 0;i < dataset.datarecordorder.length;i++) {
-				ret = ret + options.fn(dataset.datarecords[dataset.datarecordorder[i]]);
-			}
-			return ret;
-		});
-
-		Mura.Handlebars.registerHelper('inputWrapperClass',function() {
-			var escapeExpression=Mura.Handlebars.escapeExpression;
-			var returnString='mura-control-group';
-
-			if(self.rb.formfieldwrapperclass){
-				returnString += ' ' + self.rb.formfieldwrapperclass;
-			}
-
-			if(this.wrappercssclass){
-				returnString += ' ' + escapeExpression(this.wrappercssclass);
-			}
-
-			if(this.isrequired){
-				returnString += ' req';
-
-				if(self.rb.formrequiredwrapperclass){
-					returnString += ' ' + self.rb.formrequiredwrapperclass;
-				}
-			}
-
-			return returnString;
-		});
-
-		Mura.Handlebars.registerHelper('radioLabelClass',function() {
-			return self.rb.formradiolabelclass;
-		});
-
-		Mura.Handlebars.registerHelper('formErrorWrapperClass',function() {
-			if(self.rb.formerrorwrapperclass){
-				return 'mura-response-error' + ' ' + self.rb.formerrorwrapperclass;
-			} else {
-				return 'mura-response-error';
-			}
-		});
-
-		Mura.Handlebars.registerHelper('formSuccessWrapperClass',function() {
-			if(self.rb.formresponsewrapperclass){
-				return 'mura-response-success' + ' ' + self.rb.formresponsewrapperclass;
-			} else {
-				return 'mura-response-success';
-			}
-		});
-
-		Mura.Handlebars.registerHelper('formResponseWrapperClass',function() {
-			if(self.rb.formresponsewrapperclass){
-				return 'mura-response-success' + ' ' + self.rb.formresponsewrapperclass;
-			} else {
-				return 'mura-response-success';
-			}
-		});
-
-		Mura.Handlebars.registerHelper('radioClass',function() {
-			return self.rb.formradioclass;
-		});
-
-		Mura.Handlebars.registerHelper('radioWrapperClass',function() {
-			return self.rb.formradiowrapperclass;
-		});
-
-		Mura.Handlebars.registerHelper('checkboxLabelClass',function() {
-			return self.rb.formcheckboxlabelclass;
-		});
-
-		Mura.Handlebars.registerHelper('checkboxClass',function() {
-			return self.rb.formcheckboxclass;
-		});
-
-		Mura.Handlebars.registerHelper('checkboxWrapperClass',function() {
-			return self.rb.formcheckboxwrapperclass;
-		});
-
-		Mura.Handlebars.registerHelper('formRequiredLabel',function() {
-			return self.rb.formrequiredlabel;
-		});
-
-		Mura.Handlebars.registerHelper('formClass',function() {
-			var escapeExpression=Mura.Handlebars.escapeExpression;
-			var returnString='mura-form';
-
-			if(self.formJSON && self.formJSON.form && self.formJSON.form.formattributes && self.formJSON.form.formattributes.class){
-				returnString += ' ' + escapeExpression(self.formJSON.form.formattributes.class);
-			}
-
-			return returnString;
-		});
-
-		Mura.Handlebars.registerHelper('textInputTypeValue',function() {
-			if(typeof Mura.usehtml5dateinput != 'undefined' && Mura.usehtml5dateinput && typeof this.validatetype != 'undefined' && this.validatetype.toLowerCase()=='date'){
-				return 'date';
-			} else {
-				return 'text';
-			}
-		});
-
-		Mura.Handlebars.registerHelper('labelForValue',function() {
-			//id, class, title, size
-			var escapeExpression=Mura.Handlebars.escapeExpression;
-
-			if(this.cssid){
-				return escapeExpression(this.cssid);
-			} else {
-				return "field-" + escapeExpression(this.name) ;
-			}
-
-			return returnString;
-		});
-
-		Mura.Handlebars.registerHelper('commonInputAttributes',function() {
-			//id, class, title, size
-			var escapeExpression=Mura.Handlebars.escapeExpression;
-
-			if(typeof this.fieldtype != 'undefined' && this.fieldtype.fieldtype=='file'){
-				var returnString='name="' + escapeExpression(self.context.prefix + this.name) + '_attachment"';
-			} else {
-				var returnString='name="' + escapeExpression(self.context.prefix + this.name) + '"';
-			}
-
-			if(this.cssid){
-				returnString += ' id="' + escapeExpression(this.cssid) + '"';
-			} else {
-				returnString += ' id="field-' + escapeExpression(self.context.prefix + this.name) + '"';
-			}
-
-			returnString += ' class="';
-
-			if(this.cssclass){
-				returnString += escapeExpression(this.cssclass) + ' ';
-			}
-
-			if(this.fieldtype=='radio' || this.fieldtype=='radio_static'){
-				returnString += self.rb.formradioclass;
-			} else if(this.fieldtype=='checkbox' || this.fieldtype=='checkbox_static'){
-				returnString += self.rb.formcheckboxclass;
-			} else if(this.fieldtype=='file'){
-				returnString += self.rb.formfileclass;
-			} else if(this.fieldtype=='textarea'){
-				returnString += self.rb.formtextareaclass;
-			} else if(this.fieldtype=='dropdown' || this.fieldtype=='dropdown_static'){
-				returnString += self.rb.formselectclass;
-			} else if(this.fieldtype=='textblock'){
-				returnString += self.rb.formtextblockclass;
-			} else {
-				returnString += self.rb.forminputclass;
-			}
-
-			returnString += '"';
-
-			if(this.tooltip){
-				returnString += ' title="' + escapeExpression(this.tooltip) + '"';
-			}
-
-			if(this.size){
-				returnString += ' size="' + escapeExpression(this.size) + '"';
-			}
-
-			if(typeof Mura.usehtml5dateinput != 'undefined' && Mura.usehtml5dateinput && typeof this.validatetype != 'undefined' && this.validatetype.toLowerCase()=='date'){
-				returnString += ' data-date-format="' + Mura.dateformat + '"';
-			}
-
-			return returnString;
-		});
-	}
-});
-
-//Legacy for early adopter backwords support
-Mura.DisplayObject.Form=Mura.UI.Form;
-
+  context: {},
+  ormform: false,
+  formJSON: {},
+  data: {},
+  columns: [],
+  currentpage: 0,
+  entity: {},
+  fields: {},
+  filters: {},
+  datasets: [],
+  sortfield: '',
+  sortdir: '',
+  inlineerrors: true,
+  properties: {},
+  rendered: {},
+  renderqueue: 0,
+  //templateList: ['file','error','textblock','checkbox','checkbox_static','dropdown','dropdown_static','radio','radio_static','nested','textarea','textfield','form','paging','list','table','view','hidden','section'],
+  formInit: false,
+  responsemessage: "",
+  rb: {
+    generalwrapperclass: "well",
+    generalwrapperbodyclass: "",
+    formwrapperclass: "well",
+    formwrapperbodyclass: "",
+    formfieldwrapperclass: "control-group",
+    formfieldlabelclass: "control-label",
+    formerrorwrapperclass: "",
+    formresponsewrapperclass: "",
+    formgeneralcontrolclass: "form-control",
+    forminputclass: "form-control",
+    formselectclass: "form-control",
+    formtextareaclass: "form-control",
+    formfileclass: "form-control",
+    formtextblockclass: "form-control",
+    formcheckboxclass: "",
+    formcheckboxlabelclass: "checkbox",
+    formcheckboxwrapperclass: "",
+    formradioclass: "",
+    formradiowrapperclass: "",
+    formradiolabelclass: "radio",
+    formbuttonwrapperclass: "btn-group",
+    formbuttoninnerclass: "",
+    formbuttonclass: "btn btn-default",
+    formrequiredwrapperclass: "",
+    formbuttonsubmitclass: "form-submit",
+    formbuttonsubmitlabel: "Submit",
+    formbuttonsubmitwaitlabel: "Please Wait...",
+    formbuttonnextclass: "form-nav",
+    formbuttonnextlabel: "Next",
+    formbuttonbackclass: "form-nav",
+    formbuttonbacklabel: "Back",
+    formbuttoncancelclass: "btn-primary pull-right",
+    formbuttoncancellabel: "Cancel",
+    formrequiredlabel: "Required"
+  },
+  renderClient: function renderClient() {
+    if (this.context.mode == undefined) {
+      this.context.mode = 'form';
+    }
+
+    var ident = "mura-form-" + this.context.instanceid;
+    this.context.formEl = "#" + ident;
+    this.context.html = "<div id='" + ident + "'></div>";
+    Mura(this.context.targetEl).html(this.context.html);
+
+    if (this.context.view == 'form') {
+      this.getForm();
+    } else {
+      this.getList();
+    }
+
+    return this;
+  },
+  getTemplates: function getTemplates() {
+    var self = this;
+
+    if (self.context.view == 'form') {
+      self.loadForm();
+    } else {
+      self.loadList();
+    }
+    /*
+    if(Mura.templatesLoaded.length){
+    	var temp = Mura.templateList.pop();
+    		Mura.ajax(
+    		{
+    			url:Mura.assetpath + '/includes/display_objects/form/templates/' + temp + '.hb',
+    			type:'get',
+    			xhrFields:{ withCredentials: false },
+    			success:function(data) {
+    				Mura.templates[temp] = Mura.Handlebars.compile(data);
+    				if(!Mura.templateList.length) {
+    					if (self.context.view == 'form') {
+    						self.loadForm();
+    					} else {
+    						self.loadList();
+    					}
+    				} else {
+    					self.getTemplates();
+    				}
+    			}
+    		}
+    	);
+    	}
+    */
+
+  },
+  getPageFieldList: function getPageFieldList() {
+    var page = this.currentpage;
+    var fields = this.formJSON.form.pages[page];
+    var result = [];
+
+    for (var f = 0; f < fields.length; f++) {
+      //console.log("add: " + self.formJSON.form.fields[fields[f]].name);
+      result.push(this.formJSON.form.fields[fields[f]].name);
+    } //console.log(result);
+
+
+    return result.join(',');
+  },
+  renderField: function renderField(fieldtype, field) {
+    var self = this;
+    var templates = Mura.templates;
+    var template = fieldtype;
+    if (field.datasetid != "" && self.isormform) field.options = self.formJSON.datasets[field.datasetid].options;else if (field.datasetid != "") {
+      field.dataset = self.formJSON.datasets[field.datasetid];
+    }
+    self.setDefault(fieldtype, field);
+
+    if (fieldtype == "nested") {
+      var nested_context = {};
+      nested_context.objectid = field.formid;
+      nested_context.paging = 'single';
+      nested_context.mode = 'nested';
+      nested_context.prefix = field.name + '_';
+      nested_context.master = this;
+      var data = {};
+      data.objectid = nested_context.objectid;
+      data.formid = nested_context.objectid;
+      data.object = 'form';
+      data.siteid = self.context.siteid || Mura.siteid;
+      data.contentid = Mura.contentid;
+      data.contenthistid = Mura.contenthistid;
+      Mura.get(Mura.getAPIEndpoint() + '?method=processAsyncObject', data).then(function (resp) {
+        var tempContext = Mura.extend({}, nested_context);
+        delete tempContext.targetEl;
+        var context = Mura.deepExtend({}, tempContext, resp.data);
+        context.targetEl = self.context.targetEl;
+        var nestedForm = new Mura.UI.Form(context);
+        Mura(".field-container-" + self.context.objectid, self.context.formEl).append('<div id="nested-' + field.formid + '"></div>');
+        context.formEl = document.getElementById('nested-' + field.formid);
+        nestedForm.getForm();
+        var html = Mura.templates[template](field);
+        Mura(".field-container-" + self.context.objectid, self.context.formEl).append(html);
+      });
+    } else {
+      if (fieldtype == "checkbox") {
+        if (self.ormform) {
+          field.selected = [];
+          var ds = self.formJSON.datasets[field.datasetid];
+
+          for (var i in ds.datarecords) {
+            if (ds.datarecords[i].selected && ds.datarecords[i].selected == 1) field.selected.push(i);
+          }
+
+          field.selected = field.selected.join(",");
+        } else {
+          template = template + "_static";
+        }
+      } else if (fieldtype == "dropdown") {
+        if (!self.ormform) {
+          template = template + "_static";
+        }
+      } else if (fieldtype == "radio") {
+        if (!self.ormform) {
+          template = template + "_static";
+        }
+      }
+
+      var html = Mura.templates[template](field);
+      Mura(".field-container-" + self.context.objectid, self.context.formEl).append(html);
+    }
+  },
+  setDefault: function setDefault(fieldtype, field) {
+    var self = this;
+
+    switch (fieldtype) {
+      case "textfield":
+      case "textarea":
+        if (self.data[self.context.prefix + field.name]) {
+          field.value = self.data[self.context.prefix + field.name];
+        }
+
+        break;
+
+      case "checkbox":
+        var ds = self.formJSON.datasets[field.datasetid];
+
+        for (var i = 0; i < ds.datarecords.length; i++) {
+          if (self.ormform) {
+            var sourceid = ds.source + "id";
+            ds.datarecords[i].selected = 0;
+            ds.datarecords[i].isselected = 0;
+
+            if (self.data[self.context.prefix + field.name].items && self.data[self.context.prefix + field.name].items.length) {
+              for (var x = 0; x < self.data[self.context.prefix + field.name].items.length; x++) {
+                if (ds.datarecords[i].id == self.data[self.context.prefix + field.name].items[x][sourceid]) {
+                  ds.datarecords[i].isselected = 1;
+                  ds.datarecords[i].selected = 1;
+                }
+              }
+            }
+          } else {
+            if (self.data[self.context.prefix + field.name] && ds.datarecords[i].value && self.data[self.context.prefix + field.name].indexOf(ds.datarecords[i].value) > -1) {
+              ds.datarecords[i].isselected = 1;
+              ds.datarecords[i].selected = 1;
+            } else {
+              ds.datarecords[i].selected = 0;
+              ds.datarecords[i].isselected = 0;
+            }
+          }
+        }
+
+        break;
+
+      case "radio":
+      case "dropdown":
+        var ds = self.formJSON.datasets[field.datasetid];
+
+        for (var i = 0; i < ds.datarecords.length; i++) {
+          if (self.ormform) {
+            if (ds.datarecords[i].id == self.data[field.name + 'id']) {
+              ds.datarecords[i].isselected = 1;
+              field.selected = self.data[field.name + 'id'];
+            } else {
+              ds.datarecords[i].selected = 0;
+              ds.datarecords[i].isselected = 0;
+            }
+          } else {
+            if (ds.datarecords[i].value == self.data[self.context.prefix + field.name]) {
+              ds.datarecords[i].isselected = 1;
+              field.selected = self.data[self.context.prefix + field.name];
+            } else {
+              ds.datarecords[i].isselected = 0;
+            }
+          }
+        }
+
+        break;
+    }
+  },
+  renderData: function renderData() {
+    var self = this;
+
+    if (self.datasets.length == 0) {
+      if (self.renderqueue == 0) {
+        self.renderForm();
+      }
+
+      return;
+    }
+
+    var dataset = self.formJSON.datasets[self.datasets.pop()];
+
+    if (dataset.sourcetype && dataset.sourcetype != 'muraorm') {
+      self.renderData();
+      return;
+    }
+
+    if (dataset.sourcetype == 'muraorm') {
+      dataset.options = [];
+      self.renderqueue++;
+      Mura.getFeed(dataset.source).getQuery().then(function (collection) {
+        collection.each(function (item) {
+          var itemid = item.get('id');
+          dataset.datarecordorder.push(itemid);
+          dataset.datarecords[itemid] = item.getAll();
+          dataset.datarecords[itemid]['value'] = itemid;
+          dataset.datarecords[itemid]['datarecordid'] = itemid;
+          dataset.datarecords[itemid]['datasetid'] = dataset.datasetid;
+          dataset.datarecords[itemid]['isselected'] = 0;
+          dataset.options.push(dataset.datarecords[itemid]);
+        });
+      }).then(function () {
+        self.renderqueue--;
+        self.renderData();
+
+        if (self.renderqueue == 0) {
+          self.renderForm();
+        }
+      });
+    } else {
+      if (self.renderqueue == 0) {
+        self.renderForm();
+      }
+    }
+  },
+  renderForm: function renderForm() {
+    var self = this; //console.log("render form: " + self.currentpage);
+
+    if (typeof self.context.prefix == 'undefined') {
+      self.context.prefix = '';
+    }
+
+    Mura(".field-container-" + self.context.objectid, self.context.formEl).empty();
+
+    if (!self.formInit) {
+      self.initForm();
+    }
+
+    var fields = self.formJSON.form.pages[self.currentpage];
+
+    for (var i = 0; i < fields.length; i++) {
+      var field = self.formJSON.form.fields[fields[i]]; //try {
+
+      if (field.fieldtype.fieldtype != undefined && field.fieldtype.fieldtype != "") {
+        self.renderField(field.fieldtype.fieldtype, field);
+      } //} catch(e){
+      //console.log('Error rendering form field:');
+      //console.log(field);
+      //}
+
+    }
+
+    if (self.ishuman && self.currentpage == self.formJSON.form.pages.length - 1) {
+      Mura(".field-container-" + self.context.objectid, self.context.formEl).append(self.ishuman);
+    }
+
+    if (self.context.mode == 'form') {
+      self.renderPaging();
+    }
+
+    Mura.processMarkup(".field-container-" + self.context.objectid, self.context.formEl);
+    self.trigger('afterRender');
+  },
+  renderPaging: function renderPaging() {
+    var self = this;
+    var submitlabel = typeof self.formJSON.form.formattributes != 'undefined' && typeof self.formJSON.form.formattributes.submitlabel != 'undefined' && self.formJSON.form.formattributes.submitlabel ? self.formJSON.form.formattributes.submitlabel : self.rb.formbuttonsubmitlabel;
+    Mura(".error-container-" + self.context.objectid, self.context.formEl).empty();
+    Mura(".paging-container-" + self.context.objectid, self.context.formEl).empty();
+
+    if (self.formJSON.form.pages.length == 1) {
+      Mura(".paging-container-" + self.context.objectid, self.context.formEl).append(Mura.templates['paging']({
+        page: self.currentpage + 1,
+        label: submitlabel,
+        "class": Mura.trim("mura-form-submit " + self.rb.formbuttonsubmitclass)
+      }));
+    } else {
+      if (self.currentpage == 0) {
+        Mura(".paging-container-" + self.context.objectid, self.context.formEl).append(Mura.templates['paging']({
+          page: 1,
+          label: self.rb.formbuttonnextlabel,
+          "class": Mura.trim("mura-form-nav mura-form-next " + self.rb.formbuttonnextclass)
+        }));
+      } else {
+        Mura(".paging-container-" + self.context.objectid, self.context.formEl).append(Mura.templates['paging']({
+          page: self.currentpage - 1,
+          label: self.rb.formbuttonbacklabel,
+          "class": Mura.trim("mura-form-nav mura-form-back " + self.rb.formbuttonbackclass)
+        }));
+
+        if (self.currentpage + 1 < self.formJSON.form.pages.length) {
+          Mura(".paging-container-" + self.context.objectid, self.context.formEl).append(Mura.templates['paging']({
+            page: self.currentpage + 1,
+            label: self.rb.formbuttonnextlabel,
+            "class": Mura.trim("mura-form-nav mura-form-next " + self.rb.formbuttonnextclass)
+          }));
+        } else {
+          Mura(".paging-container-" + self.context.objectid, self.context.formEl).append(Mura.templates['paging']({
+            page: self.currentpage + 1,
+            label: submitlabel,
+            "class": Mura.trim("mura-form-submit " + self.rb.formbuttonsubmitclass)
+          }));
+        }
+      }
+
+      if (self.backlink != undefined && self.backlink.length) Mura(".paging-container-" + self.context.objectid, self.context.formEl).append(Mura.templates['paging']({
+        page: self.currentpage + 1,
+        label: self.rb.formbuttoncancellabel,
+        "class": Mura.trim("mura-form-nav mura-form-cancel " + self.rb.formbuttoncancelclass)
+      }));
+    }
+
+    var submitHandler = function submitHandler() {
+      self.submitForm();
+    };
+
+    Mura(".mura-form-submit", self.context.formEl).off('click', submitHandler).on('click', submitHandler);
+    Mura(".mura-form-cancel", self.context.formEl).click(function () {
+      self.getTableData(self.backlink);
+    });
+
+    var formNavHandler = function formNavHandler(e) {
+      if (Mura(e.target).is('.mura-form-submit')) {
+        return;
+      }
+
+      self.setDataValues();
+      var keepGoing = self.onPageSubmit.call(self.context.targetEl);
+
+      if (typeof keepGoing != 'undefined' && !keepGoing) {
+        return;
+      }
+
+      var button = this;
+
+      if (self.ormform) {
+        Mura.getEntity(self.entity).set(self.data).validate(self.getPageFieldList()).then(function (entity) {
+          if (entity.hasErrors()) {
+            self.showErrors(entity.properties.errors);
+          } else {
+            self.currentpage = Mura(button).data('page');
+            self.renderForm();
+          }
+        });
+      } else {
+        var data = Mura.extend({}, self.data, self.context);
+        data.validateform = true;
+        data.formid = data.objectid;
+        data.siteid = data.siteid || Mura.siteid;
+        data.fields = self.getPageFieldList();
+        delete data.filename;
+        delete data.def;
+        delete data.ishuman;
+        delete data.targetEl;
+        delete data.html;
+        Mura.ajax({
+          type: 'post',
+          url: Mura.getAPIEndpoint() + '?method=generateCSRFTokens',
+          data: {
+            siteid: data.siteid,
+            context: data.formid
+          },
+          success: function success(resp) {
+            data['csrf_token_expires'] = resp.data['csrf_token_expires'];
+            data['csrf_token'] = resp.data['csrf_token'];
+            Mura.post(Mura.getAPIEndpoint() + '?method=processAsyncObject', data).then(function (resp) {
+              if (_typeof(resp.data.errors) == 'object' && !Mura.isEmptyObject(resp.data.errors)) {
+                self.showErrors(resp.data.errors);
+              } else if (typeof resp.data.redirect != 'undefined') {
+                if (resp.data.redirect && resp.data.redirect != location.href) {
+                  location.href = resp.data.redirect;
+                } else {
+                  location.reload(true);
+                }
+              } else {
+                self.currentpage = Mura(button).data('page');
+
+                if (self.currentpage >= self.formJSON.form.pages.length) {
+                  self.currentpage = self.formJSON.form.pages.length - 1;
+                }
+
+                self.renderForm();
+              }
+            });
+          }
+        });
+      }
+      /*
+      }
+      else {
+      	console.log('oops!');
+      }
+      */
+
+    };
+
+    Mura(".mura-form-nav", self.context.formEl).off('click', formNavHandler).on('click', formNavHandler);
+  },
+  setDataValues: function setDataValues() {
+    var self = this;
+    var multi = {};
+    var item = {};
+    var valid = [];
+    var currentPage = {};
+    Mura(".field-container-" + self.context.objectid + " input, .field-container-" + self.context.objectid + " select, .field-container-" + self.context.objectid + " textarea").each(function () {
+      currentPage[Mura(this).attr('name')] = true;
+
+      if (Mura(this).is('[type="checkbox"]')) {
+        if (multi[Mura(this).attr('name')] == undefined) multi[Mura(this).attr('name')] = [];
+
+        if (this.checked) {
+          if (self.ormform) {
+            item = {};
+            item['id'] = Mura.createUUID();
+            item[self.entity + 'id'] = self.data.id;
+            item[Mura(this).attr('source') + 'id'] = Mura(this).val();
+            item['key'] = Mura(this).val();
+            multi[Mura(this).attr('name')].push(item);
+          } else {
+            multi[Mura(this).attr('name')].push(Mura(this).val());
+          }
+        }
+      } else if (Mura(this).is('[type="radio"]')) {
+        if (this.checked) {
+          self.data[Mura(this).attr('name')] = Mura(this).val();
+          valid[Mura(this).attr('name')] = self.data[name];
+        }
+      } else {
+        self.data[Mura(this).attr('name')] = Mura(this).val();
+        valid[Mura(this).attr('name')] = self.data[Mura(this).attr('name')];
+      }
+    });
+
+    for (var i in multi) {
+      if (self.ormform) {
+        self.data[i].cascade = "replace";
+        self.data[i].items = multi[i];
+        valid[i] = self.data[i];
+      } else {
+        self.data[i] = multi[i].join(",");
+        valid[i] = multi[i].join(",");
+      }
+    }
+
+    if (Mura.formdata) {
+      var frm = document.getElementById('frm' + self.context.objectid);
+
+      for (var p in currentPage) {
+        if (currentPage.hasOwnProperty(p) && typeof self.data[p] != 'undefined') {
+          if (p.indexOf("_attachment") > -1 && typeof frm[p] != 'undefined') {
+            self.attachments[p] = frm[p].files[0];
+          }
+        }
+      }
+    }
+
+    return valid;
+  },
+  validate: function validate(entity, fields) {
+    return true;
+  },
+  getForm: function getForm(entityid, backlink) {
+    var self = this;
+    var formJSON = {};
+    var entityName = '';
+
+    if (entityid != undefined) {
+      self.entityid = entityid;
+    } else {
+      delete self.entityid;
+    }
+
+    if (backlink != undefined) {
+      self.backlink = backlink;
+    } else {
+      delete self.backlink;
+    }
+    /*
+    if(Mura.templateList.length) {
+    	self.getTemplates( entityid );
+    }
+    else {
+    */
+
+
+    self.loadForm(); //}
+  },
+  loadForm: function loadForm(data) {
+    var self = this; //console.log('a');
+    //console.log(self.formJSOrenderN);
+
+    formJSON = JSON.parse(self.context.def); // old forms
+
+    if (!formJSON.form.pages) {
+      formJSON.form.pages = [];
+      formJSON.form.pages[0] = formJSON.form.fieldorder;
+      formJSON.form.fieldorder = [];
+    }
+
+    if (typeof formJSON.datasets != 'undefined') {
+      for (var d in formJSON.datasets) {
+        if (typeof formJSON.datasets[d].DATARECORDS != 'undefined') {
+          formJSON.datasets[d].datarecords = formJSON.datasets[d].DATARECORDS;
+          delete formJSON.datasets[d].DATARECORDS;
+        }
+
+        if (typeof formJSON.datasets[d].DATARECORDORDER != 'undefined') {
+          formJSON.datasets[d].datarecordorder = formJSON.datasets[d].DATARECORDORDER;
+          delete formJSON.datasets[d].DATARECORDORDER;
+        }
+      }
+    }
+
+    entityName = self.context.filename.replace(/\W+/g, "");
+    self.entity = entityName;
+    self.formJSON = formJSON;
+    self.fields = formJSON.form.fields;
+    self.responsemessage = self.context.responsemessage;
+    self.ishuman = self.context.ishuman;
+
+    if (formJSON.form.formattributes && formJSON.form.formattributes.Muraormentities == 1) {
+      self.ormform = true;
+    }
+
+    for (var i = 0; i < self.formJSON.datasets; i++) {
+      self.datasets.push(i);
+    }
+
+    if (self.ormform) {
+      self.entity = entityName;
+
+      if (self.entityid == undefined) {
+        Mura.get(Mura.getAPIEndpoint() + '/' + entityName + '/new?expand=all&ishuman=true').then(function (resp) {
+          self.data = resp.data;
+          self.renderData();
+        });
+      } else {
+        Mura.get(Mura.getAPIEndpoint() + '/' + entityName + '/' + self.entityid + '?expand=all&ishuman=true').then(function (resp) {
+          self.data = resp.data;
+          self.renderData();
+        });
+      }
+    } else {
+      self.renderData();
+    }
+    /*
+    Mura.get(
+    		Mura.getAPIEndpoint() + '/content/' + self.context.objectid
+    		 + '?fields=body,title,filename,responsemessage&ishuman=true'
+    		).then(function(data) {
+    		 	formJSON = JSON.parse( data.data.body );
+    				// old forms
+    			if(!formJSON.form.pages) {
+    				formJSON.form.pages = [];
+    				formJSON.form.pages[0] = formJSON.form.fieldorder;
+    				formJSON.form.fieldorder = [];
+    			}
+    				entityName = data.data.filename.replace(/\W+/g, "");
+    			self.entity = entityName;
+    		 	self.formJSON = formJSON;
+    		 	self.fields = formJSON.form.fields;
+    		 	self.responsemessage = data.data.responsemessage;
+    			self.ishuman=data.data.ishuman;
+    				if (formJSON.form.formattributes && formJSON.form.formattributes.Muraormentities == 1) {
+    				self.ormform = true;
+    			}
+    				for(var i=0;i < self.formJSON.datasets;i++){
+    				self.datasets.push(i);
+    			}
+    				if(self.ormform) {
+    			 	self.entity = entityName;
+    				 	if(self.entityid == undefined) {
+    					Mura.get(
+    						Mura.getAPIEndpoint() +'/'+ entityName + '/new?expand=all&ishuman=true'
+    					).then(function(resp) {
+    						self.data = resp.data;
+    						self.renderData();
+    					});
+    			 	}
+    			 	else {
+    					Mura.get(
+    						Mura.getAPIEndpoint()	+ '/'+ entityName + '/' + self.entityid + '?expand=all&ishuman=true'
+    					).then(function(resp) {
+    						self.data = resp.data;
+    						self.renderData();
+    					});
+    				}
+    			}
+    			else {
+    				self.renderData();
+    			}
+    		 }
+    	);
+    	*/
+
+  },
+  initForm: function initForm() {
+    var self = this;
+    Mura(self.context.formEl).empty();
+
+    if (self.context.mode != undefined && self.context.mode == 'nested') {
+      var html = Mura.templates['nested'](self.context);
+    } else {
+      var html = Mura.templates['form'](self.context);
+    }
+
+    Mura(self.context.formEl).append(html);
+    self.currentpage = 0;
+    self.attachments = {};
+    self.formInit = true;
+    Mura.trackEvent({
+      category: 'Form',
+      action: 'Impression',
+      label: self.context.name,
+      objectid: self.context.objectid,
+      nonInteraction: true
+    });
+  },
+  onSubmit: function onSubmit() {
+    return true;
+  },
+  onPageSubmit: function onPageSubmit() {
+    return true;
+  },
+  submitForm: function submitForm() {
+    var self = this;
+    var valid = self.setDataValues();
+    Mura(".error-container-" + self.context.objectid, self.context.formEl).empty();
+    var keepGoing = this.onSubmit.call(this.context.targetEl);
+
+    if (typeof keepGoing != 'undefined' && !keepGoing) {
+      return;
+    }
+
+    delete self.data.isNew;
+    var frm = Mura(self.context.formEl).find('form');
+    frm.find('.mura-form-submit').html(self.rb.formbuttonsubmitwaitlabel);
+    frm.trigger('formSubmit');
+
+    if (self.ormform) {
+      //console.log('a!');
+      Mura.getEntity(self.entity).set(self.data).save().then(function (entity) {
+        if (self.backlink != undefined) {
+          self.getTableData(self.location);
+          return;
+        }
+
+        if (typeof resp.data.redirect != 'undefined') {
+          if (resp.data.redirect && resp.data.redirect != location.href) {
+            location.href = resp.data.redirect;
+          } else {
+            location.reload(true);
+          }
+        } else {
+          Mura(self.context.formEl).html(Mura.templates['success'](data));
+          self.trigger('afterResponseRender');
+        }
+      }, function (entity) {
+        self.showErrors(entity.properties.errors);
+        self.trigger('afterErrorRender');
+      });
+    } else {
+      //console.log('b!');
+      if (!Mura.formdata) {
+        var data = Mura.extend({}, self.context, self.data);
+        data.saveform = true;
+        data.formid = data.objectid;
+        data.siteid = self.context.siteid || data.siteid || Mura.siteid;
+        data.contentid = Mura.contentid || '';
+        data.contenthistid = Mura.contenthistid || '';
+        delete data.filename;
+        delete data.def;
+        delete data.ishuman;
+        delete data.targetEl;
+        delete data.html;
+
+        if (data.responsechart) {
+          var frm = Mura(self.context.targetEl);
+          var polllist = new Array();
+          frm.find("input[type='radio']").each(function () {
+            polllist.push(Mura(this).val());
+          });
+
+          if (polllist.length > 0) {
+            data.polllist = polllist.toString();
+          }
+        }
+
+        var tokenArgs = {
+          siteid: data.siteid,
+          context: data.formid
+        };
+      } else {
+        var rawdata = Mura.extend({}, self.context, self.data);
+        rawdata.saveform = true;
+        rawdata.formid = rawdata.objectid;
+        rawdata.siteid = self.context.siteid || rawdata.siteid || Mura.siteid;
+        rawdata.contentid = Mura.contentid || '';
+        rawdata.contenthistid = Mura.contenthistid || '';
+        delete rawdata.filename;
+        delete rawdata.def;
+        delete rawdata.ishuman;
+        delete rawdata.targetEl;
+        delete rawdata.html;
+        var tokenArgs = {
+          siteid: rawdata.siteid,
+          context: rawdata.formid
+        };
+
+        if (rawdata.responsechart) {
+          var frm = Mura(self.context.targetEl);
+          var polllist = new Array();
+          frm.find("input[type='radio']").each(function () {
+            polllist.push(Mura(this).val());
+          });
+
+          if (polllist.length > 0) {
+            rawdata.polllist = polllist.toString();
+          }
+        }
+
+        var data = new FormData();
+
+        for (var p in rawdata) {
+          if (rawdata.hasOwnProperty(p)) {
+            if (typeof self.attachments[p] != 'undefined') {
+              data.append(p, self.attachments[p]);
+            } else {
+              data.append(p, rawdata[p]);
+            }
+          }
+        }
+      }
+
+      Mura.ajax({
+        type: 'post',
+        url: Mura.getAPIEndpoint() + '?method=generateCSRFTokens',
+        data: tokenArgs,
+        success: function success(resp) {
+          if (!Mura.formdata) {
+            data['csrf_token_expires'] = resp.data['csrf_token_expires'];
+            data['csrf_token'] = resp.data['csrf_token'];
+          } else {
+            data.append('csrf_token_expires', resp.data['csrf_token_expires']);
+            data.append('csrf_token', resp.data['csrf_token']);
+          }
+
+          Mura.post(Mura.getAPIEndpoint() + '?method=processAsyncObject', data).then(function (resp) {
+            if (_typeof(resp.data.errors) == 'object' && !Mura.isEmptyObject(resp.data.errors)) {
+              self.showErrors(resp.data.errors);
+              self.trigger('afterErrorRender');
+            } else {
+              Mura(self.context.formEl).find('form').trigger('formSubmitSuccess');
+              Mura.trackEvent({
+                category: 'Form',
+                action: 'Conversion',
+                label: self.context.name,
+                objectid: self.context.objectid
+              }).then(function () {
+                if (typeof resp.data.redirect != 'undefined') {
+                  if (resp.data.redirect && resp.data.redirect != location.href) {
+                    location.href = resp.data.redirect;
+                  } else {
+                    location.reload(true);
+                  }
+                } else {
+                  Mura(self.context.formEl).html(Mura.templates['success'](resp.data));
+                  self.trigger('afterResponseRender');
+                }
+              });
+            }
+          }, function (resp) {
+            self.showErrors({
+              "systemerror": "We're sorry, a system error has occurred. Please try again later."
+            });
+            self.trigger('afterErrorRender');
+          });
+        }
+      });
+    }
+  },
+  showErrors: function showErrors(errors) {
+    var self = this;
+    var frm = Mura(this.context.formEl);
+    var frmErrors = frm.find(".error-container-" + self.context.objectid);
+    frm.find('.mura-form-submit').html(self.rb.formbuttonsubmitlabel);
+    frm.find('.mura-response-error').remove();
+    console.log(errors); //var errorData = {};
+
+    /*
+    for(var i in self.fields) {
+    	var field = self.fields[i];
+    		if( errors[ field.name ] ) {
+    		var error = {};
+    		error.message = field.validatemessage && field.validatemessage.length ? field.validatemessage : errors[field.name];
+    		error.field = field.name;
+    		error.label = field.label;
+    		errorData[field.name] = error;
+    	}
+    	}
+    */
+
+    for (var e in errors) {
+      if (typeof self.fields[e] != 'undefined') {
+        var field = self.fields[e];
+        var error = {};
+        error.message = field.validatemessage && field.validatemessage.length ? field.validatemessage : errors[field.name];
+        error.field = field.name;
+        error.label = field.label; //errorData[e] = error;
+      } else {
+        var error = {};
+        error.message = errors[e];
+        error.field = '';
+        error.label = ''; //errorData[e] = error;
+      }
+
+      if (this.inlineerrors) {
+        var label = Mura(this.context.formEl).find('label[data-for="' + e + '"]');
+
+        if (label.length) {
+          label.node.insertAdjacentHTML('afterend', Mura.templates['error'](error));
+        } else {
+          frmErrors.append(Mura.templates['error'](error));
+        }
+      } else {
+        frmErrors.append(Mura.templates['error'](error));
+      }
+    }
+
+    Mura(self.context.formEl).find('.g-recaptcha-container').each(function (el) {
+      grecaptcha.reset(el.getAttribute('data-widgetid'));
+    });
+    var errorsSel = Mura(this.context.formEl).find('.mura-response-error');
+
+    if (errorsSel.length) {
+      errorsSel = errorsSel.first().node;
+
+      if (!Mura.isScrolledIntoView(errorsSel) && typeof errorsSel.scrollIntoView != 'undefined') {
+        errorsSel.scrollIntoView(true);
+      }
+    }
+  },
+  // lists
+  getList: function getList() {
+    var self = this;
+    var entityName = '';
+    /*
+    if(Mura.templateList.length) {
+    	self.getTemplates();
+    }
+    else {
+    */
+
+    self.loadList(); //}
+  },
+  filterResults: function filterResults() {
+    var self = this;
+    var before = "";
+    var after = "";
+    self.filters.filterby = Mura("#results-filterby", self.context.formEl).val();
+    self.filters.filterkey = Mura("#results-keywords", self.context.formEl).val();
+
+    if (Mura("#date1", self.context.formEl).length) {
+      if (Mura("#date1", self.context.formEl).val().length) {
+        self.filters.from = Mura("#date1", self.context.formEl).val() + " " + Mura("#hour1", self.context.formEl).val() + ":00:00";
+        self.filters.fromhour = Mura("#hour1", self.context.formEl).val();
+        self.filters.fromdate = Mura("#date1", self.context.formEl).val();
+      } else {
+        self.filters.from = "";
+        self.filters.fromhour = 0;
+        self.filters.fromdate = "";
+      }
+
+      if (Mura("#date2", self.context.formEl).val().length) {
+        self.filters.to = Mura("#date2", self.context.formEl).val() + " " + Mura("#hour2", self.context.formEl).val() + ":00:00";
+        self.filters.tohour = Mura("#hour2", self.context.formEl).val();
+        self.filters.todate = Mura("#date2", self.context.formEl).val();
+      } else {
+        self.filters.to = "";
+        self.filters.tohour = 0;
+        self.filters.todate = "";
+      }
+    }
+
+    self.getTableData();
+  },
+  downloadResults: function downloadResults() {
+    var self = this;
+    self.filterResults();
+  },
+  loadList: function loadList() {
+    var self = this;
+    formJSON = self.context.formdata;
+    entityName = dself.context.filename.replace(/\W+/g, "");
+    self.entity = entityName;
+    self.formJSON = formJSON;
+
+    if (formJSON.form.formattributes && formJSON.form.formattributes.Muraormentities == 1) {
+      self.ormform = true;
+    } else {
+      Mura(self.context.formEl).append("Unsupported for pre-Mura 7.0 MuraORM Forms.");
+      return;
+    }
+
+    self.getTableData();
+    /*
+    Mura.get(
+    	Mura.getAPIEndpoint() + 'content/' + self.context.objectid
+    	 + '?fields=body,title,filename,responsemessage'
+    	).then(function(data) {
+    	 	formJSON = JSON.parse( data.data.body );
+    		entityName = data.data.filename.replace(/\W+/g, "");
+    		self.entity = entityName;
+    	 	self.formJSON = formJSON;
+    			if (formJSON.form.formattributes && formJSON.form.formattributes.Muraormentities == 1) {
+    			self.ormform = true;
+    		}
+    		else {
+    			Mura(self.context.formEl).append("Unsupported for pre-Mura 7.0 MuraORM Forms.");
+    			return;
+    		}
+    			self.getTableData();
+    });
+    */
+  },
+  getTableData: function getTableData(navlink) {
+    var self = this;
+    Mura.get(Mura.getAPIEndpoint() + self.entity + '/listviewdescriptor').then(function (resp) {
+      self.columns = resp.data;
+      Mura.get(Mura.getAPIEndpoint() + self.entity + '/propertydescriptor/').then(function (resp) {
+        self.properties = self.cleanProps(resp.data);
+
+        if (navlink == undefined) {
+          navlink = Mura.getAPIEndpoint() + self.entity + '?sort=' + self.sortdir + self.sortfield;
+          var fields = [];
+
+          for (var i = 0; i < self.columns.length; i++) {
+            fields.push(self.columns[i].column);
+          }
+
+          navlink = navlink + "&fields=" + fields.join(",");
+
+          if (self.filters.filterkey && self.filters.filterkey != '') {
+            navlink = navlink + "&" + self.filters.filterby + "=contains^" + self.filters.filterkey;
+          }
+
+          if (self.filters.from && self.filters.from != '') {
+            navlink = navlink + "&created[1]=gte^" + self.filters.from;
+          }
+
+          if (self.filters.to && self.filters.to != '') {
+            navlink = navlink + "&created[2]=lte^" + self.filters.to;
+          }
+        }
+
+        Mura.get(navlink).then(function (resp) {
+          self.data = resp.data;
+          self.location = self.data.links.self;
+          var tableData = {
+            rows: self.data,
+            columns: self.columns,
+            properties: self.properties,
+            filters: self.filters
+          };
+          self.renderTable(tableData);
+        });
+      });
+    });
+  },
+  renderTable: function renderTable(tableData) {
+    var self = this;
+    var html = Mura.templates['table'](tableData);
+    Mura(self.context.formEl).html(html);
+
+    if (self.context.view == 'list') {
+      Mura("#date-filters", self.context.formEl).empty();
+      Mura("#btn-results-download", self.context.formEl).remove();
+    } else {
+      if (self.context.render == undefined) {
+        Mura(".datepicker", self.context.formEl).datepicker();
+      }
+
+      Mura("#btn-results-download", self.context.formEl).click(function () {
+        self.downloadResults();
+      });
+    }
+
+    Mura("#btn-results-search", self.context.formEl).click(function () {
+      self.filterResults();
+    });
+    Mura(".data-edit", self.context.formEl).click(function () {
+      self.renderCRUD(Mura(this).attr('data-value'), Mura(this).attr('data-pos'));
+    });
+    Mura(".data-view", self.context.formEl).click(function () {
+      self.loadOverview(Mura(this).attr('data-value'), Mura(this).attr('data-pos'));
+    });
+    Mura(".data-nav", self.context.formEl).click(function () {
+      self.getTableData(Mura(this).attr('data-value'));
+    });
+    Mura(".data-sort").click(function () {
+      var sortfield = Mura(this).attr('data-value');
+      if (sortfield == self.sortfield && self.sortdir == '') self.sortdir = '-';else self.sortdir = '';
+      self.sortfield = Mura(this).attr('data-value');
+      self.getTableData();
+    });
+  },
+  loadOverview: function loadOverview(itemid, pos) {
+    var self = this;
+    Mura.get(Mura.getAPIEndpoint() + entityName + '/' + itemid + '?expand=all').then(function (resp) {
+      self.item = resp.data;
+      self.renderOverview();
+    });
+  },
+  renderOverview: function renderOverview() {
+    var self = this; //console.log('ia');
+    //console.log(self.item);
+
+    Mura(self.context.formEl).empty();
+    var html = Mura.templates['view'](self.item);
+    Mura(self.context.formEl).append(html);
+    Mura(".nav-back", self.context.formEl).click(function () {
+      self.getTableData(self.location);
+    });
+  },
+  renderCRUD: function renderCRUD(itemid, pos) {
+    var self = this;
+    self.formInit = 0;
+    self.initForm();
+    self.getForm(itemid, self.data.links.self);
+  },
+  cleanProps: function cleanProps(props) {
+    var propsOrdered = {};
+    var propsRet = {};
+    var ct = 100000;
+    delete props.isnew;
+    delete props.created;
+    delete props.lastUpdate;
+    delete props.errors;
+    delete props.saveErrors;
+    delete props.instance;
+    delete props.instanceid;
+    delete props.frommuracache;
+    delete props[self.entity + "id"];
+
+    for (var i in props) {
+      if (props[i].orderno != undefined) {
+        propsOrdered[props[i].orderno] = props[i];
+      } else {
+        propsOrdered[ct++] = props[i];
+      }
+    }
+
+    Object.keys(propsOrdered).sort().forEach(function (v, i) {
+      propsRet[v] = propsOrdered[v];
+    });
+    return propsRet;
+  },
+  registerHelpers: function registerHelpers() {
+    var self = this;
+    Mura.extend(self.rb, Mura.rb);
+    Mura.Handlebars.registerHelper('eachColRow', function (row, columns, options) {
+      var ret = "";
+
+      for (var i = 0; i < columns.length; i++) {
+        ret = ret + options.fn(row[columns[i].column]);
+      }
+
+      return ret;
+    });
+    Mura.Handlebars.registerHelper('eachProp', function (data, options) {
+      var ret = "";
+      var obj = {};
+
+      for (var i in self.properties) {
+        obj.displayName = self.properties[i].displayName;
+
+        if (self.properties[i].fieldtype == "one-to-one") {
+          obj.displayValue = data[self.properties[i].cfc].val;
+        } else obj.displayValue = data[self.properties[i].column];
+
+        ret = ret + options.fn(obj);
+      }
+
+      return ret;
+    });
+    Mura.Handlebars.registerHelper('eachKey', function (properties, by, options) {
+      var ret = "";
+      var item = "";
+
+      for (var i in properties) {
+        item = properties[i];
+        if (item.column == by) item.selected = "Selected";
+        if (item.rendertype == 'textfield') ret = ret + options.fn(item);
+      }
+
+      return ret;
+    });
+    Mura.Handlebars.registerHelper('eachHour', function (hour, options) {
+      var ret = "";
+      var h = 0;
+      var val = "";
+
+      for (var i = 0; i < 24; i++) {
+        if (i == 0) {
+          val = {
+            label: "12 AM",
+            num: i
+          };
+        } else if (i < 12) {
+          h = i;
+          val = {
+            label: h + " AM",
+            num: i
+          };
+        } else if (i == 12) {
+          h = i;
+          val = {
+            label: h + " PM",
+            num: i
+          };
+        } else {
+          h = i - 12;
+          val = {
+            label: h + " PM",
+            num: i
+          };
+        }
+
+        if (hour == i) val.selected = "selected";
+        ret = ret + options.fn(val);
+      }
+
+      return ret;
+    });
+    Mura.Handlebars.registerHelper('eachColButton', function (row, options) {
+      var ret = "";
+      row.label = 'View';
+      row.type = 'data-view'; // only do view if there are more properties than columns
+
+      if (Object.keys(self.properties).length > self.columns.length) {
+        ret = ret + options.fn(row);
+      }
+
+      if (self.context.view == 'edit') {
+        row.label = 'Edit';
+        row.type = 'data-edit';
+        ret = ret + options.fn(row);
+      }
+
+      return ret;
+    });
+    Mura.Handlebars.registerHelper('eachCheck', function (checks, selected, options) {
+      var ret = "";
+
+      for (var i = 0; i < checks.length; i++) {
+        if (selected.indexOf(checks[i].id) > -1) checks[i].isselected = 1;else checks[i].isselected = 0;
+        ret = ret + options.fn(checks[i]);
+      }
+
+      return ret;
+    });
+    Mura.Handlebars.registerHelper('eachStatic', function (dataset, options) {
+      var ret = "";
+
+      for (var i = 0; i < dataset.datarecordorder.length; i++) {
+        ret = ret + options.fn(dataset.datarecords[dataset.datarecordorder[i]]);
+      }
+
+      return ret;
+    });
+    Mura.Handlebars.registerHelper('inputWrapperClass', function () {
+      var escapeExpression = Mura.Handlebars.escapeExpression;
+      var returnString = 'mura-control-group';
+
+      if (self.rb.formfieldwrapperclass) {
+        returnString += ' ' + self.rb.formfieldwrapperclass;
+      }
+
+      if (this.wrappercssclass) {
+        returnString += ' ' + escapeExpression(this.wrappercssclass);
+      }
+
+      if (this.isrequired) {
+        returnString += ' req';
+
+        if (self.rb.formrequiredwrapperclass) {
+          returnString += ' ' + self.rb.formrequiredwrapperclass;
+        }
+      }
+
+      return returnString;
+    });
+    Mura.Handlebars.registerHelper('radioLabelClass', function () {
+      return self.rb.formradiolabelclass;
+    });
+    Mura.Handlebars.registerHelper('formErrorWrapperClass', function () {
+      if (self.rb.formerrorwrapperclass) {
+        return 'mura-response-error' + ' ' + self.rb.formerrorwrapperclass;
+      } else {
+        return 'mura-response-error';
+      }
+    });
+    Mura.Handlebars.registerHelper('formSuccessWrapperClass', function () {
+      if (self.rb.formresponsewrapperclass) {
+        return 'mura-response-success' + ' ' + self.rb.formresponsewrapperclass;
+      } else {
+        return 'mura-response-success';
+      }
+    });
+    Mura.Handlebars.registerHelper('formResponseWrapperClass', function () {
+      if (self.rb.formresponsewrapperclass) {
+        return 'mura-response-success' + ' ' + self.rb.formresponsewrapperclass;
+      } else {
+        return 'mura-response-success';
+      }
+    });
+    Mura.Handlebars.registerHelper('radioClass', function () {
+      return self.rb.formradioclass;
+    });
+    Mura.Handlebars.registerHelper('radioWrapperClass', function () {
+      return self.rb.formradiowrapperclass;
+    });
+    Mura.Handlebars.registerHelper('checkboxLabelClass', function () {
+      return self.rb.formcheckboxlabelclass;
+    });
+    Mura.Handlebars.registerHelper('checkboxClass', function () {
+      return self.rb.formcheckboxclass;
+    });
+    Mura.Handlebars.registerHelper('checkboxWrapperClass', function () {
+      return self.rb.formcheckboxwrapperclass;
+    });
+    Mura.Handlebars.registerHelper('formRequiredLabel', function () {
+      return self.rb.formrequiredlabel;
+    });
+    Mura.Handlebars.registerHelper('formClass', function () {
+      var escapeExpression = Mura.Handlebars.escapeExpression;
+      var returnString = 'mura-form';
+
+      if (self.formJSON && self.formJSON.form && self.formJSON.form.formattributes && self.formJSON.form.formattributes["class"]) {
+        returnString += ' ' + escapeExpression(self.formJSON.form.formattributes["class"]);
+      }
+
+      return returnString;
+    });
+    Mura.Handlebars.registerHelper('textInputTypeValue', function () {
+      if (typeof Mura.usehtml5dateinput != 'undefined' && Mura.usehtml5dateinput && typeof this.validatetype != 'undefined' && this.validatetype.toLowerCase() == 'date') {
+        return 'date';
+      } else {
+        return 'text';
+      }
+    });
+    Mura.Handlebars.registerHelper('labelForValue', function () {
+      //id, class, title, size
+      var escapeExpression = Mura.Handlebars.escapeExpression;
+
+      if (this.cssid) {
+        return escapeExpression(this.cssid);
+      } else {
+        return "field-" + escapeExpression(this.name);
+      }
+
+      return returnString;
+    });
+    Mura.Handlebars.registerHelper('commonInputAttributes', function () {
+      //id, class, title, size
+      var escapeExpression = Mura.Handlebars.escapeExpression;
+
+      if (typeof this.fieldtype != 'undefined' && this.fieldtype.fieldtype == 'file') {
+        var returnString = 'name="' + escapeExpression(self.context.prefix + this.name) + '_attachment"';
+      } else {
+        var returnString = 'name="' + escapeExpression(self.context.prefix + this.name) + '"';
+      }
+
+      if (this.cssid) {
+        returnString += ' id="' + escapeExpression(this.cssid) + '"';
+      } else {
+        returnString += ' id="field-' + escapeExpression(self.context.prefix + this.name) + '"';
+      }
+
+      returnString += ' class="';
+
+      if (this.cssclass) {
+        returnString += escapeExpression(this.cssclass) + ' ';
+      }
+
+      if (this.fieldtype == 'radio' || this.fieldtype == 'radio_static') {
+        returnString += self.rb.formradioclass;
+      } else if (this.fieldtype == 'checkbox' || this.fieldtype == 'checkbox_static') {
+        returnString += self.rb.formcheckboxclass;
+      } else if (this.fieldtype == 'file') {
+        returnString += self.rb.formfileclass;
+      } else if (this.fieldtype == 'textarea') {
+        returnString += self.rb.formtextareaclass;
+      } else if (this.fieldtype == 'dropdown' || this.fieldtype == 'dropdown_static') {
+        returnString += self.rb.formselectclass;
+      } else if (this.fieldtype == 'textblock') {
+        returnString += self.rb.formtextblockclass;
+      } else {
+        returnString += self.rb.forminputclass;
+      }
+
+      returnString += '"';
+
+      if (this.tooltip) {
+        returnString += ' title="' + escapeExpression(this.tooltip) + '"';
+      }
+
+      if (this.size) {
+        returnString += ' size="' + escapeExpression(this.size) + '"';
+      }
+
+      if (typeof Mura.usehtml5dateinput != 'undefined' && Mura.usehtml5dateinput && typeof this.validatetype != 'undefined' && this.validatetype.toLowerCase() == 'date') {
+        returnString += ' data-date-format="' + Mura.dateformat + '"';
+      }
+
+      return returnString;
+    });
+  }
+}); //Legacy for early adopter backwords support
+
+Mura.DisplayObject.Form = Mura.UI.Form;
 
 /***/ }),
 /* 358 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Mura=__webpack_require__(8);
+var Mura = __webpack_require__(8);
 /**
  * Creates a new Mura.UI.Text
  * @name  Mura.UI.Text
@@ -21951,47 +21686,44 @@ var Mura=__webpack_require__(8);
  * @memberof  Mura
  */
 
-Mura.UI.Text=Mura.UI.extend(
+
+Mura.UI.Text = Mura.UI.extend(
 /** @lends Mura.DisplayObject.Text.prototype */
 {
-	renderClient:function(){
-		this.context.sourcetype=this.context.sourcetype || 'custom';
+  renderClient: function renderClient() {
+    this.context.sourcetype = this.context.sourcetype || 'custom';
 
-		if(this.context.sourcetype=='custom' || this.context.sourcetype=='html'){
-			Mura(this.context.targetEl).html(Mura.templates['text'](this.context));
-		} else if(this.context.sourcetype=='markdown'){
-			Mura(this.context.targetEl).html(Mura.templates['text'](this.deserializeMarkdown(this.context)));
-		} 
-		this.trigger('afterRender');
-	},
+    if (this.context.sourcetype == 'custom' || this.context.sourcetype == 'html') {
+      Mura(this.context.targetEl).html(Mura.templates['text'](this.context));
+    } else if (this.context.sourcetype == 'markdown') {
+      Mura(this.context.targetEl).html(Mura.templates['text'](this.deserializeMarkdown(this.context)));
+    }
 
-	renderServer:function(){
-		this.context.sourcetype=this.context.sourcetype || 'custom';
+    this.trigger('afterRender');
+  },
+  renderServer: function renderServer() {
+    this.context.sourcetype = this.context.sourcetype || 'custom';
 
-		if(this.context.sourcetype=='custom' || this.context.sourcetype=='html'){
-			return Mura.templates['text'](this.context);
-		} else if(this.context.sourcetype=='markdown'){
-			return Mura.templates['text'](this.deserializeMarkdown(this.context));
-		} else {
-			return '';
-		}
-	},
-
-	deserializeMarkdown:function(markdown){
-		//add deserialization
-		return markdown;
-	}
-
+    if (this.context.sourcetype == 'custom' || this.context.sourcetype == 'html') {
+      return Mura.templates['text'](this.context);
+    } else if (this.context.sourcetype == 'markdown') {
+      return Mura.templates['text'](this.deserializeMarkdown(this.context));
+    } else {
+      return '';
+    }
+  },
+  deserializeMarkdown: function deserializeMarkdown(markdown) {
+    //add deserialization
+    return markdown;
+  }
 });
-
-Mura.DisplayObject.Text=Mura.UI.Text;
-
+Mura.DisplayObject.Text = Mura.UI.Text;
 
 /***/ }),
 /* 359 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Mura=__webpack_require__(8);
+var Mura = __webpack_require__(8);
 /**
  * Creates a new Mura.UI.Text
  * @name  Mura.UI.Hr
@@ -22000,28 +21732,25 @@ var Mura=__webpack_require__(8);
  * @memberof  Mura
  */
 
-Mura.UI.Hr=Mura.UI.extend(
+
+Mura.UI.Hr = Mura.UI.extend(
 /** @lends Mura.DisplayObject.Hr.prototype */
 {
-	renderClient:function(){
-		Mura(this.context.targetEl).html("<hr>");
-		this.trigger('afterRender');
-	},
-
-	renderServer:function(){
-        return "<hr>";
-	
-	}
+  renderClient: function renderClient() {
+    Mura(this.context.targetEl).html("<hr>");
+    this.trigger('afterRender');
+  },
+  renderServer: function renderServer() {
+    return "<hr>";
+  }
 });
-
-Mura.DisplayObject.Hr=Mura.UI.Hr;
-
+Mura.DisplayObject.Hr = Mura.UI.Hr;
 
 /***/ }),
 /* 360 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Mura=__webpack_require__(8);
+var Mura = __webpack_require__(8);
 /**
  * Creates a new Mura.UI.Embed
  * @name  Mura.UI.Embed
@@ -22030,27 +21759,25 @@ var Mura=__webpack_require__(8);
  * @memberof  Mura
  */
 
-Mura.UI.Embed=Mura.UI.extend(
+
+Mura.UI.Embed = Mura.UI.extend(
 /** @lends Mura.DisplayObject.Embed.prototype */
 {
-	renderClient:function(){
-		Mura(this.context.targetEl).html(Mura.templates['embed'](this.context));
-		this.trigger('afterRender');
-	},
-
-	renderServer:function(){
-		return Mura.templates['embed'](this.context);
-	}
+  renderClient: function renderClient() {
+    Mura(this.context.targetEl).html(Mura.templates['embed'](this.context));
+    this.trigger('afterRender');
+  },
+  renderServer: function renderServer() {
+    return Mura.templates['embed'](this.context);
+  }
 });
-
-Mura.DisplayObject.Embed=Mura.UI.Embed;
-
+Mura.DisplayObject.Embed = Mura.UI.Embed;
 
 /***/ }),
 /* 361 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Mura=__webpack_require__(8);
+var Mura = __webpack_require__(8);
 /**
  * Creates a new Mura.UI.Text
  * @name  Mura.UI.Image
@@ -22059,28 +21786,25 @@ var Mura=__webpack_require__(8);
  * @memberof  Mura
  */
 
-Mura.UI.Image=Mura.UI.extend(
+
+Mura.UI.Image = Mura.UI.extend(
 /** @lends Mura.DisplayObject.Image.prototype */
 {
-	renderClient:function(){
-		Mura(this.context.targetEl).html(Mura.templates['image'](this.context));
-		this.trigger('afterRender');
-	},
-
-	renderServer:function(){
-		return Mura.templates['image'](this.context);
-	
-	}
+  renderClient: function renderClient() {
+    Mura(this.context.targetEl).html(Mura.templates['image'](this.context));
+    this.trigger('afterRender');
+  },
+  renderServer: function renderServer() {
+    return Mura.templates['image'](this.context);
+  }
 });
-
-Mura.DisplayObject.Image=Mura.UI.Image;
-
+Mura.DisplayObject.Image = Mura.UI.Image;
 
 /***/ }),
 /* 362 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Mura=__webpack_require__(8);
+var Mura = __webpack_require__(8);
 /**
  * Creates a new Mura.UI.Collection
  * @name  Mura.UI.Collection
@@ -22089,162 +21813,142 @@ var Mura=__webpack_require__(8);
  * @memberof  Mura
  */
 
-Mura.UI.Collection=Mura.UI.extend(
+
+Mura.UI.Collection = Mura.UI.extend(
 /** @lends Mura.UI.Collection.prototype */
 {
-	defaultLayout: "List",
+  defaultLayout: "List",
+  layoutInstance: '',
+  getLayoutInstance: function getLayoutInstance() {
+    if (this.layoutInstance) {
+      this.layoutInstance.destroy();
+    }
 
-	layoutInstance:'',
+    this.layoutInstance = new Mura.Module[this.context.layout](this.context);
+    return this.layoutInstance;
+  },
+  getCollection: function getCollection() {
+    var self = this;
 
-	getLayoutInstance:function(){
-		if(this.layoutInstance){
-			this.layoutInstance.destroy();
-		}
-		this.layoutInstance=new Mura.Module[this.context.layout](this.context);
-		return this.layoutInstance;
-	},
+    if (typeof this.context.feed != 'undefined' && typeof this.context.feed.getQuery != 'undefined') {
+      return this.context.feed.getQuery();
+    } else {
+      this.context.source = this.context.source || '';
 
-	getCollection:function(){
-		var self=this;
-		if(typeof this.context.feed != 'undefined' && typeof this.context.feed.getQuery != 'undefined'){
-			return this.context.feed.getQuery();
-		} else {
-			this.context.source=this.context.source || '';
+      if (typeof this.context.nextn != 'undefined') {
+        this.context.itemsperpage = this.context.nextn;
+      }
 
-			if(typeof this.context.nextn != 'undefined'){
-				this.context.itemsperpage=this.context.nextn;
-			}
+      if (typeof this.context.maxitems == 'undefined') {
+        this.context.maxitems = 20;
+      }
 
-			if(typeof this.context.maxitems == 'undefined'){
-				this.context.maxitems=20;
-			}
+      if (typeof this.context.itemsperpage != 'undefined') {
+        this.context.itemsperpage = this.context.nextn;
+      }
 
-			if(typeof this.context.itemsperpage != 'undefined'){
-				this.context.itemsperpage=this.context.nextn;
-			}
+      if (typeof this.context.expand == 'undefined') {
+        this.context.expand = '';
+      }
 
-			if(typeof this.context.expand == 'undefined'){
-				this.context.expand='';
-			}
+      if (typeof this.context.expanddepth == 'undefined') {
+        this.context.expanddepth = 1;
+      }
 
-			if(typeof this.context.expanddepth == 'undefined'){
-				this.context.expanddepth=1;
-			}
+      if (typeof this.context.fields == 'undefined') {
+        this.context.fields = '';
+      }
 
-			if(typeof this.context.fields == 'undefined'){
-				this.context.fields='';
-			}
+      if (typeof this.context.rawcollection != 'undefined') {
+        return new Promise(function (resolve, reject) {
+          resolve(new Mura.EntityCollection(self.context.rawcollection, Mura._requestcontext));
+        });
+      } else if (this.context.sourcetype == 'relatedcontent') {
+        if (this.context.source == 'custom') {
+          if (typeof this.context.items != 'undefined') {
+            this.context.items = this.context.items.join();
+          }
 
-			if(typeof this.context.rawcollection != 'undefined'){
-				return new Promise(function(resolve,reject){
-					resolve(new Mura.EntityCollection(self.context.rawcollection,Mura._requestcontext))
-				});
-			} else if(this.context.sourcetype=='relatedcontent'){
-				if(this.context.source=='custom'){
-					if(typeof this.context.items != 'undefined'){
-						this.context.items=this.context.items.join();
-					}
-					return Mura.get(Mura.getAPIEndpoint() + 'content/' + this.context.items + ',_',{
-						itemsperpage:this.context.itemsperpage,
-						maxitems:this.context.maxitems,
-						expand:this.context.expand,
-						expanddepth:this.context.expanddepth,
-						fields:this.context.fields
-					}).then(function(resp){
-						return new Mura.EntityCollection(resp.data,Mura._requestcontext);
-					});
-				} else if(this.context.source=='reverse'){
-					return Mura.getEntity('content')
-						.set({
-							'contentid':Mura.contentid,
-							'id':Mura.contentid
-						}).getRelatedContent('reverse',{
-							itemsperpage:this.context.itemsperpage,
-							maxitems:this.context.maxitems,
-							sortby:this.context.sortby,
-							expand:this.context.expand,
-							expanddepth:this.context.expanddepth,
-							fields:this.context.fields
-						})
-				} else {
-					return Mura.getEntity('content')
-						.set({
-							'contentid':Mura.contentid,
-							'id':Mura.contentid
-						}).getRelatedContent(this.context.source,{
-							itemsperpage:this.context.itemsperpage,
-							maxitems:this.context.maxitems,
-							expand:this.context.expand,
-							expanddepth:this.context.expanddepth,
-							fields:this.context.fields
-						})
-				}
-			} else if(this.context.sourcetype=='children'){
-				return Mura.getFeed('content')
-					.where()
-					.prop('parentid').isEQ(Mura.contentid)
-					.maxItems(100)
-					.itemsPerPage(this.context.itemsperpage)
-					.expand(this.context.expand)
-					.expandDepth(this.context.expanddepth)
-					.fields(this.context.fields)
-					.getQuery();
-			} else {
-				return Mura.getFeed('content')
-					.where()
-					.prop('feedid').isEQ(this.context.source)
-					.maxItems(this.context.maxitems)
-					.itemsPerPage(this.context.itemsperpage)
-					.expand(this.context.expand)
-					.expandDepth(this.context.expand)
-					.fields(this.context.fields)
-					.getQuery();
-			}
-		}
-	},
+          return Mura.get(Mura.getAPIEndpoint() + 'content/' + this.context.items + ',_', {
+            itemsperpage: this.context.itemsperpage,
+            maxitems: this.context.maxitems,
+            expand: this.context.expand,
+            expanddepth: this.context.expanddepth,
+            fields: this.context.fields
+          }).then(function (resp) {
+            return new Mura.EntityCollection(resp.data, Mura._requestcontext);
+          });
+        } else if (this.context.source == 'reverse') {
+          return Mura.getEntity('content').set({
+            'contentid': Mura.contentid,
+            'id': Mura.contentid
+          }).getRelatedContent('reverse', {
+            itemsperpage: this.context.itemsperpage,
+            maxitems: this.context.maxitems,
+            sortby: this.context.sortby,
+            expand: this.context.expand,
+            expanddepth: this.context.expanddepth,
+            fields: this.context.fields
+          });
+        } else {
+          return Mura.getEntity('content').set({
+            'contentid': Mura.contentid,
+            'id': Mura.contentid
+          }).getRelatedContent(this.context.source, {
+            itemsperpage: this.context.itemsperpage,
+            maxitems: this.context.maxitems,
+            expand: this.context.expand,
+            expanddepth: this.context.expanddepth,
+            fields: this.context.fields
+          });
+        }
+      } else if (this.context.sourcetype == 'children') {
+        return Mura.getFeed('content').where().prop('parentid').isEQ(Mura.contentid).maxItems(100).itemsPerPage(this.context.itemsperpage).expand(this.context.expand).expandDepth(this.context.expanddepth).fields(this.context.fields).getQuery();
+      } else {
+        return Mura.getFeed('content').where().prop('feedid').isEQ(this.context.source).maxItems(this.context.maxitems).itemsPerPage(this.context.itemsperpage).expand(this.context.expand).expandDepth(this.context.expand).fields(this.context.fields).getQuery();
+      }
+    }
+  },
+  renderClient: function renderClient() {
+    if (typeof Mura.Module[this.context.layout] == 'undefined') {
+      this.context.layout = Mura.firstToUpperCase(this.context.layout);
+    }
 
-	renderClient:function(){
-		if(typeof Mura.Module[this.context.layout] == 'undefined'){
-			this.context.layout=Mura.firstToUpperCase(this.context.layout);
-		}
-		if(typeof Mura.Module[this.context.layout] == 'undefined'
-	 		&& Mura.Module[this.defaultLayout] != 'undefined'){
-				this.context.layout=this.defaultLayout;
-		}
-		var self=this;
-		if (typeof Mura.Module[this.context.layout] != 'undefined'){
-			this.getCollection().then(function(collection){
-				self.context.collection=collection;
-				self.getLayoutInstance().renderClient();
-			})
-		} else {
-			this.context.targetEl.innerHTML="This collection has an undefined layout";
-		}
-		this.trigger('afterRender');
-	},
+    if (typeof Mura.Module[this.context.layout] == 'undefined' && Mura.Module[this.defaultLayout] != 'undefined') {
+      this.context.layout = this.defaultLayout;
+    }
 
-	renderServer:function(){
-		//has implementation in ui.serverutils
-		return '';
-	},
+    var self = this;
 
-	destroy:function(){
-		//has implementation in ui.serverutils
-		if(this.layoutInstance){
-			this.layoutInstance.destroy();
-		}
-	}
+    if (typeof Mura.Module[this.context.layout] != 'undefined') {
+      this.getCollection().then(function (collection) {
+        self.context.collection = collection;
+        self.getLayoutInstance().renderClient();
+      });
+    } else {
+      this.context.targetEl.innerHTML = "This collection has an undefined layout";
+    }
 
+    this.trigger('afterRender');
+  },
+  renderServer: function renderServer() {
+    //has implementation in ui.serverutils
+    return '';
+  },
+  destroy: function destroy() {
+    //has implementation in ui.serverutils
+    if (this.layoutInstance) {
+      this.layoutInstance.destroy();
+    }
+  }
 });
-
-Mura.Module.Collection=Mura.UI.Collection;
-
+Mura.Module.Collection = Mura.UI.Collection;
 
 /***/ }),
 /* 363 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Mura=__webpack_require__(8);
+var Mura = __webpack_require__(8);
 /**
  * Creates a new Mura.UI.Text
  * @name  Mura.UI.Container
@@ -22253,133 +21957,146 @@ var Mura=__webpack_require__(8);
  * @memberof  Mura
  */
 
-Mura.UI.Container=Mura.UI.extend(
+
+Mura.UI.Container = Mura.UI.extend(
 /** @lends Mura.DisplayObject.Container.prototype */
 {
-	renderClient:function(){		
-        var target=Mura(this.context.targetEl);		
-        if(!Array.isArray(this.context.items)){
-            this.context.content=this.context.content || '';
-            target.html(this.context.content);
-        } else {
-            this.context.items=this.context.items || [];
-            this.context.items.forEach(function(data){
-                //console.log(data)
-                data.transient=false;
-                target.appendDisplayObject(data);
-            })
-        }
-		this.trigger('afterRender');
-    },
-    reset:function(self,empty){ 
-        self.find('.mura-object:not([data-object="container"])').html('');
-        self.find('.frontEndToolsModal').remove();
-        self.find('.mura-object-meta').html('');
-        var content = self.children('div.mura-object-content');
+  renderClient: function renderClient() {
+    var target = Mura(this.context.targetEl);
 
-        if (content.length) {
-            var nestedObjects=[];
-            content.children('.mura-object').each(
-                function() {
-                    Mura.resetAsyncObject(this,empty);	
-                    //console.log(Mura(this).data())
-                    nestedObjects.push(Mura(this).data());
-                }
-            );
-            self.data('items', JSON.stringify(nestedObjects));
-            self.removeAttr('data-content');
-        }
+    if (!Array.isArray(this.context.items)) {
+      this.context.content = this.context.content || '';
+      target.html(this.context.content);
+    } else {
+      this.context.items = this.context.items || [];
+      this.context.items.forEach(function (data) {
+        //console.log(data)
+        data["transient"] = false;
+        target.appendDisplayObject(data);
+      });
     }
-});
 
-Mura.DisplayObject.Container=Mura.UI.Container;
+    this.trigger('afterRender');
+  },
+  reset: function reset(self, empty) {
+    self.find('.mura-object:not([data-object="container"])').html('');
+    self.find('.frontEndToolsModal').remove();
+    self.find('.mura-object-meta').html('');
+    var content = self.children('div.mura-object-content');
+
+    if (content.length) {
+      var nestedObjects = [];
+      content.children('.mura-object').each(function () {
+        Mura.resetAsyncObject(this, empty); //console.log(Mura(this).data())
+
+        nestedObjects.push(Mura(this).data());
+      });
+      self.data('items', JSON.stringify(nestedObjects));
+      self.removeAttr('data-content');
+    }
+  }
+});
+Mura.DisplayObject.Container = Mura.UI.Container;
 
 /***/ }),
 /* 364 */
 /***/ (function(module, exports, __webpack_require__) {
 
+var Mura = __webpack_require__(8);
 
-var Mura=__webpack_require__(8);
-var Handlebars=__webpack_require__(365);
-Mura.Handlebars=Handlebars.create();
-Mura.templatesLoaded=false;
+var Handlebars = __webpack_require__(365);
+
+Mura.Handlebars = Handlebars.create();
+Mura.templatesLoaded = false;
 Handlebars.noConflict();
+Mura.templates = Mura.templates || {};
 
-Mura.templates=Mura.templates || {};
-Mura.templates['meta']=function(context){
-	if(typeof context.labeltag == 'undefined' || !context.labeltag){
-		context.labeltag='h2';
-	}
-	if(context.label){
-		return '<div class="mura-object-meta-wrapper"><div class="mura-object-meta"><' + Mura.escapeHTML(context.labeltag) + '>' + Mura.escapeHTML(context.label) + '</' + Mura.escapeHTML(context.labeltag) + '></div></div><div class="mura-flex-break"></div>';
-	} else {
-		return '';
-	}
-}
-Mura.templates['content']=function(context){
-	var html=context.html || context.content || context.source || '';
-	if(Array.isArray(html)){
-		html='';
-	}
-	return '<div class="mura-object-content">' + html + '</div>';
-}
-Mura.templates['text']=function(context){
-	context=context || {};
-	if(context.label){
-		context.source=context.source || '';
-	} else {
-		context.source=context.source || '<p></p>';
-	}
-	return context.source;
-}
-Mura.templates['embed']=function(context){
-	context=context || {};
-	if(context.label){
-		context.source=context.source || '';
-	} else {
-		context.source=context.source || '<p></p>';
-	}
-	return context.source;
-}
+Mura.templates['meta'] = function (context) {
+  if (typeof context.labeltag == 'undefined' || !context.labeltag) {
+    context.labeltag = 'h2';
+  }
 
-Mura.templates['image']=function(context){
-	context=context || {};
-	context.src=context.src||'';
-	context.alt=context.alt||'';
-	context.caption=context.caption||'';
-	context.imagelink=context.imagelink||'';
-	context.fit=context.fit||'';
+  if (context.label) {
+    return '<div class="mura-object-meta-wrapper"><div class="mura-object-meta"><' + Mura.escapeHTML(context.labeltag) + '>' + Mura.escapeHTML(context.label) + '</' + Mura.escapeHTML(context.labeltag) + '></div></div><div class="mura-flex-break"></div>';
+  } else {
+    return '';
+  }
+};
 
-	var source='';
-	var style='';
+Mura.templates['content'] = function (context) {
+  var html = context.html || context.content || context.source || '';
 
-	if(!context.src){
-		return '';
-	}
+  if (Array.isArray(html)) {
+    html = '';
+  }
 
-	if(context.fit){
-		style=' style="height:100%;width:100%;object-fit:' + Mura.escapeHTML(context.fit) +';" data-object-fit="' + Mura.escapeHTML(context.fit) + '" ';
-	}
+  return '<div class="mura-object-content">' + html + '</div>';
+};
 
-	source='<img src="' + Mura.escapeHTML(context.src) + '" alt="' + Mura.escapeHTML(context.alt) + '"' +  style + '" loading="lazy"/>';
-	if(context.imagelink){
-		context.imagelinktarget=context.imagelinktarget || "";
-		var targetString="";
-		if(context.imagelinktarget){
-			targetString=' target="' + Mura.escapeHTML(context.imagelinktarget) + '"';
-		}
-		source='<a href="' +  Mura.escapeHTML(context.imagelink) + '"' + targetString + '/>' + source + '</a>';
-	}
-	if(context.caption && context.caption != '<p></p>'){
-		source+='<figcaption>' + context.caption + '</figcaption>';
-	}
-	source='<figure>' + source + '</figure>';
+Mura.templates['text'] = function (context) {
+  context = context || {};
 
-	return source;
-}
+  if (context.label) {
+    context.source = context.source || '';
+  } else {
+    context.source = context.source || '<p></p>';
+  }
+
+  return context.source;
+};
+
+Mura.templates['embed'] = function (context) {
+  context = context || {};
+
+  if (context.label) {
+    context.source = context.source || '';
+  } else {
+    context.source = context.source || '<p></p>';
+  }
+
+  return context.source;
+};
+
+Mura.templates['image'] = function (context) {
+  context = context || {};
+  context.src = context.src || '';
+  context.alt = context.alt || '';
+  context.caption = context.caption || '';
+  context.imagelink = context.imagelink || '';
+  context.fit = context.fit || '';
+  var source = '';
+  var style = '';
+
+  if (!context.src) {
+    return '';
+  }
+
+  if (context.fit) {
+    style = ' style="height:100%;width:100%;object-fit:' + Mura.escapeHTML(context.fit) + ';" data-object-fit="' + Mura.escapeHTML(context.fit) + '" ';
+  }
+
+  source = '<img src="' + Mura.escapeHTML(context.src) + '" alt="' + Mura.escapeHTML(context.alt) + '"' + style + '" loading="lazy"/>';
+
+  if (context.imagelink) {
+    context.imagelinktarget = context.imagelinktarget || "";
+    var targetString = "";
+
+    if (context.imagelinktarget) {
+      targetString = ' target="' + Mura.escapeHTML(context.imagelinktarget) + '"';
+    }
+
+    source = '<a href="' + Mura.escapeHTML(context.imagelink) + '"' + targetString + '/>' + source + '</a>';
+  }
+
+  if (context.caption && context.caption != '<p></p>') {
+    source += '<figcaption>' + context.caption + '</figcaption>';
+  }
+
+  source = '<figure>' + source + '</figure>';
+  return source;
+};
 
 __webpack_require__(380);
-
 
 /***/ }),
 /* 365 */
@@ -23349,1045 +23066,3952 @@ module.exports = exports['default'];
 /* 380 */
 /***/ (function(module, exports, __webpack_require__) {
 
-this["Mura"]=__webpack_require__(8);
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+this["Mura"] = __webpack_require__(8);
 this["Mura"]["templates"] = this["Mura"]["templates"] || {};
+this["Mura"]["templates"]["checkbox_static"] = this.Mura.Handlebars.template({
+  "1": function _(container, depth0, helpers, partials, data) {
+    var helper,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
 
-this["Mura"]["templates"]["checkbox_static"] = this.Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
-    var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
-        }
-        return undefined
+      return undefined;
     };
 
-  return container.escapeExpression(((helper = (helper = lookupProperty(helpers,"summary") || (depth0 != null ? lookupProperty(depth0,"summary") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"summary","hash":{},"data":data,"loc":{"start":{"line":4,"column":18},"end":{"line":4,"column":29}}}) : helper)));
-},"3":function(container,depth0,helpers,partials,data) {
-    var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return container.escapeExpression((helper = (helper = lookupProperty(helpers, "summary") || (depth0 != null ? lookupProperty(depth0, "summary") : depth0)) != null ? helper : container.hooks.helperMissing, typeof helper === "function" ? helper.call(depth0 != null ? depth0 : container.nullContext || {}, {
+      "name": "summary",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 4,
+          "column": 18
+        },
+        "end": {
+          "line": 4,
+          "column": 29
         }
-        return undefined
+      }
+    }) : helper));
+  },
+  "3": function _(container, depth0, helpers, partials, data) {
+    var helper,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return container.escapeExpression(((helper = (helper = lookupProperty(helpers,"label") || (depth0 != null ? lookupProperty(depth0,"label") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"label","hash":{},"data":data,"loc":{"start":{"line":4,"column":37},"end":{"line":4,"column":46}}}) : helper)));
-},"5":function(container,depth0,helpers,partials,data) {
-    var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return container.escapeExpression((helper = (helper = lookupProperty(helpers, "label") || (depth0 != null ? lookupProperty(depth0, "label") : depth0)) != null ? helper : container.hooks.helperMissing, typeof helper === "function" ? helper.call(depth0 != null ? depth0 : container.nullContext || {}, {
+      "name": "label",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 4,
+          "column": 37
+        },
+        "end": {
+          "line": 4,
+          "column": 46
         }
-        return undefined
+      }
+    }) : helper));
+  },
+  "5": function _(container, depth0, helpers, partials, data) {
+    var helper,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return " <ins>"
-    + container.escapeExpression(((helper = (helper = lookupProperty(helpers,"formRequiredLabel") || (depth0 != null ? lookupProperty(depth0,"formRequiredLabel") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"formRequiredLabel","hash":{},"data":data,"loc":{"start":{"line":4,"column":77},"end":{"line":4,"column":98}}}) : helper)))
-    + "</ins>";
-},"7":function(container,depth0,helpers,partials,data) {
+    return " <ins>" + container.escapeExpression((helper = (helper = lookupProperty(helpers, "formRequiredLabel") || (depth0 != null ? lookupProperty(depth0, "formRequiredLabel") : depth0)) != null ? helper : container.hooks.helperMissing, typeof helper === "function" ? helper.call(depth0 != null ? depth0 : container.nullContext || {}, {
+      "name": "formRequiredLabel",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 4,
+          "column": 77
+        },
+        "end": {
+          "line": 4,
+          "column": 98
+        }
+      }
+    }) : helper)) + "</ins>";
+  },
+  "7": function _(container, depth0, helpers, partials, data) {
     return "</br>";
-},"9":function(container,depth0,helpers,partials,data,blockParams,depths) {
-    var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
-        }
-        return undefined
+  },
+  "9": function _(container, depth0, helpers, partials, data, blockParams, depths) {
+    var stack1,
+        helper,
+        alias1 = depth0 != null ? depth0 : container.nullContext || {},
+        alias2 = container.hooks.helperMissing,
+        alias3 = "function",
+        alias4 = container.escapeExpression,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return "			<div class=\""
-    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"checkboxWrapperClass") || (depth0 != null ? lookupProperty(depth0,"checkboxWrapperClass") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"checkboxWrapperClass","hash":{},"data":data,"loc":{"start":{"line":8,"column":15},"end":{"line":8,"column":41}}}) : helper))) != null ? stack1 : "")
-    + "\">\r\n				<input type=\"checkbox\" name=\""
-    + alias4(container.lambda((depths[1] != null ? lookupProperty(depths[1],"name") : depths[1]), depth0))
-    + "\" class=\""
-    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"checkboxClass") || (depth0 != null ? lookupProperty(depth0,"checkboxClass") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"checkboxClass","hash":{},"data":data,"loc":{"start":{"line":9,"column":53},"end":{"line":9,"column":72}}}) : helper))) != null ? stack1 : "")
-    + "\" id=\"field-"
-    + alias4(((helper = (helper = lookupProperty(helpers,"datarecordid") || (depth0 != null ? lookupProperty(depth0,"datarecordid") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"datarecordid","hash":{},"data":data,"loc":{"start":{"line":9,"column":84},"end":{"line":9,"column":100}}}) : helper)))
-    + "\" value=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"value") || (depth0 != null ? lookupProperty(depth0,"value") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"value","hash":{},"data":data,"loc":{"start":{"line":9,"column":109},"end":{"line":9,"column":118}}}) : helper)))
-    + "\" "
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"isselected") : depth0),{"name":"if","hash":{},"fn":container.program(10, data, 0, blockParams, depths),"inverse":container.noop,"data":data,"loc":{"start":{"line":9,"column":120},"end":{"line":9,"column":163}}})) != null ? stack1 : "")
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"selected") : depth0),{"name":"if","hash":{},"fn":container.program(10, data, 0, blockParams, depths),"inverse":container.noop,"data":data,"loc":{"start":{"line":9,"column":163},"end":{"line":9,"column":204}}})) != null ? stack1 : "")
-    + "/>\r\n				<label class=\""
-    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"checkboxLabelClass") || (depth0 != null ? lookupProperty(depth0,"checkboxLabelClass") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"checkboxLabelClass","hash":{},"data":data,"loc":{"start":{"line":10,"column":18},"end":{"line":10,"column":42}}}) : helper))) != null ? stack1 : "")
-    + "\" for=\"field-"
-    + alias4(((helper = (helper = lookupProperty(helpers,"datarecordid") || (depth0 != null ? lookupProperty(depth0,"datarecordid") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"datarecordid","hash":{},"data":data,"loc":{"start":{"line":10,"column":55},"end":{"line":10,"column":71}}}) : helper)))
-    + "\">"
-    + alias4(((helper = (helper = lookupProperty(helpers,"label") || (depth0 != null ? lookupProperty(depth0,"label") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"label","hash":{},"data":data,"loc":{"start":{"line":10,"column":73},"end":{"line":10,"column":82}}}) : helper)))
-    + "</label>\r\n			</div>\r\n";
-},"10":function(container,depth0,helpers,partials,data) {
+    return "			<div class=\"" + ((stack1 = (helper = (helper = lookupProperty(helpers, "checkboxWrapperClass") || (depth0 != null ? lookupProperty(depth0, "checkboxWrapperClass") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "checkboxWrapperClass",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 8,
+          "column": 15
+        },
+        "end": {
+          "line": 8,
+          "column": 41
+        }
+      }
+    }) : helper)) != null ? stack1 : "") + "\">\r\n				<input type=\"checkbox\" name=\"" + alias4(container.lambda(depths[1] != null ? lookupProperty(depths[1], "name") : depths[1], depth0)) + "\" class=\"" + ((stack1 = (helper = (helper = lookupProperty(helpers, "checkboxClass") || (depth0 != null ? lookupProperty(depth0, "checkboxClass") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "checkboxClass",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 9,
+          "column": 53
+        },
+        "end": {
+          "line": 9,
+          "column": 72
+        }
+      }
+    }) : helper)) != null ? stack1 : "") + "\" id=\"field-" + alias4((helper = (helper = lookupProperty(helpers, "datarecordid") || (depth0 != null ? lookupProperty(depth0, "datarecordid") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "datarecordid",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 9,
+          "column": 84
+        },
+        "end": {
+          "line": 9,
+          "column": 100
+        }
+      }
+    }) : helper)) + "\" value=\"" + alias4((helper = (helper = lookupProperty(helpers, "value") || (depth0 != null ? lookupProperty(depth0, "value") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "value",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 9,
+          "column": 109
+        },
+        "end": {
+          "line": 9,
+          "column": 118
+        }
+      }
+    }) : helper)) + "\" " + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "isselected") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(10, data, 0, blockParams, depths),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 9,
+          "column": 120
+        },
+        "end": {
+          "line": 9,
+          "column": 163
+        }
+      }
+    })) != null ? stack1 : "") + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "selected") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(10, data, 0, blockParams, depths),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 9,
+          "column": 163
+        },
+        "end": {
+          "line": 9,
+          "column": 204
+        }
+      }
+    })) != null ? stack1 : "") + "/>\r\n				<label class=\"" + ((stack1 = (helper = (helper = lookupProperty(helpers, "checkboxLabelClass") || (depth0 != null ? lookupProperty(depth0, "checkboxLabelClass") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "checkboxLabelClass",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 10,
+          "column": 18
+        },
+        "end": {
+          "line": 10,
+          "column": 42
+        }
+      }
+    }) : helper)) != null ? stack1 : "") + "\" for=\"field-" + alias4((helper = (helper = lookupProperty(helpers, "datarecordid") || (depth0 != null ? lookupProperty(depth0, "datarecordid") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "datarecordid",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 10,
+          "column": 55
+        },
+        "end": {
+          "line": 10,
+          "column": 71
+        }
+      }
+    }) : helper)) + "\">" + alias4((helper = (helper = lookupProperty(helpers, "label") || (depth0 != null ? lookupProperty(depth0, "label") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "label",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 10,
+          "column": 73
+        },
+        "end": {
+          "line": 10,
+          "column": 82
+        }
+      }
+    }) : helper)) + "</label>\r\n			</div>\r\n";
+  },
+  "10": function _(container, depth0, helpers, partials, data) {
     return " checked='checked'";
-},"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data,blockParams,depths) {
-    var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
-        }
-        return undefined
+  },
+  "compiler": [8, ">= 4.3.0"],
+  "main": function main(container, depth0, helpers, partials, data, blockParams, depths) {
+    var stack1,
+        helper,
+        alias1 = depth0 != null ? depth0 : container.nullContext || {},
+        alias2 = container.hooks.helperMissing,
+        alias3 = "function",
+        alias4 = container.escapeExpression,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return "<div class=\""
-    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"inputWrapperClass") || (depth0 != null ? lookupProperty(depth0,"inputWrapperClass") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"inputWrapperClass","hash":{},"data":data,"loc":{"start":{"line":1,"column":12},"end":{"line":1,"column":35}}}) : helper))) != null ? stack1 : "")
-    + "\" id=\"field-"
-    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":1,"column":47},"end":{"line":1,"column":55}}}) : helper)))
-    + "-container\">\r\n	<div class=\"mura-checkbox-group\">\r\n		<label class=\"mura-group-label\" for=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":3,"column":39},"end":{"line":3,"column":47}}}) : helper)))
-    + "\">\r\n			"
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"summary") : depth0),{"name":"if","hash":{},"fn":container.program(1, data, 0, blockParams, depths),"inverse":container.program(3, data, 0, blockParams, depths),"data":data,"loc":{"start":{"line":4,"column":3},"end":{"line":4,"column":53}}})) != null ? stack1 : "")
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"isrequired") : depth0),{"name":"if","hash":{},"fn":container.program(5, data, 0, blockParams, depths),"inverse":container.noop,"data":data,"loc":{"start":{"line":4,"column":53},"end":{"line":4,"column":111}}})) != null ? stack1 : "")
-    + "\r\n		</label>\r\n		"
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"summary") : depth0),{"name":"if","hash":{},"fn":container.program(7, data, 0, blockParams, depths),"inverse":container.noop,"data":data,"loc":{"start":{"line":6,"column":2},"end":{"line":6,"column":29}}})) != null ? stack1 : "")
-    + "\r\n"
-    + ((stack1 = (lookupProperty(helpers,"eachStatic")||(depth0 && lookupProperty(depth0,"eachStatic"))||alias2).call(alias1,(depth0 != null ? lookupProperty(depth0,"dataset") : depth0),{"name":"eachStatic","hash":{},"fn":container.program(9, data, 0, blockParams, depths),"inverse":container.noop,"data":data,"loc":{"start":{"line":7,"column":2},"end":{"line":12,"column":17}}})) != null ? stack1 : "")
-    + "	</div>\r\n</div>\r\n";
-},"useData":true,"useDepths":true});
-
-this["Mura"]["templates"]["checkbox"] = this.Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
-    var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return "<div class=\"" + ((stack1 = (helper = (helper = lookupProperty(helpers, "inputWrapperClass") || (depth0 != null ? lookupProperty(depth0, "inputWrapperClass") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "inputWrapperClass",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 12
+        },
+        "end": {
+          "line": 1,
+          "column": 35
         }
-        return undefined
+      }
+    }) : helper)) != null ? stack1 : "") + "\" id=\"field-" + alias4((helper = (helper = lookupProperty(helpers, "name") || (depth0 != null ? lookupProperty(depth0, "name") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "name",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 47
+        },
+        "end": {
+          "line": 1,
+          "column": 55
+        }
+      }
+    }) : helper)) + "-container\">\r\n	<div class=\"mura-checkbox-group\">\r\n		<label class=\"mura-group-label\" for=\"" + alias4((helper = (helper = lookupProperty(helpers, "name") || (depth0 != null ? lookupProperty(depth0, "name") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "name",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 3,
+          "column": 39
+        },
+        "end": {
+          "line": 3,
+          "column": 47
+        }
+      }
+    }) : helper)) + "\">\r\n			" + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "summary") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(1, data, 0, blockParams, depths),
+      "inverse": container.program(3, data, 0, blockParams, depths),
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 4,
+          "column": 3
+        },
+        "end": {
+          "line": 4,
+          "column": 53
+        }
+      }
+    })) != null ? stack1 : "") + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "isrequired") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(5, data, 0, blockParams, depths),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 4,
+          "column": 53
+        },
+        "end": {
+          "line": 4,
+          "column": 111
+        }
+      }
+    })) != null ? stack1 : "") + "\r\n		</label>\r\n		" + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "summary") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(7, data, 0, blockParams, depths),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 6,
+          "column": 2
+        },
+        "end": {
+          "line": 6,
+          "column": 29
+        }
+      }
+    })) != null ? stack1 : "") + "\r\n" + ((stack1 = (lookupProperty(helpers, "eachStatic") || depth0 && lookupProperty(depth0, "eachStatic") || alias2).call(alias1, depth0 != null ? lookupProperty(depth0, "dataset") : depth0, {
+      "name": "eachStatic",
+      "hash": {},
+      "fn": container.program(9, data, 0, blockParams, depths),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 7,
+          "column": 2
+        },
+        "end": {
+          "line": 12,
+          "column": 17
+        }
+      }
+    })) != null ? stack1 : "") + "	</div>\r\n</div>\r\n";
+  },
+  "useData": true,
+  "useDepths": true
+});
+this["Mura"]["templates"]["checkbox"] = this.Mura.Handlebars.template({
+  "1": function _(container, depth0, helpers, partials, data) {
+    var helper,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return container.escapeExpression(((helper = (helper = lookupProperty(helpers,"summary") || (depth0 != null ? lookupProperty(depth0,"summary") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"summary","hash":{},"data":data,"loc":{"start":{"line":4,"column":18},"end":{"line":4,"column":29}}}) : helper)));
-},"3":function(container,depth0,helpers,partials,data) {
-    var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return container.escapeExpression((helper = (helper = lookupProperty(helpers, "summary") || (depth0 != null ? lookupProperty(depth0, "summary") : depth0)) != null ? helper : container.hooks.helperMissing, typeof helper === "function" ? helper.call(depth0 != null ? depth0 : container.nullContext || {}, {
+      "name": "summary",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 4,
+          "column": 18
+        },
+        "end": {
+          "line": 4,
+          "column": 29
         }
-        return undefined
+      }
+    }) : helper));
+  },
+  "3": function _(container, depth0, helpers, partials, data) {
+    var helper,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return container.escapeExpression(((helper = (helper = lookupProperty(helpers,"label") || (depth0 != null ? lookupProperty(depth0,"label") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"label","hash":{},"data":data,"loc":{"start":{"line":4,"column":37},"end":{"line":4,"column":46}}}) : helper)));
-},"5":function(container,depth0,helpers,partials,data) {
-    var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return container.escapeExpression((helper = (helper = lookupProperty(helpers, "label") || (depth0 != null ? lookupProperty(depth0, "label") : depth0)) != null ? helper : container.hooks.helperMissing, typeof helper === "function" ? helper.call(depth0 != null ? depth0 : container.nullContext || {}, {
+      "name": "label",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 4,
+          "column": 37
+        },
+        "end": {
+          "line": 4,
+          "column": 46
         }
-        return undefined
+      }
+    }) : helper));
+  },
+  "5": function _(container, depth0, helpers, partials, data) {
+    var helper,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return " <ins>"
-    + container.escapeExpression(((helper = (helper = lookupProperty(helpers,"formRequiredLabel") || (depth0 != null ? lookupProperty(depth0,"formRequiredLabel") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"formRequiredLabel","hash":{},"data":data,"loc":{"start":{"line":4,"column":77},"end":{"line":4,"column":98}}}) : helper)))
-    + "</ins>";
-},"7":function(container,depth0,helpers,partials,data) {
+    return " <ins>" + container.escapeExpression((helper = (helper = lookupProperty(helpers, "formRequiredLabel") || (depth0 != null ? lookupProperty(depth0, "formRequiredLabel") : depth0)) != null ? helper : container.hooks.helperMissing, typeof helper === "function" ? helper.call(depth0 != null ? depth0 : container.nullContext || {}, {
+      "name": "formRequiredLabel",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 4,
+          "column": 77
+        },
+        "end": {
+          "line": 4,
+          "column": 98
+        }
+      }
+    }) : helper)) + "</ins>";
+  },
+  "7": function _(container, depth0, helpers, partials, data) {
     return "</br>";
-},"9":function(container,depth0,helpers,partials,data,blockParams,depths) {
-    var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.lambda, alias5=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
-        }
-        return undefined
+  },
+  "9": function _(container, depth0, helpers, partials, data, blockParams, depths) {
+    var stack1,
+        helper,
+        alias1 = depth0 != null ? depth0 : container.nullContext || {},
+        alias2 = container.hooks.helperMissing,
+        alias3 = "function",
+        alias4 = container.lambda,
+        alias5 = container.escapeExpression,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return "			<div class=\""
-    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"checkboxWrapperClass") || (depth0 != null ? lookupProperty(depth0,"checkboxWrapperClass") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"checkboxWrapperClass","hash":{},"data":data,"loc":{"start":{"line":8,"column":15},"end":{"line":8,"column":41}}}) : helper))) != null ? stack1 : "")
-    + "\">\r\n				<input source=\""
-    + alias5(alias4(((stack1 = (depths[1] != null ? lookupProperty(depths[1],"dataset") : depths[1])) != null ? lookupProperty(stack1,"source") : stack1), depth0))
-    + "\" class=\""
-    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"checkboxClass") || (depth0 != null ? lookupProperty(depth0,"checkboxClass") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"checkboxClass","hash":{},"data":data,"loc":{"start":{"line":9,"column":49},"end":{"line":9,"column":68}}}) : helper))) != null ? stack1 : "")
-    + "\" type=\"checkbox\" name=\""
-    + alias5(alias4((depths[1] != null ? lookupProperty(depths[1],"name") : depths[1]), depth0))
-    + "\" id=\"field-"
-    + alias5(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":9,"column":115},"end":{"line":9,"column":121}}}) : helper)))
-    + "\" value=\""
-    + alias5(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":9,"column":130},"end":{"line":9,"column":136}}}) : helper)))
-    + "\" "
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"isselected") : depth0),{"name":"if","hash":{},"fn":container.program(10, data, 0, blockParams, depths),"inverse":container.noop,"data":data,"loc":{"start":{"line":9,"column":138},"end":{"line":9,"column":180}}})) != null ? stack1 : "")
-    + "/>\r\n				<label class=\""
-    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"checkboxLabelClass") || (depth0 != null ? lookupProperty(depth0,"checkboxLabelClass") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"checkboxLabelClass","hash":{},"data":data,"loc":{"start":{"line":10,"column":18},"end":{"line":10,"column":42}}}) : helper))) != null ? stack1 : "")
-    + "\" for=\"field-"
-    + alias5(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":10,"column":55},"end":{"line":10,"column":61}}}) : helper)))
-    + "\">"
-    + alias5(((helper = (helper = lookupProperty(helpers,"label") || (depth0 != null ? lookupProperty(depth0,"label") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"label","hash":{},"data":data,"loc":{"start":{"line":10,"column":63},"end":{"line":10,"column":72}}}) : helper)))
-    + "</label>\r\n			</div>\r\n";
-},"10":function(container,depth0,helpers,partials,data) {
+    return "			<div class=\"" + ((stack1 = (helper = (helper = lookupProperty(helpers, "checkboxWrapperClass") || (depth0 != null ? lookupProperty(depth0, "checkboxWrapperClass") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "checkboxWrapperClass",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 8,
+          "column": 15
+        },
+        "end": {
+          "line": 8,
+          "column": 41
+        }
+      }
+    }) : helper)) != null ? stack1 : "") + "\">\r\n				<input source=\"" + alias5(alias4((stack1 = depths[1] != null ? lookupProperty(depths[1], "dataset") : depths[1]) != null ? lookupProperty(stack1, "source") : stack1, depth0)) + "\" class=\"" + ((stack1 = (helper = (helper = lookupProperty(helpers, "checkboxClass") || (depth0 != null ? lookupProperty(depth0, "checkboxClass") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "checkboxClass",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 9,
+          "column": 49
+        },
+        "end": {
+          "line": 9,
+          "column": 68
+        }
+      }
+    }) : helper)) != null ? stack1 : "") + "\" type=\"checkbox\" name=\"" + alias5(alias4(depths[1] != null ? lookupProperty(depths[1], "name") : depths[1], depth0)) + "\" id=\"field-" + alias5((helper = (helper = lookupProperty(helpers, "id") || (depth0 != null ? lookupProperty(depth0, "id") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "id",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 9,
+          "column": 115
+        },
+        "end": {
+          "line": 9,
+          "column": 121
+        }
+      }
+    }) : helper)) + "\" value=\"" + alias5((helper = (helper = lookupProperty(helpers, "id") || (depth0 != null ? lookupProperty(depth0, "id") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "id",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 9,
+          "column": 130
+        },
+        "end": {
+          "line": 9,
+          "column": 136
+        }
+      }
+    }) : helper)) + "\" " + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "isselected") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(10, data, 0, blockParams, depths),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 9,
+          "column": 138
+        },
+        "end": {
+          "line": 9,
+          "column": 180
+        }
+      }
+    })) != null ? stack1 : "") + "/>\r\n				<label class=\"" + ((stack1 = (helper = (helper = lookupProperty(helpers, "checkboxLabelClass") || (depth0 != null ? lookupProperty(depth0, "checkboxLabelClass") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "checkboxLabelClass",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 10,
+          "column": 18
+        },
+        "end": {
+          "line": 10,
+          "column": 42
+        }
+      }
+    }) : helper)) != null ? stack1 : "") + "\" for=\"field-" + alias5((helper = (helper = lookupProperty(helpers, "id") || (depth0 != null ? lookupProperty(depth0, "id") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "id",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 10,
+          "column": 55
+        },
+        "end": {
+          "line": 10,
+          "column": 61
+        }
+      }
+    }) : helper)) + "\">" + alias5((helper = (helper = lookupProperty(helpers, "label") || (depth0 != null ? lookupProperty(depth0, "label") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "label",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 10,
+          "column": 63
+        },
+        "end": {
+          "line": 10,
+          "column": 72
+        }
+      }
+    }) : helper)) + "</label>\r\n			</div>\r\n";
+  },
+  "10": function _(container, depth0, helpers, partials, data) {
     return "checked='checked'";
-},"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data,blockParams,depths) {
-    var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
-        }
-        return undefined
+  },
+  "compiler": [8, ">= 4.3.0"],
+  "main": function main(container, depth0, helpers, partials, data, blockParams, depths) {
+    var stack1,
+        helper,
+        alias1 = depth0 != null ? depth0 : container.nullContext || {},
+        alias2 = container.hooks.helperMissing,
+        alias3 = "function",
+        alias4 = container.escapeExpression,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return "<div class=\""
-    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"inputWrapperClass") || (depth0 != null ? lookupProperty(depth0,"inputWrapperClass") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"inputWrapperClass","hash":{},"data":data,"loc":{"start":{"line":1,"column":12},"end":{"line":1,"column":35}}}) : helper))) != null ? stack1 : "")
-    + "\" id=\"field-"
-    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":1,"column":47},"end":{"line":1,"column":55}}}) : helper)))
-    + "-container\">\r\n	<div class=\"mura-checkbox-group\">\r\n		<label class=\"mura-group-label\" for=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":3,"column":39},"end":{"line":3,"column":47}}}) : helper)))
-    + "\">\r\n			"
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"summary") : depth0),{"name":"if","hash":{},"fn":container.program(1, data, 0, blockParams, depths),"inverse":container.program(3, data, 0, blockParams, depths),"data":data,"loc":{"start":{"line":4,"column":3},"end":{"line":4,"column":53}}})) != null ? stack1 : "")
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"isrequired") : depth0),{"name":"if","hash":{},"fn":container.program(5, data, 0, blockParams, depths),"inverse":container.noop,"data":data,"loc":{"start":{"line":4,"column":53},"end":{"line":4,"column":111}}})) != null ? stack1 : "")
-    + "\r\n		</label>\r\n		"
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"summary") : depth0),{"name":"if","hash":{},"fn":container.program(7, data, 0, blockParams, depths),"inverse":container.noop,"data":data,"loc":{"start":{"line":6,"column":2},"end":{"line":6,"column":29}}})) != null ? stack1 : "")
-    + "\r\n"
-    + ((stack1 = (lookupProperty(helpers,"eachCheck")||(depth0 && lookupProperty(depth0,"eachCheck"))||alias2).call(alias1,((stack1 = (depth0 != null ? lookupProperty(depth0,"dataset") : depth0)) != null ? lookupProperty(stack1,"options") : stack1),(depth0 != null ? lookupProperty(depth0,"selected") : depth0),{"name":"eachCheck","hash":{},"fn":container.program(9, data, 0, blockParams, depths),"inverse":container.noop,"data":data,"loc":{"start":{"line":7,"column":2},"end":{"line":12,"column":16}}})) != null ? stack1 : "")
-    + "	</div>\r\n</div>\r\n";
-},"useData":true,"useDepths":true});
-
-this["Mura"]["templates"]["dropdown_static"] = this.Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
-    var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return "<div class=\"" + ((stack1 = (helper = (helper = lookupProperty(helpers, "inputWrapperClass") || (depth0 != null ? lookupProperty(depth0, "inputWrapperClass") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "inputWrapperClass",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 12
+        },
+        "end": {
+          "line": 1,
+          "column": 35
         }
-        return undefined
+      }
+    }) : helper)) != null ? stack1 : "") + "\" id=\"field-" + alias4((helper = (helper = lookupProperty(helpers, "name") || (depth0 != null ? lookupProperty(depth0, "name") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "name",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 47
+        },
+        "end": {
+          "line": 1,
+          "column": 55
+        }
+      }
+    }) : helper)) + "-container\">\r\n	<div class=\"mura-checkbox-group\">\r\n		<label class=\"mura-group-label\" for=\"" + alias4((helper = (helper = lookupProperty(helpers, "name") || (depth0 != null ? lookupProperty(depth0, "name") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "name",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 3,
+          "column": 39
+        },
+        "end": {
+          "line": 3,
+          "column": 47
+        }
+      }
+    }) : helper)) + "\">\r\n			" + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "summary") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(1, data, 0, blockParams, depths),
+      "inverse": container.program(3, data, 0, blockParams, depths),
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 4,
+          "column": 3
+        },
+        "end": {
+          "line": 4,
+          "column": 53
+        }
+      }
+    })) != null ? stack1 : "") + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "isrequired") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(5, data, 0, blockParams, depths),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 4,
+          "column": 53
+        },
+        "end": {
+          "line": 4,
+          "column": 111
+        }
+      }
+    })) != null ? stack1 : "") + "\r\n		</label>\r\n		" + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "summary") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(7, data, 0, blockParams, depths),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 6,
+          "column": 2
+        },
+        "end": {
+          "line": 6,
+          "column": 29
+        }
+      }
+    })) != null ? stack1 : "") + "\r\n" + ((stack1 = (lookupProperty(helpers, "eachCheck") || depth0 && lookupProperty(depth0, "eachCheck") || alias2).call(alias1, (stack1 = depth0 != null ? lookupProperty(depth0, "dataset") : depth0) != null ? lookupProperty(stack1, "options") : stack1, depth0 != null ? lookupProperty(depth0, "selected") : depth0, {
+      "name": "eachCheck",
+      "hash": {},
+      "fn": container.program(9, data, 0, blockParams, depths),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 7,
+          "column": 2
+        },
+        "end": {
+          "line": 12,
+          "column": 16
+        }
+      }
+    })) != null ? stack1 : "") + "	</div>\r\n</div>\r\n";
+  },
+  "useData": true,
+  "useDepths": true
+});
+this["Mura"]["templates"]["dropdown_static"] = this.Mura.Handlebars.template({
+  "1": function _(container, depth0, helpers, partials, data) {
+    var helper,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return container.escapeExpression(((helper = (helper = lookupProperty(helpers,"summary") || (depth0 != null ? lookupProperty(depth0,"summary") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"summary","hash":{},"data":data,"loc":{"start":{"line":2,"column":68},"end":{"line":2,"column":79}}}) : helper)));
-},"3":function(container,depth0,helpers,partials,data) {
-    var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return container.escapeExpression((helper = (helper = lookupProperty(helpers, "summary") || (depth0 != null ? lookupProperty(depth0, "summary") : depth0)) != null ? helper : container.hooks.helperMissing, typeof helper === "function" ? helper.call(depth0 != null ? depth0 : container.nullContext || {}, {
+      "name": "summary",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 2,
+          "column": 68
+        },
+        "end": {
+          "line": 2,
+          "column": 79
         }
-        return undefined
+      }
+    }) : helper));
+  },
+  "3": function _(container, depth0, helpers, partials, data) {
+    var helper,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return container.escapeExpression(((helper = (helper = lookupProperty(helpers,"label") || (depth0 != null ? lookupProperty(depth0,"label") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"label","hash":{},"data":data,"loc":{"start":{"line":2,"column":87},"end":{"line":2,"column":96}}}) : helper)));
-},"5":function(container,depth0,helpers,partials,data) {
-    var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return container.escapeExpression((helper = (helper = lookupProperty(helpers, "label") || (depth0 != null ? lookupProperty(depth0, "label") : depth0)) != null ? helper : container.hooks.helperMissing, typeof helper === "function" ? helper.call(depth0 != null ? depth0 : container.nullContext || {}, {
+      "name": "label",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 2,
+          "column": 87
+        },
+        "end": {
+          "line": 2,
+          "column": 96
         }
-        return undefined
+      }
+    }) : helper));
+  },
+  "5": function _(container, depth0, helpers, partials, data) {
+    var helper,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return " <ins>"
-    + container.escapeExpression(((helper = (helper = lookupProperty(helpers,"formRequiredLabel") || (depth0 != null ? lookupProperty(depth0,"formRequiredLabel") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"formRequiredLabel","hash":{},"data":data,"loc":{"start":{"line":2,"column":127},"end":{"line":2,"column":148}}}) : helper)))
-    + "</ins>";
-},"7":function(container,depth0,helpers,partials,data) {
+    return " <ins>" + container.escapeExpression((helper = (helper = lookupProperty(helpers, "formRequiredLabel") || (depth0 != null ? lookupProperty(depth0, "formRequiredLabel") : depth0)) != null ? helper : container.hooks.helperMissing, typeof helper === "function" ? helper.call(depth0 != null ? depth0 : container.nullContext || {}, {
+      "name": "formRequiredLabel",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 2,
+          "column": 127
+        },
+        "end": {
+          "line": 2,
+          "column": 148
+        }
+      }
+    }) : helper)) + "</ins>";
+  },
+  "7": function _(container, depth0, helpers, partials, data) {
     return "</br>";
-},"9":function(container,depth0,helpers,partials,data) {
-    var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
-        }
-        return undefined
+  },
+  "9": function _(container, depth0, helpers, partials, data) {
+    var stack1,
+        helper,
+        alias1 = depth0 != null ? depth0 : container.nullContext || {},
+        alias2 = container.hooks.helperMissing,
+        alias3 = "function",
+        alias4 = container.escapeExpression,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return "				<option data-isother=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"isother") || (depth0 != null ? lookupProperty(depth0,"isother") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"isother","hash":{},"data":data,"loc":{"start":{"line":6,"column":26},"end":{"line":6,"column":37}}}) : helper)))
-    + "\" id=\"field-"
-    + alias4(((helper = (helper = lookupProperty(helpers,"datarecordid") || (depth0 != null ? lookupProperty(depth0,"datarecordid") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"datarecordid","hash":{},"data":data,"loc":{"start":{"line":6,"column":49},"end":{"line":6,"column":65}}}) : helper)))
-    + "\" value=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"value") || (depth0 != null ? lookupProperty(depth0,"value") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"value","hash":{},"data":data,"loc":{"start":{"line":6,"column":74},"end":{"line":6,"column":83}}}) : helper)))
-    + "\" "
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"isselected") : depth0),{"name":"if","hash":{},"fn":container.program(10, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":6,"column":85},"end":{"line":6,"column":129}}})) != null ? stack1 : "")
-    + ">"
-    + alias4(((helper = (helper = lookupProperty(helpers,"label") || (depth0 != null ? lookupProperty(depth0,"label") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"label","hash":{},"data":data,"loc":{"start":{"line":6,"column":130},"end":{"line":6,"column":139}}}) : helper)))
-    + "</option>\n";
-},"10":function(container,depth0,helpers,partials,data) {
+    return "				<option data-isother=\"" + alias4((helper = (helper = lookupProperty(helpers, "isother") || (depth0 != null ? lookupProperty(depth0, "isother") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "isother",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 6,
+          "column": 26
+        },
+        "end": {
+          "line": 6,
+          "column": 37
+        }
+      }
+    }) : helper)) + "\" id=\"field-" + alias4((helper = (helper = lookupProperty(helpers, "datarecordid") || (depth0 != null ? lookupProperty(depth0, "datarecordid") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "datarecordid",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 6,
+          "column": 49
+        },
+        "end": {
+          "line": 6,
+          "column": 65
+        }
+      }
+    }) : helper)) + "\" value=\"" + alias4((helper = (helper = lookupProperty(helpers, "value") || (depth0 != null ? lookupProperty(depth0, "value") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "value",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 6,
+          "column": 74
+        },
+        "end": {
+          "line": 6,
+          "column": 83
+        }
+      }
+    }) : helper)) + "\" " + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "isselected") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(10, data, 0),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 6,
+          "column": 85
+        },
+        "end": {
+          "line": 6,
+          "column": 129
+        }
+      }
+    })) != null ? stack1 : "") + ">" + alias4((helper = (helper = lookupProperty(helpers, "label") || (depth0 != null ? lookupProperty(depth0, "label") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "label",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 6,
+          "column": 130
+        },
+        "end": {
+          "line": 6,
+          "column": 139
+        }
+      }
+    }) : helper)) + "</option>\n";
+  },
+  "10": function _(container, depth0, helpers, partials, data) {
     return "selected='selected'";
-},"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
-    var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
-        }
-        return undefined
+  },
+  "compiler": [8, ">= 4.3.0"],
+  "main": function main(container, depth0, helpers, partials, data) {
+    var stack1,
+        helper,
+        alias1 = depth0 != null ? depth0 : container.nullContext || {},
+        alias2 = container.hooks.helperMissing,
+        alias3 = "function",
+        alias4 = container.escapeExpression,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return "	<div class=\""
-    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"inputWrapperClass") || (depth0 != null ? lookupProperty(depth0,"inputWrapperClass") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"inputWrapperClass","hash":{},"data":data,"loc":{"start":{"line":1,"column":13},"end":{"line":1,"column":36}}}) : helper))) != null ? stack1 : "")
-    + "\" id=\"field-"
-    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":1,"column":48},"end":{"line":1,"column":56}}}) : helper)))
-    + "-container\">\n		<label for=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"labelForValue") || (depth0 != null ? lookupProperty(depth0,"labelForValue") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"labelForValue","hash":{},"data":data,"loc":{"start":{"line":2,"column":14},"end":{"line":2,"column":31}}}) : helper)))
-    + "\" data-for=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":2,"column":43},"end":{"line":2,"column":51}}}) : helper)))
-    + "\">"
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"summary") : depth0),{"name":"if","hash":{},"fn":container.program(1, data, 0),"inverse":container.program(3, data, 0),"data":data,"loc":{"start":{"line":2,"column":53},"end":{"line":2,"column":103}}})) != null ? stack1 : "")
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"isrequired") : depth0),{"name":"if","hash":{},"fn":container.program(5, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":2,"column":103},"end":{"line":2,"column":161}}})) != null ? stack1 : "")
-    + "</label>\n		"
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"summary") : depth0),{"name":"if","hash":{},"fn":container.program(7, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":3,"column":2},"end":{"line":3,"column":29}}})) != null ? stack1 : "")
-    + "\n		<select "
-    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"commonInputAttributes") || (depth0 != null ? lookupProperty(depth0,"commonInputAttributes") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"commonInputAttributes","hash":{},"data":data,"loc":{"start":{"line":4,"column":10},"end":{"line":4,"column":37}}}) : helper))) != null ? stack1 : "")
-    + ">\n"
-    + ((stack1 = (lookupProperty(helpers,"eachStatic")||(depth0 && lookupProperty(depth0,"eachStatic"))||alias2).call(alias1,(depth0 != null ? lookupProperty(depth0,"dataset") : depth0),{"name":"eachStatic","hash":{},"fn":container.program(9, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":5,"column":3},"end":{"line":7,"column":18}}})) != null ? stack1 : "")
-    + "		</select>\n	</div>\n";
-},"useData":true});
-
-this["Mura"]["templates"]["dropdown"] = this.Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
-    var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return "	<div class=\"" + ((stack1 = (helper = (helper = lookupProperty(helpers, "inputWrapperClass") || (depth0 != null ? lookupProperty(depth0, "inputWrapperClass") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "inputWrapperClass",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 13
+        },
+        "end": {
+          "line": 1,
+          "column": 36
         }
-        return undefined
+      }
+    }) : helper)) != null ? stack1 : "") + "\" id=\"field-" + alias4((helper = (helper = lookupProperty(helpers, "name") || (depth0 != null ? lookupProperty(depth0, "name") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "name",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 48
+        },
+        "end": {
+          "line": 1,
+          "column": 56
+        }
+      }
+    }) : helper)) + "-container\">\n		<label for=\"" + alias4((helper = (helper = lookupProperty(helpers, "labelForValue") || (depth0 != null ? lookupProperty(depth0, "labelForValue") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "labelForValue",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 2,
+          "column": 14
+        },
+        "end": {
+          "line": 2,
+          "column": 31
+        }
+      }
+    }) : helper)) + "\" data-for=\"" + alias4((helper = (helper = lookupProperty(helpers, "name") || (depth0 != null ? lookupProperty(depth0, "name") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "name",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 2,
+          "column": 43
+        },
+        "end": {
+          "line": 2,
+          "column": 51
+        }
+      }
+    }) : helper)) + "\">" + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "summary") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(1, data, 0),
+      "inverse": container.program(3, data, 0),
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 2,
+          "column": 53
+        },
+        "end": {
+          "line": 2,
+          "column": 103
+        }
+      }
+    })) != null ? stack1 : "") + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "isrequired") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(5, data, 0),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 2,
+          "column": 103
+        },
+        "end": {
+          "line": 2,
+          "column": 161
+        }
+      }
+    })) != null ? stack1 : "") + "</label>\n		" + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "summary") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(7, data, 0),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 3,
+          "column": 2
+        },
+        "end": {
+          "line": 3,
+          "column": 29
+        }
+      }
+    })) != null ? stack1 : "") + "\n		<select " + ((stack1 = (helper = (helper = lookupProperty(helpers, "commonInputAttributes") || (depth0 != null ? lookupProperty(depth0, "commonInputAttributes") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "commonInputAttributes",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 4,
+          "column": 10
+        },
+        "end": {
+          "line": 4,
+          "column": 37
+        }
+      }
+    }) : helper)) != null ? stack1 : "") + ">\n" + ((stack1 = (lookupProperty(helpers, "eachStatic") || depth0 && lookupProperty(depth0, "eachStatic") || alias2).call(alias1, depth0 != null ? lookupProperty(depth0, "dataset") : depth0, {
+      "name": "eachStatic",
+      "hash": {},
+      "fn": container.program(9, data, 0),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 5,
+          "column": 3
+        },
+        "end": {
+          "line": 7,
+          "column": 18
+        }
+      }
+    })) != null ? stack1 : "") + "		</select>\n	</div>\n";
+  },
+  "useData": true
+});
+this["Mura"]["templates"]["dropdown"] = this.Mura.Handlebars.template({
+  "1": function _(container, depth0, helpers, partials, data) {
+    var helper,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return container.escapeExpression(((helper = (helper = lookupProperty(helpers,"summary") || (depth0 != null ? lookupProperty(depth0,"summary") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"summary","hash":{},"data":data,"loc":{"start":{"line":2,"column":68},"end":{"line":2,"column":79}}}) : helper)));
-},"3":function(container,depth0,helpers,partials,data) {
-    var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return container.escapeExpression((helper = (helper = lookupProperty(helpers, "summary") || (depth0 != null ? lookupProperty(depth0, "summary") : depth0)) != null ? helper : container.hooks.helperMissing, typeof helper === "function" ? helper.call(depth0 != null ? depth0 : container.nullContext || {}, {
+      "name": "summary",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 2,
+          "column": 68
+        },
+        "end": {
+          "line": 2,
+          "column": 79
         }
-        return undefined
+      }
+    }) : helper));
+  },
+  "3": function _(container, depth0, helpers, partials, data) {
+    var helper,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return container.escapeExpression(((helper = (helper = lookupProperty(helpers,"label") || (depth0 != null ? lookupProperty(depth0,"label") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"label","hash":{},"data":data,"loc":{"start":{"line":2,"column":87},"end":{"line":2,"column":96}}}) : helper)));
-},"5":function(container,depth0,helpers,partials,data) {
-    var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return container.escapeExpression((helper = (helper = lookupProperty(helpers, "label") || (depth0 != null ? lookupProperty(depth0, "label") : depth0)) != null ? helper : container.hooks.helperMissing, typeof helper === "function" ? helper.call(depth0 != null ? depth0 : container.nullContext || {}, {
+      "name": "label",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 2,
+          "column": 87
+        },
+        "end": {
+          "line": 2,
+          "column": 96
         }
-        return undefined
+      }
+    }) : helper));
+  },
+  "5": function _(container, depth0, helpers, partials, data) {
+    var helper,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return " <ins>"
-    + container.escapeExpression(((helper = (helper = lookupProperty(helpers,"formRequiredLabel") || (depth0 != null ? lookupProperty(depth0,"formRequiredLabel") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"formRequiredLabel","hash":{},"data":data,"loc":{"start":{"line":2,"column":127},"end":{"line":2,"column":148}}}) : helper)))
-    + "</ins>";
-},"7":function(container,depth0,helpers,partials,data) {
+    return " <ins>" + container.escapeExpression((helper = (helper = lookupProperty(helpers, "formRequiredLabel") || (depth0 != null ? lookupProperty(depth0, "formRequiredLabel") : depth0)) != null ? helper : container.hooks.helperMissing, typeof helper === "function" ? helper.call(depth0 != null ? depth0 : container.nullContext || {}, {
+      "name": "formRequiredLabel",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 2,
+          "column": 127
+        },
+        "end": {
+          "line": 2,
+          "column": 148
+        }
+      }
+    }) : helper)) + "</ins>";
+  },
+  "7": function _(container, depth0, helpers, partials, data) {
     return "</br>";
-},"9":function(container,depth0,helpers,partials,data) {
-    var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
-        }
-        return undefined
+  },
+  "9": function _(container, depth0, helpers, partials, data) {
+    var stack1,
+        helper,
+        alias1 = depth0 != null ? depth0 : container.nullContext || {},
+        alias2 = container.hooks.helperMissing,
+        alias3 = "function",
+        alias4 = container.escapeExpression,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return "					<option data-isother=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"isother") || (depth0 != null ? lookupProperty(depth0,"isother") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"isother","hash":{},"data":data,"loc":{"start":{"line":6,"column":27},"end":{"line":6,"column":38}}}) : helper)))
-    + "\" id=\"field-"
-    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":6,"column":50},"end":{"line":6,"column":56}}}) : helper)))
-    + "\" value=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":6,"column":65},"end":{"line":6,"column":71}}}) : helper)))
-    + "\" "
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"isselected") : depth0),{"name":"if","hash":{},"fn":container.program(10, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":6,"column":73},"end":{"line":6,"column":117}}})) != null ? stack1 : "")
-    + ">"
-    + alias4(((helper = (helper = lookupProperty(helpers,"label") || (depth0 != null ? lookupProperty(depth0,"label") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"label","hash":{},"data":data,"loc":{"start":{"line":6,"column":118},"end":{"line":6,"column":127}}}) : helper)))
-    + "</option>\n";
-},"10":function(container,depth0,helpers,partials,data) {
+    return "					<option data-isother=\"" + alias4((helper = (helper = lookupProperty(helpers, "isother") || (depth0 != null ? lookupProperty(depth0, "isother") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "isother",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 6,
+          "column": 27
+        },
+        "end": {
+          "line": 6,
+          "column": 38
+        }
+      }
+    }) : helper)) + "\" id=\"field-" + alias4((helper = (helper = lookupProperty(helpers, "id") || (depth0 != null ? lookupProperty(depth0, "id") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "id",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 6,
+          "column": 50
+        },
+        "end": {
+          "line": 6,
+          "column": 56
+        }
+      }
+    }) : helper)) + "\" value=\"" + alias4((helper = (helper = lookupProperty(helpers, "id") || (depth0 != null ? lookupProperty(depth0, "id") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "id",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 6,
+          "column": 65
+        },
+        "end": {
+          "line": 6,
+          "column": 71
+        }
+      }
+    }) : helper)) + "\" " + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "isselected") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(10, data, 0),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 6,
+          "column": 73
+        },
+        "end": {
+          "line": 6,
+          "column": 117
+        }
+      }
+    })) != null ? stack1 : "") + ">" + alias4((helper = (helper = lookupProperty(helpers, "label") || (depth0 != null ? lookupProperty(depth0, "label") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "label",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 6,
+          "column": 118
+        },
+        "end": {
+          "line": 6,
+          "column": 127
+        }
+      }
+    }) : helper)) + "</option>\n";
+  },
+  "10": function _(container, depth0, helpers, partials, data) {
     return "selected='selected'";
-},"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
-    var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
-        }
-        return undefined
+  },
+  "compiler": [8, ">= 4.3.0"],
+  "main": function main(container, depth0, helpers, partials, data) {
+    var stack1,
+        helper,
+        alias1 = depth0 != null ? depth0 : container.nullContext || {},
+        alias2 = container.hooks.helperMissing,
+        alias3 = "function",
+        alias4 = container.escapeExpression,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return "	<div class=\""
-    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"inputWrapperClass") || (depth0 != null ? lookupProperty(depth0,"inputWrapperClass") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"inputWrapperClass","hash":{},"data":data,"loc":{"start":{"line":1,"column":13},"end":{"line":1,"column":36}}}) : helper))) != null ? stack1 : "")
-    + "\" id=\"field-"
-    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":1,"column":48},"end":{"line":1,"column":56}}}) : helper)))
-    + "-container\">\n		<label for=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"labelForValue") || (depth0 != null ? lookupProperty(depth0,"labelForValue") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"labelForValue","hash":{},"data":data,"loc":{"start":{"line":2,"column":14},"end":{"line":2,"column":31}}}) : helper)))
-    + "\" data-for=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":2,"column":43},"end":{"line":2,"column":51}}}) : helper)))
-    + "\">"
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"summary") : depth0),{"name":"if","hash":{},"fn":container.program(1, data, 0),"inverse":container.program(3, data, 0),"data":data,"loc":{"start":{"line":2,"column":53},"end":{"line":2,"column":103}}})) != null ? stack1 : "")
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"isrequired") : depth0),{"name":"if","hash":{},"fn":container.program(5, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":2,"column":103},"end":{"line":2,"column":161}}})) != null ? stack1 : "")
-    + "</label>\n		"
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"summary") : depth0),{"name":"if","hash":{},"fn":container.program(7, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":3,"column":2},"end":{"line":3,"column":29}}})) != null ? stack1 : "")
-    + "\n			<select "
-    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"commonInputAttributes") || (depth0 != null ? lookupProperty(depth0,"commonInputAttributes") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"commonInputAttributes","hash":{},"data":data,"loc":{"start":{"line":4,"column":11},"end":{"line":4,"column":38}}}) : helper))) != null ? stack1 : "")
-    + ">\n"
-    + ((stack1 = lookupProperty(helpers,"each").call(alias1,((stack1 = (depth0 != null ? lookupProperty(depth0,"dataset") : depth0)) != null ? lookupProperty(stack1,"options") : stack1),{"name":"each","hash":{},"fn":container.program(9, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":5,"column":4},"end":{"line":7,"column":13}}})) != null ? stack1 : "")
-    + "			</select>\n	</div>\n";
-},"useData":true});
-
-this["Mura"]["templates"]["error"] = this.Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
-    var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return "	<div class=\"" + ((stack1 = (helper = (helper = lookupProperty(helpers, "inputWrapperClass") || (depth0 != null ? lookupProperty(depth0, "inputWrapperClass") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "inputWrapperClass",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 13
+        },
+        "end": {
+          "line": 1,
+          "column": 36
         }
-        return undefined
+      }
+    }) : helper)) != null ? stack1 : "") + "\" id=\"field-" + alias4((helper = (helper = lookupProperty(helpers, "name") || (depth0 != null ? lookupProperty(depth0, "name") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "name",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 48
+        },
+        "end": {
+          "line": 1,
+          "column": 56
+        }
+      }
+    }) : helper)) + "-container\">\n		<label for=\"" + alias4((helper = (helper = lookupProperty(helpers, "labelForValue") || (depth0 != null ? lookupProperty(depth0, "labelForValue") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "labelForValue",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 2,
+          "column": 14
+        },
+        "end": {
+          "line": 2,
+          "column": 31
+        }
+      }
+    }) : helper)) + "\" data-for=\"" + alias4((helper = (helper = lookupProperty(helpers, "name") || (depth0 != null ? lookupProperty(depth0, "name") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "name",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 2,
+          "column": 43
+        },
+        "end": {
+          "line": 2,
+          "column": 51
+        }
+      }
+    }) : helper)) + "\">" + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "summary") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(1, data, 0),
+      "inverse": container.program(3, data, 0),
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 2,
+          "column": 53
+        },
+        "end": {
+          "line": 2,
+          "column": 103
+        }
+      }
+    })) != null ? stack1 : "") + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "isrequired") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(5, data, 0),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 2,
+          "column": 103
+        },
+        "end": {
+          "line": 2,
+          "column": 161
+        }
+      }
+    })) != null ? stack1 : "") + "</label>\n		" + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "summary") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(7, data, 0),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 3,
+          "column": 2
+        },
+        "end": {
+          "line": 3,
+          "column": 29
+        }
+      }
+    })) != null ? stack1 : "") + "\n			<select " + ((stack1 = (helper = (helper = lookupProperty(helpers, "commonInputAttributes") || (depth0 != null ? lookupProperty(depth0, "commonInputAttributes") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "commonInputAttributes",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 4,
+          "column": 11
+        },
+        "end": {
+          "line": 4,
+          "column": 38
+        }
+      }
+    }) : helper)) != null ? stack1 : "") + ">\n" + ((stack1 = lookupProperty(helpers, "each").call(alias1, (stack1 = depth0 != null ? lookupProperty(depth0, "dataset") : depth0) != null ? lookupProperty(stack1, "options") : stack1, {
+      "name": "each",
+      "hash": {},
+      "fn": container.program(9, data, 0),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 5,
+          "column": 4
+        },
+        "end": {
+          "line": 7,
+          "column": 13
+        }
+      }
+    })) != null ? stack1 : "") + "			</select>\n	</div>\n";
+  },
+  "useData": true
+});
+this["Mura"]["templates"]["error"] = this.Mura.Handlebars.template({
+  "1": function _(container, depth0, helpers, partials, data) {
+    var helper,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return container.escapeExpression(((helper = (helper = lookupProperty(helpers,"label") || (depth0 != null ? lookupProperty(depth0,"label") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"label","hash":{},"data":data,"loc":{"start":{"line":1,"column":77},"end":{"line":1,"column":86}}}) : helper)))
-    + ": ";
-},"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
-    var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return container.escapeExpression((helper = (helper = lookupProperty(helpers, "label") || (depth0 != null ? lookupProperty(depth0, "label") : depth0)) != null ? helper : container.hooks.helperMissing, typeof helper === "function" ? helper.call(depth0 != null ? depth0 : container.nullContext || {}, {
+      "name": "label",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 77
+        },
+        "end": {
+          "line": 1,
+          "column": 86
         }
-        return undefined
+      }
+    }) : helper)) + ": ";
+  },
+  "compiler": [8, ">= 4.3.0"],
+  "main": function main(container, depth0, helpers, partials, data) {
+    var stack1,
+        helper,
+        alias1 = depth0 != null ? depth0 : container.nullContext || {},
+        alias2 = container.hooks.helperMissing,
+        alias3 = "function",
+        alias4 = container.escapeExpression,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return "<div class=\""
-    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"formErrorWrapperClass") || (depth0 != null ? lookupProperty(depth0,"formErrorWrapperClass") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"formErrorWrapperClass","hash":{},"data":data,"loc":{"start":{"line":1,"column":12},"end":{"line":1,"column":39}}}) : helper))) != null ? stack1 : "")
-    + "\" data-field=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"field") || (depth0 != null ? lookupProperty(depth0,"field") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"field","hash":{},"data":data,"loc":{"start":{"line":1,"column":53},"end":{"line":1,"column":62}}}) : helper)))
-    + "\">"
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"label") : depth0),{"name":"if","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":1,"column":64},"end":{"line":1,"column":95}}})) != null ? stack1 : "")
-    + alias4(((helper = (helper = lookupProperty(helpers,"message") || (depth0 != null ? lookupProperty(depth0,"message") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"message","hash":{},"data":data,"loc":{"start":{"line":1,"column":95},"end":{"line":1,"column":106}}}) : helper)))
-    + "</div>\r\n";
-},"useData":true});
-
-this["Mura"]["templates"]["file"] = this.Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
-    var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return "<div class=\"" + ((stack1 = (helper = (helper = lookupProperty(helpers, "formErrorWrapperClass") || (depth0 != null ? lookupProperty(depth0, "formErrorWrapperClass") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "formErrorWrapperClass",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 12
+        },
+        "end": {
+          "line": 1,
+          "column": 39
         }
-        return undefined
+      }
+    }) : helper)) != null ? stack1 : "") + "\" data-field=\"" + alias4((helper = (helper = lookupProperty(helpers, "field") || (depth0 != null ? lookupProperty(depth0, "field") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "field",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 53
+        },
+        "end": {
+          "line": 1,
+          "column": 62
+        }
+      }
+    }) : helper)) + "\">" + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "label") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(1, data, 0),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 64
+        },
+        "end": {
+          "line": 1,
+          "column": 95
+        }
+      }
+    })) != null ? stack1 : "") + alias4((helper = (helper = lookupProperty(helpers, "message") || (depth0 != null ? lookupProperty(depth0, "message") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "message",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 95
+        },
+        "end": {
+          "line": 1,
+          "column": 106
+        }
+      }
+    }) : helper)) + "</div>\r\n";
+  },
+  "useData": true
+});
+this["Mura"]["templates"]["file"] = this.Mura.Handlebars.template({
+  "1": function _(container, depth0, helpers, partials, data) {
+    var helper,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return " <ins>"
-    + container.escapeExpression(((helper = (helper = lookupProperty(helpers,"formRequiredLabel") || (depth0 != null ? lookupProperty(depth0,"formRequiredLabel") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"formRequiredLabel","hash":{},"data":data,"loc":{"start":{"line":2,"column":85},"end":{"line":2,"column":106}}}) : helper)))
-    + "</ins>";
-},"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
-    var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return " <ins>" + container.escapeExpression((helper = (helper = lookupProperty(helpers, "formRequiredLabel") || (depth0 != null ? lookupProperty(depth0, "formRequiredLabel") : depth0)) != null ? helper : container.hooks.helperMissing, typeof helper === "function" ? helper.call(depth0 != null ? depth0 : container.nullContext || {}, {
+      "name": "formRequiredLabel",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 2,
+          "column": 85
+        },
+        "end": {
+          "line": 2,
+          "column": 106
         }
-        return undefined
+      }
+    }) : helper)) + "</ins>";
+  },
+  "compiler": [8, ">= 4.3.0"],
+  "main": function main(container, depth0, helpers, partials, data) {
+    var stack1,
+        helper,
+        alias1 = depth0 != null ? depth0 : container.nullContext || {},
+        alias2 = container.hooks.helperMissing,
+        alias3 = "function",
+        alias4 = container.escapeExpression,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return "<div class=\""
-    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"inputWrapperClass") || (depth0 != null ? lookupProperty(depth0,"inputWrapperClass") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"inputWrapperClass","hash":{},"data":data,"loc":{"start":{"line":1,"column":12},"end":{"line":1,"column":35}}}) : helper))) != null ? stack1 : "")
-    + "\" id=\"field-"
-    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":1,"column":47},"end":{"line":1,"column":55}}}) : helper)))
-    + "-container\">\r\n	<label for=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"labelForValue") || (depth0 != null ? lookupProperty(depth0,"labelForValue") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"labelForValue","hash":{},"data":data,"loc":{"start":{"line":2,"column":13},"end":{"line":2,"column":30}}}) : helper)))
-    + "\" data-for=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":2,"column":42},"end":{"line":2,"column":50}}}) : helper)))
-    + "\">"
-    + alias4(((helper = (helper = lookupProperty(helpers,"label") || (depth0 != null ? lookupProperty(depth0,"label") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"label","hash":{},"data":data,"loc":{"start":{"line":2,"column":52},"end":{"line":2,"column":61}}}) : helper)))
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"isrequired") : depth0),{"name":"if","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":2,"column":61},"end":{"line":2,"column":119}}})) != null ? stack1 : "")
-    + "</label>\r\n	<input type=\"file\" "
-    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"commonInputAttributes") || (depth0 != null ? lookupProperty(depth0,"commonInputAttributes") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"commonInputAttributes","hash":{},"data":data,"loc":{"start":{"line":3,"column":20},"end":{"line":3,"column":47}}}) : helper))) != null ? stack1 : "")
-    + "/>\r\n</div>\r\n";
-},"useData":true});
-
-this["Mura"]["templates"]["form"] = this.Mura.Handlebars.template({"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
-    var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return "<div class=\"" + ((stack1 = (helper = (helper = lookupProperty(helpers, "inputWrapperClass") || (depth0 != null ? lookupProperty(depth0, "inputWrapperClass") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "inputWrapperClass",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 12
+        },
+        "end": {
+          "line": 1,
+          "column": 35
         }
-        return undefined
+      }
+    }) : helper)) != null ? stack1 : "") + "\" id=\"field-" + alias4((helper = (helper = lookupProperty(helpers, "name") || (depth0 != null ? lookupProperty(depth0, "name") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "name",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 47
+        },
+        "end": {
+          "line": 1,
+          "column": 55
+        }
+      }
+    }) : helper)) + "-container\">\r\n	<label for=\"" + alias4((helper = (helper = lookupProperty(helpers, "labelForValue") || (depth0 != null ? lookupProperty(depth0, "labelForValue") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "labelForValue",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 2,
+          "column": 13
+        },
+        "end": {
+          "line": 2,
+          "column": 30
+        }
+      }
+    }) : helper)) + "\" data-for=\"" + alias4((helper = (helper = lookupProperty(helpers, "name") || (depth0 != null ? lookupProperty(depth0, "name") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "name",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 2,
+          "column": 42
+        },
+        "end": {
+          "line": 2,
+          "column": 50
+        }
+      }
+    }) : helper)) + "\">" + alias4((helper = (helper = lookupProperty(helpers, "label") || (depth0 != null ? lookupProperty(depth0, "label") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "label",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 2,
+          "column": 52
+        },
+        "end": {
+          "line": 2,
+          "column": 61
+        }
+      }
+    }) : helper)) + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "isrequired") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(1, data, 0),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 2,
+          "column": 61
+        },
+        "end": {
+          "line": 2,
+          "column": 119
+        }
+      }
+    })) != null ? stack1 : "") + "</label>\r\n	<input type=\"file\" " + ((stack1 = (helper = (helper = lookupProperty(helpers, "commonInputAttributes") || (depth0 != null ? lookupProperty(depth0, "commonInputAttributes") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "commonInputAttributes",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 3,
+          "column": 20
+        },
+        "end": {
+          "line": 3,
+          "column": 47
+        }
+      }
+    }) : helper)) != null ? stack1 : "") + "/>\r\n</div>\r\n";
+  },
+  "useData": true
+});
+this["Mura"]["templates"]["form"] = this.Mura.Handlebars.template({
+  "compiler": [8, ">= 4.3.0"],
+  "main": function main(container, depth0, helpers, partials, data) {
+    var stack1,
+        helper,
+        alias1 = depth0 != null ? depth0 : container.nullContext || {},
+        alias2 = container.hooks.helperMissing,
+        alias3 = "function",
+        alias4 = container.escapeExpression,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return "<form id=\"frm"
-    + alias4(((helper = (helper = lookupProperty(helpers,"objectid") || (depth0 != null ? lookupProperty(depth0,"objectid") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"objectid","hash":{},"data":data,"loc":{"start":{"line":1,"column":13},"end":{"line":1,"column":25}}}) : helper)))
-    + "\" class=\""
-    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"formClass") || (depth0 != null ? lookupProperty(depth0,"formClass") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"formClass","hash":{},"data":data,"loc":{"start":{"line":1,"column":34},"end":{"line":1,"column":49}}}) : helper))) != null ? stack1 : "")
-    + "\" novalidate=\"novalidate\" enctype=\"multipart/form-data\">\n<div class=\"error-container-"
-    + alias4(((helper = (helper = lookupProperty(helpers,"objectid") || (depth0 != null ? lookupProperty(depth0,"objectid") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"objectid","hash":{},"data":data,"loc":{"start":{"line":2,"column":28},"end":{"line":2,"column":40}}}) : helper)))
-    + "\">\n</div>\n<div class=\"field-container-"
-    + alias4(((helper = (helper = lookupProperty(helpers,"objectid") || (depth0 != null ? lookupProperty(depth0,"objectid") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"objectid","hash":{},"data":data,"loc":{"start":{"line":4,"column":28},"end":{"line":4,"column":40}}}) : helper)))
-    + "\">\n</div>\n<div class=\"paging-container-"
-    + alias4(((helper = (helper = lookupProperty(helpers,"objectid") || (depth0 != null ? lookupProperty(depth0,"objectid") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"objectid","hash":{},"data":data,"loc":{"start":{"line":6,"column":29},"end":{"line":6,"column":41}}}) : helper)))
-    + "\">\n</div>\n	<input type=\"hidden\" name=\"formid\" value=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"objectid") || (depth0 != null ? lookupProperty(depth0,"objectid") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"objectid","hash":{},"data":data,"loc":{"start":{"line":8,"column":43},"end":{"line":8,"column":55}}}) : helper)))
-    + "\">\n</form>\n";
-},"useData":true});
-
-this["Mura"]["templates"]["hidden"] = this.Mura.Handlebars.template({"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
-    var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return "<form id=\"frm" + alias4((helper = (helper = lookupProperty(helpers, "objectid") || (depth0 != null ? lookupProperty(depth0, "objectid") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "objectid",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 13
+        },
+        "end": {
+          "line": 1,
+          "column": 25
         }
-        return undefined
+      }
+    }) : helper)) + "\" class=\"" + ((stack1 = (helper = (helper = lookupProperty(helpers, "formClass") || (depth0 != null ? lookupProperty(depth0, "formClass") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "formClass",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 34
+        },
+        "end": {
+          "line": 1,
+          "column": 49
+        }
+      }
+    }) : helper)) != null ? stack1 : "") + "\" novalidate=\"novalidate\" enctype=\"multipart/form-data\">\n<div class=\"error-container-" + alias4((helper = (helper = lookupProperty(helpers, "objectid") || (depth0 != null ? lookupProperty(depth0, "objectid") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "objectid",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 2,
+          "column": 28
+        },
+        "end": {
+          "line": 2,
+          "column": 40
+        }
+      }
+    }) : helper)) + "\">\n</div>\n<div class=\"field-container-" + alias4((helper = (helper = lookupProperty(helpers, "objectid") || (depth0 != null ? lookupProperty(depth0, "objectid") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "objectid",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 4,
+          "column": 28
+        },
+        "end": {
+          "line": 4,
+          "column": 40
+        }
+      }
+    }) : helper)) + "\">\n</div>\n<div class=\"paging-container-" + alias4((helper = (helper = lookupProperty(helpers, "objectid") || (depth0 != null ? lookupProperty(depth0, "objectid") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "objectid",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 6,
+          "column": 29
+        },
+        "end": {
+          "line": 6,
+          "column": 41
+        }
+      }
+    }) : helper)) + "\">\n</div>\n	<input type=\"hidden\" name=\"formid\" value=\"" + alias4((helper = (helper = lookupProperty(helpers, "objectid") || (depth0 != null ? lookupProperty(depth0, "objectid") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "objectid",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 8,
+          "column": 43
+        },
+        "end": {
+          "line": 8,
+          "column": 55
+        }
+      }
+    }) : helper)) + "\">\n</form>\n";
+  },
+  "useData": true
+});
+this["Mura"]["templates"]["hidden"] = this.Mura.Handlebars.template({
+  "compiler": [8, ">= 4.3.0"],
+  "main": function main(container, depth0, helpers, partials, data) {
+    var stack1,
+        helper,
+        alias1 = depth0 != null ? depth0 : container.nullContext || {},
+        alias2 = container.hooks.helperMissing,
+        alias3 = "function",
+        alias4 = container.escapeExpression,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return "<input type=\"hidden\" name=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":1,"column":27},"end":{"line":1,"column":35}}}) : helper)))
-    + "\" "
-    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"commonInputAttributes") || (depth0 != null ? lookupProperty(depth0,"commonInputAttributes") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"commonInputAttributes","hash":{},"data":data,"loc":{"start":{"line":1,"column":37},"end":{"line":1,"column":64}}}) : helper))) != null ? stack1 : "")
-    + " value=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"value") || (depth0 != null ? lookupProperty(depth0,"value") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"value","hash":{},"data":data,"loc":{"start":{"line":1,"column":72},"end":{"line":1,"column":81}}}) : helper)))
-    + "\" />			\n";
-},"useData":true});
-
-this["Mura"]["templates"]["list"] = this.Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
-    var helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return "<input type=\"hidden\" name=\"" + alias4((helper = (helper = lookupProperty(helpers, "name") || (depth0 != null ? lookupProperty(depth0, "name") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "name",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 27
+        },
+        "end": {
+          "line": 1,
+          "column": 35
         }
-        return undefined
+      }
+    }) : helper)) + "\" " + ((stack1 = (helper = (helper = lookupProperty(helpers, "commonInputAttributes") || (depth0 != null ? lookupProperty(depth0, "commonInputAttributes") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "commonInputAttributes",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 37
+        },
+        "end": {
+          "line": 1,
+          "column": 64
+        }
+      }
+    }) : helper)) != null ? stack1 : "") + " value=\"" + alias4((helper = (helper = lookupProperty(helpers, "value") || (depth0 != null ? lookupProperty(depth0, "value") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "value",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 72
+        },
+        "end": {
+          "line": 1,
+          "column": 81
+        }
+      }
+    }) : helper)) + "\" />			\n";
+  },
+  "useData": true
+});
+this["Mura"]["templates"]["list"] = this.Mura.Handlebars.template({
+  "1": function _(container, depth0, helpers, partials, data) {
+    var helper,
+        alias1 = depth0 != null ? depth0 : container.nullContext || {},
+        alias2 = container.hooks.helperMissing,
+        alias3 = "function",
+        alias4 = container.escapeExpression,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return "					<option value=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":7,"column":20},"end":{"line":7,"column":28}}}) : helper)))
-    + "\">"
-    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":7,"column":30},"end":{"line":7,"column":38}}}) : helper)))
-    + "</option>\n";
-},"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
-    var stack1, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return "					<option value=\"" + alias4((helper = (helper = lookupProperty(helpers, "name") || (depth0 != null ? lookupProperty(depth0, "name") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "name",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 7,
+          "column": 20
+        },
+        "end": {
+          "line": 7,
+          "column": 28
         }
-        return undefined
+      }
+    }) : helper)) + "\">" + alias4((helper = (helper = lookupProperty(helpers, "name") || (depth0 != null ? lookupProperty(depth0, "name") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "name",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 7,
+          "column": 30
+        },
+        "end": {
+          "line": 7,
+          "column": 38
+        }
+      }
+    }) : helper)) + "</option>\n";
+  },
+  "compiler": [8, ">= 4.3.0"],
+  "main": function main(container, depth0, helpers, partials, data) {
+    var stack1,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return "<form>\n	<div class=\"mura-control-group\">\n		<label for=\"beanList\">Choose Entity:</label>	\n		<div class=\"form-group-select\">\n			<select type=\"text\" name=\"bean\" id=\"select-bean-value\">\n"
-    + ((stack1 = lookupProperty(helpers,"each").call(depth0 != null ? depth0 : (container.nullContext || {}),depth0,{"name":"each","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":6,"column":4},"end":{"line":8,"column":13}}})) != null ? stack1 : "")
-    + "			</select>\n		</div>\n	</div>\n	<div class=\"mura-control-group\">\n		<button type=\"button\" id=\"select-bean\">Go</button>\n	</div>\n</form>";
-},"useData":true});
-
-this["Mura"]["templates"]["nested"] = this.Mura.Handlebars.template({"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
-    var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return "<form>\n	<div class=\"mura-control-group\">\n		<label for=\"beanList\">Choose Entity:</label>	\n		<div class=\"form-group-select\">\n			<select type=\"text\" name=\"bean\" id=\"select-bean-value\">\n" + ((stack1 = lookupProperty(helpers, "each").call(depth0 != null ? depth0 : container.nullContext || {}, depth0, {
+      "name": "each",
+      "hash": {},
+      "fn": container.program(1, data, 0),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 6,
+          "column": 4
+        },
+        "end": {
+          "line": 8,
+          "column": 13
         }
-        return undefined
+      }
+    })) != null ? stack1 : "") + "			</select>\n		</div>\n	</div>\n	<div class=\"mura-control-group\">\n		<button type=\"button\" id=\"select-bean\">Go</button>\n	</div>\n</form>";
+  },
+  "useData": true
+});
+this["Mura"]["templates"]["nested"] = this.Mura.Handlebars.template({
+  "compiler": [8, ">= 4.3.0"],
+  "main": function main(container, depth0, helpers, partials, data) {
+    var helper,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return "<div class=\"field-container-"
-    + container.escapeExpression(((helper = (helper = lookupProperty(helpers,"objectid") || (depth0 != null ? lookupProperty(depth0,"objectid") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"objectid","hash":{},"data":data,"loc":{"start":{"line":1,"column":28},"end":{"line":1,"column":40}}}) : helper)))
-    + "\">\r\n\r\n</div>\r\n";
-},"useData":true});
-
-this["Mura"]["templates"]["paging"] = this.Mura.Handlebars.template({"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
-    var helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return "<div class=\"field-container-" + container.escapeExpression((helper = (helper = lookupProperty(helpers, "objectid") || (depth0 != null ? lookupProperty(depth0, "objectid") : depth0)) != null ? helper : container.hooks.helperMissing, typeof helper === "function" ? helper.call(depth0 != null ? depth0 : container.nullContext || {}, {
+      "name": "objectid",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 28
+        },
+        "end": {
+          "line": 1,
+          "column": 40
         }
-        return undefined
+      }
+    }) : helper)) + "\">\r\n\r\n</div>\r\n";
+  },
+  "useData": true
+});
+this["Mura"]["templates"]["paging"] = this.Mura.Handlebars.template({
+  "compiler": [8, ">= 4.3.0"],
+  "main": function main(container, depth0, helpers, partials, data) {
+    var helper,
+        alias1 = depth0 != null ? depth0 : container.nullContext || {},
+        alias2 = container.hooks.helperMissing,
+        alias3 = "function",
+        alias4 = container.escapeExpression,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return "<button class=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"class") || (depth0 != null ? lookupProperty(depth0,"class") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"class","hash":{},"data":data,"loc":{"start":{"line":1,"column":15},"end":{"line":1,"column":24}}}) : helper)))
-    + "\" type=\"button\" data-page=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"page") || (depth0 != null ? lookupProperty(depth0,"page") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"page","hash":{},"data":data,"loc":{"start":{"line":1,"column":51},"end":{"line":1,"column":59}}}) : helper)))
-    + "\">"
-    + alias4(((helper = (helper = lookupProperty(helpers,"label") || (depth0 != null ? lookupProperty(depth0,"label") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"label","hash":{},"data":data,"loc":{"start":{"line":1,"column":61},"end":{"line":1,"column":70}}}) : helper)))
-    + "</button> ";
-},"useData":true});
-
-this["Mura"]["templates"]["radio_static"] = this.Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
-    var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return "<button class=\"" + alias4((helper = (helper = lookupProperty(helpers, "class") || (depth0 != null ? lookupProperty(depth0, "class") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "class",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 15
+        },
+        "end": {
+          "line": 1,
+          "column": 24
         }
-        return undefined
+      }
+    }) : helper)) + "\" type=\"button\" data-page=\"" + alias4((helper = (helper = lookupProperty(helpers, "page") || (depth0 != null ? lookupProperty(depth0, "page") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "page",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 51
+        },
+        "end": {
+          "line": 1,
+          "column": 59
+        }
+      }
+    }) : helper)) + "\">" + alias4((helper = (helper = lookupProperty(helpers, "label") || (depth0 != null ? lookupProperty(depth0, "label") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "label",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 61
+        },
+        "end": {
+          "line": 1,
+          "column": 70
+        }
+      }
+    }) : helper)) + "</button> ";
+  },
+  "useData": true
+});
+this["Mura"]["templates"]["radio_static"] = this.Mura.Handlebars.template({
+  "1": function _(container, depth0, helpers, partials, data) {
+    var helper,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return container.escapeExpression(((helper = (helper = lookupProperty(helpers,"summary") || (depth0 != null ? lookupProperty(depth0,"summary") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"summary","hash":{},"data":data,"loc":{"start":{"line":4,"column":19},"end":{"line":4,"column":30}}}) : helper)));
-},"3":function(container,depth0,helpers,partials,data) {
-    var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return container.escapeExpression((helper = (helper = lookupProperty(helpers, "summary") || (depth0 != null ? lookupProperty(depth0, "summary") : depth0)) != null ? helper : container.hooks.helperMissing, typeof helper === "function" ? helper.call(depth0 != null ? depth0 : container.nullContext || {}, {
+      "name": "summary",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 4,
+          "column": 19
+        },
+        "end": {
+          "line": 4,
+          "column": 30
         }
-        return undefined
+      }
+    }) : helper));
+  },
+  "3": function _(container, depth0, helpers, partials, data) {
+    var helper,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return container.escapeExpression(((helper = (helper = lookupProperty(helpers,"label") || (depth0 != null ? lookupProperty(depth0,"label") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"label","hash":{},"data":data,"loc":{"start":{"line":4,"column":38},"end":{"line":4,"column":47}}}) : helper)));
-},"5":function(container,depth0,helpers,partials,data) {
-    var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return container.escapeExpression((helper = (helper = lookupProperty(helpers, "label") || (depth0 != null ? lookupProperty(depth0, "label") : depth0)) != null ? helper : container.hooks.helperMissing, typeof helper === "function" ? helper.call(depth0 != null ? depth0 : container.nullContext || {}, {
+      "name": "label",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 4,
+          "column": 38
+        },
+        "end": {
+          "line": 4,
+          "column": 47
         }
-        return undefined
+      }
+    }) : helper));
+  },
+  "5": function _(container, depth0, helpers, partials, data) {
+    var helper,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return " <ins>"
-    + container.escapeExpression(((helper = (helper = lookupProperty(helpers,"formRequiredLabel") || (depth0 != null ? lookupProperty(depth0,"formRequiredLabel") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"formRequiredLabel","hash":{},"data":data,"loc":{"start":{"line":4,"column":78},"end":{"line":4,"column":99}}}) : helper)))
-    + "</ins>";
-},"7":function(container,depth0,helpers,partials,data) {
+    return " <ins>" + container.escapeExpression((helper = (helper = lookupProperty(helpers, "formRequiredLabel") || (depth0 != null ? lookupProperty(depth0, "formRequiredLabel") : depth0)) != null ? helper : container.hooks.helperMissing, typeof helper === "function" ? helper.call(depth0 != null ? depth0 : container.nullContext || {}, {
+      "name": "formRequiredLabel",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 4,
+          "column": 78
+        },
+        "end": {
+          "line": 4,
+          "column": 99
+        }
+      }
+    }) : helper)) + "</ins>";
+  },
+  "7": function _(container, depth0, helpers, partials, data) {
     return "</br>";
-},"9":function(container,depth0,helpers,partials,data,blockParams,depths) {
-    var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
-        }
-        return undefined
+  },
+  "9": function _(container, depth0, helpers, partials, data, blockParams, depths) {
+    var stack1,
+        helper,
+        alias1 = depth0 != null ? depth0 : container.nullContext || {},
+        alias2 = container.hooks.helperMissing,
+        alias3 = "function",
+        alias4 = container.escapeExpression,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return "				<div class=\""
-    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"radioWrapperClass") || (depth0 != null ? lookupProperty(depth0,"radioWrapperClass") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"radioWrapperClass","hash":{},"data":data,"loc":{"start":{"line":8,"column":16},"end":{"line":8,"column":39}}}) : helper))) != null ? stack1 : "")
-    + "\">\n					<input type=\"radio\" name=\""
-    + alias4(container.lambda((depths[1] != null ? lookupProperty(depths[1],"name") : depths[1]), depth0))
-    + "\" class=\""
-    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"radioClass") || (depth0 != null ? lookupProperty(depth0,"radioClass") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"radioClass","hash":{},"data":data,"loc":{"start":{"line":9,"column":51},"end":{"line":9,"column":67}}}) : helper))) != null ? stack1 : "")
-    + "\" id=\"field-"
-    + alias4(((helper = (helper = lookupProperty(helpers,"datarecordid") || (depth0 != null ? lookupProperty(depth0,"datarecordid") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"datarecordid","hash":{},"data":data,"loc":{"start":{"line":9,"column":79},"end":{"line":9,"column":95}}}) : helper)))
-    + "\" value=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"value") || (depth0 != null ? lookupProperty(depth0,"value") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"value","hash":{},"data":data,"loc":{"start":{"line":9,"column":104},"end":{"line":9,"column":113}}}) : helper)))
-    + "\"  "
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"isselected") : depth0),{"name":"if","hash":{},"fn":container.program(10, data, 0, blockParams, depths),"inverse":container.noop,"data":data,"loc":{"start":{"line":9,"column":116},"end":{"line":9,"column":158}}})) != null ? stack1 : "")
-    + "/>\n					<label for=\"field-"
-    + alias4(((helper = (helper = lookupProperty(helpers,"datarecordid") || (depth0 != null ? lookupProperty(depth0,"datarecordid") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"datarecordid","hash":{},"data":data,"loc":{"start":{"line":10,"column":23},"end":{"line":10,"column":39}}}) : helper)))
-    + "\" class=\""
-    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"radioLabelClass") || (depth0 != null ? lookupProperty(depth0,"radioLabelClass") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"radioLabelClass","hash":{},"data":data,"loc":{"start":{"line":10,"column":48},"end":{"line":10,"column":69}}}) : helper))) != null ? stack1 : "")
-    + "\">"
-    + alias4(((helper = (helper = lookupProperty(helpers,"label") || (depth0 != null ? lookupProperty(depth0,"label") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"label","hash":{},"data":data,"loc":{"start":{"line":10,"column":71},"end":{"line":10,"column":80}}}) : helper)))
-    + "</label>\n				</div>\n";
-},"10":function(container,depth0,helpers,partials,data) {
+    return "				<div class=\"" + ((stack1 = (helper = (helper = lookupProperty(helpers, "radioWrapperClass") || (depth0 != null ? lookupProperty(depth0, "radioWrapperClass") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "radioWrapperClass",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 8,
+          "column": 16
+        },
+        "end": {
+          "line": 8,
+          "column": 39
+        }
+      }
+    }) : helper)) != null ? stack1 : "") + "\">\n					<input type=\"radio\" name=\"" + alias4(container.lambda(depths[1] != null ? lookupProperty(depths[1], "name") : depths[1], depth0)) + "\" class=\"" + ((stack1 = (helper = (helper = lookupProperty(helpers, "radioClass") || (depth0 != null ? lookupProperty(depth0, "radioClass") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "radioClass",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 9,
+          "column": 51
+        },
+        "end": {
+          "line": 9,
+          "column": 67
+        }
+      }
+    }) : helper)) != null ? stack1 : "") + "\" id=\"field-" + alias4((helper = (helper = lookupProperty(helpers, "datarecordid") || (depth0 != null ? lookupProperty(depth0, "datarecordid") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "datarecordid",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 9,
+          "column": 79
+        },
+        "end": {
+          "line": 9,
+          "column": 95
+        }
+      }
+    }) : helper)) + "\" value=\"" + alias4((helper = (helper = lookupProperty(helpers, "value") || (depth0 != null ? lookupProperty(depth0, "value") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "value",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 9,
+          "column": 104
+        },
+        "end": {
+          "line": 9,
+          "column": 113
+        }
+      }
+    }) : helper)) + "\"  " + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "isselected") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(10, data, 0, blockParams, depths),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 9,
+          "column": 116
+        },
+        "end": {
+          "line": 9,
+          "column": 158
+        }
+      }
+    })) != null ? stack1 : "") + "/>\n					<label for=\"field-" + alias4((helper = (helper = lookupProperty(helpers, "datarecordid") || (depth0 != null ? lookupProperty(depth0, "datarecordid") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "datarecordid",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 10,
+          "column": 23
+        },
+        "end": {
+          "line": 10,
+          "column": 39
+        }
+      }
+    }) : helper)) + "\" class=\"" + ((stack1 = (helper = (helper = lookupProperty(helpers, "radioLabelClass") || (depth0 != null ? lookupProperty(depth0, "radioLabelClass") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "radioLabelClass",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 10,
+          "column": 48
+        },
+        "end": {
+          "line": 10,
+          "column": 69
+        }
+      }
+    }) : helper)) != null ? stack1 : "") + "\">" + alias4((helper = (helper = lookupProperty(helpers, "label") || (depth0 != null ? lookupProperty(depth0, "label") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "label",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 10,
+          "column": 71
+        },
+        "end": {
+          "line": 10,
+          "column": 80
+        }
+      }
+    }) : helper)) + "</label>\n				</div>\n";
+  },
+  "10": function _(container, depth0, helpers, partials, data) {
     return "checked='checked'";
-},"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data,blockParams,depths) {
-    var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
-        }
-        return undefined
+  },
+  "compiler": [8, ">= 4.3.0"],
+  "main": function main(container, depth0, helpers, partials, data, blockParams, depths) {
+    var stack1,
+        helper,
+        alias1 = depth0 != null ? depth0 : container.nullContext || {},
+        alias2 = container.hooks.helperMissing,
+        alias3 = "function",
+        alias4 = container.escapeExpression,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return "	<div class=\""
-    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"inputWrapperClass") || (depth0 != null ? lookupProperty(depth0,"inputWrapperClass") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"inputWrapperClass","hash":{},"data":data,"loc":{"start":{"line":1,"column":13},"end":{"line":1,"column":36}}}) : helper))) != null ? stack1 : "")
-    + "\" id=\"field-"
-    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":1,"column":48},"end":{"line":1,"column":56}}}) : helper)))
-    + "-container\">\n		<div class=\"mura-radio-group\">\n			<label class=\"mura-group-label\" for=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":3,"column":40},"end":{"line":3,"column":48}}}) : helper)))
-    + "\">\n				"
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"summary") : depth0),{"name":"if","hash":{},"fn":container.program(1, data, 0, blockParams, depths),"inverse":container.program(3, data, 0, blockParams, depths),"data":data,"loc":{"start":{"line":4,"column":4},"end":{"line":4,"column":54}}})) != null ? stack1 : "")
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"isrequired") : depth0),{"name":"if","hash":{},"fn":container.program(5, data, 0, blockParams, depths),"inverse":container.noop,"data":data,"loc":{"start":{"line":4,"column":54},"end":{"line":4,"column":112}}})) != null ? stack1 : "")
-    + "\n			</label>\n			"
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"summary") : depth0),{"name":"if","hash":{},"fn":container.program(7, data, 0, blockParams, depths),"inverse":container.noop,"data":data,"loc":{"start":{"line":6,"column":3},"end":{"line":6,"column":30}}})) != null ? stack1 : "")
-    + "\n"
-    + ((stack1 = (lookupProperty(helpers,"eachStatic")||(depth0 && lookupProperty(depth0,"eachStatic"))||alias2).call(alias1,(depth0 != null ? lookupProperty(depth0,"dataset") : depth0),{"name":"eachStatic","hash":{},"fn":container.program(9, data, 0, blockParams, depths),"inverse":container.noop,"data":data,"loc":{"start":{"line":7,"column":3},"end":{"line":12,"column":18}}})) != null ? stack1 : "")
-    + "		</div>\n	</div>\n";
-},"useData":true,"useDepths":true});
-
-this["Mura"]["templates"]["radio"] = this.Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
-    var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return "	<div class=\"" + ((stack1 = (helper = (helper = lookupProperty(helpers, "inputWrapperClass") || (depth0 != null ? lookupProperty(depth0, "inputWrapperClass") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "inputWrapperClass",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 13
+        },
+        "end": {
+          "line": 1,
+          "column": 36
         }
-        return undefined
+      }
+    }) : helper)) != null ? stack1 : "") + "\" id=\"field-" + alias4((helper = (helper = lookupProperty(helpers, "name") || (depth0 != null ? lookupProperty(depth0, "name") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "name",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 48
+        },
+        "end": {
+          "line": 1,
+          "column": 56
+        }
+      }
+    }) : helper)) + "-container\">\n		<div class=\"mura-radio-group\">\n			<label class=\"mura-group-label\" for=\"" + alias4((helper = (helper = lookupProperty(helpers, "name") || (depth0 != null ? lookupProperty(depth0, "name") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "name",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 3,
+          "column": 40
+        },
+        "end": {
+          "line": 3,
+          "column": 48
+        }
+      }
+    }) : helper)) + "\">\n				" + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "summary") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(1, data, 0, blockParams, depths),
+      "inverse": container.program(3, data, 0, blockParams, depths),
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 4,
+          "column": 4
+        },
+        "end": {
+          "line": 4,
+          "column": 54
+        }
+      }
+    })) != null ? stack1 : "") + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "isrequired") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(5, data, 0, blockParams, depths),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 4,
+          "column": 54
+        },
+        "end": {
+          "line": 4,
+          "column": 112
+        }
+      }
+    })) != null ? stack1 : "") + "\n			</label>\n			" + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "summary") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(7, data, 0, blockParams, depths),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 6,
+          "column": 3
+        },
+        "end": {
+          "line": 6,
+          "column": 30
+        }
+      }
+    })) != null ? stack1 : "") + "\n" + ((stack1 = (lookupProperty(helpers, "eachStatic") || depth0 && lookupProperty(depth0, "eachStatic") || alias2).call(alias1, depth0 != null ? lookupProperty(depth0, "dataset") : depth0, {
+      "name": "eachStatic",
+      "hash": {},
+      "fn": container.program(9, data, 0, blockParams, depths),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 7,
+          "column": 3
+        },
+        "end": {
+          "line": 12,
+          "column": 18
+        }
+      }
+    })) != null ? stack1 : "") + "		</div>\n	</div>\n";
+  },
+  "useData": true,
+  "useDepths": true
+});
+this["Mura"]["templates"]["radio"] = this.Mura.Handlebars.template({
+  "1": function _(container, depth0, helpers, partials, data) {
+    var helper,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return container.escapeExpression(((helper = (helper = lookupProperty(helpers,"summary") || (depth0 != null ? lookupProperty(depth0,"summary") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"summary","hash":{},"data":data,"loc":{"start":{"line":4,"column":19},"end":{"line":4,"column":30}}}) : helper)));
-},"3":function(container,depth0,helpers,partials,data) {
-    var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return container.escapeExpression((helper = (helper = lookupProperty(helpers, "summary") || (depth0 != null ? lookupProperty(depth0, "summary") : depth0)) != null ? helper : container.hooks.helperMissing, typeof helper === "function" ? helper.call(depth0 != null ? depth0 : container.nullContext || {}, {
+      "name": "summary",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 4,
+          "column": 19
+        },
+        "end": {
+          "line": 4,
+          "column": 30
         }
-        return undefined
+      }
+    }) : helper));
+  },
+  "3": function _(container, depth0, helpers, partials, data) {
+    var helper,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return container.escapeExpression(((helper = (helper = lookupProperty(helpers,"label") || (depth0 != null ? lookupProperty(depth0,"label") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"label","hash":{},"data":data,"loc":{"start":{"line":4,"column":38},"end":{"line":4,"column":47}}}) : helper)));
-},"5":function(container,depth0,helpers,partials,data) {
-    var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return container.escapeExpression((helper = (helper = lookupProperty(helpers, "label") || (depth0 != null ? lookupProperty(depth0, "label") : depth0)) != null ? helper : container.hooks.helperMissing, typeof helper === "function" ? helper.call(depth0 != null ? depth0 : container.nullContext || {}, {
+      "name": "label",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 4,
+          "column": 38
+        },
+        "end": {
+          "line": 4,
+          "column": 47
         }
-        return undefined
+      }
+    }) : helper));
+  },
+  "5": function _(container, depth0, helpers, partials, data) {
+    var helper,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return " <ins>"
-    + container.escapeExpression(((helper = (helper = lookupProperty(helpers,"formRequiredLabel") || (depth0 != null ? lookupProperty(depth0,"formRequiredLabel") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"formRequiredLabel","hash":{},"data":data,"loc":{"start":{"line":4,"column":78},"end":{"line":4,"column":99}}}) : helper)))
-    + "</ins>";
-},"7":function(container,depth0,helpers,partials,data) {
+    return " <ins>" + container.escapeExpression((helper = (helper = lookupProperty(helpers, "formRequiredLabel") || (depth0 != null ? lookupProperty(depth0, "formRequiredLabel") : depth0)) != null ? helper : container.hooks.helperMissing, typeof helper === "function" ? helper.call(depth0 != null ? depth0 : container.nullContext || {}, {
+      "name": "formRequiredLabel",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 4,
+          "column": 78
+        },
+        "end": {
+          "line": 4,
+          "column": 99
+        }
+      }
+    }) : helper)) + "</ins>";
+  },
+  "7": function _(container, depth0, helpers, partials, data) {
     return "</br>";
-},"9":function(container,depth0,helpers,partials,data,blockParams,depths) {
-    var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
-        }
-        return undefined
+  },
+  "9": function _(container, depth0, helpers, partials, data, blockParams, depths) {
+    var stack1,
+        helper,
+        alias1 = depth0 != null ? depth0 : container.nullContext || {},
+        alias2 = container.hooks.helperMissing,
+        alias3 = "function",
+        alias4 = container.escapeExpression,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return "				<div class=\""
-    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"radioWrapperClass") || (depth0 != null ? lookupProperty(depth0,"radioWrapperClass") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"radioWrapperClass","hash":{},"data":data,"loc":{"start":{"line":8,"column":16},"end":{"line":8,"column":39}}}) : helper))) != null ? stack1 : "")
-    + "\">\n					<input type=\"radio\" name=\""
-    + alias4(container.lambda((depths[1] != null ? lookupProperty(depths[1],"name") : depths[1]), depth0))
-    + "id\" class=\""
-    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"radioClass") || (depth0 != null ? lookupProperty(depth0,"radioClass") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"radioClass","hash":{},"data":data,"loc":{"start":{"line":9,"column":53},"end":{"line":9,"column":69}}}) : helper))) != null ? stack1 : "")
-    + "\" id=\"field-"
-    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":9,"column":81},"end":{"line":9,"column":87}}}) : helper)))
-    + "\" value=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":9,"column":96},"end":{"line":9,"column":102}}}) : helper)))
-    + "\" "
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"isselected") : depth0),{"name":"if","hash":{},"fn":container.program(10, data, 0, blockParams, depths),"inverse":container.noop,"data":data,"loc":{"start":{"line":9,"column":104},"end":{"line":9,"column":146}}})) != null ? stack1 : "")
-    + "/>\n					<label for=\"field-"
-    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":10,"column":23},"end":{"line":10,"column":29}}}) : helper)))
-    + "\" test1=1 class=\""
-    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"radioLabelClass") || (depth0 != null ? lookupProperty(depth0,"radioLabelClass") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"radioLabelClass","hash":{},"data":data,"loc":{"start":{"line":10,"column":46},"end":{"line":10,"column":67}}}) : helper))) != null ? stack1 : "")
-    + "\">"
-    + alias4(((helper = (helper = lookupProperty(helpers,"label") || (depth0 != null ? lookupProperty(depth0,"label") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"label","hash":{},"data":data,"loc":{"start":{"line":10,"column":69},"end":{"line":10,"column":78}}}) : helper)))
-    + "</label>\n				</div>\n";
-},"10":function(container,depth0,helpers,partials,data) {
+    return "				<div class=\"" + ((stack1 = (helper = (helper = lookupProperty(helpers, "radioWrapperClass") || (depth0 != null ? lookupProperty(depth0, "radioWrapperClass") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "radioWrapperClass",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 8,
+          "column": 16
+        },
+        "end": {
+          "line": 8,
+          "column": 39
+        }
+      }
+    }) : helper)) != null ? stack1 : "") + "\">\n					<input type=\"radio\" name=\"" + alias4(container.lambda(depths[1] != null ? lookupProperty(depths[1], "name") : depths[1], depth0)) + "id\" class=\"" + ((stack1 = (helper = (helper = lookupProperty(helpers, "radioClass") || (depth0 != null ? lookupProperty(depth0, "radioClass") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "radioClass",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 9,
+          "column": 53
+        },
+        "end": {
+          "line": 9,
+          "column": 69
+        }
+      }
+    }) : helper)) != null ? stack1 : "") + "\" id=\"field-" + alias4((helper = (helper = lookupProperty(helpers, "id") || (depth0 != null ? lookupProperty(depth0, "id") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "id",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 9,
+          "column": 81
+        },
+        "end": {
+          "line": 9,
+          "column": 87
+        }
+      }
+    }) : helper)) + "\" value=\"" + alias4((helper = (helper = lookupProperty(helpers, "id") || (depth0 != null ? lookupProperty(depth0, "id") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "id",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 9,
+          "column": 96
+        },
+        "end": {
+          "line": 9,
+          "column": 102
+        }
+      }
+    }) : helper)) + "\" " + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "isselected") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(10, data, 0, blockParams, depths),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 9,
+          "column": 104
+        },
+        "end": {
+          "line": 9,
+          "column": 146
+        }
+      }
+    })) != null ? stack1 : "") + "/>\n					<label for=\"field-" + alias4((helper = (helper = lookupProperty(helpers, "id") || (depth0 != null ? lookupProperty(depth0, "id") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "id",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 10,
+          "column": 23
+        },
+        "end": {
+          "line": 10,
+          "column": 29
+        }
+      }
+    }) : helper)) + "\" test1=1 class=\"" + ((stack1 = (helper = (helper = lookupProperty(helpers, "radioLabelClass") || (depth0 != null ? lookupProperty(depth0, "radioLabelClass") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "radioLabelClass",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 10,
+          "column": 46
+        },
+        "end": {
+          "line": 10,
+          "column": 67
+        }
+      }
+    }) : helper)) != null ? stack1 : "") + "\">" + alias4((helper = (helper = lookupProperty(helpers, "label") || (depth0 != null ? lookupProperty(depth0, "label") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "label",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 10,
+          "column": 69
+        },
+        "end": {
+          "line": 10,
+          "column": 78
+        }
+      }
+    }) : helper)) + "</label>\n				</div>\n";
+  },
+  "10": function _(container, depth0, helpers, partials, data) {
     return "checked='checked'";
-},"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data,blockParams,depths) {
-    var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
-        }
-        return undefined
+  },
+  "compiler": [8, ">= 4.3.0"],
+  "main": function main(container, depth0, helpers, partials, data, blockParams, depths) {
+    var stack1,
+        helper,
+        alias1 = depth0 != null ? depth0 : container.nullContext || {},
+        alias2 = container.hooks.helperMissing,
+        alias3 = "function",
+        alias4 = container.escapeExpression,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return "	<div class=\""
-    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"inputWrapperClass") || (depth0 != null ? lookupProperty(depth0,"inputWrapperClass") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"inputWrapperClass","hash":{},"data":data,"loc":{"start":{"line":1,"column":13},"end":{"line":1,"column":36}}}) : helper))) != null ? stack1 : "")
-    + "\" id=\"field-"
-    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":1,"column":48},"end":{"line":1,"column":56}}}) : helper)))
-    + "-container\">\n		<div class=\"mura-radio-group\">\n			<label class=\"mura-group-label\" for=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":3,"column":40},"end":{"line":3,"column":48}}}) : helper)))
-    + "\">\n				"
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"summary") : depth0),{"name":"if","hash":{},"fn":container.program(1, data, 0, blockParams, depths),"inverse":container.program(3, data, 0, blockParams, depths),"data":data,"loc":{"start":{"line":4,"column":4},"end":{"line":4,"column":54}}})) != null ? stack1 : "")
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"isrequired") : depth0),{"name":"if","hash":{},"fn":container.program(5, data, 0, blockParams, depths),"inverse":container.noop,"data":data,"loc":{"start":{"line":4,"column":54},"end":{"line":4,"column":112}}})) != null ? stack1 : "")
-    + "\n			</label>\n			"
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"summary") : depth0),{"name":"if","hash":{},"fn":container.program(7, data, 0, blockParams, depths),"inverse":container.noop,"data":data,"loc":{"start":{"line":6,"column":3},"end":{"line":6,"column":30}}})) != null ? stack1 : "")
-    + "\n"
-    + ((stack1 = lookupProperty(helpers,"each").call(alias1,((stack1 = (depth0 != null ? lookupProperty(depth0,"dataset") : depth0)) != null ? lookupProperty(stack1,"options") : stack1),{"name":"each","hash":{},"fn":container.program(9, data, 0, blockParams, depths),"inverse":container.noop,"data":data,"loc":{"start":{"line":7,"column":3},"end":{"line":12,"column":12}}})) != null ? stack1 : "")
-    + "		</div>\n	</div>\n";
-},"useData":true,"useDepths":true});
-
-this["Mura"]["templates"]["section"] = this.Mura.Handlebars.template({"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
-    var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return "	<div class=\"" + ((stack1 = (helper = (helper = lookupProperty(helpers, "inputWrapperClass") || (depth0 != null ? lookupProperty(depth0, "inputWrapperClass") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "inputWrapperClass",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 13
+        },
+        "end": {
+          "line": 1,
+          "column": 36
         }
-        return undefined
+      }
+    }) : helper)) != null ? stack1 : "") + "\" id=\"field-" + alias4((helper = (helper = lookupProperty(helpers, "name") || (depth0 != null ? lookupProperty(depth0, "name") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "name",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 48
+        },
+        "end": {
+          "line": 1,
+          "column": 56
+        }
+      }
+    }) : helper)) + "-container\">\n		<div class=\"mura-radio-group\">\n			<label class=\"mura-group-label\" for=\"" + alias4((helper = (helper = lookupProperty(helpers, "name") || (depth0 != null ? lookupProperty(depth0, "name") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "name",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 3,
+          "column": 40
+        },
+        "end": {
+          "line": 3,
+          "column": 48
+        }
+      }
+    }) : helper)) + "\">\n				" + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "summary") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(1, data, 0, blockParams, depths),
+      "inverse": container.program(3, data, 0, blockParams, depths),
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 4,
+          "column": 4
+        },
+        "end": {
+          "line": 4,
+          "column": 54
+        }
+      }
+    })) != null ? stack1 : "") + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "isrequired") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(5, data, 0, blockParams, depths),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 4,
+          "column": 54
+        },
+        "end": {
+          "line": 4,
+          "column": 112
+        }
+      }
+    })) != null ? stack1 : "") + "\n			</label>\n			" + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "summary") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(7, data, 0, blockParams, depths),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 6,
+          "column": 3
+        },
+        "end": {
+          "line": 6,
+          "column": 30
+        }
+      }
+    })) != null ? stack1 : "") + "\n" + ((stack1 = lookupProperty(helpers, "each").call(alias1, (stack1 = depth0 != null ? lookupProperty(depth0, "dataset") : depth0) != null ? lookupProperty(stack1, "options") : stack1, {
+      "name": "each",
+      "hash": {},
+      "fn": container.program(9, data, 0, blockParams, depths),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 7,
+          "column": 3
+        },
+        "end": {
+          "line": 12,
+          "column": 12
+        }
+      }
+    })) != null ? stack1 : "") + "		</div>\n	</div>\n";
+  },
+  "useData": true,
+  "useDepths": true
+});
+this["Mura"]["templates"]["section"] = this.Mura.Handlebars.template({
+  "compiler": [8, ">= 4.3.0"],
+  "main": function main(container, depth0, helpers, partials, data) {
+    var stack1,
+        helper,
+        alias1 = depth0 != null ? depth0 : container.nullContext || {},
+        alias2 = container.hooks.helperMissing,
+        alias3 = "function",
+        alias4 = container.escapeExpression,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return "<div class=\""
-    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"inputWrapperClass") || (depth0 != null ? lookupProperty(depth0,"inputWrapperClass") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"inputWrapperClass","hash":{},"data":data,"loc":{"start":{"line":1,"column":12},"end":{"line":1,"column":35}}}) : helper))) != null ? stack1 : "")
-    + "\" id=\"field-"
-    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":1,"column":47},"end":{"line":1,"column":55}}}) : helper)))
-    + "-container\">\r\n<div class=\"mura-section\">"
-    + alias4(((helper = (helper = lookupProperty(helpers,"label") || (depth0 != null ? lookupProperty(depth0,"label") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"label","hash":{},"data":data,"loc":{"start":{"line":2,"column":26},"end":{"line":2,"column":35}}}) : helper)))
-    + "</div>\r\n<div class=\"mura-divide\"></div>\r\n</div>";
-},"useData":true});
-
-this["Mura"]["templates"]["success"] = this.Mura.Handlebars.template({"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
-    var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return "<div class=\"" + ((stack1 = (helper = (helper = lookupProperty(helpers, "inputWrapperClass") || (depth0 != null ? lookupProperty(depth0, "inputWrapperClass") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "inputWrapperClass",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 12
+        },
+        "end": {
+          "line": 1,
+          "column": 35
         }
-        return undefined
+      }
+    }) : helper)) != null ? stack1 : "") + "\" id=\"field-" + alias4((helper = (helper = lookupProperty(helpers, "name") || (depth0 != null ? lookupProperty(depth0, "name") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "name",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 47
+        },
+        "end": {
+          "line": 1,
+          "column": 55
+        }
+      }
+    }) : helper)) + "-container\">\r\n<div class=\"mura-section\">" + alias4((helper = (helper = lookupProperty(helpers, "label") || (depth0 != null ? lookupProperty(depth0, "label") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "label",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 2,
+          "column": 26
+        },
+        "end": {
+          "line": 2,
+          "column": 35
+        }
+      }
+    }) : helper)) + "</div>\r\n<div class=\"mura-divide\"></div>\r\n</div>";
+  },
+  "useData": true
+});
+this["Mura"]["templates"]["success"] = this.Mura.Handlebars.template({
+  "compiler": [8, ">= 4.3.0"],
+  "main": function main(container, depth0, helpers, partials, data) {
+    var stack1,
+        helper,
+        alias1 = depth0 != null ? depth0 : container.nullContext || {},
+        alias2 = container.hooks.helperMissing,
+        alias3 = "function",
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return "<div class=\""
-    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"formResponseWrapperClass") || (depth0 != null ? lookupProperty(depth0,"formResponseWrapperClass") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"formResponseWrapperClass","hash":{},"data":data,"loc":{"start":{"line":1,"column":12},"end":{"line":1,"column":42}}}) : helper))) != null ? stack1 : "")
-    + "\">"
-    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"responsemessage") || (depth0 != null ? lookupProperty(depth0,"responsemessage") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"responsemessage","hash":{},"data":data,"loc":{"start":{"line":1,"column":44},"end":{"line":1,"column":65}}}) : helper))) != null ? stack1 : "")
-    + "</div>\n";
-},"useData":true});
-
-this["Mura"]["templates"]["table"] = this.Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
-    var helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return "<div class=\"" + ((stack1 = (helper = (helper = lookupProperty(helpers, "formResponseWrapperClass") || (depth0 != null ? lookupProperty(depth0, "formResponseWrapperClass") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "formResponseWrapperClass",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 12
+        },
+        "end": {
+          "line": 1,
+          "column": 42
         }
-        return undefined
+      }
+    }) : helper)) != null ? stack1 : "") + "\">" + ((stack1 = (helper = (helper = lookupProperty(helpers, "responsemessage") || (depth0 != null ? lookupProperty(depth0, "responsemessage") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "responsemessage",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 44
+        },
+        "end": {
+          "line": 1,
+          "column": 65
+        }
+      }
+    }) : helper)) != null ? stack1 : "") + "</div>\n";
+  },
+  "useData": true
+});
+this["Mura"]["templates"]["table"] = this.Mura.Handlebars.template({
+  "1": function _(container, depth0, helpers, partials, data) {
+    var helper,
+        alias1 = depth0 != null ? depth0 : container.nullContext || {},
+        alias2 = container.hooks.helperMissing,
+        alias3 = "function",
+        alias4 = container.escapeExpression,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return "<option value=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"num") || (depth0 != null ? lookupProperty(depth0,"num") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"num","hash":{},"data":data,"loc":{"start":{"line":8,"column":102},"end":{"line":8,"column":109}}}) : helper)))
-    + "\" "
-    + alias4(((helper = (helper = lookupProperty(helpers,"selected") || (depth0 != null ? lookupProperty(depth0,"selected") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"selected","hash":{},"data":data,"loc":{"start":{"line":8,"column":111},"end":{"line":8,"column":123}}}) : helper)))
-    + ">"
-    + alias4(((helper = (helper = lookupProperty(helpers,"label") || (depth0 != null ? lookupProperty(depth0,"label") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"label","hash":{},"data":data,"loc":{"start":{"line":8,"column":124},"end":{"line":8,"column":133}}}) : helper)))
-    + "</option>";
-},"3":function(container,depth0,helpers,partials,data) {
-    var helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return "<option value=\"" + alias4((helper = (helper = lookupProperty(helpers, "num") || (depth0 != null ? lookupProperty(depth0, "num") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "num",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 8,
+          "column": 102
+        },
+        "end": {
+          "line": 8,
+          "column": 109
         }
-        return undefined
+      }
+    }) : helper)) + "\" " + alias4((helper = (helper = lookupProperty(helpers, "selected") || (depth0 != null ? lookupProperty(depth0, "selected") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "selected",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 8,
+          "column": 111
+        },
+        "end": {
+          "line": 8,
+          "column": 123
+        }
+      }
+    }) : helper)) + ">" + alias4((helper = (helper = lookupProperty(helpers, "label") || (depth0 != null ? lookupProperty(depth0, "label") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "label",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 8,
+          "column": 124
+        },
+        "end": {
+          "line": 8,
+          "column": 133
+        }
+      }
+    }) : helper)) + "</option>";
+  },
+  "3": function _(container, depth0, helpers, partials, data) {
+    var helper,
+        alias1 = depth0 != null ? depth0 : container.nullContext || {},
+        alias2 = container.hooks.helperMissing,
+        alias3 = "function",
+        alias4 = container.escapeExpression,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return "					<option value=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":27,"column":20},"end":{"line":27,"column":28}}}) : helper)))
-    + "\" "
-    + alias4(((helper = (helper = lookupProperty(helpers,"selected") || (depth0 != null ? lookupProperty(depth0,"selected") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"selected","hash":{},"data":data,"loc":{"start":{"line":27,"column":30},"end":{"line":27,"column":42}}}) : helper)))
-    + ">"
-    + alias4(((helper = (helper = lookupProperty(helpers,"displayName") || (depth0 != null ? lookupProperty(depth0,"displayName") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"displayName","hash":{},"data":data,"loc":{"start":{"line":27,"column":43},"end":{"line":27,"column":58}}}) : helper)))
-    + "</option>\n";
-},"5":function(container,depth0,helpers,partials,data) {
-    var helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return "					<option value=\"" + alias4((helper = (helper = lookupProperty(helpers, "name") || (depth0 != null ? lookupProperty(depth0, "name") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "name",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 27,
+          "column": 20
+        },
+        "end": {
+          "line": 27,
+          "column": 28
         }
-        return undefined
+      }
+    }) : helper)) + "\" " + alias4((helper = (helper = lookupProperty(helpers, "selected") || (depth0 != null ? lookupProperty(depth0, "selected") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "selected",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 27,
+          "column": 30
+        },
+        "end": {
+          "line": 27,
+          "column": 42
+        }
+      }
+    }) : helper)) + ">" + alias4((helper = (helper = lookupProperty(helpers, "displayName") || (depth0 != null ? lookupProperty(depth0, "displayName") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "displayName",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 27,
+          "column": 43
+        },
+        "end": {
+          "line": 27,
+          "column": 58
+        }
+      }
+    }) : helper)) + "</option>\n";
+  },
+  "5": function _(container, depth0, helpers, partials, data) {
+    var helper,
+        alias1 = depth0 != null ? depth0 : container.nullContext || {},
+        alias2 = container.hooks.helperMissing,
+        alias3 = "function",
+        alias4 = container.escapeExpression,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return "			<th class='data-sort' data-value='"
-    + alias4(((helper = (helper = lookupProperty(helpers,"column") || (depth0 != null ? lookupProperty(depth0,"column") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"column","hash":{},"data":data,"loc":{"start":{"line":53,"column":37},"end":{"line":53,"column":47}}}) : helper)))
-    + "'>"
-    + alias4(((helper = (helper = lookupProperty(helpers,"displayName") || (depth0 != null ? lookupProperty(depth0,"displayName") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"displayName","hash":{},"data":data,"loc":{"start":{"line":53,"column":49},"end":{"line":53,"column":64}}}) : helper)))
-    + "</th>\n";
-},"7":function(container,depth0,helpers,partials,data,blockParams,depths) {
-    var stack1, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return "			<th class='data-sort' data-value='" + alias4((helper = (helper = lookupProperty(helpers, "column") || (depth0 != null ? lookupProperty(depth0, "column") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "column",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 53,
+          "column": 37
+        },
+        "end": {
+          "line": 53,
+          "column": 47
         }
-        return undefined
+      }
+    }) : helper)) + "'>" + alias4((helper = (helper = lookupProperty(helpers, "displayName") || (depth0 != null ? lookupProperty(depth0, "displayName") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "displayName",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 53,
+          "column": 49
+        },
+        "end": {
+          "line": 53,
+          "column": 64
+        }
+      }
+    }) : helper)) + "</th>\n";
+  },
+  "7": function _(container, depth0, helpers, partials, data, blockParams, depths) {
+    var stack1,
+        alias1 = depth0 != null ? depth0 : container.nullContext || {},
+        alias2 = container.hooks.helperMissing,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return "			<tr class=\"even\">\n"
-    + ((stack1 = (lookupProperty(helpers,"eachColRow")||(depth0 && lookupProperty(depth0,"eachColRow"))||alias2).call(alias1,depth0,(depths[1] != null ? lookupProperty(depths[1],"columns") : depths[1]),{"name":"eachColRow","hash":{},"fn":container.program(8, data, 0, blockParams, depths),"inverse":container.noop,"data":data,"loc":{"start":{"line":61,"column":4},"end":{"line":63,"column":19}}})) != null ? stack1 : "")
-    + "				<td>\n"
-    + ((stack1 = (lookupProperty(helpers,"eachColButton")||(depth0 && lookupProperty(depth0,"eachColButton"))||alias2).call(alias1,depth0,{"name":"eachColButton","hash":{},"fn":container.program(10, data, 0, blockParams, depths),"inverse":container.noop,"data":data,"loc":{"start":{"line":65,"column":4},"end":{"line":67,"column":22}}})) != null ? stack1 : "")
-    + "				</td>\n			</tr>\n";
-},"8":function(container,depth0,helpers,partials,data) {
-    return "					<td>"
-    + container.escapeExpression(container.lambda(depth0, depth0))
-    + "</td>\n";
-},"10":function(container,depth0,helpers,partials,data) {
-    var helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return "			<tr class=\"even\">\n" + ((stack1 = (lookupProperty(helpers, "eachColRow") || depth0 && lookupProperty(depth0, "eachColRow") || alias2).call(alias1, depth0, depths[1] != null ? lookupProperty(depths[1], "columns") : depths[1], {
+      "name": "eachColRow",
+      "hash": {},
+      "fn": container.program(8, data, 0, blockParams, depths),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 61,
+          "column": 4
+        },
+        "end": {
+          "line": 63,
+          "column": 19
         }
-        return undefined
+      }
+    })) != null ? stack1 : "") + "				<td>\n" + ((stack1 = (lookupProperty(helpers, "eachColButton") || depth0 && lookupProperty(depth0, "eachColButton") || alias2).call(alias1, depth0, {
+      "name": "eachColButton",
+      "hash": {},
+      "fn": container.program(10, data, 0, blockParams, depths),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 65,
+          "column": 4
+        },
+        "end": {
+          "line": 67,
+          "column": 22
+        }
+      }
+    })) != null ? stack1 : "") + "				</td>\n			</tr>\n";
+  },
+  "8": function _(container, depth0, helpers, partials, data) {
+    return "					<td>" + container.escapeExpression(container.lambda(depth0, depth0)) + "</td>\n";
+  },
+  "10": function _(container, depth0, helpers, partials, data) {
+    var helper,
+        alias1 = depth0 != null ? depth0 : container.nullContext || {},
+        alias2 = container.hooks.helperMissing,
+        alias3 = "function",
+        alias4 = container.escapeExpression,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return "				<button type=\"button\" class=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"type") || (depth0 != null ? lookupProperty(depth0,"type") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"type","hash":{},"data":data,"loc":{"start":{"line":66,"column":33},"end":{"line":66,"column":41}}}) : helper)))
-    + "\" data-value=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":66,"column":55},"end":{"line":66,"column":61}}}) : helper)))
-    + "\" data-pos=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"index") || (data && lookupProperty(data,"index"))) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"index","hash":{},"data":data,"loc":{"start":{"line":66,"column":73},"end":{"line":66,"column":83}}}) : helper)))
-    + "\">"
-    + alias4(((helper = (helper = lookupProperty(helpers,"label") || (depth0 != null ? lookupProperty(depth0,"label") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"label","hash":{},"data":data,"loc":{"start":{"line":66,"column":85},"end":{"line":66,"column":94}}}) : helper)))
-    + "</button>\n";
-},"12":function(container,depth0,helpers,partials,data) {
-    var stack1, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return "				<button type=\"button\" class=\"" + alias4((helper = (helper = lookupProperty(helpers, "type") || (depth0 != null ? lookupProperty(depth0, "type") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "type",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 66,
+          "column": 33
+        },
+        "end": {
+          "line": 66,
+          "column": 41
         }
-        return undefined
+      }
+    }) : helper)) + "\" data-value=\"" + alias4((helper = (helper = lookupProperty(helpers, "id") || (depth0 != null ? lookupProperty(depth0, "id") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "id",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 66,
+          "column": 55
+        },
+        "end": {
+          "line": 66,
+          "column": 61
+        }
+      }
+    }) : helper)) + "\" data-pos=\"" + alias4((helper = (helper = lookupProperty(helpers, "index") || data && lookupProperty(data, "index")) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "index",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 66,
+          "column": 73
+        },
+        "end": {
+          "line": 66,
+          "column": 83
+        }
+      }
+    }) : helper)) + "\">" + alias4((helper = (helper = lookupProperty(helpers, "label") || (depth0 != null ? lookupProperty(depth0, "label") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "label",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 66,
+          "column": 85
+        },
+        "end": {
+          "line": 66,
+          "column": 94
+        }
+      }
+    }) : helper)) + "</button>\n";
+  },
+  "12": function _(container, depth0, helpers, partials, data) {
+    var stack1,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return "				<button class='data-nav' data-value=\""
-    + container.escapeExpression(container.lambda(((stack1 = ((stack1 = (depth0 != null ? lookupProperty(depth0,"rows") : depth0)) != null ? lookupProperty(stack1,"links") : stack1)) != null ? lookupProperty(stack1,"first") : stack1), depth0))
-    + "\">First</button>\n";
-},"14":function(container,depth0,helpers,partials,data) {
-    var stack1, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
-        }
-        return undefined
+    return "				<button class='data-nav' data-value=\"" + container.escapeExpression(container.lambda((stack1 = (stack1 = depth0 != null ? lookupProperty(depth0, "rows") : depth0) != null ? lookupProperty(stack1, "links") : stack1) != null ? lookupProperty(stack1, "first") : stack1, depth0)) + "\">First</button>\n";
+  },
+  "14": function _(container, depth0, helpers, partials, data) {
+    var stack1,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return "				<button class='data-nav' data-value=\""
-    + container.escapeExpression(container.lambda(((stack1 = ((stack1 = (depth0 != null ? lookupProperty(depth0,"rows") : depth0)) != null ? lookupProperty(stack1,"links") : stack1)) != null ? lookupProperty(stack1,"previous") : stack1), depth0))
-    + "\">Prev</button>\n";
-},"16":function(container,depth0,helpers,partials,data) {
-    var stack1, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
-        }
-        return undefined
+    return "				<button class='data-nav' data-value=\"" + container.escapeExpression(container.lambda((stack1 = (stack1 = depth0 != null ? lookupProperty(depth0, "rows") : depth0) != null ? lookupProperty(stack1, "links") : stack1) != null ? lookupProperty(stack1, "previous") : stack1, depth0)) + "\">Prev</button>\n";
+  },
+  "16": function _(container, depth0, helpers, partials, data) {
+    var stack1,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return "				<button class='data-nav' data-value=\""
-    + container.escapeExpression(container.lambda(((stack1 = ((stack1 = (depth0 != null ? lookupProperty(depth0,"rows") : depth0)) != null ? lookupProperty(stack1,"links") : stack1)) != null ? lookupProperty(stack1,"next") : stack1), depth0))
-    + "\">Next</button>\n";
-},"18":function(container,depth0,helpers,partials,data) {
-    var stack1, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
-        }
-        return undefined
+    return "				<button class='data-nav' data-value=\"" + container.escapeExpression(container.lambda((stack1 = (stack1 = depth0 != null ? lookupProperty(depth0, "rows") : depth0) != null ? lookupProperty(stack1, "links") : stack1) != null ? lookupProperty(stack1, "next") : stack1, depth0)) + "\">Next</button>\n";
+  },
+  "18": function _(container, depth0, helpers, partials, data) {
+    var stack1,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return "				<button class='data-nav' data-value=\""
-    + container.escapeExpression(container.lambda(((stack1 = ((stack1 = (depth0 != null ? lookupProperty(depth0,"rows") : depth0)) != null ? lookupProperty(stack1,"links") : stack1)) != null ? lookupProperty(stack1,"last") : stack1), depth0))
-    + "\">Last</button>\n";
-},"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data,blockParams,depths) {
-    var stack1, alias1=container.lambda, alias2=container.escapeExpression, alias3=depth0 != null ? depth0 : (container.nullContext || {}), alias4=container.hooks.helperMissing, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
-        }
-        return undefined
+    return "				<button class='data-nav' data-value=\"" + container.escapeExpression(container.lambda((stack1 = (stack1 = depth0 != null ? lookupProperty(depth0, "rows") : depth0) != null ? lookupProperty(stack1, "links") : stack1) != null ? lookupProperty(stack1, "last") : stack1, depth0)) + "\">Last</button>\n";
+  },
+  "compiler": [8, ">= 4.3.0"],
+  "main": function main(container, depth0, helpers, partials, data, blockParams, depths) {
+    var stack1,
+        alias1 = container.lambda,
+        alias2 = container.escapeExpression,
+        alias3 = depth0 != null ? depth0 : container.nullContext || {},
+        alias4 = container.hooks.helperMissing,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return "	<div class=\"mura-control-group\">\n		<div id=\"filter-results-container\">\n			<div id=\"date-filters\">\n				<div class=\"control-group\">\n				  <label>From</label>\n				  <div class=\"controls\">\n				  	<input type=\"text\" class=\"datepicker mura-date\" id=\"date1\" name=\"date1\" validate=\"date\" value=\""
-    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"filters") : depth0)) != null ? lookupProperty(stack1,"fromdate") : stack1), depth0))
-    + "\">\n				  	<select id=\"hour1\" name=\"hour1\" class=\"mura-date\">"
-    + ((stack1 = (lookupProperty(helpers,"eachHour")||(depth0 && lookupProperty(depth0,"eachHour"))||alias4).call(alias3,((stack1 = (depth0 != null ? lookupProperty(depth0,"filters") : depth0)) != null ? lookupProperty(stack1,"fromhour") : stack1),{"name":"eachHour","hash":{},"fn":container.program(1, data, 0, blockParams, depths),"inverse":container.noop,"data":data,"loc":{"start":{"line":8,"column":57},"end":{"line":8,"column":155}}})) != null ? stack1 : "")
-    + "</select></select>\n					</div>\n				</div>\n			\n				<div class=\"control-group\">\n				  <label>To</label>\n				  <div class=\"controls\">\n				  	<input type=\"text\" class=\"datepicker mura-date\" id=\"date2\" name=\"date2\" validate=\"date\" value=\""
-    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"filters") : depth0)) != null ? lookupProperty(stack1,"todate") : stack1), depth0))
-    + "\">\n				  	<select id=\"hour2\" name=\"hour2\"  class=\"mura-date\">"
-    + ((stack1 = (lookupProperty(helpers,"eachHour")||(depth0 && lookupProperty(depth0,"eachHour"))||alias4).call(alias3,((stack1 = (depth0 != null ? lookupProperty(depth0,"filters") : depth0)) != null ? lookupProperty(stack1,"tohour") : stack1),{"name":"eachHour","hash":{},"fn":container.program(1, data, 0, blockParams, depths),"inverse":container.noop,"data":data,"loc":{"start":{"line":16,"column":58},"end":{"line":16,"column":154}}})) != null ? stack1 : "")
-    + "</select></select>\n				   </select>\n					</div>\n				</div>\n			</div>\n					\n			<div class=\"control-group\">\n				<label>Keywords</label>\n				<div class=\"controls\">\n					<select name=\"filterBy\" class=\"mura-date\" id=\"results-filterby\">\n"
-    + ((stack1 = (lookupProperty(helpers,"eachKey")||(depth0 && lookupProperty(depth0,"eachKey"))||alias4).call(alias3,(depth0 != null ? lookupProperty(depth0,"properties") : depth0),((stack1 = (depth0 != null ? lookupProperty(depth0,"filters") : depth0)) != null ? lookupProperty(stack1,"filterby") : stack1),{"name":"eachKey","hash":{},"fn":container.program(3, data, 0, blockParams, depths),"inverse":container.noop,"data":data,"loc":{"start":{"line":26,"column":5},"end":{"line":28,"column":17}}})) != null ? stack1 : "")
-    + "					</select>\n					<input type=\"text\" class=\"mura-half\" name=\"keywords\" id=\"results-keywords\" value=\""
-    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"filters") : depth0)) != null ? lookupProperty(stack1,"filterkey") : stack1), depth0))
-    + "\">\n				</div>\n			</div>\n			<div class=\"form-actions\">\n				<button type=\"button\" class=\"btn\" id=\"btn-results-search\" ><i class=\"mi-bar-chart\"></i> View Data</button>\n				<button type=\"button\" class=\"btn\"  id=\"btn-results-download\" ><i class=\"mi-download\"></i> Download</button>\n			</div>\n		</div>\n	<div>\n\n	<ul class=\"metadata\">\n		<li>Page:\n			<strong>"
-    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"rows") : depth0)) != null ? lookupProperty(stack1,"pageindex") : stack1), depth0))
-    + " of "
-    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"rows") : depth0)) != null ? lookupProperty(stack1,"totalpages") : stack1), depth0))
-    + "</strong>\n		</li>\n		<li>Total Records:\n			<strong>"
-    + alias2(alias1(((stack1 = (depth0 != null ? lookupProperty(depth0,"rows") : depth0)) != null ? lookupProperty(stack1,"totalitems") : stack1), depth0))
-    + "</strong>\n		</li>\n	</ul>\n\n	<table style=\"width: 100%\" class=\"table\">\n		<thead>\n		<tr>\n"
-    + ((stack1 = lookupProperty(helpers,"each").call(alias3,(depth0 != null ? lookupProperty(depth0,"columns") : depth0),{"name":"each","hash":{},"fn":container.program(5, data, 0, blockParams, depths),"inverse":container.noop,"data":data,"loc":{"start":{"line":52,"column":2},"end":{"line":54,"column":11}}})) != null ? stack1 : "")
-    + "			<th></th>\n		</tr>\n		</thead>\n		<tbody>\n"
-    + ((stack1 = lookupProperty(helpers,"each").call(alias3,((stack1 = (depth0 != null ? lookupProperty(depth0,"rows") : depth0)) != null ? lookupProperty(stack1,"items") : stack1),{"name":"each","hash":{},"fn":container.program(7, data, 0, blockParams, depths),"inverse":container.noop,"data":data,"loc":{"start":{"line":59,"column":2},"end":{"line":70,"column":11}}})) != null ? stack1 : "")
-    + "		</tbody>\n		<tfoot>\n		<tr>\n			<td>\n"
-    + ((stack1 = lookupProperty(helpers,"if").call(alias3,((stack1 = ((stack1 = (depth0 != null ? lookupProperty(depth0,"rows") : depth0)) != null ? lookupProperty(stack1,"links") : stack1)) != null ? lookupProperty(stack1,"first") : stack1),{"name":"if","hash":{},"fn":container.program(12, data, 0, blockParams, depths),"inverse":container.noop,"data":data,"loc":{"start":{"line":75,"column":4},"end":{"line":77,"column":11}}})) != null ? stack1 : "")
-    + ((stack1 = lookupProperty(helpers,"if").call(alias3,((stack1 = ((stack1 = (depth0 != null ? lookupProperty(depth0,"rows") : depth0)) != null ? lookupProperty(stack1,"links") : stack1)) != null ? lookupProperty(stack1,"previous") : stack1),{"name":"if","hash":{},"fn":container.program(14, data, 0, blockParams, depths),"inverse":container.noop,"data":data,"loc":{"start":{"line":78,"column":4},"end":{"line":80,"column":11}}})) != null ? stack1 : "")
-    + ((stack1 = lookupProperty(helpers,"if").call(alias3,((stack1 = ((stack1 = (depth0 != null ? lookupProperty(depth0,"rows") : depth0)) != null ? lookupProperty(stack1,"links") : stack1)) != null ? lookupProperty(stack1,"next") : stack1),{"name":"if","hash":{},"fn":container.program(16, data, 0, blockParams, depths),"inverse":container.noop,"data":data,"loc":{"start":{"line":81,"column":4},"end":{"line":83,"column":11}}})) != null ? stack1 : "")
-    + ((stack1 = lookupProperty(helpers,"if").call(alias3,((stack1 = ((stack1 = (depth0 != null ? lookupProperty(depth0,"rows") : depth0)) != null ? lookupProperty(stack1,"links") : stack1)) != null ? lookupProperty(stack1,"last") : stack1),{"name":"if","hash":{},"fn":container.program(18, data, 0, blockParams, depths),"inverse":container.noop,"data":data,"loc":{"start":{"line":84,"column":4},"end":{"line":86,"column":11}}})) != null ? stack1 : "")
-    + "			</td>\n		</tfoot>\n	</table>\n</div>";
-},"useData":true,"useDepths":true});
-
-this["Mura"]["templates"]["textarea"] = this.Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
-    var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return "	<div class=\"mura-control-group\">\n		<div id=\"filter-results-container\">\n			<div id=\"date-filters\">\n				<div class=\"control-group\">\n				  <label>From</label>\n				  <div class=\"controls\">\n				  	<input type=\"text\" class=\"datepicker mura-date\" id=\"date1\" name=\"date1\" validate=\"date\" value=\"" + alias2(alias1((stack1 = depth0 != null ? lookupProperty(depth0, "filters") : depth0) != null ? lookupProperty(stack1, "fromdate") : stack1, depth0)) + "\">\n				  	<select id=\"hour1\" name=\"hour1\" class=\"mura-date\">" + ((stack1 = (lookupProperty(helpers, "eachHour") || depth0 && lookupProperty(depth0, "eachHour") || alias4).call(alias3, (stack1 = depth0 != null ? lookupProperty(depth0, "filters") : depth0) != null ? lookupProperty(stack1, "fromhour") : stack1, {
+      "name": "eachHour",
+      "hash": {},
+      "fn": container.program(1, data, 0, blockParams, depths),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 8,
+          "column": 57
+        },
+        "end": {
+          "line": 8,
+          "column": 155
         }
-        return undefined
+      }
+    })) != null ? stack1 : "") + "</select></select>\n					</div>\n				</div>\n			\n				<div class=\"control-group\">\n				  <label>To</label>\n				  <div class=\"controls\">\n				  	<input type=\"text\" class=\"datepicker mura-date\" id=\"date2\" name=\"date2\" validate=\"date\" value=\"" + alias2(alias1((stack1 = depth0 != null ? lookupProperty(depth0, "filters") : depth0) != null ? lookupProperty(stack1, "todate") : stack1, depth0)) + "\">\n				  	<select id=\"hour2\" name=\"hour2\"  class=\"mura-date\">" + ((stack1 = (lookupProperty(helpers, "eachHour") || depth0 && lookupProperty(depth0, "eachHour") || alias4).call(alias3, (stack1 = depth0 != null ? lookupProperty(depth0, "filters") : depth0) != null ? lookupProperty(stack1, "tohour") : stack1, {
+      "name": "eachHour",
+      "hash": {},
+      "fn": container.program(1, data, 0, blockParams, depths),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 16,
+          "column": 58
+        },
+        "end": {
+          "line": 16,
+          "column": 154
+        }
+      }
+    })) != null ? stack1 : "") + "</select></select>\n				   </select>\n					</div>\n				</div>\n			</div>\n					\n			<div class=\"control-group\">\n				<label>Keywords</label>\n				<div class=\"controls\">\n					<select name=\"filterBy\" class=\"mura-date\" id=\"results-filterby\">\n" + ((stack1 = (lookupProperty(helpers, "eachKey") || depth0 && lookupProperty(depth0, "eachKey") || alias4).call(alias3, depth0 != null ? lookupProperty(depth0, "properties") : depth0, (stack1 = depth0 != null ? lookupProperty(depth0, "filters") : depth0) != null ? lookupProperty(stack1, "filterby") : stack1, {
+      "name": "eachKey",
+      "hash": {},
+      "fn": container.program(3, data, 0, blockParams, depths),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 26,
+          "column": 5
+        },
+        "end": {
+          "line": 28,
+          "column": 17
+        }
+      }
+    })) != null ? stack1 : "") + "					</select>\n					<input type=\"text\" class=\"mura-half\" name=\"keywords\" id=\"results-keywords\" value=\"" + alias2(alias1((stack1 = depth0 != null ? lookupProperty(depth0, "filters") : depth0) != null ? lookupProperty(stack1, "filterkey") : stack1, depth0)) + "\">\n				</div>\n			</div>\n			<div class=\"form-actions\">\n				<button type=\"button\" class=\"btn\" id=\"btn-results-search\" ><i class=\"mi-bar-chart\"></i> View Data</button>\n				<button type=\"button\" class=\"btn\"  id=\"btn-results-download\" ><i class=\"mi-download\"></i> Download</button>\n			</div>\n		</div>\n	<div>\n\n	<ul class=\"metadata\">\n		<li>Page:\n			<strong>" + alias2(alias1((stack1 = depth0 != null ? lookupProperty(depth0, "rows") : depth0) != null ? lookupProperty(stack1, "pageindex") : stack1, depth0)) + " of " + alias2(alias1((stack1 = depth0 != null ? lookupProperty(depth0, "rows") : depth0) != null ? lookupProperty(stack1, "totalpages") : stack1, depth0)) + "</strong>\n		</li>\n		<li>Total Records:\n			<strong>" + alias2(alias1((stack1 = depth0 != null ? lookupProperty(depth0, "rows") : depth0) != null ? lookupProperty(stack1, "totalitems") : stack1, depth0)) + "</strong>\n		</li>\n	</ul>\n\n	<table style=\"width: 100%\" class=\"table\">\n		<thead>\n		<tr>\n" + ((stack1 = lookupProperty(helpers, "each").call(alias3, depth0 != null ? lookupProperty(depth0, "columns") : depth0, {
+      "name": "each",
+      "hash": {},
+      "fn": container.program(5, data, 0, blockParams, depths),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 52,
+          "column": 2
+        },
+        "end": {
+          "line": 54,
+          "column": 11
+        }
+      }
+    })) != null ? stack1 : "") + "			<th></th>\n		</tr>\n		</thead>\n		<tbody>\n" + ((stack1 = lookupProperty(helpers, "each").call(alias3, (stack1 = depth0 != null ? lookupProperty(depth0, "rows") : depth0) != null ? lookupProperty(stack1, "items") : stack1, {
+      "name": "each",
+      "hash": {},
+      "fn": container.program(7, data, 0, blockParams, depths),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 59,
+          "column": 2
+        },
+        "end": {
+          "line": 70,
+          "column": 11
+        }
+      }
+    })) != null ? stack1 : "") + "		</tbody>\n		<tfoot>\n		<tr>\n			<td>\n" + ((stack1 = lookupProperty(helpers, "if").call(alias3, (stack1 = (stack1 = depth0 != null ? lookupProperty(depth0, "rows") : depth0) != null ? lookupProperty(stack1, "links") : stack1) != null ? lookupProperty(stack1, "first") : stack1, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(12, data, 0, blockParams, depths),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 75,
+          "column": 4
+        },
+        "end": {
+          "line": 77,
+          "column": 11
+        }
+      }
+    })) != null ? stack1 : "") + ((stack1 = lookupProperty(helpers, "if").call(alias3, (stack1 = (stack1 = depth0 != null ? lookupProperty(depth0, "rows") : depth0) != null ? lookupProperty(stack1, "links") : stack1) != null ? lookupProperty(stack1, "previous") : stack1, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(14, data, 0, blockParams, depths),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 78,
+          "column": 4
+        },
+        "end": {
+          "line": 80,
+          "column": 11
+        }
+      }
+    })) != null ? stack1 : "") + ((stack1 = lookupProperty(helpers, "if").call(alias3, (stack1 = (stack1 = depth0 != null ? lookupProperty(depth0, "rows") : depth0) != null ? lookupProperty(stack1, "links") : stack1) != null ? lookupProperty(stack1, "next") : stack1, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(16, data, 0, blockParams, depths),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 81,
+          "column": 4
+        },
+        "end": {
+          "line": 83,
+          "column": 11
+        }
+      }
+    })) != null ? stack1 : "") + ((stack1 = lookupProperty(helpers, "if").call(alias3, (stack1 = (stack1 = depth0 != null ? lookupProperty(depth0, "rows") : depth0) != null ? lookupProperty(stack1, "links") : stack1) != null ? lookupProperty(stack1, "last") : stack1, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(18, data, 0, blockParams, depths),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 84,
+          "column": 4
+        },
+        "end": {
+          "line": 86,
+          "column": 11
+        }
+      }
+    })) != null ? stack1 : "") + "			</td>\n		</tfoot>\n	</table>\n</div>";
+  },
+  "useData": true,
+  "useDepths": true
+});
+this["Mura"]["templates"]["textarea"] = this.Mura.Handlebars.template({
+  "1": function _(container, depth0, helpers, partials, data) {
+    var helper,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return container.escapeExpression(((helper = (helper = lookupProperty(helpers,"summary") || (depth0 != null ? lookupProperty(depth0,"summary") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"summary","hash":{},"data":data,"loc":{"start":{"line":2,"column":67},"end":{"line":2,"column":78}}}) : helper)));
-},"3":function(container,depth0,helpers,partials,data) {
-    var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return container.escapeExpression((helper = (helper = lookupProperty(helpers, "summary") || (depth0 != null ? lookupProperty(depth0, "summary") : depth0)) != null ? helper : container.hooks.helperMissing, typeof helper === "function" ? helper.call(depth0 != null ? depth0 : container.nullContext || {}, {
+      "name": "summary",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 2,
+          "column": 67
+        },
+        "end": {
+          "line": 2,
+          "column": 78
         }
-        return undefined
+      }
+    }) : helper));
+  },
+  "3": function _(container, depth0, helpers, partials, data) {
+    var helper,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return container.escapeExpression(((helper = (helper = lookupProperty(helpers,"label") || (depth0 != null ? lookupProperty(depth0,"label") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"label","hash":{},"data":data,"loc":{"start":{"line":2,"column":86},"end":{"line":2,"column":95}}}) : helper)));
-},"5":function(container,depth0,helpers,partials,data) {
-    var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return container.escapeExpression((helper = (helper = lookupProperty(helpers, "label") || (depth0 != null ? lookupProperty(depth0, "label") : depth0)) != null ? helper : container.hooks.helperMissing, typeof helper === "function" ? helper.call(depth0 != null ? depth0 : container.nullContext || {}, {
+      "name": "label",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 2,
+          "column": 86
+        },
+        "end": {
+          "line": 2,
+          "column": 95
         }
-        return undefined
+      }
+    }) : helper));
+  },
+  "5": function _(container, depth0, helpers, partials, data) {
+    var helper,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return " <ins>"
-    + container.escapeExpression(((helper = (helper = lookupProperty(helpers,"formRequiredLabel") || (depth0 != null ? lookupProperty(depth0,"formRequiredLabel") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"formRequiredLabel","hash":{},"data":data,"loc":{"start":{"line":2,"column":126},"end":{"line":2,"column":147}}}) : helper)))
-    + "</ins>";
-},"7":function(container,depth0,helpers,partials,data) {
+    return " <ins>" + container.escapeExpression((helper = (helper = lookupProperty(helpers, "formRequiredLabel") || (depth0 != null ? lookupProperty(depth0, "formRequiredLabel") : depth0)) != null ? helper : container.hooks.helperMissing, typeof helper === "function" ? helper.call(depth0 != null ? depth0 : container.nullContext || {}, {
+      "name": "formRequiredLabel",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 2,
+          "column": 126
+        },
+        "end": {
+          "line": 2,
+          "column": 147
+        }
+      }
+    }) : helper)) + "</ins>";
+  },
+  "7": function _(container, depth0, helpers, partials, data) {
     return "</br>";
-},"9":function(container,depth0,helpers,partials,data) {
-    var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
-        }
-        return undefined
+  },
+  "9": function _(container, depth0, helpers, partials, data) {
+    var helper,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return " placeholder=\""
-    + container.escapeExpression(((helper = (helper = lookupProperty(helpers,"placeholder") || (depth0 != null ? lookupProperty(depth0,"placeholder") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"placeholder","hash":{},"data":data,"loc":{"start":{"line":4,"column":71},"end":{"line":4,"column":86}}}) : helper)))
-    + "\"";
-},"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
-    var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return " placeholder=\"" + container.escapeExpression((helper = (helper = lookupProperty(helpers, "placeholder") || (depth0 != null ? lookupProperty(depth0, "placeholder") : depth0)) != null ? helper : container.hooks.helperMissing, typeof helper === "function" ? helper.call(depth0 != null ? depth0 : container.nullContext || {}, {
+      "name": "placeholder",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 4,
+          "column": 71
+        },
+        "end": {
+          "line": 4,
+          "column": 86
         }
-        return undefined
+      }
+    }) : helper)) + "\"";
+  },
+  "compiler": [8, ">= 4.3.0"],
+  "main": function main(container, depth0, helpers, partials, data) {
+    var stack1,
+        helper,
+        alias1 = depth0 != null ? depth0 : container.nullContext || {},
+        alias2 = container.hooks.helperMissing,
+        alias3 = "function",
+        alias4 = container.escapeExpression,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return "<div class=\""
-    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"inputWrapperClass") || (depth0 != null ? lookupProperty(depth0,"inputWrapperClass") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"inputWrapperClass","hash":{},"data":data,"loc":{"start":{"line":1,"column":12},"end":{"line":1,"column":35}}}) : helper))) != null ? stack1 : "")
-    + "\" id=\"field-"
-    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":1,"column":47},"end":{"line":1,"column":55}}}) : helper)))
-    + "-container\">\r\n	<label for=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"labelForValue") || (depth0 != null ? lookupProperty(depth0,"labelForValue") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"labelForValue","hash":{},"data":data,"loc":{"start":{"line":2,"column":13},"end":{"line":2,"column":30}}}) : helper)))
-    + "\" data-for=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":2,"column":42},"end":{"line":2,"column":50}}}) : helper)))
-    + "\">"
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"summary") : depth0),{"name":"if","hash":{},"fn":container.program(1, data, 0),"inverse":container.program(3, data, 0),"data":data,"loc":{"start":{"line":2,"column":52},"end":{"line":2,"column":102}}})) != null ? stack1 : "")
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"isrequired") : depth0),{"name":"if","hash":{},"fn":container.program(5, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":2,"column":102},"end":{"line":2,"column":160}}})) != null ? stack1 : "")
-    + "</label>\r\n	"
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"summary") : depth0),{"name":"if","hash":{},"fn":container.program(7, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":3,"column":1},"end":{"line":3,"column":28}}})) != null ? stack1 : "")
-    + "\r\n	<textarea "
-    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"commonInputAttributes") || (depth0 != null ? lookupProperty(depth0,"commonInputAttributes") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"commonInputAttributes","hash":{},"data":data,"loc":{"start":{"line":4,"column":11},"end":{"line":4,"column":38}}}) : helper))) != null ? stack1 : "")
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"placeholder") : depth0),{"name":"if","hash":{},"fn":container.program(9, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":4,"column":38},"end":{"line":4,"column":94}}})) != null ? stack1 : "")
-    + ">"
-    + alias4(((helper = (helper = lookupProperty(helpers,"value") || (depth0 != null ? lookupProperty(depth0,"value") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"value","hash":{},"data":data,"loc":{"start":{"line":4,"column":95},"end":{"line":4,"column":104}}}) : helper)))
-    + "</textarea>\r\n</div>\r\n";
-},"useData":true});
-
-this["Mura"]["templates"]["textblock"] = this.Mura.Handlebars.template({"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
-    var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return "<div class=\"" + ((stack1 = (helper = (helper = lookupProperty(helpers, "inputWrapperClass") || (depth0 != null ? lookupProperty(depth0, "inputWrapperClass") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "inputWrapperClass",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 12
+        },
+        "end": {
+          "line": 1,
+          "column": 35
         }
-        return undefined
+      }
+    }) : helper)) != null ? stack1 : "") + "\" id=\"field-" + alias4((helper = (helper = lookupProperty(helpers, "name") || (depth0 != null ? lookupProperty(depth0, "name") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "name",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 47
+        },
+        "end": {
+          "line": 1,
+          "column": 55
+        }
+      }
+    }) : helper)) + "-container\">\r\n	<label for=\"" + alias4((helper = (helper = lookupProperty(helpers, "labelForValue") || (depth0 != null ? lookupProperty(depth0, "labelForValue") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "labelForValue",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 2,
+          "column": 13
+        },
+        "end": {
+          "line": 2,
+          "column": 30
+        }
+      }
+    }) : helper)) + "\" data-for=\"" + alias4((helper = (helper = lookupProperty(helpers, "name") || (depth0 != null ? lookupProperty(depth0, "name") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "name",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 2,
+          "column": 42
+        },
+        "end": {
+          "line": 2,
+          "column": 50
+        }
+      }
+    }) : helper)) + "\">" + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "summary") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(1, data, 0),
+      "inverse": container.program(3, data, 0),
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 2,
+          "column": 52
+        },
+        "end": {
+          "line": 2,
+          "column": 102
+        }
+      }
+    })) != null ? stack1 : "") + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "isrequired") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(5, data, 0),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 2,
+          "column": 102
+        },
+        "end": {
+          "line": 2,
+          "column": 160
+        }
+      }
+    })) != null ? stack1 : "") + "</label>\r\n	" + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "summary") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(7, data, 0),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 3,
+          "column": 1
+        },
+        "end": {
+          "line": 3,
+          "column": 28
+        }
+      }
+    })) != null ? stack1 : "") + "\r\n	<textarea " + ((stack1 = (helper = (helper = lookupProperty(helpers, "commonInputAttributes") || (depth0 != null ? lookupProperty(depth0, "commonInputAttributes") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "commonInputAttributes",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 4,
+          "column": 11
+        },
+        "end": {
+          "line": 4,
+          "column": 38
+        }
+      }
+    }) : helper)) != null ? stack1 : "") + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "placeholder") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(9, data, 0),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 4,
+          "column": 38
+        },
+        "end": {
+          "line": 4,
+          "column": 94
+        }
+      }
+    })) != null ? stack1 : "") + ">" + alias4((helper = (helper = lookupProperty(helpers, "value") || (depth0 != null ? lookupProperty(depth0, "value") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "value",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 4,
+          "column": 95
+        },
+        "end": {
+          "line": 4,
+          "column": 104
+        }
+      }
+    }) : helper)) + "</textarea>\r\n</div>\r\n";
+  },
+  "useData": true
+});
+this["Mura"]["templates"]["textblock"] = this.Mura.Handlebars.template({
+  "compiler": [8, ">= 4.3.0"],
+  "main": function main(container, depth0, helpers, partials, data) {
+    var stack1,
+        helper,
+        alias1 = depth0 != null ? depth0 : container.nullContext || {},
+        alias2 = container.hooks.helperMissing,
+        alias3 = "function",
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return "<div class=\""
-    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"inputWrapperClass") || (depth0 != null ? lookupProperty(depth0,"inputWrapperClass") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"inputWrapperClass","hash":{},"data":data,"loc":{"start":{"line":1,"column":12},"end":{"line":1,"column":35}}}) : helper))) != null ? stack1 : "")
-    + "\" id=\"field-"
-    + container.escapeExpression(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":1,"column":47},"end":{"line":1,"column":55}}}) : helper)))
-    + "-container\">\r\n<div class=\"mura-form-text\">"
-    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"value") || (depth0 != null ? lookupProperty(depth0,"value") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"value","hash":{},"data":data,"loc":{"start":{"line":2,"column":28},"end":{"line":2,"column":39}}}) : helper))) != null ? stack1 : "")
-    + "</div>\r\n</div>\r\n";
-},"useData":true});
-
-this["Mura"]["templates"]["textfield"] = this.Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
-    var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return "<div class=\"" + ((stack1 = (helper = (helper = lookupProperty(helpers, "inputWrapperClass") || (depth0 != null ? lookupProperty(depth0, "inputWrapperClass") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "inputWrapperClass",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 12
+        },
+        "end": {
+          "line": 1,
+          "column": 35
         }
-        return undefined
+      }
+    }) : helper)) != null ? stack1 : "") + "\" id=\"field-" + container.escapeExpression((helper = (helper = lookupProperty(helpers, "name") || (depth0 != null ? lookupProperty(depth0, "name") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "name",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 47
+        },
+        "end": {
+          "line": 1,
+          "column": 55
+        }
+      }
+    }) : helper)) + "-container\">\r\n<div class=\"mura-form-text\">" + ((stack1 = (helper = (helper = lookupProperty(helpers, "value") || (depth0 != null ? lookupProperty(depth0, "value") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "value",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 2,
+          "column": 28
+        },
+        "end": {
+          "line": 2,
+          "column": 39
+        }
+      }
+    }) : helper)) != null ? stack1 : "") + "</div>\r\n</div>\r\n";
+  },
+  "useData": true
+});
+this["Mura"]["templates"]["textfield"] = this.Mura.Handlebars.template({
+  "1": function _(container, depth0, helpers, partials, data) {
+    var helper,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return container.escapeExpression(((helper = (helper = lookupProperty(helpers,"summary") || (depth0 != null ? lookupProperty(depth0,"summary") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"summary","hash":{},"data":data,"loc":{"start":{"line":2,"column":67},"end":{"line":2,"column":78}}}) : helper)));
-},"3":function(container,depth0,helpers,partials,data) {
-    var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return container.escapeExpression((helper = (helper = lookupProperty(helpers, "summary") || (depth0 != null ? lookupProperty(depth0, "summary") : depth0)) != null ? helper : container.hooks.helperMissing, typeof helper === "function" ? helper.call(depth0 != null ? depth0 : container.nullContext || {}, {
+      "name": "summary",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 2,
+          "column": 67
+        },
+        "end": {
+          "line": 2,
+          "column": 78
         }
-        return undefined
+      }
+    }) : helper));
+  },
+  "3": function _(container, depth0, helpers, partials, data) {
+    var helper,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return container.escapeExpression(((helper = (helper = lookupProperty(helpers,"label") || (depth0 != null ? lookupProperty(depth0,"label") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"label","hash":{},"data":data,"loc":{"start":{"line":2,"column":86},"end":{"line":2,"column":95}}}) : helper)));
-},"5":function(container,depth0,helpers,partials,data) {
-    var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return container.escapeExpression((helper = (helper = lookupProperty(helpers, "label") || (depth0 != null ? lookupProperty(depth0, "label") : depth0)) != null ? helper : container.hooks.helperMissing, typeof helper === "function" ? helper.call(depth0 != null ? depth0 : container.nullContext || {}, {
+      "name": "label",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 2,
+          "column": 86
+        },
+        "end": {
+          "line": 2,
+          "column": 95
         }
-        return undefined
+      }
+    }) : helper));
+  },
+  "5": function _(container, depth0, helpers, partials, data) {
+    var helper,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return " <ins>"
-    + container.escapeExpression(((helper = (helper = lookupProperty(helpers,"formRequiredLabel") || (depth0 != null ? lookupProperty(depth0,"formRequiredLabel") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"formRequiredLabel","hash":{},"data":data,"loc":{"start":{"line":2,"column":126},"end":{"line":2,"column":147}}}) : helper)))
-    + "</ins>";
-},"7":function(container,depth0,helpers,partials,data) {
+    return " <ins>" + container.escapeExpression((helper = (helper = lookupProperty(helpers, "formRequiredLabel") || (depth0 != null ? lookupProperty(depth0, "formRequiredLabel") : depth0)) != null ? helper : container.hooks.helperMissing, typeof helper === "function" ? helper.call(depth0 != null ? depth0 : container.nullContext || {}, {
+      "name": "formRequiredLabel",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 2,
+          "column": 126
+        },
+        "end": {
+          "line": 2,
+          "column": 147
+        }
+      }
+    }) : helper)) + "</ins>";
+  },
+  "7": function _(container, depth0, helpers, partials, data) {
     return "</br>";
-},"9":function(container,depth0,helpers,partials,data) {
-    var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
-        }
-        return undefined
+  },
+  "9": function _(container, depth0, helpers, partials, data) {
+    var helper,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return " placeholder=\""
-    + container.escapeExpression(((helper = (helper = lookupProperty(helpers,"placeholder") || (depth0 != null ? lookupProperty(depth0,"placeholder") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"placeholder","hash":{},"data":data,"loc":{"start":{"line":4,"column":118},"end":{"line":4,"column":133}}}) : helper)))
-    + "\"";
-},"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
-    var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return " placeholder=\"" + container.escapeExpression((helper = (helper = lookupProperty(helpers, "placeholder") || (depth0 != null ? lookupProperty(depth0, "placeholder") : depth0)) != null ? helper : container.hooks.helperMissing, typeof helper === "function" ? helper.call(depth0 != null ? depth0 : container.nullContext || {}, {
+      "name": "placeholder",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 4,
+          "column": 118
+        },
+        "end": {
+          "line": 4,
+          "column": 133
         }
-        return undefined
+      }
+    }) : helper)) + "\"";
+  },
+  "compiler": [8, ">= 4.3.0"],
+  "main": function main(container, depth0, helpers, partials, data) {
+    var stack1,
+        helper,
+        alias1 = depth0 != null ? depth0 : container.nullContext || {},
+        alias2 = container.hooks.helperMissing,
+        alias3 = "function",
+        alias4 = container.escapeExpression,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return "<div class=\""
-    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"inputWrapperClass") || (depth0 != null ? lookupProperty(depth0,"inputWrapperClass") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"inputWrapperClass","hash":{},"data":data,"loc":{"start":{"line":1,"column":12},"end":{"line":1,"column":35}}}) : helper))) != null ? stack1 : "")
-    + "\" id=\"field-"
-    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":1,"column":47},"end":{"line":1,"column":55}}}) : helper)))
-    + "-container\">\r\n	<label for=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"labelForValue") || (depth0 != null ? lookupProperty(depth0,"labelForValue") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"labelForValue","hash":{},"data":data,"loc":{"start":{"line":2,"column":13},"end":{"line":2,"column":30}}}) : helper)))
-    + "\" data-for=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":2,"column":42},"end":{"line":2,"column":50}}}) : helper)))
-    + "\">"
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"summary") : depth0),{"name":"if","hash":{},"fn":container.program(1, data, 0),"inverse":container.program(3, data, 0),"data":data,"loc":{"start":{"line":2,"column":52},"end":{"line":2,"column":102}}})) != null ? stack1 : "")
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"isrequired") : depth0),{"name":"if","hash":{},"fn":container.program(5, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":2,"column":102},"end":{"line":2,"column":160}}})) != null ? stack1 : "")
-    + "</label>\r\n	"
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"summary") : depth0),{"name":"if","hash":{},"fn":container.program(7, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":3,"column":1},"end":{"line":3,"column":28}}})) != null ? stack1 : "")
-    + "\r\n	<input type=\""
-    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"textInputTypeValue") || (depth0 != null ? lookupProperty(depth0,"textInputTypeValue") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"textInputTypeValue","hash":{},"data":data,"loc":{"start":{"line":4,"column":14},"end":{"line":4,"column":38}}}) : helper))) != null ? stack1 : "")
-    + "\" "
-    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"commonInputAttributes") || (depth0 != null ? lookupProperty(depth0,"commonInputAttributes") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"commonInputAttributes","hash":{},"data":data,"loc":{"start":{"line":4,"column":40},"end":{"line":4,"column":67}}}) : helper))) != null ? stack1 : "")
-    + " value=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"value") || (depth0 != null ? lookupProperty(depth0,"value") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"value","hash":{},"data":data,"loc":{"start":{"line":4,"column":75},"end":{"line":4,"column":84}}}) : helper)))
-    + "\""
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"placeholder") : depth0),{"name":"if","hash":{},"fn":container.program(9, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":4,"column":85},"end":{"line":4,"column":141}}})) != null ? stack1 : "")
-    + "/>\r\n</div>\r\n";
-},"useData":true});
-
-this["Mura"]["templates"]["view"] = this.Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
-    var helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return "<div class=\"" + ((stack1 = (helper = (helper = lookupProperty(helpers, "inputWrapperClass") || (depth0 != null ? lookupProperty(depth0, "inputWrapperClass") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "inputWrapperClass",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 12
+        },
+        "end": {
+          "line": 1,
+          "column": 35
         }
-        return undefined
+      }
+    }) : helper)) != null ? stack1 : "") + "\" id=\"field-" + alias4((helper = (helper = lookupProperty(helpers, "name") || (depth0 != null ? lookupProperty(depth0, "name") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "name",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 1,
+          "column": 47
+        },
+        "end": {
+          "line": 1,
+          "column": 55
+        }
+      }
+    }) : helper)) + "-container\">\r\n	<label for=\"" + alias4((helper = (helper = lookupProperty(helpers, "labelForValue") || (depth0 != null ? lookupProperty(depth0, "labelForValue") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "labelForValue",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 2,
+          "column": 13
+        },
+        "end": {
+          "line": 2,
+          "column": 30
+        }
+      }
+    }) : helper)) + "\" data-for=\"" + alias4((helper = (helper = lookupProperty(helpers, "name") || (depth0 != null ? lookupProperty(depth0, "name") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "name",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 2,
+          "column": 42
+        },
+        "end": {
+          "line": 2,
+          "column": 50
+        }
+      }
+    }) : helper)) + "\">" + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "summary") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(1, data, 0),
+      "inverse": container.program(3, data, 0),
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 2,
+          "column": 52
+        },
+        "end": {
+          "line": 2,
+          "column": 102
+        }
+      }
+    })) != null ? stack1 : "") + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "isrequired") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(5, data, 0),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 2,
+          "column": 102
+        },
+        "end": {
+          "line": 2,
+          "column": 160
+        }
+      }
+    })) != null ? stack1 : "") + "</label>\r\n	" + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "summary") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(7, data, 0),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 3,
+          "column": 1
+        },
+        "end": {
+          "line": 3,
+          "column": 28
+        }
+      }
+    })) != null ? stack1 : "") + "\r\n	<input type=\"" + ((stack1 = (helper = (helper = lookupProperty(helpers, "textInputTypeValue") || (depth0 != null ? lookupProperty(depth0, "textInputTypeValue") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "textInputTypeValue",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 4,
+          "column": 14
+        },
+        "end": {
+          "line": 4,
+          "column": 38
+        }
+      }
+    }) : helper)) != null ? stack1 : "") + "\" " + ((stack1 = (helper = (helper = lookupProperty(helpers, "commonInputAttributes") || (depth0 != null ? lookupProperty(depth0, "commonInputAttributes") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "commonInputAttributes",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 4,
+          "column": 40
+        },
+        "end": {
+          "line": 4,
+          "column": 67
+        }
+      }
+    }) : helper)) != null ? stack1 : "") + " value=\"" + alias4((helper = (helper = lookupProperty(helpers, "value") || (depth0 != null ? lookupProperty(depth0, "value") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "value",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 4,
+          "column": 75
+        },
+        "end": {
+          "line": 4,
+          "column": 84
+        }
+      }
+    }) : helper)) + "\"" + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "placeholder") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(9, data, 0),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 4,
+          "column": 85
+        },
+        "end": {
+          "line": 4,
+          "column": 141
+        }
+      }
+    })) != null ? stack1 : "") + "/>\r\n</div>\r\n";
+  },
+  "useData": true
+});
+this["Mura"]["templates"]["view"] = this.Mura.Handlebars.template({
+  "1": function _(container, depth0, helpers, partials, data) {
+    var helper,
+        alias1 = depth0 != null ? depth0 : container.nullContext || {},
+        alias2 = container.hooks.helperMissing,
+        alias3 = "function",
+        alias4 = container.escapeExpression,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return "	<li>\n		<strong>"
-    + alias4(((helper = (helper = lookupProperty(helpers,"displayName") || (depth0 != null ? lookupProperty(depth0,"displayName") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"displayName","hash":{},"data":data,"loc":{"start":{"line":5,"column":10},"end":{"line":5,"column":25}}}) : helper)))
-    + ": </strong> "
-    + alias4(((helper = (helper = lookupProperty(helpers,"displayValue") || (depth0 != null ? lookupProperty(depth0,"displayValue") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"displayValue","hash":{},"data":data,"loc":{"start":{"line":5,"column":37},"end":{"line":5,"column":53}}}) : helper)))
-    + " \n	</li>\n";
-},"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
-    var stack1, lookupProperty = container.lookupProperty || function(parent, propertyName) {
-        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
-          return parent[propertyName];
+    return "	<li>\n		<strong>" + alias4((helper = (helper = lookupProperty(helpers, "displayName") || (depth0 != null ? lookupProperty(depth0, "displayName") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "displayName",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 5,
+          "column": 10
+        },
+        "end": {
+          "line": 5,
+          "column": 25
         }
-        return undefined
+      }
+    }) : helper)) + ": </strong> " + alias4((helper = (helper = lookupProperty(helpers, "displayValue") || (depth0 != null ? lookupProperty(depth0, "displayValue") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "displayValue",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 5,
+          "column": 37
+        },
+        "end": {
+          "line": 5,
+          "column": 53
+        }
+      }
+    }) : helper)) + " \n	</li>\n";
+  },
+  "compiler": [8, ">= 4.3.0"],
+  "main": function main(container, depth0, helpers, partials, data) {
+    var stack1,
+        lookupProperty = container.lookupProperty || function (parent, propertyName) {
+      if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+        return parent[propertyName];
+      }
+
+      return undefined;
     };
 
-  return "<div class=\"mura-control-group\">\n<ul>\n"
-    + ((stack1 = (lookupProperty(helpers,"eachProp")||(depth0 && lookupProperty(depth0,"eachProp"))||container.hooks.helperMissing).call(depth0 != null ? depth0 : (container.nullContext || {}),depth0,{"name":"eachProp","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":3,"column":0},"end":{"line":7,"column":13}}})) != null ? stack1 : "")
-    + "</ul>\n<button type=\"button\" class=\"nav-back\">Back</button>\n</div>";
-},"useData":true});
+    return "<div class=\"mura-control-group\">\n<ul>\n" + ((stack1 = (lookupProperty(helpers, "eachProp") || depth0 && lookupProperty(depth0, "eachProp") || container.hooks.helperMissing).call(depth0 != null ? depth0 : container.nullContext || {}, depth0, {
+      "name": "eachProp",
+      "hash": {},
+      "fn": container.program(1, data, 0),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 3,
+          "column": 0
+        },
+        "end": {
+          "line": 7,
+          "column": 13
+        }
+      }
+    })) != null ? stack1 : "") + "</ul>\n<button type=\"button\" class=\"nav-back\">Back</button>\n</div>";
+  },
+  "useData": true
+});
 
 /***/ })
 /******/ ]);
