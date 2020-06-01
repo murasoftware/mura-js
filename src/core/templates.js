@@ -61,7 +61,7 @@ Mura.templates['image']=function(context){
 		style=' style="height:100%;width:100%;object-fit:' + Mura.escapeHTML(context.fit) +';" data-object-fit="' + Mura.escapeHTML(context.fit) + '" ';
 	}
 
-	source='<img src="' + Mura.escapeHTML(context.src) + '" alt="' + Mura.escapeHTML(context.alt) + '"' +  style + '" loading="lazy"/>';
+	source='<img src="' + Mura.escapeHTML(context.src) + '" alt="' + Mura.escapeHTML(context.alt) + '"' +  style + ' loading="lazy"/>';
 	if(context.imagelink){
 		context.imagelinktarget=context.imagelinktarget || "";
 		var targetString="";
