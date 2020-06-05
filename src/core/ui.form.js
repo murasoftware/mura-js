@@ -65,7 +65,8 @@ Mura.UI.Form=Mura.UI.extend(
 		formbuttonbacklabel : "Back",
 		formbuttoncancelclass:"btn-primary pull-right",
 		formbuttoncancellabel :"Cancel",
-		formrequiredlabel:"Required"
+		formrequiredlabel:"Required",
+		formfileplaceholder : "Select File"
 	},
 	renderClient(){
 
@@ -1525,7 +1526,7 @@ Mura.UI.Form=Mura.UI.extend(
 			if(this.placeholder){
 				return escapeExpression(this.placeholder);
 			} else {
-				return "Select File";
+				return  self.rb.formfileplaceholder;
 			}
 		});
 
