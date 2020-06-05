@@ -1638,6 +1638,10 @@ Mura.UI.Form=Mura.UI.extend(
 
 			returnString += '"';
 
+			if(this.tooltip){
+				returnString += ' title="' + escapeExpression(this.tooltip) + '"';
+			}
+
 			return returnString;
 		});
 	}

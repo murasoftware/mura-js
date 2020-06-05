@@ -21695,6 +21695,11 @@ Mura.UI.Form = Mura.UI.extend(
 
       returnString += self.rb.forminputclass;
       returnString += '"';
+
+      if (this.tooltip) {
+        returnString += ' title="' + escapeExpression(this.tooltip) + '"';
+      }
+
       return returnString;
     });
   }
