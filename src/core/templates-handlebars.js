@@ -369,7 +369,7 @@ this["Mura"]["templates"]["file"] = this.Mura.Handlebars.template({"1":function(
     };
 
   return " <ins>"
-    + container.escapeExpression(((helper = (helper = lookupProperty(helpers,"formRequiredLabel") || (depth0 != null ? lookupProperty(depth0,"formRequiredLabel") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"formRequiredLabel","hash":{},"data":data,"loc":{"start":{"line":2,"column":85},"end":{"line":2,"column":106}}}) : helper)))
+    + container.escapeExpression(((helper = (helper = lookupProperty(helpers,"formRequiredLabel") || (depth0 != null ? lookupProperty(depth0,"formRequiredLabel") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"formRequiredLabel","hash":{},"data":data,"loc":{"start":{"line":2,"column":117},"end":{"line":2,"column":138}}}) : helper)))
     + "</ins>";
 },"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
     var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
@@ -381,18 +381,28 @@ this["Mura"]["templates"]["file"] = this.Mura.Handlebars.template({"1":function(
 
   return "<div class=\""
     + ((stack1 = ((helper = (helper = lookupProperty(helpers,"inputWrapperClass") || (depth0 != null ? lookupProperty(depth0,"inputWrapperClass") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"inputWrapperClass","hash":{},"data":data,"loc":{"start":{"line":1,"column":12},"end":{"line":1,"column":35}}}) : helper))) != null ? stack1 : "")
-    + "\" id=\"field-"
-    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":1,"column":47},"end":{"line":1,"column":55}}}) : helper)))
+    + " mura-form-file-container\" id=\"field-"
+    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":1,"column":72},"end":{"line":1,"column":80}}}) : helper)))
     + "-container\">\r\n	<label for=\""
     + alias4(((helper = (helper = lookupProperty(helpers,"labelForValue") || (depth0 != null ? lookupProperty(depth0,"labelForValue") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"labelForValue","hash":{},"data":data,"loc":{"start":{"line":2,"column":13},"end":{"line":2,"column":30}}}) : helper)))
-    + "\" data-for=\""
-    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":2,"column":42},"end":{"line":2,"column":50}}}) : helper)))
-    + "\">"
-    + alias4(((helper = (helper = lookupProperty(helpers,"label") || (depth0 != null ? lookupProperty(depth0,"label") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"label","hash":{},"data":data,"loc":{"start":{"line":2,"column":52},"end":{"line":2,"column":61}}}) : helper)))
-    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"isrequired") : depth0),{"name":"if","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":2,"column":61},"end":{"line":2,"column":119}}})) != null ? stack1 : "")
-    + "</label>\r\n	<input type=\"file\" "
-    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"commonInputAttributes") || (depth0 != null ? lookupProperty(depth0,"commonInputAttributes") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"commonInputAttributes","hash":{},"data":data,"loc":{"start":{"line":3,"column":20},"end":{"line":3,"column":47}}}) : helper))) != null ? stack1 : "")
-    + "/>\r\n</div>\r\n";
+    + " mura-form-file-label\" data-for=\""
+    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":2,"column":63},"end":{"line":2,"column":71}}}) : helper)))
+    + "_attachment\">"
+    + alias4(((helper = (helper = lookupProperty(helpers,"label") || (depth0 != null ? lookupProperty(depth0,"label") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"label","hash":{},"data":data,"loc":{"start":{"line":2,"column":84},"end":{"line":2,"column":93}}}) : helper)))
+    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"isrequired") : depth0),{"name":"if","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":2,"column":93},"end":{"line":2,"column":151}}})) != null ? stack1 : "")
+    + "</label>\r\n	<input readonly type=\"text\" data-filename=\""
+    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":3,"column":44},"end":{"line":3,"column":52}}}) : helper)))
+    + "_attachment\" placeholder=\""
+    + alias4(((helper = (helper = lookupProperty(helpers,"filePlaceholder") || (depth0 != null ? lookupProperty(depth0,"filePlaceholder") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"filePlaceholder","hash":{},"data":data,"loc":{"start":{"line":3,"column":78},"end":{"line":3,"column":97}}}) : helper)))
+    + "\" "
+    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"fileAttributes") || (depth0 != null ? lookupProperty(depth0,"fileAttributes") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"fileAttributes","hash":{},"data":data,"loc":{"start":{"line":3,"column":99},"end":{"line":3,"column":119}}}) : helper))) != null ? stack1 : "")
+    + ">\r\n	<input hidden data-filename=\""
+    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":4,"column":30},"end":{"line":4,"column":38}}}) : helper)))
+    + "_attachment\" type=\"file\" "
+    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"commonInputAttributes") || (depth0 != null ? lookupProperty(depth0,"commonInputAttributes") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"commonInputAttributes","hash":{},"data":data,"loc":{"start":{"line":4,"column":63},"end":{"line":4,"column":90}}}) : helper))) != null ? stack1 : "")
+    + "/>\r\n	<div class=\"mura-form-preview\" style=\"display:none;\">\r\n		<img style=\"display:none;\" id=\"mura-form-preview-"
+    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":6,"column":51},"end":{"line":6,"column":59}}}) : helper)))
+    + "_attachment\" src=\"\" onerror=\"this.onerror=null;this.src='';this.style.display='none';\">\r\n	</div>\r\n</div>\r\n";
 },"useData":true});
 
 this["Mura"]["templates"]["form"] = this.Mura.Handlebars.template({"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {

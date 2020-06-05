@@ -525,6 +525,35 @@ Mura.UI.Form=Mura.UI.extend(
 		};
 
 		Mura(".mura-form-nav",self.context.formEl).off('click',formNavHandler).on('click',formNavHandler);
+
+		var fileSelectorHandler=function(e){
+			Mura(this).closest('.mura-form-file-container').find('input[type="file"]').trigger('click');
+		}
+
+		var fileChangeHandler=function(e){
+			var inputEl = Mura(this); 
+			var fn = inputEl.val().replace(/\\/g, '/').replace(/.*\//, '');
+			var fnEl = $('.mura-newfile-filename[data-filename="' + inputEl.attr("name") + '"]').val(fn);
+			var f = Mura('input[type="file"][data-filename="' + inputEl.attr("name") + '"]').node.files[0];
+			var fImg = Mura('img#mura-form-preview-' + inputEl.attr("name") );
+			var fUrl = '';
+			// file upload
+			if (typeof f !== 'undefined'){
+				fUrl = window.URL.createObjectURL(f);
+				fnEl.val(fn);
+				fImg.hide();
+				if(f.type.indexOf('image') == 0 && fUrl.length){
+					fImg.attr('src',fUrl).show();	
+				}
+			} else {
+				fImg.attr('src',fUrl).hide();
+			}
+		}
+
+		Mura(self.context.formEl).find('input[type="file"]').off('change',fileChangeHandler).on('change',fileChangeHandler);
+		
+		Mura(self.context.formEl).find('.mura-form-preview img, .mura-newfile-filename').off('click',fileSelectorHandler).on('click',fileSelectorHandler);
+
 	},
 
 	setDataValues() {
@@ -1296,7 +1325,7 @@ Mura.UI.Form=Mura.UI.extend(
 
 	registerHelpers() {
 		var self = this;
-
+		
 		Mura.extend(self.rb,Mura.rb);
 
 		Mura.Handlebars.registerHelper('eachColRow',function(row, columns, options) {
@@ -1490,6 +1519,16 @@ Mura.UI.Form=Mura.UI.extend(
 			return self.rb.formrequiredlabel;
 		});
 
+		Mura.Handlebars.registerHelper('filePlaceholder',function() {
+			var escapeExpression=Mura.Handlebars.escapeExpression;
+
+			if(this.placeholder){
+				return escapeExpression(this.placeholder);
+			} else {
+				return "Select File";
+			}
+		});
+
 		Mura.Handlebars.registerHelper('formClass',function() {
 			var escapeExpression=Mura.Handlebars.escapeExpression;
 			var returnString='mura-form';
@@ -1573,6 +1612,31 @@ Mura.UI.Form=Mura.UI.extend(
 			if(typeof Mura.usehtml5dateinput != 'undefined' && Mura.usehtml5dateinput && typeof this.validatetype != 'undefined' && this.validatetype.toLowerCase()=='date'){
 				returnString += ' data-date-format="' + Mura.dateformat + '"';
 			}
+
+			return returnString;
+		});
+		
+
+		Mura.Handlebars.registerHelper('fileAttributes',function() {
+			//id, class, title, size
+			var escapeExpression=Mura.Handlebars.escapeExpression;
+			var returnString='';
+
+			if(this.cssid){
+				returnString += ' id="' + escapeExpression(this.cssid) + '"';
+			} else {
+				returnString += ' id="field-' + escapeExpression(self.context.prefix + this.name) + '"';
+			}
+
+			returnString += ' class="mura-newfile-filename ';
+
+			if(this.cssclass){
+				returnString += escapeExpression(this.cssclass) + ' ';
+			}
+
+			returnString += self.rb.forminputclass;
+
+			returnString += '"';
 
 			return returnString;
 		});

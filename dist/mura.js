@@ -20719,6 +20719,34 @@ Mura.UI.Form = Mura.UI.extend(
     };
 
     Mura(".mura-form-nav", self.context.formEl).off('click', formNavHandler).on('click', formNavHandler);
+
+    var fileSelectorHandler = function fileSelectorHandler(e) {
+      Mura(this).closest('.mura-form-file-container').find('input[type="file"]').trigger('click');
+    };
+
+    var fileChangeHandler = function fileChangeHandler(e) {
+      var inputEl = Mura(this);
+      var fn = inputEl.val().replace(/\\/g, '/').replace(/.*\//, '');
+      var fnEl = $('.mura-newfile-filename[data-filename="' + inputEl.attr("name") + '"]').val(fn);
+      var f = Mura('input[type="file"][data-filename="' + inputEl.attr("name") + '"]').node.files[0];
+      var fImg = Mura('img#mura-form-preview-' + inputEl.attr("name"));
+      var fUrl = ''; // file upload
+
+      if (typeof f !== 'undefined') {
+        fUrl = window.URL.createObjectURL(f);
+        fnEl.val(fn);
+        fImg.hide();
+
+        if (f.type.indexOf('image') == 0 && fUrl.length) {
+          fImg.attr('src', fUrl).show();
+        }
+      } else {
+        fImg.attr('src', fUrl).hide();
+      }
+    };
+
+    Mura(self.context.formEl).find('input[type="file"]').off('change', fileChangeHandler).on('change', fileChangeHandler);
+    Mura(self.context.formEl).find('.mura-form-preview img, .mura-newfile-filename').off('click', fileSelectorHandler).on('click', fileSelectorHandler);
   },
   setDataValues: function setDataValues() {
     var self = this;
@@ -21556,6 +21584,15 @@ Mura.UI.Form = Mura.UI.extend(
     Mura.Handlebars.registerHelper('formRequiredLabel', function () {
       return self.rb.formrequiredlabel;
     });
+    Mura.Handlebars.registerHelper('filePlaceholder', function () {
+      var escapeExpression = Mura.Handlebars.escapeExpression;
+
+      if (this.placeholder) {
+        return escapeExpression(this.placeholder);
+      } else {
+        return "Select File";
+      }
+    });
     Mura.Handlebars.registerHelper('formClass', function () {
       var escapeExpression = Mura.Handlebars.escapeExpression;
       var returnString = 'mura-form';
@@ -21637,6 +21674,27 @@ Mura.UI.Form = Mura.UI.extend(
         returnString += ' data-date-format="' + Mura.dateformat + '"';
       }
 
+      return returnString;
+    });
+    Mura.Handlebars.registerHelper('fileAttributes', function () {
+      //id, class, title, size
+      var escapeExpression = Mura.Handlebars.escapeExpression;
+      var returnString = '';
+
+      if (this.cssid) {
+        returnString += ' id="' + escapeExpression(this.cssid) + '"';
+      } else {
+        returnString += ' id="field-' + escapeExpression(self.context.prefix + this.name) + '"';
+      }
+
+      returnString += ' class="mura-newfile-filename ';
+
+      if (this.cssclass) {
+        returnString += escapeExpression(this.cssclass) + ' ';
+      }
+
+      returnString += self.rb.forminputclass;
+      returnString += '"';
       return returnString;
     });
   }
@@ -24523,11 +24581,11 @@ this["Mura"]["templates"]["file"] = this.Mura.Handlebars.template({
       "loc": {
         "start": {
           "line": 2,
-          "column": 85
+          "column": 117
         },
         "end": {
           "line": 2,
-          "column": 106
+          "column": 138
         }
       }
     }) : helper)) + "</ins>";
@@ -24562,18 +24620,18 @@ this["Mura"]["templates"]["file"] = this.Mura.Handlebars.template({
           "column": 35
         }
       }
-    }) : helper)) != null ? stack1 : "") + "\" id=\"field-" + alias4((helper = (helper = lookupProperty(helpers, "name") || (depth0 != null ? lookupProperty(depth0, "name") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+    }) : helper)) != null ? stack1 : "") + " mura-form-file-container\" id=\"field-" + alias4((helper = (helper = lookupProperty(helpers, "name") || (depth0 != null ? lookupProperty(depth0, "name") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
       "name": "name",
       "hash": {},
       "data": data,
       "loc": {
         "start": {
           "line": 1,
-          "column": 47
+          "column": 72
         },
         "end": {
           "line": 1,
-          "column": 55
+          "column": 80
         }
       }
     }) : helper)) + "-container\">\r\n	<label for=\"" + alias4((helper = (helper = lookupProperty(helpers, "labelForValue") || (depth0 != null ? lookupProperty(depth0, "labelForValue") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
@@ -24590,32 +24648,32 @@ this["Mura"]["templates"]["file"] = this.Mura.Handlebars.template({
           "column": 30
         }
       }
-    }) : helper)) + "\" data-for=\"" + alias4((helper = (helper = lookupProperty(helpers, "name") || (depth0 != null ? lookupProperty(depth0, "name") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+    }) : helper)) + " mura-form-file-label\" data-for=\"" + alias4((helper = (helper = lookupProperty(helpers, "name") || (depth0 != null ? lookupProperty(depth0, "name") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
       "name": "name",
       "hash": {},
       "data": data,
       "loc": {
         "start": {
           "line": 2,
-          "column": 42
+          "column": 63
         },
         "end": {
           "line": 2,
-          "column": 50
+          "column": 71
         }
       }
-    }) : helper)) + "\">" + alias4((helper = (helper = lookupProperty(helpers, "label") || (depth0 != null ? lookupProperty(depth0, "label") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+    }) : helper)) + "_attachment\">" + alias4((helper = (helper = lookupProperty(helpers, "label") || (depth0 != null ? lookupProperty(depth0, "label") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
       "name": "label",
       "hash": {},
       "data": data,
       "loc": {
         "start": {
           "line": 2,
-          "column": 52
+          "column": 84
         },
         "end": {
           "line": 2,
-          "column": 61
+          "column": 93
         }
       }
     }) : helper)) + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "isrequired") : depth0, {
@@ -24627,28 +24685,98 @@ this["Mura"]["templates"]["file"] = this.Mura.Handlebars.template({
       "loc": {
         "start": {
           "line": 2,
-          "column": 61
+          "column": 93
         },
         "end": {
           "line": 2,
-          "column": 119
+          "column": 151
         }
       }
-    })) != null ? stack1 : "") + "</label>\r\n	<input type=\"file\" " + ((stack1 = (helper = (helper = lookupProperty(helpers, "commonInputAttributes") || (depth0 != null ? lookupProperty(depth0, "commonInputAttributes") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
-      "name": "commonInputAttributes",
+    })) != null ? stack1 : "") + "</label>\r\n	<input readonly type=\"text\" data-filename=\"" + alias4((helper = (helper = lookupProperty(helpers, "name") || (depth0 != null ? lookupProperty(depth0, "name") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "name",
       "hash": {},
       "data": data,
       "loc": {
         "start": {
           "line": 3,
-          "column": 20
+          "column": 44
         },
         "end": {
           "line": 3,
-          "column": 47
+          "column": 52
         }
       }
-    }) : helper)) != null ? stack1 : "") + "/>\r\n</div>\r\n";
+    }) : helper)) + "_attachment\" placeholder=\"" + alias4((helper = (helper = lookupProperty(helpers, "filePlaceholder") || (depth0 != null ? lookupProperty(depth0, "filePlaceholder") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "filePlaceholder",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 3,
+          "column": 78
+        },
+        "end": {
+          "line": 3,
+          "column": 97
+        }
+      }
+    }) : helper)) + "\" " + ((stack1 = (helper = (helper = lookupProperty(helpers, "fileAttributes") || (depth0 != null ? lookupProperty(depth0, "fileAttributes") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "fileAttributes",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 3,
+          "column": 99
+        },
+        "end": {
+          "line": 3,
+          "column": 119
+        }
+      }
+    }) : helper)) != null ? stack1 : "") + ">\r\n	<input hidden data-filename=\"" + alias4((helper = (helper = lookupProperty(helpers, "name") || (depth0 != null ? lookupProperty(depth0, "name") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "name",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 4,
+          "column": 30
+        },
+        "end": {
+          "line": 4,
+          "column": 38
+        }
+      }
+    }) : helper)) + "_attachment\" type=\"file\" " + ((stack1 = (helper = (helper = lookupProperty(helpers, "commonInputAttributes") || (depth0 != null ? lookupProperty(depth0, "commonInputAttributes") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "commonInputAttributes",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 4,
+          "column": 63
+        },
+        "end": {
+          "line": 4,
+          "column": 90
+        }
+      }
+    }) : helper)) != null ? stack1 : "") + "/>\r\n	<div class=\"mura-form-preview\" style=\"display:none;\">\r\n		<img style=\"display:none;\" id=\"mura-form-preview-" + alias4((helper = (helper = lookupProperty(helpers, "name") || (depth0 != null ? lookupProperty(depth0, "name") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+      "name": "name",
+      "hash": {},
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 6,
+          "column": 51
+        },
+        "end": {
+          "line": 6,
+          "column": 59
+        }
+      }
+    }) : helper)) + "_attachment\" src=\"\" onerror=\"this.onerror=null;this.src='';this.style.display='none';\">\r\n	</div>\r\n</div>\r\n";
   },
   "useData": true
 });
