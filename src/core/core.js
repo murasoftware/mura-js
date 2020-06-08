@@ -3076,15 +3076,25 @@ function getAPIEndpoint(){
 	return Mura.apiEndpoint;
 }
 	
-//Mura.init
+//Mura.init()
 function init(config) {
+
+	var existingEndpoint='';
+
+	if(typeof Mura.apiEndpoint != 'undefined' && Mura.apiEndpoint){
+		existingEndpoint=Mura.apiEndpoint;
+	}
 
 	if(typeof config.content != 'undefined'){
 		if(typeof config.content.get == 'undefined'){
 			config.content=getEntity('content').set(config.content);
 		}
 		Mura.extend(config,config.content.get('config'));
-		
+	}
+
+	if(existingEndpoint){
+		config.apiEndpoint=existingEndpoint;
+		delete config.apiendpoint;
 	}
 
 	if (config.rootpath) {
