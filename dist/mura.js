@@ -3613,7 +3613,8 @@ var Mura = extend(function (selector, context) {
   getAPIEndpoint: getAPIEndpoint,
   inAdmin: false,
   lmv: 2,
-  homeid: '00000000000000000000000000000000001'
+  homeid: '00000000000000000000000000000000001',
+  cloning: false
 });
 Mura.Module = Mura.DisplayObject;
 module.exports = Mura;
@@ -18252,12 +18253,15 @@ Mura.DOMSelection = Mura.Core.extend(
       self.each(function () {
         var el = document.createElement('div');
         el.setAttribute('class', 'mura-object');
+        var preserveid = false;
 
         for (var a in data) {
           if (_typeof(data[a]) == 'object') {
             el.setAttribute('data-' + a, JSON.stringify(data[a]));
-          } else {
+          } else if (a != 'preserveid') {
             el.setAttribute('data-' + a, data[a]);
+          } else {
+            preserveid = data[a];
           }
         }
 
@@ -18269,7 +18273,12 @@ Mura.DOMSelection = Mura.Core.extend(
           el.setAttribute('data-render', 'server');
         }
 
-        el.setAttribute('data-instanceid', Mura.createUUID());
+        if (preserveid && Mura.isUUID(data.instanceid)) {
+          el.setAttribute('data-instanceid', data.instanceid);
+        } else {
+          el.setAttribute('data-instanceid', Mura.createUUID());
+        }
+
         var self = this;
 
         function watcher() {
@@ -18314,9 +18323,16 @@ Mura.DOMSelection = Mura.Core.extend(
       self.each(function () {
         var el = document.createElement('div');
         el.setAttribute('class', 'mura-object');
+        var preserveid = false;
 
         for (var a in data) {
-          el.setAttribute('data-' + a, data[a]);
+          if (_typeof(data[a]) == 'object') {
+            el.setAttribute('data-' + a, JSON.stringify(data[a]));
+          } else if (a != 'preserveid') {
+            el.setAttribute('data-' + a, data[a]);
+          } else {
+            preserveid = data[a];
+          }
         }
 
         if (typeof data.async == 'undefined') {
@@ -18327,7 +18343,12 @@ Mura.DOMSelection = Mura.Core.extend(
           el.setAttribute('data-render', 'server');
         }
 
-        el.setAttribute('data-instanceid', Mura.createUUID());
+        if (preserveid && Mura.isUUID(data.instanceid)) {
+          el.setAttribute('data-instanceid', data.instanceid);
+        } else {
+          el.setAttribute('data-instanceid', Mura.createUUID());
+        }
+
         var self = this;
 
         function watcher() {
@@ -18372,9 +18393,16 @@ Mura.DOMSelection = Mura.Core.extend(
       self.each(function () {
         var el = document.createElement('div');
         el.setAttribute('class', 'mura-object');
+        var preserveid = false;
 
         for (var a in data) {
-          el.setAttribute('data-' + a, data[a]);
+          if (_typeof(data[a]) == 'object') {
+            el.setAttribute('data-' + a, JSON.stringify(data[a]));
+          } else if (a != 'preserveid') {
+            el.setAttribute('data-' + a, data[a]);
+          } else {
+            preserveid = data[a];
+          }
         }
 
         if (typeof data.async == 'undefined') {
@@ -18385,7 +18413,12 @@ Mura.DOMSelection = Mura.Core.extend(
           el.setAttribute('data-render', 'server');
         }
 
-        el.setAttribute('data-instanceid', Mura.createUUID());
+        if (preserveid && Mura.isUUID(data.instanceid)) {
+          el.setAttribute('data-instanceid', data.instanceid);
+        } else {
+          el.setAttribute('data-instanceid', Mura.createUUID());
+        }
+
         var self = this;
 
         function watcher() {
@@ -18430,9 +18463,16 @@ Mura.DOMSelection = Mura.Core.extend(
       self.each(function () {
         var el = document.createElement('div');
         el.setAttribute('class', 'mura-object');
+        var preserveid = false;
 
         for (var a in data) {
-          el.setAttribute('data-' + a, data[a]);
+          if (_typeof(data[a]) == 'object') {
+            el.setAttribute('data-' + a, JSON.stringify(data[a]));
+          } else if (a != 'preserveid') {
+            el.setAttribute('data-' + a, data[a]);
+          } else {
+            preserveid = data[a];
+          }
         }
 
         if (typeof data.async == 'undefined') {
@@ -18443,7 +18483,12 @@ Mura.DOMSelection = Mura.Core.extend(
           el.setAttribute('data-render', 'server');
         }
 
-        el.setAttribute('data-instanceid', Mura.createUUID());
+        if (preserveid && Mura.isUUID(data.instanceid)) {
+          el.setAttribute('data-instanceid', data.instanceid);
+        } else {
+          el.setAttribute('data-instanceid', Mura.createUUID());
+        }
+
         var self = this;
 
         function watcher() {
@@ -22018,7 +22063,13 @@ Mura.UI.Container = Mura.UI.extend(
       this.context.items.forEach(function (data) {
         //console.log(data)
         data["transient"] = false;
+
+        if (!Mura.cloning) {
+          data.preserveid = true;
+        }
+
         target.appendDisplayObject(data);
+        delete data.preserveid;
       });
     }
 

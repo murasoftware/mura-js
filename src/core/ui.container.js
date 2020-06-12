@@ -21,7 +21,11 @@ Mura.UI.Container=Mura.UI.extend(
             this.context.items.forEach(function(data){
                 //console.log(data)
                 data.transient=false;
+                if(!Mura.cloning){
+                    data.preserveid=true;
+                }
                 target.appendDisplayObject(data);
+                delete data.preserveid;
             })
         }
 		this.trigger('afterRender');

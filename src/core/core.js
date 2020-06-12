@@ -3516,7 +3516,8 @@ const Mura=extend(
 		getAPIEndpoint:getAPIEndpoint,
 		inAdmin:false,
 		lmv:2,
-		homeid: '00000000000000000000000000000000001'
+		homeid: '00000000000000000000000000000000001',
+		cloning:false
 	}
 );
 
