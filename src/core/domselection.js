@@ -1854,7 +1854,7 @@ Mura.DOMSelection = Mura.Core.extend(
 				var selector2='@media (max-width: 1292px) and (max-width: 1499px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content';
 				var dyncss='';
 
-				handleBackround(styleSupport['content_md_styles']);
+				handleBackround(styleSupport['content_lg_styles']);
 
 				contentAccumulator=Mura.extend(contentAccumulator,styleSupport['content_lg_styles']);
 				for(var s in contentAccumulator){
