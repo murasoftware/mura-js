@@ -18925,7 +18925,7 @@ Mura.DOMSelection = Mura.Core.extend(
           sheet.deleteRule(0);
         }
 
-        applyConfiguratorStyles(styleSupport, styleTargets.object, sheet);
+        applyConfiguratorStyles(styleSupport, styleTargets.object, sheet, obj);
         applyConfiguratorCustomCSS(styleSupport);
       }
 
@@ -18939,7 +18939,7 @@ Mura.DOMSelection = Mura.Core.extend(
           meta.removeAttr('style');
 
           if (!windowResponse) {
-            applyConfiguratorStyles(styleSupport, styleTargets.meta, sheet);
+            applyConfiguratorStyles(styleSupport, styleTargets.meta, sheet, obj);
           }
 
           applyMetaClassesAndId(obj);
@@ -18950,7 +18950,7 @@ Mura.DOMSelection = Mura.Core.extend(
       content.removeAttr('style');
 
       if (!windowResponse) {
-        applyConfiguratorStyles(styleSupport, styleTargets.content, sheet);
+        applyConfiguratorStyles(styleSupport, styleTargets.content, sheet, obj);
       }
 
       applyContentClassesAndId(obj, content, metaWrapper);
@@ -18985,7 +18985,7 @@ Mura.DOMSelection = Mura.Core.extend(
         }
       }
 
-      function applyConfiguratorStyles(styleSupport, group, sheet) {
+      function applyConfiguratorStyles(styleSupport, group, sheet, obj) {
         var acummulator = {};
         var dyncss = '';
         group.targets.forEach(function (target) {
