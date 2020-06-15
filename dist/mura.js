@@ -19178,7 +19178,6 @@ Mura.DOMSelection = Mura.Core.extend(
               width = '83.33%';
             } else if (obj.is('.mura-eleven')) {
               width = '91.66%';
-              f;
             } else if (obj.is('.mura-twelve')) {
               width = '100%';
             } else if (obj.is('.mura-one-third')) {
