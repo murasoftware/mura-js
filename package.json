@@ -1,7 +1,7 @@
 {
   "name": "mura.js",
-  "homepage": "http://www.getmura.com",
-  "version": "1.0.236",
+  "homepage": "http://www.murasoftware.com",
+  "version": "1.0.237",
   "description": "Utility for interacting with the Mura JSON/REST API",
   "files": [
     "index.js",
@@ -20,7 +20,7 @@
     "url": "https://github.com/murasoftware/mura-js.git"
   },
   "keywords": [],
-  "author": "Blue River Interactive Group, Inc.",
+  "author": "Mura Software",
   "license": "GPL-2.0 with execptions",
   "devDependencies": {
     "@babel/core": "^7.10.1",

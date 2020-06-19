@@ -502,6 +502,17 @@ Mura.Feed = Mura.Core.extend(
 		},
 
 		/**
+		 * no - Sets to include the homepage
+		 *
+		 * @param  {boolean} applyPermFilter Whether to return filter items based on permissions
+		 * @return {Mura.Feed}              Self
+		 */
+		applyPermFilter(applyPermFilter) {
+			this.queryString += '&applyPermFilter=' + encodeURIComponent(applyPermFilter);
+			return this;
+		},
+
+		/**
 		 * no - Sets to whether to require all categoryids in list of just one.
 		 *
 		 * @param  {boolean} useCategoryIntersect Whether require a match for all categories

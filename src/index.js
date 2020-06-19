@@ -14,7 +14,6 @@ require('./core/user.js');
 require('./core/entitycollection.js');
 require('./core/feed.js');
 require('./core/loader.js');
-require('./core/domselection.stylemap.js');
 require('./core/domselection.js');
 require('./core/ui.js');
 require('./core/ui.form');
@@ -36,7 +35,12 @@ if(Mura.isInNode()){
 	Mura._request=eval("require('request')");
 
 	Mura._escapeHTML=eval("require('escape-html')");
+
+	require('./core/stylemap.static');
+
 } else if (typeof window != 'undefined'){
+
+	require('./core/stylemap');
 
 	window.m=Mura;
 	window.mura=Mura;

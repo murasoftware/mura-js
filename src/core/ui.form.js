@@ -1610,6 +1610,10 @@ Mura.UI.Form=Mura.UI.extend(
 				returnString += ' size="' + escapeExpression(this.size) + '"';
 			}
 
+			if(this.multiple){
+				returnString += ' multiple';
+			}
+
 			if(typeof Mura.usehtml5dateinput != 'undefined' && Mura.usehtml5dateinput && typeof this.validatetype != 'undefined' && this.validatetype.toLowerCase()=='date'){
 				returnString += ' data-date-format="' + Mura.dateformat + '"';
 			}

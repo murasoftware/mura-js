@@ -888,10 +888,13 @@ function formToObject(form) {
 				'file' && field.type != 'reset' && field.type !=
 				'submit' && field.type != 'button') {
 				if (field.type == 'select-multiple') {
-						for (j = form.elements[i].options.length - 1; j >= 0; j--) {
-							if (field.options[j].selected)
-								s[s.name] = field.options[j].value;
+					var val=[];
+					for (var j = form.elements[i].options.length - 1; j >= 0; j--) {
+						if (field.options[j].selected){
+							val.push(field.options[j].value);
 						}
+					}
+					s[field.name]=val.join(",");
 				} else if ((field.type != 'checkbox' && field.type != 'radio') || field.checked) {
 					if (typeof s[field.name] == 'undefined') {
 						s[field.name] = field.value;
@@ -2927,14 +2930,290 @@ function inArray(elem, array, i) {
  * @return {object}						Self
  */
 function getStyleSheet(id) {
-	var sheet=Mura('#' + id);
-	if(sheet.length){
-		return sheet.get(0).sheet;
+	if(Mura.isInNode()){
+		Mura.dyncss=Mura.dyncss || {};
+		if(typeof Mura.dyncss[id] == 'undefined'){
+			Mura.dyncss[id]= {
+				deleteRule(idx){
+					this.cssRules.splice(idx, 1);
+				},
+				insertRule(rule){
+					this.cssRules.push(rule);
+				},
+				cssRules:[],
+				id: id
+			}
+		} 
+
+		return Mura.dyncss[id];
+		
 	} else {
-		Mura('HEAD').append('<style id="' + id +'" type="text/css"></style>');
-		return Mura('#' + id).get(0).sheet;
+		var sheet=Mura('#' + id);
+		if(sheet.length){
+			return sheet.get(0).sheet;
+		} else {
+			Mura('HEAD').append('<style id="' + id +'" type="text/css"></style>');
+			return Mura('#' + id).get(0).sheet;
+		}
 	}
 }
+
+/**
+ * applyModuleCustomCSS - Returns a stylesheet object;
+ *
+ * @param	{object} styleSupport Object Containing Module Style configuration
+ * @param	{object} sheet Object StyleSheet object
+ * @param	{string} id Text string
+ * @return {void}	void
+ */
+function applyModuleCustomCSS(styleSupport,sheet, id){
+	if(styleSupport.css){
+		var styles=styleSupport.css.split('}');
+		if(Array.isArray(styles) && styles.length){
+			styles.forEach(function(style){
+				var styleParts=style.split("{");
+				if(styleParts.length > 1){
+					var selectors=styleParts[0].split(',');
+					selectors.forEach(function(subSelector){
+						try{
+							var subStyle='div.mura-object[data-instanceid="' + id + '"] ' + subSelector.replace(/\$self/g,'') + '{' + styleParts[1] + '}';
+							sheet.insertRule(
+								subStyle,
+								sheet.cssRules.length
+							);
+							if(Mura.editing){
+								console.log('Applying dynamic styles:' + subStyle);
+							}
+						} catch(e){
+							if(Mura.editing){
+								console.log('Error applying dynamic styles:' + subStyle);
+								console.log(e);
+							}
+						}
+					});
+				}
+			});
+		}
+	}
+}
+
+/**
+ * applyModuleStyles - Returns a stylesheet object;
+ *
+ * @param	{object} styleSupport Object Containing Module Style configuration
+ * @param	{object} group Object Containing a group of selectors
+ * @param	{object} sheet StyleSheet object
+ * @param	{object} obj Mura.DomSelection
+ * @return {void}	void
+ */
+function applyModuleStyles(styleSupport,group,sheet,obj){
+	var acummulator={};
+	var dyncss='';
+
+	group.targets.forEach((target)=>{
+		var styles={};
+
+		if(styleSupport && styleSupport[target.name]){
+			styles=styleSupport[target.name];
+		}
+	
+		acummulator=Mura.extend(acummulator,styles);
+
+		handleBackround(styles);
+
+		for(var s in acummulator){
+			if(acummulator.hasOwnProperty(s)){
+				var p=s.toLowerCase()
+				if(typeof Mura.styleMap.tojs[p] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[p]] != 'undefined'){
+					dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[p]]  + ': ' + acummulator[s] + '!important;';
+				} else if ( typeof obj != 'undefined') {
+					obj.css(s,acummulator[s]);
+				}		
+			}
+		}
+
+		target.selectors.forEach((selector)=>{
+			handleTextColor(sheet,selector,styles);
+		});
+
+		if(dyncss){
+			try {
+				target.selectors.forEach((selector)=>{
+					sheet.insertRule(
+						selector + ' {' + dyncss+ '}}',
+						sheet.cssRules.length
+					);
+				});							
+			} catch (e){
+				console.log(selector + ' {' + dyncss+ '}}')
+				console.log(e);
+			}
+		}
+	});
+
+	function handleBackround(styles){
+			var hasLayeredBg=(styles && typeof styles.backgroundColor != 'undefined' && styles.backgroundColor
+			&& typeof styles.backgroundImage != 'undefined' && styles.backgroundImage);	
+			
+			if(hasLayeredBg){
+				styles.backgroundImage='linear-gradient(' + styles.backgroundColor + ', ' + styles.backgroundColor +' ), ' + styles.backgroundImage;
+			}
+
+			hasLayeredBg=(styles && typeof styles.backgroundcolor != 'undefined' && styles.backgroundcolor
+			&& typeof styles.backgroundimage != 'undefined' && styles.backgroundimage);	
+			
+			if(hasLayeredBg){
+				styles.backgroundImage='linear-gradient(' + styles.backgroundcolor + ', ' + styles.backgroundcolor +' ), ' + styles.backgroundimage;
+			}
+		}
+
+		function handleTextColor(sheet,selector,styles){
+			try{
+				if(styles.color){
+					var style=selector + ', ' + selector + ' label, ' + selector + ' p, ' + selector + ' h1, ' + selector + ' h2, ' + selector + ' h3, ' + selector + ' h4, ' + selector + ' h5, ' + selector + ' h6, ' +selector + ' a:link, ' + selector + ' a:visited, '  + selector + ' a:hover, ' + selector + ' .breadcrumb-item + .breadcrumb-item::before, ' + selector + ' a:active { color:' + styles.color + ';} ';
+					sheet.insertRule(
+						style,
+						sheet.cssRules.length
+					);
+					sheet.insertRule(
+						selector + ' * {color:inherit}',
+						sheet.cssRules.length
+					);
+					sheet.insertRule(
+						selector + ' hr { border-color:' + styles.color + ';}',
+						sheet.cssRules.length
+					);
+				}
+			} catch (e){
+				console.log("error adding color: " + styles.color);
+				console.log(e);
+			}
+		}
+}
+
+function getModuleStyleTargets(id){
+	return {
+		object:{
+			targets:[
+				{
+					name:'objectstyles',
+					selectors:[
+						'@media (min-width: 1200px) { div.mura-object[data-instanceid="' + id + '"]',
+						'@media (min-width: 1500px) { .mura-editing div.mura-object[data-instanceid="' + id + '"]'
+					]
+				},
+				{
+					name:'object_lg_styles',
+					selectors:[
+						'@media (min-width: 992px) and (max-width: 1199px) { div.mura-object[data-instanceid="' + id + '"]',
+						'@media (min-width: 1292px) and (max-width: 1399px) { .mura-editing div.mura-object[data-instanceid="' + id + '"]'
+					]
+				},
+				{
+					name:'object_md_styles',
+					selectors:[
+						'@media (min-width: 768px) and (max-width: 991px) { div.mura-object[data-instanceid="' + id + '"]',
+						'@media (min-width: 1068px) and (max-width: 1291px) { .mura-editing div.mura-object[data-instanceid="' + id + '"]'
+					]
+				},
+				{
+					name:'object_sm_styles',
+					selectors:[
+						'@media (min-width: 576px) and (max-width: 767px) { div.mura-object[data-instanceid="' + id + '"]',
+						'@media (min-width: 876px) and (max-width: 1067px) { .mura-editing div.mura-object[data-instanceid="' + id + '"]'
+					]
+				},
+				{
+					name:'object_xs_styles',
+					selectors:[
+						'@media (max-width: 575px) { div.mura-object[data-instanceid="' + id + '"]',
+						'@media (max-width: 875px) { .mura-editing div.mura-object[data-instanceid="' + id + '"]'
+					]
+				}
+			]
+		},
+		meta:{
+			targets:[
+				{
+					name:'metastyles',
+					selectors:[
+						'@media (min-width: 1200px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta',
+						'@media (min-width: 1500px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta'
+					]
+				},
+				{
+					name:'meta_lg_styles',
+					selectors:[
+						'@media (min-width: 992px) and (max-width: 1199px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta',
+						'@media (min-width: 1292px) and (max-width: 1399px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta'
+					]
+				},
+				{
+					name:'meta_md_styles',
+					selectors:[
+						'@media (min-width: 768px) an (max-width: 991px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta',
+						'@media (min-width: 1068px) an (max-width: 1291px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta'
+					]
+				},
+				{
+					name:'meta_sm_styles',
+					selectors:[
+						'@media (min-width: 576px) an (max-width: 767) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta',
+						'@media (min-width: 876px) an (max-width: 1067) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta'
+					]
+				},
+				{
+					name:'meta_xs_styles',
+					selectors:[
+						'@media (max-width: 575px) { div.mura-object[data-instanceid="' +id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta',
+						'@media (max-width: 875px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta'
+					]
+				}
+			]
+		},
+		content:{
+			targets:[
+				{
+					name:'contentstyles',
+					selectors:[
+						'@media (min-width: 1200px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content',
+						'@media (min-width: 1500px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content'
+					]
+				},
+				{
+					name:'content_lg_styles',
+					selectors:[
+						'@media (max-width: 992px) and (max-width: 1199px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content',
+						'@media (max-width: 1292px) and (max-width: 1499px) { .mura-editing div.mura-object[data-instanceid="' +id + '"] > div.mura-object-content'
+					]
+				},
+				{
+					name:'content_md_styles',
+					selectors:[
+						'@media (min-width: 768px) and (max-width: 991px) { div.mura-object[data-instanceid="' + id+ '"] > div.mura-object-content',
+						'@media (min-width: 1068px) and (max-width: 1291px) { .mura-editing div.mura-object[data-instanceid="' +id + '"] > div.mura-object-content'
+					]
+				},
+				{
+					name:'content_sm_styles',
+					selectors:[
+						'@media (min-width: 576px) and (max-width: 767px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content',
+						'@media (min-width: 876px) and (max-width: 1067px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content'
+					]
+				},
+				{
+					name:'content_xs_styles',
+					selectors:[
+						'@media (max-width: 575px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content',
+						'@media (max-width: 875px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content'
+					]
+				}
+
+			]
+		}
+	}
+}
+
 
 /**
  * setRequestHeader - Initialiazes feed
@@ -3063,7 +3342,7 @@ function debounce (func, interval) {
 		clearTimeout(timeout);
 		timeout = setTimeout(later, interval || 200);
 	}
-	}
+}
 
 function getAPIEndpoint(){
 	if(Mura.apiendpoint){
@@ -3512,6 +3791,9 @@ const Mura=extend(
 		firstToUpperCase:firstToUpperCase,
 		normalizeRequestHandler:normalizeRequestHandler,
 		getStyleSheet:getStyleSheet,
+		applyModuleStyles:applyModuleStyles,
+		applyModuleCustomCSS:applyModuleCustomCSS,
+		getModuleStyleTargets:getModuleStyleTargets,
 		getBreakpoint:getBreakpoint,
 		getAPIEndpoint:getAPIEndpoint,
 		inAdmin:false,

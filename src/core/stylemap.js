@@ -23,10 +23,8 @@ if (typeof document != 'undefined'){
 
     for(var s in tocss){ 
         styleMap.tojs[s.toLowerCase()]=s;
-        styleMap.tojs[s]=s;
         styleMap.tocss[s.toLowerCase()]=styleMap.tocss[s];   
     }
 
     Mura.styleMap=styleMap;
-
 }

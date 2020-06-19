@@ -221,16 +221,6 @@ module.exports = function (it) {
 /* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
-// Thank's IE8 for his funny defineProperty
-module.exports = !__webpack_require__(3)(function () {
-  return Object.defineProperty({}, 'a', { get: function () { return 7; } }).a != 7;
-});
-
-
-/***/ }),
-/* 8 */
-/***/ (function(module, exports, __webpack_require__) {
-
 "use strict";
 /* WEBPACK VAR INJECTION */(function(process) {//require("babel-polyfill");
 //require("./polyfill");
@@ -1133,9 +1123,15 @@ function formToObject(form) {
 
       if (field.name && !field.disabled && field.type != 'file' && field.type != 'reset' && field.type != 'submit' && field.type != 'button') {
         if (field.type == 'select-multiple') {
-          for (j = form.elements[i].options.length - 1; j >= 0; j--) {
-            if (field.options[j].selected) s[s.name] = field.options[j].value;
+          var val = [];
+
+          for (var j = form.elements[i].options.length - 1; j >= 0; j--) {
+            if (field.options[j].selected) {
+              val.push(field.options[j].value);
+            }
           }
+
+          s[field.name] = val.join(",");
         } else if (field.type != 'checkbox' && field.type != 'radio' || field.checked) {
           if (typeof s[field.name] == 'undefined') {
             s[field.name] = field.value;
@@ -3006,14 +3002,212 @@ function inArray(elem, array, i) {
 
 
 function getStyleSheet(id) {
-  var sheet = Mura('#' + id);
+  if (Mura.isInNode()) {
+    Mura.dyncss = Mura.dyncss || {};
 
-  if (sheet.length) {
-    return sheet.get(0).sheet;
+    if (typeof Mura.dyncss[id] == 'undefined') {
+      Mura.dyncss[id] = {
+        deleteRule: function deleteRule(idx) {
+          this.cssRules.splice(idx, 1);
+        },
+        insertRule: function insertRule(rule) {
+          this.cssRules.push(rule);
+        },
+        cssRules: [],
+        id: id
+      };
+    }
+
+    return Mura.dyncss[id];
   } else {
-    Mura('HEAD').append('<style id="' + id + '" type="text/css"></style>');
-    return Mura('#' + id).get(0).sheet;
+    var sheet = Mura('#' + id);
+
+    if (sheet.length) {
+      return sheet.get(0).sheet;
+    } else {
+      Mura('HEAD').append('<style id="' + id + '" type="text/css"></style>');
+      return Mura('#' + id).get(0).sheet;
+    }
   }
+}
+/**
+ * applyModuleCustomCSS - Returns a stylesheet object;
+ *
+ * @param	{object} styleSupport Object Containing Module Style configuration
+ * @param	{object} sheet Object StyleSheet object
+ * @param	{string} id Text string
+ * @return {void}	void
+ */
+
+
+function applyModuleCustomCSS(styleSupport, sheet, id) {
+  if (styleSupport.css) {
+    var styles = styleSupport.css.split('}');
+
+    if (Array.isArray(styles) && styles.length) {
+      styles.forEach(function (style) {
+        var styleParts = style.split("{");
+
+        if (styleParts.length > 1) {
+          var selectors = styleParts[0].split(',');
+          selectors.forEach(function (subSelector) {
+            try {
+              var subStyle = 'div.mura-object[data-instanceid="' + id + '"] ' + subSelector.replace(/\$self/g, '') + '{' + styleParts[1] + '}';
+              sheet.insertRule(subStyle, sheet.cssRules.length);
+
+              if (Mura.editing) {
+                console.log('Applying dynamic styles:' + subStyle);
+              }
+            } catch (e) {
+              if (Mura.editing) {
+                console.log('Error applying dynamic styles:' + subStyle);
+                console.log(e);
+              }
+            }
+          });
+        }
+      });
+    }
+  }
+}
+/**
+ * applyModuleStyles - Returns a stylesheet object;
+ *
+ * @param	{object} styleSupport Object Containing Module Style configuration
+ * @param	{object} group Object Containing a group of selectors
+ * @param	{object} sheet StyleSheet object
+ * @param	{object} obj Mura.DomSelection
+ * @return {void}	void
+ */
+
+
+function applyModuleStyles(styleSupport, group, sheet, obj) {
+  var acummulator = {};
+  var dyncss = '';
+  group.targets.forEach(function (target) {
+    var styles = {};
+
+    if (styleSupport && styleSupport[target.name]) {
+      styles = styleSupport[target.name];
+    }
+
+    acummulator = Mura.extend(acummulator, styles);
+    handleBackround(styles);
+
+    for (var s in acummulator) {
+      if (acummulator.hasOwnProperty(s)) {
+        var p = s.toLowerCase();
+
+        if (typeof Mura.styleMap.tojs[p] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[p]] != 'undefined') {
+          dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[p]] + ': ' + acummulator[s] + '!important;';
+        } else if (typeof obj != 'undefined') {
+          obj.css(s, acummulator[s]);
+        }
+      }
+    }
+
+    target.selectors.forEach(function (selector) {
+      handleTextColor(sheet, selector, styles);
+    });
+
+    if (dyncss) {
+      try {
+        target.selectors.forEach(function (selector) {
+          sheet.insertRule(selector + ' {' + dyncss + '}}', sheet.cssRules.length);
+        });
+      } catch (e) {
+        console.log(selector + ' {' + dyncss + '}}');
+        console.log(e);
+      }
+    }
+  });
+
+  function handleBackround(styles) {
+    var hasLayeredBg = styles && typeof styles.backgroundColor != 'undefined' && styles.backgroundColor && typeof styles.backgroundImage != 'undefined' && styles.backgroundImage;
+
+    if (hasLayeredBg) {
+      styles.backgroundImage = 'linear-gradient(' + styles.backgroundColor + ', ' + styles.backgroundColor + ' ), ' + styles.backgroundImage;
+    }
+
+    hasLayeredBg = styles && typeof styles.backgroundcolor != 'undefined' && styles.backgroundcolor && typeof styles.backgroundimage != 'undefined' && styles.backgroundimage;
+
+    if (hasLayeredBg) {
+      styles.backgroundImage = 'linear-gradient(' + styles.backgroundcolor + ', ' + styles.backgroundcolor + ' ), ' + styles.backgroundimage;
+    }
+  }
+
+  function handleTextColor(sheet, selector, styles) {
+    try {
+      if (styles.color) {
+        var style = selector + ', ' + selector + ' label, ' + selector + ' p, ' + selector + ' h1, ' + selector + ' h2, ' + selector + ' h3, ' + selector + ' h4, ' + selector + ' h5, ' + selector + ' h6, ' + selector + ' a:link, ' + selector + ' a:visited, ' + selector + ' a:hover, ' + selector + ' .breadcrumb-item + .breadcrumb-item::before, ' + selector + ' a:active { color:' + styles.color + ';} ';
+        sheet.insertRule(style, sheet.cssRules.length);
+        sheet.insertRule(selector + ' * {color:inherit}', sheet.cssRules.length);
+        sheet.insertRule(selector + ' hr { border-color:' + styles.color + ';}', sheet.cssRules.length);
+      }
+    } catch (e) {
+      console.log("error adding color: " + styles.color);
+      console.log(e);
+    }
+  }
+}
+
+function getModuleStyleTargets(id) {
+  return {
+    object: {
+      targets: [{
+        name: 'objectstyles',
+        selectors: ['@media (min-width: 1200px) { div.mura-object[data-instanceid="' + id + '"]', '@media (min-width: 1500px) { .mura-editing div.mura-object[data-instanceid="' + id + '"]']
+      }, {
+        name: 'object_lg_styles',
+        selectors: ['@media (min-width: 992px) and (max-width: 1199px) { div.mura-object[data-instanceid="' + id + '"]', '@media (min-width: 1292px) and (max-width: 1399px) { .mura-editing div.mura-object[data-instanceid="' + id + '"]']
+      }, {
+        name: 'object_md_styles',
+        selectors: ['@media (min-width: 768px) and (max-width: 991px) { div.mura-object[data-instanceid="' + id + '"]', '@media (min-width: 1068px) and (max-width: 1291px) { .mura-editing div.mura-object[data-instanceid="' + id + '"]']
+      }, {
+        name: 'object_sm_styles',
+        selectors: ['@media (min-width: 576px) and (max-width: 767px) { div.mura-object[data-instanceid="' + id + '"]', '@media (min-width: 876px) and (max-width: 1067px) { .mura-editing div.mura-object[data-instanceid="' + id + '"]']
+      }, {
+        name: 'object_xs_styles',
+        selectors: ['@media (max-width: 575px) { div.mura-object[data-instanceid="' + id + '"]', '@media (max-width: 875px) { .mura-editing div.mura-object[data-instanceid="' + id + '"]']
+      }]
+    },
+    meta: {
+      targets: [{
+        name: 'metastyles',
+        selectors: ['@media (min-width: 1200px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta', '@media (min-width: 1500px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta']
+      }, {
+        name: 'meta_lg_styles',
+        selectors: ['@media (min-width: 992px) and (max-width: 1199px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta', '@media (min-width: 1292px) and (max-width: 1399px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta']
+      }, {
+        name: 'meta_md_styles',
+        selectors: ['@media (min-width: 768px) an (max-width: 991px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta', '@media (min-width: 1068px) an (max-width: 1291px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta']
+      }, {
+        name: 'meta_sm_styles',
+        selectors: ['@media (min-width: 576px) an (max-width: 767) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta', '@media (min-width: 876px) an (max-width: 1067) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta']
+      }, {
+        name: 'meta_xs_styles',
+        selectors: ['@media (max-width: 575px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta', '@media (max-width: 875px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta']
+      }]
+    },
+    content: {
+      targets: [{
+        name: 'contentstyles',
+        selectors: ['@media (min-width: 1200px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content', '@media (min-width: 1500px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content']
+      }, {
+        name: 'content_lg_styles',
+        selectors: ['@media (max-width: 992px) and (max-width: 1199px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content', '@media (max-width: 1292px) and (max-width: 1499px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content']
+      }, {
+        name: 'content_md_styles',
+        selectors: ['@media (min-width: 768px) and (max-width: 991px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content', '@media (min-width: 1068px) and (max-width: 1291px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content']
+      }, {
+        name: 'content_sm_styles',
+        selectors: ['@media (min-width: 576px) and (max-width: 767px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content', '@media (min-width: 876px) and (max-width: 1067px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content']
+      }, {
+        name: 'content_xs_styles',
+        selectors: ['@media (max-width: 575px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content', '@media (max-width: 875px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content']
+      }]
+    }
+  };
 }
 /**
  * setRequestHeader - Initialiazes feed
@@ -3609,6 +3803,9 @@ var Mura = extend(function (selector, context) {
   firstToUpperCase: firstToUpperCase,
   normalizeRequestHandler: normalizeRequestHandler,
   getStyleSheet: getStyleSheet,
+  applyModuleStyles: applyModuleStyles,
+  applyModuleCustomCSS: applyModuleCustomCSS,
+  getModuleStyleTargets: getModuleStyleTargets,
   getBreakpoint: getBreakpoint,
   getAPIEndpoint: getAPIEndpoint,
   inAdmin: false,
@@ -3621,6 +3818,16 @@ module.exports = Mura;
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(133)))
 
 /***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// Thank's IE8 for his funny defineProperty
+module.exports = !__webpack_require__(3)(function () {
+  return Object.defineProperty({}, 'a', { get: function () { return 7; } }).a != 7;
+});
+
+
+/***/ }),
 /* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -3629,7 +3836,7 @@ var IE8_DOM_DEFINE = __webpack_require__(97);
 var toPrimitive = __webpack_require__(24);
 var dP = Object.defineProperty;
 
-exports.f = __webpack_require__(7) ? Object.defineProperty : function defineProperty(O, P, Attributes) {
+exports.f = __webpack_require__(8) ? Object.defineProperty : function defineProperty(O, P, Attributes) {
   anObject(O);
   P = toPrimitive(P, true);
   anObject(Attributes);
@@ -3669,7 +3876,7 @@ module.exports = function (it) {
 
 var dP = __webpack_require__(9);
 var createDesc = __webpack_require__(34);
-module.exports = __webpack_require__(7) ? function (object, key, value) {
+module.exports = __webpack_require__(8) ? function (object, key, value) {
   return dP.f(object, key, createDesc(1, value));
 } : function (object, key, value) {
   object[key] = value;
@@ -3773,7 +3980,7 @@ var has = __webpack_require__(15);
 var IE8_DOM_DEFINE = __webpack_require__(97);
 var gOPD = Object.getOwnPropertyDescriptor;
 
-exports.f = __webpack_require__(7) ? gOPD : function getOwnPropertyDescriptor(O, P) {
+exports.f = __webpack_require__(8) ? gOPD : function getOwnPropertyDescriptor(O, P) {
   O = toIObject(O);
   P = toPrimitive(P, true);
   if (IE8_DOM_DEFINE) try {
@@ -4107,7 +4314,7 @@ function appendContextPath(contextPath, id) {
 
 "use strict";
 
-if (__webpack_require__(7)) {
+if (__webpack_require__(8)) {
   var LIBRARY = __webpack_require__(31);
   var global = __webpack_require__(2);
   var fails = __webpack_require__(3);
@@ -4843,7 +5050,7 @@ exports.f = Object.getOwnPropertyNames || function getOwnPropertyNames(O) {
 
 var global = __webpack_require__(2);
 var dP = __webpack_require__(9);
-var DESCRIPTORS = __webpack_require__(7);
+var DESCRIPTORS = __webpack_require__(8);
 var SPECIES = __webpack_require__(5)('species');
 
 module.exports = function (KEY) {
@@ -6302,7 +6509,7 @@ module.exports.f = function (C) {
 "use strict";
 
 var global = __webpack_require__(2);
-var DESCRIPTORS = __webpack_require__(7);
+var DESCRIPTORS = __webpack_require__(8);
 var LIBRARY = __webpack_require__(31);
 var $typed = __webpack_require__(66);
 var hide = __webpack_require__(12);
@@ -6582,7 +6789,7 @@ exports[DATA_VIEW] = $DataView;
 /* 97 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = !__webpack_require__(7) && !__webpack_require__(3)(function () {
+module.exports = !__webpack_require__(8) && !__webpack_require__(3)(function () {
   return Object.defineProperty(__webpack_require__(70)('div'), 'a', { get: function () { return 7; } }).a != 7;
 });
 
@@ -6625,7 +6832,7 @@ var dP = __webpack_require__(9);
 var anObject = __webpack_require__(1);
 var getKeys = __webpack_require__(36);
 
-module.exports = __webpack_require__(7) ? Object.defineProperties : function defineProperties(O, Properties) {
+module.exports = __webpack_require__(8) ? Object.defineProperties : function defineProperties(O, Properties) {
   anObject(O);
   var keys = getKeys(Properties);
   var length = keys.length;
@@ -6668,7 +6875,7 @@ module.exports.f = function getOwnPropertyNames(it) {
 "use strict";
 
 // 19.1.2.1 Object.assign(target, source, ...)
-var DESCRIPTORS = __webpack_require__(7);
+var DESCRIPTORS = __webpack_require__(8);
 var getKeys = __webpack_require__(36);
 var gOPS = __webpack_require__(57);
 var pIE = __webpack_require__(52);
@@ -6977,7 +7184,7 @@ __webpack_require__(0)({
 /***/ (function(module, exports, __webpack_require__) {
 
 // 21.2.5.3 get RegExp.prototype.flags()
-if (__webpack_require__(7) && /./g.flags != 'g') __webpack_require__(9).f(RegExp.prototype, 'flags', {
+if (__webpack_require__(8) && /./g.flags != 'g') __webpack_require__(9).f(RegExp.prototype, 'flags', {
   configurable: true,
   get: __webpack_require__(53)
 });
@@ -7055,7 +7262,7 @@ var forOf = __webpack_require__(42);
 var $iterDefine = __webpack_require__(81);
 var step = __webpack_require__(115);
 var setSpecies = __webpack_require__(40);
-var DESCRIPTORS = __webpack_require__(7);
+var DESCRIPTORS = __webpack_require__(8);
 var fastKey = __webpack_require__(32).fastKey;
 var validate = __webpack_require__(44);
 var SIZE = DESCRIPTORS ? '_s' : 'size';
@@ -7475,7 +7682,7 @@ module.exports = function (that, maxLength, fillString, left) {
 /* 129 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var DESCRIPTORS = __webpack_require__(7);
+var DESCRIPTORS = __webpack_require__(8);
 var getKeys = __webpack_require__(36);
 var toIObject = __webpack_require__(16);
 var isEnum = __webpack_require__(52).f;
@@ -7761,7 +7968,7 @@ var _exception2 = _interopRequireDefault(_exception);
 
 var _helpers = __webpack_require__(135);
 
-var _decorators = __webpack_require__(373);
+var _decorators = __webpack_require__(372);
 
 var _logger = __webpack_require__(136);
 
@@ -7877,31 +8084,31 @@ exports.moveHelperToHooks = moveHelperToHooks;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var _helpersBlockHelperMissing = __webpack_require__(366);
+var _helpersBlockHelperMissing = __webpack_require__(365);
 
 var _helpersBlockHelperMissing2 = _interopRequireDefault(_helpersBlockHelperMissing);
 
-var _helpersEach = __webpack_require__(367);
+var _helpersEach = __webpack_require__(366);
 
 var _helpersEach2 = _interopRequireDefault(_helpersEach);
 
-var _helpersHelperMissing = __webpack_require__(368);
+var _helpersHelperMissing = __webpack_require__(367);
 
 var _helpersHelperMissing2 = _interopRequireDefault(_helpersHelperMissing);
 
-var _helpersIf = __webpack_require__(369);
+var _helpersIf = __webpack_require__(368);
 
 var _helpersIf2 = _interopRequireDefault(_helpersIf);
 
-var _helpersLog = __webpack_require__(370);
+var _helpersLog = __webpack_require__(369);
 
 var _helpersLog2 = _interopRequireDefault(_helpersLog);
 
-var _helpersLookup = __webpack_require__(371);
+var _helpersLookup = __webpack_require__(370);
 
 var _helpersLookup2 = _interopRequireDefault(_helpersLookup);
 
-var _helpersWith = __webpack_require__(372);
+var _helpersWith = __webpack_require__(371);
 
 var _helpersWith2 = _interopRequireDefault(_helpersWith);
 
@@ -7995,7 +8202,7 @@ exports.resetLoggedProperties = resetLoggedProperties;
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj['default'] = obj; return newObj; } }
 
-var _createNewLookupObject = __webpack_require__(375);
+var _createNewLookupObject = __webpack_require__(374);
 
 var _logger = __webpack_require__(136);
 
@@ -8316,7 +8523,7 @@ module.exports = __webpack_require__(19);
 // ECMAScript 6 symbols shim
 var global = __webpack_require__(2);
 var has = __webpack_require__(15);
-var DESCRIPTORS = __webpack_require__(7);
+var DESCRIPTORS = __webpack_require__(8);
 var $export = __webpack_require__(0);
 var redefine = __webpack_require__(13);
 var META = __webpack_require__(32).KEY;
@@ -8603,7 +8810,7 @@ $export($export.S, 'Object', { create: __webpack_require__(38) });
 
 var $export = __webpack_require__(0);
 // 19.1.2.4 / 15.2.3.6 Object.defineProperty(O, P, Attributes)
-$export($export.S + $export.F * !__webpack_require__(7), 'Object', { defineProperty: __webpack_require__(9).f });
+$export($export.S + $export.F * !__webpack_require__(8), 'Object', { defineProperty: __webpack_require__(9).f });
 
 
 /***/ }),
@@ -8612,7 +8819,7 @@ $export($export.S + $export.F * !__webpack_require__(7), 'Object', { definePrope
 
 var $export = __webpack_require__(0);
 // 19.1.2.3 / 15.2.3.7 Object.defineProperties(O, Properties)
-$export($export.S + $export.F * !__webpack_require__(7), 'Object', { defineProperties: __webpack_require__(100) });
+$export($export.S + $export.F * !__webpack_require__(8), 'Object', { defineProperties: __webpack_require__(100) });
 
 
 /***/ }),
@@ -8822,7 +9029,7 @@ var nameRE = /^\s*function ([^ (]*)/;
 var NAME = 'name';
 
 // 19.2.4.2 name
-NAME in FProto || __webpack_require__(7) && dP(FProto, NAME, {
+NAME in FProto || __webpack_require__(8) && dP(FProto, NAME, {
   configurable: true,
   get: function () {
     try {
@@ -8933,7 +9140,7 @@ if (!$Number(' 0o1') || !$Number('0b1') || $Number('+0x1')) {
       && (BROKEN_COF ? fails(function () { proto.valueOf.call(that); }) : cof(that) != NUMBER)
         ? inheritIfRequired(new Base(toNumber(it)), that, $Number) : toNumber(it);
   };
-  for (var keys = __webpack_require__(7) ? gOPN(Base) : (
+  for (var keys = __webpack_require__(8) ? gOPN(Base) : (
     // ES3:
     'MAX_VALUE,MIN_VALUE,NaN,NEGATIVE_INFINITY,POSITIVE_INFINITY,' +
     // ES6 (in case, if modules with ES6 Number statics required before):
@@ -10422,7 +10629,7 @@ var re2 = /a/g;
 // "new" creates a new object, old webkit buggy here
 var CORRECT_NEW = new $RegExp(re1) !== re1;
 
-if (__webpack_require__(7) && (!CORRECT_NEW || __webpack_require__(3)(function () {
+if (__webpack_require__(8) && (!CORRECT_NEW || __webpack_require__(3)(function () {
   re2[__webpack_require__(5)('match')] = false;
   // RegExp constructor can alter flags and IsRegExp works correct with @@match
   return $RegExp(re1) != re1 || $RegExp(re2) == re2 || $RegExp(re1, 'i') != '/a/i';
@@ -10462,7 +10669,7 @@ __webpack_require__(40)('RegExp');
 __webpack_require__(117);
 var anObject = __webpack_require__(1);
 var $flags = __webpack_require__(53);
-var DESCRIPTORS = __webpack_require__(7);
+var DESCRIPTORS = __webpack_require__(8);
 var TO_STRING = 'toString';
 var $toString = /./[TO_STRING];
 
@@ -11932,7 +12139,7 @@ var aFunction = __webpack_require__(11);
 var $defineProperty = __webpack_require__(9);
 
 // B.2.2.2 Object.prototype.__defineGetter__(P, getter)
-__webpack_require__(7) && $export($export.P + __webpack_require__(67), 'Object', {
+__webpack_require__(8) && $export($export.P + __webpack_require__(67), 'Object', {
   __defineGetter__: function __defineGetter__(P, getter) {
     $defineProperty.f(toObject(this), P, { get: aFunction(getter), enumerable: true, configurable: true });
   }
@@ -11951,7 +12158,7 @@ var aFunction = __webpack_require__(11);
 var $defineProperty = __webpack_require__(9);
 
 // B.2.2.3 Object.prototype.__defineSetter__(P, setter)
-__webpack_require__(7) && $export($export.P + __webpack_require__(67), 'Object', {
+__webpack_require__(8) && $export($export.P + __webpack_require__(67), 'Object', {
   __defineSetter__: function __defineSetter__(P, setter) {
     $defineProperty.f(toObject(this), P, { set: aFunction(setter), enumerable: true, configurable: true });
   }
@@ -11971,7 +12178,7 @@ var getPrototypeOf = __webpack_require__(18);
 var getOwnPropertyDescriptor = __webpack_require__(17).f;
 
 // B.2.2.4 Object.prototype.__lookupGetter__(P)
-__webpack_require__(7) && $export($export.P + __webpack_require__(67), 'Object', {
+__webpack_require__(8) && $export($export.P + __webpack_require__(67), 'Object', {
   __lookupGetter__: function __lookupGetter__(P) {
     var O = toObject(this);
     var K = toPrimitive(P, true);
@@ -11996,7 +12203,7 @@ var getPrototypeOf = __webpack_require__(18);
 var getOwnPropertyDescriptor = __webpack_require__(17).f;
 
 // B.2.2.5 Object.prototype.__lookupSetter__(P)
-__webpack_require__(7) && $export($export.P + __webpack_require__(67), 'Object', {
+__webpack_require__(8) && $export($export.P + __webpack_require__(67), 'Object', {
   __lookupSetter__: function __lookupSetter__(P) {
     var O = toObject(this);
     var K = toPrimitive(P, true);
@@ -13640,7 +13847,7 @@ module.exports = __webpack_require__(342);
   __webpack_require__(343);
 }
 
-var Mura = __webpack_require__(8);
+var Mura = __webpack_require__(7);
 
 __webpack_require__(344);
 
@@ -13682,8 +13889,6 @@ __webpack_require__(362);
 
 __webpack_require__(363);
 
-__webpack_require__(364);
-
 if (Mura.isInNode()) {
   /*
   	This is an attempt to hide the require('request') from webpack
@@ -13693,7 +13898,11 @@ if (Mura.isInNode()) {
   */
   Mura._request = eval("require('request')");
   Mura._escapeHTML = eval("require('escape-html')");
+
+  __webpack_require__(380);
 } else if (typeof window != 'undefined') {
+  __webpack_require__(381);
+
   window.m = Mura;
   window.mura = Mura;
   window.Mura = Mura;
@@ -13851,7 +14060,7 @@ if (typeof window != 'undefined' && typeof window.document != 'undefined') {
 /* 344 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Mura = __webpack_require__(8);
+var Mura = __webpack_require__(7);
 /**
 * Creates a new Mura.Core
 * @name Mura.Core
@@ -13941,7 +14150,7 @@ Mura.Core = Core;
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-var Mura = __webpack_require__(8);
+var Mura = __webpack_require__(7);
 /**
 * Creates a new Mura.Request
 * @name	Mura.Request
@@ -14549,7 +14758,7 @@ Mura.Request = Mura.Core.extend(
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-var Mura = __webpack_require__(8);
+var Mura = __webpack_require__(7);
 /**
 * Creates a new Mura.RequestContext
 * @name	Mura.RequestContext
@@ -15133,7 +15342,7 @@ Mura.RequestContext = Mura.Core.extend(
 /* 347 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Mura = __webpack_require__(8);
+var Mura = __webpack_require__(7);
 /**
  * Creates a new Mura.Cache
  * @name Mura.Cache
@@ -15248,7 +15457,7 @@ Mura.datacache = new Mura.Cache();
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-var Mura = __webpack_require__(8);
+var Mura = __webpack_require__(7);
 /**
 * Creates a new Mura.Entity
 * @name	Mura.Entity
@@ -16150,7 +16359,7 @@ Mura.Entity = Mura.Core.extend(
 /* 349 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Mura = __webpack_require__(8);
+var Mura = __webpack_require__(7);
 /**
 * Creates a new Mura.entities.Content
 * @name Mura.entities.Content
@@ -16259,7 +16468,7 @@ Mura.entities.Content = Mura.Entity.extend(
 /* 350 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Mura = __webpack_require__(8);
+var Mura = __webpack_require__(7);
 /**
 * Creates a new Mura.entities.User
 * @name Mura.entities.User
@@ -16367,7 +16576,7 @@ Mura.entities.User = Mura.Entity.extend(
 /* 351 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Mura = __webpack_require__(8);
+var Mura = __webpack_require__(7);
 /**
  * Creates a new Mura.EntityCollection
  * @name	Mura.EntityCollection
@@ -16591,7 +16800,7 @@ var _Mura$Core$extend;
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-var Mura = __webpack_require__(8);
+var Mura = __webpack_require__(7);
 /**
  * Creates a new Mura.Feed
  * @name  Mura.Feed
@@ -17057,6 +17266,9 @@ Mura.Feed = Mura.Core.extend((_Mura$Core$extend = {
 }), _defineProperty(_Mura$Core$extend, "showExcludeSearch", function showExcludeSearch(_showExcludeSearch) {
   this.queryString += '&showExcludeSearch=' + encodeURIComponent(_showExcludeSearch);
   return this;
+}), _defineProperty(_Mura$Core$extend, "applyPermFilter", function applyPermFilter(_applyPermFilter) {
+  this.queryString += '&applyPermFilter=' + encodeURIComponent(_applyPermFilter);
+  return this;
 }), _defineProperty(_Mura$Core$extend, "useCategoryIntersect", function useCategoryIntersect(_useCategoryIntersect) {
   this.queryString += '&useCategoryIntersect=' + encodeURIComponent(_useCategoryIntersect);
   return this;
@@ -17124,7 +17336,7 @@ Mura.Feed = Mura.Core.extend((_Mura$Core$extend = {
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-var Mura = __webpack_require__(8); //https://github.com/malko/l.js
+var Mura = __webpack_require__(7); //https://github.com/malko/l.js
 
 /*
 * script for js/css parallel loading with dependancies management
@@ -17506,46 +17718,9 @@ if (typeof window != 'undefined' && typeof window.document != 'undefined') {
 /* 354 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Mura = __webpack_require__(8);
-
-if (typeof document != 'undefined') {
-  var tocss = {};
-  var CSSStyleDeclaration = document.createElement('div').style;
-  var fromArray;
-  var toArray;
-
-  for (var s in CSSStyleDeclaration) {
-    fromArray = s.split(/(?=[A-Z])/);
-    toArray = [];
-
-    for (var i in fromArray) {
-      toArray.push(fromArray[i].toLowerCase());
-    }
-
-    tocss[s] = toArray.join("-");
-  }
-
-  var styleMap = {
-    tocss: tocss,
-    tojs: {}
-  };
-
-  for (var s in tocss) {
-    styleMap.tojs[s.toLowerCase()] = s;
-    styleMap.tojs[s] = s;
-    styleMap.tocss[s.toLowerCase()] = styleMap.tocss[s];
-  }
-
-  Mura.styleMap = styleMap;
-}
-
-/***/ }),
-/* 355 */
-/***/ (function(module, exports, __webpack_require__) {
-
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-var Mura = __webpack_require__(8);
+var Mura = __webpack_require__(7);
 
 'use strict';
 /**
@@ -18784,7 +18959,7 @@ Mura.DOMSelection = Mura.Core.extend(
       this.each(function (el) {
         try {
           for (var p in ruleName) {
-            el.style[Mura.styleMap.tojs[p]] = ruleName[p];
+            el.style[Mura.styleMap.tojs[p.toLowerCase()]] = ruleName[p];
           }
         } catch (e) {
           console.log(e);
@@ -18793,7 +18968,7 @@ Mura.DOMSelection = Mura.Core.extend(
     } else if (typeof value != 'undefined') {
       this.each(function (el) {
         try {
-          el.style[Mura.styleMap.tojs[ruleName]] = value;
+          el.style[Mura.styleMap.tojs[ruleName.toLowerCase()]] = value;
         } catch (e) {
           console.log(e);
         }
@@ -18801,7 +18976,7 @@ Mura.DOMSelection = Mura.Core.extend(
       return this;
     } else {
       try {
-        return getComputedStyle(this.selection[0])[Mura.styleMap.tojs[ruleName]];
+        return getComputedStyle(this.selection[0])[Mura.styleMap.tojs[ruleName.toLowerCase()]];
       } catch (e) {
         console.log(e);
       }
@@ -18815,9 +18990,9 @@ Mura.DOMSelection = Mura.Core.extend(
    */
   calculateDisplayObjectStyles: function calculateDisplayObjectStyles(windowResponse) {
     this.each(function (el) {
-      var obj = Mura(el);
       var breakpoints = ['mura-xs', 'mura-sm', 'mura-md', 'mura-lg'];
       var objBreakpoint = 'mura-sm';
+      var obj = Mura(el);
 
       for (var b = 0; b < breakpoints.length; b++) {
         if (obj.is('.' + breakpoints[b])) {
@@ -18826,62 +19001,7 @@ Mura.DOMSelection = Mura.Core.extend(
         }
       }
 
-      var styleTargets = {
-        object: {
-          targets: [{
-            name: 'objectstyles',
-            selectors: ['@media (min-width: 1200px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]', '@media (min-width: 1500px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]']
-          }, {
-            name: 'object_lg_styles',
-            selectors: ['@media (min-width: 992px) and (max-width: 1199px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]', '@media (min-width: 1292px) and (max-width: 1399px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]']
-          }, {
-            name: 'object_md_styles',
-            selectors: ['@media (min-width: 768px) and (max-width: 991px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]', '@media (min-width: 1068px) and (max-width: 1291px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]']
-          }, {
-            name: 'object_sm_styles',
-            selectors: ['@media (min-width: 576px) and (max-width: 767px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]', '@media (min-width: 876px) and (max-width: 1067px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]']
-          }, {
-            name: 'object_xs_styles',
-            selectors: ['@media (max-width: 575px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]', '@media (max-width: 875px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]']
-          }]
-        },
-        meta: {
-          targets: [{
-            name: 'metastyles',
-            selectors: ['@media (min-width: 1200px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta', '@media (min-width: 1500px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta']
-          }, {
-            name: 'meta_lg_styles',
-            selectors: ['@media (min-width: 992px) and (max-width: 1199px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta', '@media (min-width: 1292px) and (max-width: 1399px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta']
-          }, {
-            name: 'meta_md_styles',
-            selectors: ['@media (min-width: 768px) an (max-width: 991px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta', '@media (min-width: 1068px) an (max-width: 1291px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta']
-          }, {
-            name: 'meta_sm_styles',
-            selectors: ['@media (min-width: 576px) an (max-width: 767) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta', '@media (min-width: 876px) an (max-width: 1067) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta']
-          }, {
-            name: 'meta_xs_styles',
-            selectors: ['@media (max-width: 575px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta', '@media (max-width: 875px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta']
-          }]
-        },
-        content: {
-          targets: [{
-            name: 'contentstyles',
-            selectors: ['@media (min-width: 1200px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content', '@media (min-width: 1500px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content']
-          }, {
-            name: 'content_lg_styles',
-            selectors: ['@media (max-width: 992px) and (max-width: 1199px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content', '@media (max-width: 1292px) and (max-width: 1499px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content']
-          }, {
-            name: 'content_md_styles',
-            selectors: ['@media (min-width: 768px) and (max-width: 991px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content', '@media (min-width: 1068px) and (max-width: 1291px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content']
-          }, {
-            name: 'content_sm_styles',
-            selectors: ['@media (min-width: 576px) and (max-width: 767px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content', '@media (min-width: 876px) and (max-width: 1067px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content']
-          }, {
-            name: 'content_xs_styles',
-            selectors: ['@media (max-width: 575px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content', '@media (max-width: 875px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content']
-          }]
-        }
-      };
+      var styleTargets = Mura.getModuleStyleTargets(obj.data('instanceid'));
       var fullsize = breakpoints.indexOf('mura-' + Mura.getBreakpoint()) >= breakpoints.indexOf(objBreakpoint);
       Mura.windowResponsiveModules = Mura.windowResponsiveModules || {};
       Mura.windowResponsiveModules[obj.data('instanceid')] = false;
@@ -18925,8 +19045,8 @@ Mura.DOMSelection = Mura.Core.extend(
           sheet.deleteRule(0);
         }
 
-        applyConfiguratorStyles(styleSupport, styleTargets.object, sheet, obj);
-        applyConfiguratorCustomCSS(styleSupport);
+        Mura.applyModuleStyles(styleSupport, styleTargets.object, sheet, obj);
+        Mura.applyModuleCustomCSS(styleSupport, sheet, obj.data('instanceid'));
       }
 
       var metaWrapper = obj.children('.mura-object-meta-wrapper');
@@ -18939,7 +19059,7 @@ Mura.DOMSelection = Mura.Core.extend(
           meta.removeAttr('style');
 
           if (!windowResponse) {
-            applyConfiguratorStyles(styleSupport, styleTargets.meta, sheet, obj);
+            Mura.applyModuleStyles(styleSupport, styleTargets.meta, sheet, obj);
           }
 
           applyMetaClassesAndId(obj);
@@ -18950,80 +19070,12 @@ Mura.DOMSelection = Mura.Core.extend(
       content.removeAttr('style');
 
       if (!windowResponse) {
-        applyConfiguratorStyles(styleSupport, styleTargets.content, sheet, obj);
+        Mura.applyModuleStyles(styleSupport, styleTargets.content, sheet, obj);
       }
 
       applyContentClassesAndId(obj, content, metaWrapper);
       applyMarginWidthOffset(obj);
       pinUIToolsToTopLeft(obj);
-
-      function handleBackround(styles) {
-        var hasLayeredBg = styles && typeof styles.backgroundColor != 'undefined' && styles.backgroundColor && typeof styles.backgroundImage != 'undefined' && styles.backgroundImage;
-
-        if (hasLayeredBg) {
-          styles.backgroundImage = 'linear-gradient(' + styles.backgroundColor + ', ' + styles.backgroundColor + ' ), ' + styles.backgroundImage;
-        }
-
-        hasLayeredBg = styles && typeof styles.backgroundcolor != 'undefined' && styles.backgroundcolor && typeof styles.backgroundimage != 'undefined' && styles.backgroundimage;
-
-        if (hasLayeredBg) {
-          styles.backgroundImage = 'linear-gradient(' + styles.backgroundcolor + ', ' + styles.backgroundcolor + ' ), ' + styles.backgroundimage;
-        }
-      }
-
-      function handleTextColor(sheet, selector, styles) {
-        try {
-          if (styles.color) {
-            var style = selector + ', ' + selector + ' label, ' + selector + ' p, ' + selector + ' h1, ' + selector + ' h2, ' + selector + ' h3, ' + selector + ' h4, ' + selector + ' h5, ' + selector + ' h6, ' + selector + ' a:link, ' + selector + ' a:visited, ' + selector + ' a:hover, ' + selector + ' .breadcrumb-item + .breadcrumb-item::before, ' + selector + ' a:active { color:' + styles.color + ';} ';
-            sheet.insertRule(style, sheet.cssRules.length);
-            sheet.insertRule(selector + ' * {color:inherit}', sheet.cssRules.length);
-            sheet.insertRule(selector + ' hr { border-color:' + styles.color + ';}', sheet.cssRules.length);
-          }
-        } catch (e) {
-          console.log("error adding color: " + styles.color);
-          console.log(e);
-        }
-      }
-
-      function applyConfiguratorStyles(styleSupport, group, sheet, obj) {
-        var acummulator = {};
-        var dyncss = '';
-        group.targets.forEach(function (target) {
-          var styles = {};
-
-          if (styleSupport && styleSupport[target.name]) {
-            styles = styleSupport[target.name];
-          }
-
-          acummulator = Mura.extend(acummulator, styles);
-          handleBackround(styles);
-
-          for (var s in acummulator) {
-            if (acummulator.hasOwnProperty(s)) {
-              if (typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined') {
-                dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]] + ': ' + acummulator[s] + '!important;';
-              } else {
-                obj.css(s, acummulator[s]);
-              }
-            }
-          }
-
-          target.selectors.forEach(function (selector) {
-            handleTextColor(sheet, selector, styles);
-          });
-
-          if (dyncss) {
-            try {
-              target.selectors.forEach(function (selector) {
-                sheet.insertRule(selector + ' {' + dyncss + '}}', sheet.cssRules.length);
-              });
-            } catch (e) {
-              console.log(selector + ' {' + dyncss + '}}');
-              console.log(e);
-            }
-          }
-        });
-      }
 
       function applyObjectClassesAndId(obj) {
         if (obj.data('class')) {
@@ -19113,37 +19165,6 @@ Mura.DOMSelection = Mura.Core.extend(
             }
 
             Mura.windowResponsiveModules[obj.data('instanceid')] = true;
-          }
-        }
-      }
-
-      function applyConfiguratorCustomCSS(styleSupport) {
-        if (styleSupport.css) {
-          var styles = styleSupport.css.split('}');
-
-          if (Array.isArray(styles) && styles.length) {
-            styles.forEach(function (style) {
-              var styleParts = style.split("{");
-
-              if (styleParts.length > 1) {
-                var selectors = styleParts[0].split(',');
-                selectors.forEach(function (subSelector) {
-                  try {
-                    var subStyle = 'div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] ' + subSelector.replace(/\$self/g, '') + '{' + styleParts[1] + '}';
-                    sheet.insertRule(subStyle, sheet.cssRules.length);
-
-                    if (Mura.editing) {
-                      console.log('Applying dynamic styles:' + subStyle);
-                    }
-                  } catch (e) {
-                    if (Mura.editing) {
-                      console.log('Error applying dynamic styles:' + subStyle);
-                      console.log(e);
-                    }
-                  }
-                });
-              }
-            });
           }
         }
       }
@@ -19505,6 +19526,16 @@ Mura.DOMSelection = Mura.Core.extend(
         }
       });
       return this;
+    } else if (this.selection[0].tagName == 'SELECT') {
+      var val = [];
+
+      for (var j = this.selection[0].options.length - 1; j >= 0; j--) {
+        if (this.selection[0].options[j].selected) {
+          val.push(this.selection[0].options[j].value);
+        }
+      }
+
+      return val.join(",");
     } else {
       if (Object.prototype.hasOwnProperty.call(this.selection[0], 'value') || typeof this.selection[0].value != 'undefined') {
         return this.selection[0].value;
@@ -19818,10 +19849,10 @@ Mura.DOMSelection = Mura.Core.extend(
 });
 
 /***/ }),
-/* 356 */
+/* 355 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Mura = __webpack_require__(8);
+var Mura = __webpack_require__(7);
 /**
  * Creates a new Mura.UI instance
  * @name Mura.UI
@@ -19911,12 +19942,12 @@ Mura.UI = Mura.Core.extend(
 });
 
 /***/ }),
-/* 357 */
+/* 356 */
 /***/ (function(module, exports, __webpack_require__) {
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-var Mura = __webpack_require__(8);
+var Mura = __webpack_require__(7);
 /**
  * Creates a new Mura.UI.Form
  * @name	Mura.UI.Form
@@ -21349,6 +21380,10 @@ Mura.UI.Form = Mura.UI.extend(
         returnString += ' size="' + escapeExpression(this.size) + '"';
       }
 
+      if (this.multiple) {
+        returnString += ' multiple';
+      }
+
       if (typeof Mura.usehtml5dateinput != 'undefined' && Mura.usehtml5dateinput && typeof this.validatetype != 'undefined' && this.validatetype.toLowerCase() == 'date') {
         returnString += ' data-date-format="' + Mura.dateformat + '"';
       }
@@ -21387,10 +21422,10 @@ Mura.UI.Form = Mura.UI.extend(
 Mura.DisplayObject.Form = Mura.UI.Form;
 
 /***/ }),
-/* 358 */
+/* 357 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Mura = __webpack_require__(8);
+var Mura = __webpack_require__(7);
 /**
  * Creates a new Mura.UI.Text
  * @name  Mura.UI.Text
@@ -21433,10 +21468,10 @@ Mura.UI.Text = Mura.UI.extend(
 Mura.DisplayObject.Text = Mura.UI.Text;
 
 /***/ }),
-/* 359 */
+/* 358 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Mura = __webpack_require__(8);
+var Mura = __webpack_require__(7);
 /**
  * Creates a new Mura.UI.Text
  * @name  Mura.UI.Hr
@@ -21460,10 +21495,10 @@ Mura.UI.Hr = Mura.UI.extend(
 Mura.DisplayObject.Hr = Mura.UI.Hr;
 
 /***/ }),
-/* 360 */
+/* 359 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Mura = __webpack_require__(8);
+var Mura = __webpack_require__(7);
 /**
  * Creates a new Mura.UI.Embed
  * @name  Mura.UI.Embed
@@ -21487,10 +21522,10 @@ Mura.UI.Embed = Mura.UI.extend(
 Mura.DisplayObject.Embed = Mura.UI.Embed;
 
 /***/ }),
-/* 361 */
+/* 360 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Mura = __webpack_require__(8);
+var Mura = __webpack_require__(7);
 /**
  * Creates a new Mura.UI.Text
  * @name  Mura.UI.Image
@@ -21514,10 +21549,10 @@ Mura.UI.Image = Mura.UI.extend(
 Mura.DisplayObject.Image = Mura.UI.Image;
 
 /***/ }),
-/* 362 */
+/* 361 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Mura = __webpack_require__(8);
+var Mura = __webpack_require__(7);
 /**
  * Creates a new Mura.UI.Collection
  * @name  Mura.UI.Collection
@@ -21658,10 +21693,10 @@ Mura.UI.Collection = Mura.UI.extend(
 Mura.Module.Collection = Mura.UI.Collection;
 
 /***/ }),
-/* 363 */
+/* 362 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Mura = __webpack_require__(8);
+var Mura = __webpack_require__(7);
 /**
  * Creates a new Mura.UI.Text
  * @name  Mura.UI.Container
@@ -21718,12 +21753,12 @@ Mura.UI.Container = Mura.UI.extend(
 Mura.DisplayObject.Container = Mura.UI.Container;
 
 /***/ }),
-/* 364 */
+/* 363 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Mura = __webpack_require__(8);
+var Mura = __webpack_require__(7);
 
-var Handlebars = __webpack_require__(365);
+var Handlebars = __webpack_require__(364);
 
 Mura.Handlebars = Handlebars.create();
 Mura.templatesLoaded = false;
@@ -21815,10 +21850,10 @@ Mura.templates['image'] = function (context) {
   return source;
 };
 
-__webpack_require__(380);
+__webpack_require__(379);
 
 /***/ }),
-/* 365 */
+/* 364 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -21840,7 +21875,7 @@ var base = _interopRequireWildcard(_handlebarsBase);
 // Each of these augment the Handlebars object. No need to setup here.
 // (This is done to easily share code between commonjs and browse envs)
 
-var _handlebarsSafeString = __webpack_require__(376);
+var _handlebarsSafeString = __webpack_require__(375);
 
 var _handlebarsSafeString2 = _interopRequireDefault(_handlebarsSafeString);
 
@@ -21852,11 +21887,11 @@ var _handlebarsUtils = __webpack_require__(28);
 
 var Utils = _interopRequireWildcard(_handlebarsUtils);
 
-var _handlebarsRuntime = __webpack_require__(377);
+var _handlebarsRuntime = __webpack_require__(376);
 
 var runtime = _interopRequireWildcard(_handlebarsRuntime);
 
-var _handlebarsNoConflict = __webpack_require__(379);
+var _handlebarsNoConflict = __webpack_require__(378);
 
 var _handlebarsNoConflict2 = _interopRequireDefault(_handlebarsNoConflict);
 
@@ -21891,7 +21926,7 @@ module.exports = exports['default'];
 
 
 /***/ }),
-/* 366 */
+/* 365 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -21937,7 +21972,7 @@ module.exports = exports['default'];
 
 
 /***/ }),
-/* 367 */
+/* 366 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22049,7 +22084,7 @@ module.exports = exports['default'];
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(55)))
 
 /***/ }),
-/* 368 */
+/* 367 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22081,7 +22116,7 @@ module.exports = exports['default'];
 
 
 /***/ }),
-/* 369 */
+/* 368 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22134,7 +22169,7 @@ module.exports = exports['default'];
 
 
 /***/ }),
-/* 370 */
+/* 369 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22167,7 +22202,7 @@ module.exports = exports['default'];
 
 
 /***/ }),
-/* 371 */
+/* 370 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22190,7 +22225,7 @@ module.exports = exports['default'];
 
 
 /***/ }),
-/* 372 */
+/* 371 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22240,7 +22275,7 @@ module.exports = exports['default'];
 
 
 /***/ }),
-/* 373 */
+/* 372 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22252,7 +22287,7 @@ exports.registerDefaultDecorators = registerDefaultDecorators;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-var _decoratorsInline = __webpack_require__(374);
+var _decoratorsInline = __webpack_require__(373);
 
 var _decoratorsInline2 = _interopRequireDefault(_decoratorsInline);
 
@@ -22263,7 +22298,7 @@ function registerDefaultDecorators(instance) {
 
 
 /***/ }),
-/* 374 */
+/* 373 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22299,7 +22334,7 @@ module.exports = exports['default'];
 
 
 /***/ }),
-/* 375 */
+/* 374 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22328,7 +22363,7 @@ function createNewLookupObject() {
 
 
 /***/ }),
-/* 376 */
+/* 375 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22350,7 +22385,7 @@ module.exports = exports['default'];
 
 
 /***/ }),
-/* 377 */
+/* 376 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22383,7 +22418,7 @@ var _base = __webpack_require__(134);
 
 var _helpers = __webpack_require__(135);
 
-var _internalWrapHelper = __webpack_require__(378);
+var _internalWrapHelper = __webpack_require__(377);
 
 var _internalProtoAccess = __webpack_require__(137);
 
@@ -22729,7 +22764,7 @@ function passLookupPropertyOption(helper, container) {
 
 
 /***/ }),
-/* 378 */
+/* 377 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22755,7 +22790,7 @@ function wrapHelper(helper, transformOptionsFn) {
 
 
 /***/ }),
-/* 379 */
+/* 378 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -22782,12 +22817,12 @@ module.exports = exports['default'];
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(55)))
 
 /***/ }),
-/* 380 */
+/* 379 */
 /***/ (function(module, exports, __webpack_require__) {
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-this["Mura"] = __webpack_require__(8);
+this["Mura"] = __webpack_require__(7);
 this["Mura"]["templates"] = this["Mura"]["templates"] || {};
 this["Mura"]["templates"]["checkbox_static"] = this.Mura.Handlebars.template({
   "1": function _(container, depth0, helpers, partials, data) {
@@ -26801,6 +26836,1562 @@ this["Mura"]["templates"]["view"] = this.Mura.Handlebars.template({
   },
   "useData": true
 });
+
+/***/ }),
+/* 380 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var Mura = __webpack_require__(7);
+
+Mura.styleMap = {
+  "tocss": {
+    "alignContent": "align-content",
+    "alignItems": "align-items",
+    "alignSelf": "align-self",
+    "alignmentBaseline": "alignment-baseline",
+    "all": "all",
+    "animation": "animation",
+    "animationDelay": "animation-delay",
+    "animationDirection": "animation-direction",
+    "animationDuration": "animation-duration",
+    "animationFillMode": "animation-fill-mode",
+    "animationIterationCount": "animation-iteration-count",
+    "animationName": "animation-name",
+    "animationPlayState": "animation-play-state",
+    "animationTimingFunction": "animation-timing-function",
+    "backdropFilter": "backdrop-filter",
+    "backfaceVisibility": "backface-visibility",
+    "background": "background",
+    "backgroundAttachment": "background-attachment",
+    "backgroundBlendMode": "background-blend-mode",
+    "backgroundClip": "background-clip",
+    "backgroundColor": "background-color",
+    "backgroundImage": "background-image",
+    "backgroundOrigin": "background-origin",
+    "backgroundPosition": "background-position",
+    "backgroundPositionX": "background-position-x",
+    "backgroundPositionY": "background-position-y",
+    "backgroundRepeat": "background-repeat",
+    "backgroundRepeatX": "background-repeat-x",
+    "backgroundRepeatY": "background-repeat-y",
+    "backgroundSize": "background-size",
+    "baselineShift": "baseline-shift",
+    "blockSize": "block-size",
+    "border": "border",
+    "borderBlockEnd": "border-block-end",
+    "borderBlockEndColor": "border-block-end-color",
+    "borderBlockEndStyle": "border-block-end-style",
+    "borderBlockEndWidth": "border-block-end-width",
+    "borderBlockStart": "border-block-start",
+    "borderBlockStartColor": "border-block-start-color",
+    "borderBlockStartStyle": "border-block-start-style",
+    "borderBlockStartWidth": "border-block-start-width",
+    "borderBottom": "border-bottom",
+    "borderBottomColor": "border-bottom-color",
+    "borderBottomLeftRadius": "border-bottom-left-radius",
+    "borderBottomRightRadius": "border-bottom-right-radius",
+    "borderBottomStyle": "border-bottom-style",
+    "borderBottomWidth": "border-bottom-width",
+    "borderCollapse": "border-collapse",
+    "borderColor": "border-color",
+    "borderImage": "border-image",
+    "borderImageOutset": "border-image-outset",
+    "borderImageRepeat": "border-image-repeat",
+    "borderImageSlice": "border-image-slice",
+    "borderImageSource": "border-image-source",
+    "borderImageWidth": "border-image-width",
+    "borderInlineEnd": "border-inline-end",
+    "borderInlineEndColor": "border-inline-end-color",
+    "borderInlineEndStyle": "border-inline-end-style",
+    "borderInlineEndWidth": "border-inline-end-width",
+    "borderInlineStart": "border-inline-start",
+    "borderInlineStartColor": "border-inline-start-color",
+    "borderInlineStartStyle": "border-inline-start-style",
+    "borderInlineStartWidth": "border-inline-start-width",
+    "borderLeft": "border-left",
+    "borderLeftColor": "border-left-color",
+    "borderLeftStyle": "border-left-style",
+    "borderLeftWidth": "border-left-width",
+    "borderRadius": "border-radius",
+    "borderRight": "border-right",
+    "borderRightColor": "border-right-color",
+    "borderRightStyle": "border-right-style",
+    "borderRightWidth": "border-right-width",
+    "borderSpacing": "border-spacing",
+    "borderStyle": "border-style",
+    "borderTop": "border-top",
+    "borderTopColor": "border-top-color",
+    "borderTopLeftRadius": "border-top-left-radius",
+    "borderTopRightRadius": "border-top-right-radius",
+    "borderTopStyle": "border-top-style",
+    "borderTopWidth": "border-top-width",
+    "borderWidth": "border-width",
+    "bottom": "bottom",
+    "boxShadow": "box-shadow",
+    "boxSizing": "box-sizing",
+    "breakAfter": "break-after",
+    "breakBefore": "break-before",
+    "breakInside": "break-inside",
+    "bufferedRendering": "buffered-rendering",
+    "captionSide": "caption-side",
+    "caretColor": "caret-color",
+    "clear": "clear",
+    "clip": "clip",
+    "clipPath": "clip-path",
+    "clipRule": "clip-rule",
+    "color": "color",
+    "colorInterpolation": "color-interpolation",
+    "colorInterpolationFilters": "color-interpolation-filters",
+    "colorRendering": "color-rendering",
+    "colorScheme": "color-scheme",
+    "columnCount": "column-count",
+    "columnFill": "column-fill",
+    "columnGap": "column-gap",
+    "columnRule": "column-rule",
+    "columnRuleColor": "column-rule-color",
+    "columnRuleStyle": "column-rule-style",
+    "columnRuleWidth": "column-rule-width",
+    "columnSpan": "column-span",
+    "columnWidth": "column-width",
+    "columns": "columns",
+    "contain": "contain",
+    "containIntrinsicSize": "contain-intrinsic-size",
+    "content": "content",
+    "counterIncrement": "counter-increment",
+    "counterReset": "counter-reset",
+    "cursor": "cursor",
+    "cx": "cx",
+    "cy": "cy",
+    "d": "d",
+    "direction": "direction",
+    "display": "display",
+    "dominantBaseline": "dominant-baseline",
+    "emptyCells": "empty-cells",
+    "fill": "fill",
+    "fillOpacity": "fill-opacity",
+    "fillRule": "fill-rule",
+    "filter": "filter",
+    "flex": "flex",
+    "flexBasis": "flex-basis",
+    "flexDirection": "flex-direction",
+    "flexFlow": "flex-flow",
+    "flexGrow": "flex-grow",
+    "flexShrink": "flex-shrink",
+    "flexWrap": "flex-wrap",
+    "float": "float",
+    "floodColor": "flood-color",
+    "floodOpacity": "flood-opacity",
+    "font": "font",
+    "fontDisplay": "font-display",
+    "fontFamily": "font-family",
+    "fontFeatureSettings": "font-feature-settings",
+    "fontKerning": "font-kerning",
+    "fontOpticalSizing": "font-optical-sizing",
+    "fontSize": "font-size",
+    "fontStretch": "font-stretch",
+    "fontStyle": "font-style",
+    "fontVariant": "font-variant",
+    "fontVariantCaps": "font-variant-caps",
+    "fontVariantEastAsian": "font-variant-east-asian",
+    "fontVariantLigatures": "font-variant-ligatures",
+    "fontVariantNumeric": "font-variant-numeric",
+    "fontVariationSettings": "font-variation-settings",
+    "fontWeight": "font-weight",
+    "gap": "gap",
+    "grid": "grid",
+    "gridArea": "grid-area",
+    "gridAutoColumns": "grid-auto-columns",
+    "gridAutoFlow": "grid-auto-flow",
+    "gridAutoRows": "grid-auto-rows",
+    "gridColumn": "grid-column",
+    "gridColumnEnd": "grid-column-end",
+    "gridColumnGap": "grid-column-gap",
+    "gridColumnStart": "grid-column-start",
+    "gridGap": "grid-gap",
+    "gridRow": "grid-row",
+    "gridRowEnd": "grid-row-end",
+    "gridRowGap": "grid-row-gap",
+    "gridRowStart": "grid-row-start",
+    "gridTemplate": "grid-template",
+    "gridTemplateAreas": "grid-template-areas",
+    "gridTemplateColumns": "grid-template-columns",
+    "gridTemplateRows": "grid-template-rows",
+    "height": "height",
+    "hyphens": "hyphens",
+    "imageOrientation": "image-orientation",
+    "imageRendering": "image-rendering",
+    "inlineSize": "inline-size",
+    "isolation": "isolation",
+    "justifyContent": "justify-content",
+    "justifyItems": "justify-items",
+    "justifySelf": "justify-self",
+    "left": "left",
+    "letterSpacing": "letter-spacing",
+    "lightingColor": "lighting-color",
+    "lineBreak": "line-break",
+    "lineHeight": "line-height",
+    "listStyle": "list-style",
+    "listStyleImage": "list-style-image",
+    "listStylePosition": "list-style-position",
+    "listStyleType": "list-style-type",
+    "margin": "margin",
+    "marginBlockEnd": "margin-block-end",
+    "marginBlockStart": "margin-block-start",
+    "marginBottom": "margin-bottom",
+    "marginInlineEnd": "margin-inline-end",
+    "marginInlineStart": "margin-inline-start",
+    "marginLeft": "margin-left",
+    "marginRight": "margin-right",
+    "marginTop": "margin-top",
+    "marker": "marker",
+    "markerEnd": "marker-end",
+    "markerMid": "marker-mid",
+    "markerStart": "marker-start",
+    "mask": "mask",
+    "maskType": "mask-type",
+    "maxBlockSize": "max-block-size",
+    "maxHeight": "max-height",
+    "maxInlineSize": "max-inline-size",
+    "maxWidth": "max-width",
+    "maxZoom": "max-zoom",
+    "minBlockSize": "min-block-size",
+    "minHeight": "min-height",
+    "minInlineSize": "min-inline-size",
+    "minWidth": "min-width",
+    "minZoom": "min-zoom",
+    "mixBlendMode": "mix-blend-mode",
+    "objectFit": "object-fit",
+    "objectPosition": "object-position",
+    "offset": "offset",
+    "offsetDistance": "offset-distance",
+    "offsetPath": "offset-path",
+    "offsetRotate": "offset-rotate",
+    "opacity": "opacity",
+    "order": "order",
+    "orientation": "orientation",
+    "orphans": "orphans",
+    "outline": "outline",
+    "outlineColor": "outline-color",
+    "outlineOffset": "outline-offset",
+    "outlineStyle": "outline-style",
+    "outlineWidth": "outline-width",
+    "overflow": "overflow",
+    "overflowAnchor": "overflow-anchor",
+    "overflowWrap": "overflow-wrap",
+    "overflowX": "overflow-x",
+    "overflowY": "overflow-y",
+    "overscrollBehavior": "overscroll-behavior",
+    "overscrollBehaviorBlock": "overscroll-behavior-block",
+    "overscrollBehaviorInline": "overscroll-behavior-inline",
+    "overscrollBehaviorX": "overscroll-behavior-x",
+    "overscrollBehaviorY": "overscroll-behavior-y",
+    "padding": "padding",
+    "paddingBlockEnd": "padding-block-end",
+    "paddingBlockStart": "padding-block-start",
+    "paddingBottom": "padding-bottom",
+    "paddingInlineEnd": "padding-inline-end",
+    "paddingInlineStart": "padding-inline-start",
+    "paddingLeft": "padding-left",
+    "paddingRight": "padding-right",
+    "paddingTop": "padding-top",
+    "pageBreakAfter": "page-break-after",
+    "pageBreakBefore": "page-break-before",
+    "pageBreakInside": "page-break-inside",
+    "paintOrder": "paint-order",
+    "perspective": "perspective",
+    "perspectiveOrigin": "perspective-origin",
+    "placeContent": "place-content",
+    "placeItems": "place-items",
+    "placeSelf": "place-self",
+    "pointerEvents": "pointer-events",
+    "position": "position",
+    "quotes": "quotes",
+    "r": "r",
+    "resize": "resize",
+    "right": "right",
+    "rowGap": "row-gap",
+    "rx": "rx",
+    "ry": "ry",
+    "scrollBehavior": "scroll-behavior",
+    "scrollMargin": "scroll-margin",
+    "scrollMarginBlock": "scroll-margin-block",
+    "scrollMarginBlockEnd": "scroll-margin-block-end",
+    "scrollMarginBlockStart": "scroll-margin-block-start",
+    "scrollMarginBottom": "scroll-margin-bottom",
+    "scrollMarginInline": "scroll-margin-inline",
+    "scrollMarginInlineEnd": "scroll-margin-inline-end",
+    "scrollMarginInlineStart": "scroll-margin-inline-start",
+    "scrollMarginLeft": "scroll-margin-left",
+    "scrollMarginRight": "scroll-margin-right",
+    "scrollMarginTop": "scroll-margin-top",
+    "scrollPadding": "scroll-padding",
+    "scrollPaddingBlock": "scroll-padding-block",
+    "scrollPaddingBlockEnd": "scroll-padding-block-end",
+    "scrollPaddingBlockStart": "scroll-padding-block-start",
+    "scrollPaddingBottom": "scroll-padding-bottom",
+    "scrollPaddingInline": "scroll-padding-inline",
+    "scrollPaddingInlineEnd": "scroll-padding-inline-end",
+    "scrollPaddingInlineStart": "scroll-padding-inline-start",
+    "scrollPaddingLeft": "scroll-padding-left",
+    "scrollPaddingRight": "scroll-padding-right",
+    "scrollPaddingTop": "scroll-padding-top",
+    "scrollSnapAlign": "scroll-snap-align",
+    "scrollSnapStop": "scroll-snap-stop",
+    "scrollSnapType": "scroll-snap-type",
+    "shapeImageThreshold": "shape-image-threshold",
+    "shapeMargin": "shape-margin",
+    "shapeOutside": "shape-outside",
+    "shapeRendering": "shape-rendering",
+    "size": "size",
+    "speak": "speak",
+    "src": "src",
+    "stopColor": "stop-color",
+    "stopOpacity": "stop-opacity",
+    "stroke": "stroke",
+    "strokeDasharray": "stroke-dasharray",
+    "strokeDashoffset": "stroke-dashoffset",
+    "strokeLinecap": "stroke-linecap",
+    "strokeLinejoin": "stroke-linejoin",
+    "strokeMiterlimit": "stroke-miterlimit",
+    "strokeOpacity": "stroke-opacity",
+    "strokeWidth": "stroke-width",
+    "tabSize": "tab-size",
+    "tableLayout": "table-layout",
+    "textAlign": "text-align",
+    "textAlignLast": "text-align-last",
+    "textAnchor": "text-anchor",
+    "textCombineUpright": "text-combine-upright",
+    "textDecoration": "text-decoration",
+    "textDecorationColor": "text-decoration-color",
+    "textDecorationLine": "text-decoration-line",
+    "textDecorationSkipInk": "text-decoration-skip-ink",
+    "textDecorationStyle": "text-decoration-style",
+    "textIndent": "text-indent",
+    "textOrientation": "text-orientation",
+    "textOverflow": "text-overflow",
+    "textRendering": "text-rendering",
+    "textShadow": "text-shadow",
+    "textSizeAdjust": "text-size-adjust",
+    "textTransform": "text-transform",
+    "textUnderlinePosition": "text-underline-position",
+    "top": "top",
+    "touchAction": "touch-action",
+    "transform": "transform",
+    "transformBox": "transform-box",
+    "transformOrigin": "transform-origin",
+    "transformStyle": "transform-style",
+    "transition": "transition",
+    "transitionDelay": "transition-delay",
+    "transitionDuration": "transition-duration",
+    "transitionProperty": "transition-property",
+    "transitionTimingFunction": "transition-timing-function",
+    "unicodeBidi": "unicode-bidi",
+    "unicodeRange": "unicode-range",
+    "userSelect": "user-select",
+    "userZoom": "user-zoom",
+    "vectorEffect": "vector-effect",
+    "verticalAlign": "vertical-align",
+    "visibility": "visibility",
+    "webkitAlignContent": "webkit-align-content",
+    "webkitAlignItems": "webkit-align-items",
+    "webkitAlignSelf": "webkit-align-self",
+    "webkitAnimation": "webkit-animation",
+    "webkitAnimationDelay": "webkit-animation-delay",
+    "webkitAnimationDirection": "webkit-animation-direction",
+    "webkitAnimationDuration": "webkit-animation-duration",
+    "webkitAnimationFillMode": "webkit-animation-fill-mode",
+    "webkitAnimationIterationCount": "webkit-animation-iteration-count",
+    "webkitAnimationName": "webkit-animation-name",
+    "webkitAnimationPlayState": "webkit-animation-play-state",
+    "webkitAnimationTimingFunction": "webkit-animation-timing-function",
+    "webkitAppRegion": "webkit-app-region",
+    "webkitAppearance": "webkit-appearance",
+    "webkitBackfaceVisibility": "webkit-backface-visibility",
+    "webkitBackgroundClip": "webkit-background-clip",
+    "webkitBackgroundOrigin": "webkit-background-origin",
+    "webkitBackgroundSize": "webkit-background-size",
+    "webkitBorderAfter": "webkit-border-after",
+    "webkitBorderAfterColor": "webkit-border-after-color",
+    "webkitBorderAfterStyle": "webkit-border-after-style",
+    "webkitBorderAfterWidth": "webkit-border-after-width",
+    "webkitBorderBefore": "webkit-border-before",
+    "webkitBorderBeforeColor": "webkit-border-before-color",
+    "webkitBorderBeforeStyle": "webkit-border-before-style",
+    "webkitBorderBeforeWidth": "webkit-border-before-width",
+    "webkitBorderBottomLeftRadius": "webkit-border-bottom-left-radius",
+    "webkitBorderBottomRightRadius": "webkit-border-bottom-right-radius",
+    "webkitBorderEnd": "webkit-border-end",
+    "webkitBorderEndColor": "webkit-border-end-color",
+    "webkitBorderEndStyle": "webkit-border-end-style",
+    "webkitBorderEndWidth": "webkit-border-end-width",
+    "webkitBorderHorizontalSpacing": "webkit-border-horizontal-spacing",
+    "webkitBorderImage": "webkit-border-image",
+    "webkitBorderRadius": "webkit-border-radius",
+    "webkitBorderStart": "webkit-border-start",
+    "webkitBorderStartColor": "webkit-border-start-color",
+    "webkitBorderStartStyle": "webkit-border-start-style",
+    "webkitBorderStartWidth": "webkit-border-start-width",
+    "webkitBorderTopLeftRadius": "webkit-border-top-left-radius",
+    "webkitBorderTopRightRadius": "webkit-border-top-right-radius",
+    "webkitBorderVerticalSpacing": "webkit-border-vertical-spacing",
+    "webkitBoxAlign": "webkit-box-align",
+    "webkitBoxDecorationBreak": "webkit-box-decoration-break",
+    "webkitBoxDirection": "webkit-box-direction",
+    "webkitBoxFlex": "webkit-box-flex",
+    "webkitBoxOrdinalGroup": "webkit-box-ordinal-group",
+    "webkitBoxOrient": "webkit-box-orient",
+    "webkitBoxPack": "webkit-box-pack",
+    "webkitBoxReflect": "webkit-box-reflect",
+    "webkitBoxShadow": "webkit-box-shadow",
+    "webkitBoxSizing": "webkit-box-sizing",
+    "webkitClipPath": "webkit-clip-path",
+    "webkitColumnBreakAfter": "webkit-column-break-after",
+    "webkitColumnBreakBefore": "webkit-column-break-before",
+    "webkitColumnBreakInside": "webkit-column-break-inside",
+    "webkitColumnCount": "webkit-column-count",
+    "webkitColumnGap": "webkit-column-gap",
+    "webkitColumnRule": "webkit-column-rule",
+    "webkitColumnRuleColor": "webkit-column-rule-color",
+    "webkitColumnRuleStyle": "webkit-column-rule-style",
+    "webkitColumnRuleWidth": "webkit-column-rule-width",
+    "webkitColumnSpan": "webkit-column-span",
+    "webkitColumnWidth": "webkit-column-width",
+    "webkitColumns": "webkit-columns",
+    "webkitFilter": "webkit-filter",
+    "webkitFlex": "webkit-flex",
+    "webkitFlexBasis": "webkit-flex-basis",
+    "webkitFlexDirection": "webkit-flex-direction",
+    "webkitFlexFlow": "webkit-flex-flow",
+    "webkitFlexGrow": "webkit-flex-grow",
+    "webkitFlexShrink": "webkit-flex-shrink",
+    "webkitFlexWrap": "webkit-flex-wrap",
+    "webkitFontFeatureSettings": "webkit-font-feature-settings",
+    "webkitFontSizeDelta": "webkit-font-size-delta",
+    "webkitFontSmoothing": "webkit-font-smoothing",
+    "webkitHighlight": "webkit-highlight",
+    "webkitHyphenateCharacter": "webkit-hyphenate-character",
+    "webkitJustifyContent": "webkit-justify-content",
+    "webkitLineBreak": "webkit-line-break",
+    "webkitLineClamp": "webkit-line-clamp",
+    "webkitLocale": "webkit-locale",
+    "webkitLogicalHeight": "webkit-logical-height",
+    "webkitLogicalWidth": "webkit-logical-width",
+    "webkitMarginAfter": "webkit-margin-after",
+    "webkitMarginBefore": "webkit-margin-before",
+    "webkitMarginEnd": "webkit-margin-end",
+    "webkitMarginStart": "webkit-margin-start",
+    "webkitMask": "webkit-mask",
+    "webkitMaskBoxImage": "webkit-mask-box-image",
+    "webkitMaskBoxImageOutset": "webkit-mask-box-image-outset",
+    "webkitMaskBoxImageRepeat": "webkit-mask-box-image-repeat",
+    "webkitMaskBoxImageSlice": "webkit-mask-box-image-slice",
+    "webkitMaskBoxImageSource": "webkit-mask-box-image-source",
+    "webkitMaskBoxImageWidth": "webkit-mask-box-image-width",
+    "webkitMaskClip": "webkit-mask-clip",
+    "webkitMaskComposite": "webkit-mask-composite",
+    "webkitMaskImage": "webkit-mask-image",
+    "webkitMaskOrigin": "webkit-mask-origin",
+    "webkitMaskPosition": "webkit-mask-position",
+    "webkitMaskPositionX": "webkit-mask-position-x",
+    "webkitMaskPositionY": "webkit-mask-position-y",
+    "webkitMaskRepeat": "webkit-mask-repeat",
+    "webkitMaskRepeatX": "webkit-mask-repeat-x",
+    "webkitMaskRepeatY": "webkit-mask-repeat-y",
+    "webkitMaskSize": "webkit-mask-size",
+    "webkitMaxLogicalHeight": "webkit-max-logical-height",
+    "webkitMaxLogicalWidth": "webkit-max-logical-width",
+    "webkitMinLogicalHeight": "webkit-min-logical-height",
+    "webkitMinLogicalWidth": "webkit-min-logical-width",
+    "webkitOpacity": "webkit-opacity",
+    "webkitOrder": "webkit-order",
+    "webkitPaddingAfter": "webkit-padding-after",
+    "webkitPaddingBefore": "webkit-padding-before",
+    "webkitPaddingEnd": "webkit-padding-end",
+    "webkitPaddingStart": "webkit-padding-start",
+    "webkitPerspective": "webkit-perspective",
+    "webkitPerspectiveOrigin": "webkit-perspective-origin",
+    "webkitPerspectiveOriginX": "webkit-perspective-origin-x",
+    "webkitPerspectiveOriginY": "webkit-perspective-origin-y",
+    "webkitPrintColorAdjust": "webkit-print-color-adjust",
+    "webkitRtlOrdering": "webkit-rtl-ordering",
+    "webkitRubyPosition": "webkit-ruby-position",
+    "webkitShapeImageThreshold": "webkit-shape-image-threshold",
+    "webkitShapeMargin": "webkit-shape-margin",
+    "webkitShapeOutside": "webkit-shape-outside",
+    "webkitTapHighlightColor": "webkit-tap-highlight-color",
+    "webkitTextCombine": "webkit-text-combine",
+    "webkitTextDecorationsInEffect": "webkit-text-decorations-in-effect",
+    "webkitTextEmphasis": "webkit-text-emphasis",
+    "webkitTextEmphasisColor": "webkit-text-emphasis-color",
+    "webkitTextEmphasisPosition": "webkit-text-emphasis-position",
+    "webkitTextEmphasisStyle": "webkit-text-emphasis-style",
+    "webkitTextFillColor": "webkit-text-fill-color",
+    "webkitTextOrientation": "webkit-text-orientation",
+    "webkitTextSecurity": "webkit-text-security",
+    "webkitTextSizeAdjust": "webkit-text-size-adjust",
+    "webkitTextStroke": "webkit-text-stroke",
+    "webkitTextStrokeColor": "webkit-text-stroke-color",
+    "webkitTextStrokeWidth": "webkit-text-stroke-width",
+    "webkitTransform": "webkit-transform",
+    "webkitTransformOrigin": "webkit-transform-origin",
+    "webkitTransformOriginX": "webkit-transform-origin-x",
+    "webkitTransformOriginY": "webkit-transform-origin-y",
+    "webkitTransformOriginZ": "webkit-transform-origin-z",
+    "webkitTransformStyle": "webkit-transform-style",
+    "webkitTransition": "webkit-transition",
+    "webkitTransitionDelay": "webkit-transition-delay",
+    "webkitTransitionDuration": "webkit-transition-duration",
+    "webkitTransitionProperty": "webkit-transition-property",
+    "webkitTransitionTimingFunction": "webkit-transition-timing-function",
+    "webkitUserDrag": "webkit-user-drag",
+    "webkitUserModify": "webkit-user-modify",
+    "webkitUserSelect": "webkit-user-select",
+    "webkitWritingMode": "webkit-writing-mode",
+    "whiteSpace": "white-space",
+    "widows": "widows",
+    "width": "width",
+    "willChange": "will-change",
+    "wordBreak": "word-break",
+    "wordSpacing": "word-spacing",
+    "wordWrap": "word-wrap",
+    "writingMode": "writing-mode",
+    "x": "x",
+    "y": "y",
+    "zIndex": "z-index",
+    "zoom": "zoom",
+    "cssText": "css-text",
+    "length": "length",
+    "parentRule": "parent-rule",
+    "cssFloat": "css-float",
+    "item": "item",
+    "getPropertyValue": "get-property-value",
+    "getPropertyPriority": "get-property-priority",
+    "setProperty": "set-property",
+    "removeProperty": "remove-property",
+    "aligncontent": "align-content",
+    "alignitems": "align-items",
+    "alignself": "align-self",
+    "alignmentbaseline": "alignment-baseline",
+    "animationdelay": "animation-delay",
+    "animationdirection": "animation-direction",
+    "animationduration": "animation-duration",
+    "animationfillmode": "animation-fill-mode",
+    "animationiterationcount": "animation-iteration-count",
+    "animationname": "animation-name",
+    "animationplaystate": "animation-play-state",
+    "animationtimingfunction": "animation-timing-function",
+    "backdropfilter": "backdrop-filter",
+    "backfacevisibility": "backface-visibility",
+    "backgroundattachment": "background-attachment",
+    "backgroundblendmode": "background-blend-mode",
+    "backgroundclip": "background-clip",
+    "backgroundcolor": "background-color",
+    "backgroundimage": "background-image",
+    "backgroundorigin": "background-origin",
+    "backgroundposition": "background-position",
+    "backgroundpositionx": "background-position-x",
+    "backgroundpositiony": "background-position-y",
+    "backgroundrepeat": "background-repeat",
+    "backgroundrepeatx": "background-repeat-x",
+    "backgroundrepeaty": "background-repeat-y",
+    "backgroundsize": "background-size",
+    "baselineshift": "baseline-shift",
+    "blocksize": "block-size",
+    "borderblockend": "border-block-end",
+    "borderblockendcolor": "border-block-end-color",
+    "borderblockendstyle": "border-block-end-style",
+    "borderblockendwidth": "border-block-end-width",
+    "borderblockstart": "border-block-start",
+    "borderblockstartcolor": "border-block-start-color",
+    "borderblockstartstyle": "border-block-start-style",
+    "borderblockstartwidth": "border-block-start-width",
+    "borderbottom": "border-bottom",
+    "borderbottomcolor": "border-bottom-color",
+    "borderbottomleftradius": "border-bottom-left-radius",
+    "borderbottomrightradius": "border-bottom-right-radius",
+    "borderbottomstyle": "border-bottom-style",
+    "borderbottomwidth": "border-bottom-width",
+    "bordercollapse": "border-collapse",
+    "bordercolor": "border-color",
+    "borderimage": "border-image",
+    "borderimageoutset": "border-image-outset",
+    "borderimagerepeat": "border-image-repeat",
+    "borderimageslice": "border-image-slice",
+    "borderimagesource": "border-image-source",
+    "borderimagewidth": "border-image-width",
+    "borderinlineend": "border-inline-end",
+    "borderinlineendcolor": "border-inline-end-color",
+    "borderinlineendstyle": "border-inline-end-style",
+    "borderinlineendwidth": "border-inline-end-width",
+    "borderinlinestart": "border-inline-start",
+    "borderinlinestartcolor": "border-inline-start-color",
+    "borderinlinestartstyle": "border-inline-start-style",
+    "borderinlinestartwidth": "border-inline-start-width",
+    "borderleft": "border-left",
+    "borderleftcolor": "border-left-color",
+    "borderleftstyle": "border-left-style",
+    "borderleftwidth": "border-left-width",
+    "borderradius": "border-radius",
+    "borderright": "border-right",
+    "borderrightcolor": "border-right-color",
+    "borderrightstyle": "border-right-style",
+    "borderrightwidth": "border-right-width",
+    "borderspacing": "border-spacing",
+    "borderstyle": "border-style",
+    "bordertop": "border-top",
+    "bordertopcolor": "border-top-color",
+    "bordertopleftradius": "border-top-left-radius",
+    "bordertoprightradius": "border-top-right-radius",
+    "bordertopstyle": "border-top-style",
+    "bordertopwidth": "border-top-width",
+    "borderwidth": "border-width",
+    "boxshadow": "box-shadow",
+    "boxsizing": "box-sizing",
+    "breakafter": "break-after",
+    "breakbefore": "break-before",
+    "breakinside": "break-inside",
+    "bufferedrendering": "buffered-rendering",
+    "captionside": "caption-side",
+    "caretcolor": "caret-color",
+    "clippath": "clip-path",
+    "cliprule": "clip-rule",
+    "colorinterpolation": "color-interpolation",
+    "colorinterpolationfilters": "color-interpolation-filters",
+    "colorrendering": "color-rendering",
+    "colorscheme": "color-scheme",
+    "columncount": "column-count",
+    "columnfill": "column-fill",
+    "columngap": "column-gap",
+    "columnrule": "column-rule",
+    "columnrulecolor": "column-rule-color",
+    "columnrulestyle": "column-rule-style",
+    "columnrulewidth": "column-rule-width",
+    "columnspan": "column-span",
+    "columnwidth": "column-width",
+    "containintrinsicsize": "contain-intrinsic-size",
+    "counterincrement": "counter-increment",
+    "counterreset": "counter-reset",
+    "dominantbaseline": "dominant-baseline",
+    "emptycells": "empty-cells",
+    "fillopacity": "fill-opacity",
+    "fillrule": "fill-rule",
+    "flexbasis": "flex-basis",
+    "flexdirection": "flex-direction",
+    "flexflow": "flex-flow",
+    "flexgrow": "flex-grow",
+    "flexshrink": "flex-shrink",
+    "flexwrap": "flex-wrap",
+    "floodcolor": "flood-color",
+    "floodopacity": "flood-opacity",
+    "fontdisplay": "font-display",
+    "fontfamily": "font-family",
+    "fontfeaturesettings": "font-feature-settings",
+    "fontkerning": "font-kerning",
+    "fontopticalsizing": "font-optical-sizing",
+    "fontsize": "font-size",
+    "fontstretch": "font-stretch",
+    "fontstyle": "font-style",
+    "fontvariant": "font-variant",
+    "fontvariantcaps": "font-variant-caps",
+    "fontvarianteastasian": "font-variant-east-asian",
+    "fontvariantligatures": "font-variant-ligatures",
+    "fontvariantnumeric": "font-variant-numeric",
+    "fontvariationsettings": "font-variation-settings",
+    "fontweight": "font-weight",
+    "gridarea": "grid-area",
+    "gridautocolumns": "grid-auto-columns",
+    "gridautoflow": "grid-auto-flow",
+    "gridautorows": "grid-auto-rows",
+    "gridcolumn": "grid-column",
+    "gridcolumnend": "grid-column-end",
+    "gridcolumngap": "grid-column-gap",
+    "gridcolumnstart": "grid-column-start",
+    "gridgap": "grid-gap",
+    "gridrow": "grid-row",
+    "gridrowend": "grid-row-end",
+    "gridrowgap": "grid-row-gap",
+    "gridrowstart": "grid-row-start",
+    "gridtemplate": "grid-template",
+    "gridtemplateareas": "grid-template-areas",
+    "gridtemplatecolumns": "grid-template-columns",
+    "gridtemplaterows": "grid-template-rows",
+    "imageorientation": "image-orientation",
+    "imagerendering": "image-rendering",
+    "inlinesize": "inline-size",
+    "justifycontent": "justify-content",
+    "justifyitems": "justify-items",
+    "justifyself": "justify-self",
+    "letterspacing": "letter-spacing",
+    "lightingcolor": "lighting-color",
+    "linebreak": "line-break",
+    "lineheight": "line-height",
+    "liststyle": "list-style",
+    "liststyleimage": "list-style-image",
+    "liststyleposition": "list-style-position",
+    "liststyletype": "list-style-type",
+    "marginblockend": "margin-block-end",
+    "marginblockstart": "margin-block-start",
+    "marginbottom": "margin-bottom",
+    "margininlineend": "margin-inline-end",
+    "margininlinestart": "margin-inline-start",
+    "marginleft": "margin-left",
+    "marginright": "margin-right",
+    "margintop": "margin-top",
+    "markerend": "marker-end",
+    "markermid": "marker-mid",
+    "markerstart": "marker-start",
+    "masktype": "mask-type",
+    "maxblocksize": "max-block-size",
+    "maxheight": "max-height",
+    "maxinlinesize": "max-inline-size",
+    "maxwidth": "max-width",
+    "maxzoom": "max-zoom",
+    "minblocksize": "min-block-size",
+    "minheight": "min-height",
+    "mininlinesize": "min-inline-size",
+    "minwidth": "min-width",
+    "minzoom": "min-zoom",
+    "mixblendmode": "mix-blend-mode",
+    "objectfit": "object-fit",
+    "objectposition": "object-position",
+    "offsetdistance": "offset-distance",
+    "offsetpath": "offset-path",
+    "offsetrotate": "offset-rotate",
+    "outlinecolor": "outline-color",
+    "outlineoffset": "outline-offset",
+    "outlinestyle": "outline-style",
+    "outlinewidth": "outline-width",
+    "overflowanchor": "overflow-anchor",
+    "overflowwrap": "overflow-wrap",
+    "overflowx": "overflow-x",
+    "overflowy": "overflow-y",
+    "overscrollbehavior": "overscroll-behavior",
+    "overscrollbehaviorblock": "overscroll-behavior-block",
+    "overscrollbehaviorinline": "overscroll-behavior-inline",
+    "overscrollbehaviorx": "overscroll-behavior-x",
+    "overscrollbehaviory": "overscroll-behavior-y",
+    "paddingblockend": "padding-block-end",
+    "paddingblockstart": "padding-block-start",
+    "paddingbottom": "padding-bottom",
+    "paddinginlineend": "padding-inline-end",
+    "paddinginlinestart": "padding-inline-start",
+    "paddingleft": "padding-left",
+    "paddingright": "padding-right",
+    "paddingtop": "padding-top",
+    "pagebreakafter": "page-break-after",
+    "pagebreakbefore": "page-break-before",
+    "pagebreakinside": "page-break-inside",
+    "paintorder": "paint-order",
+    "perspectiveorigin": "perspective-origin",
+    "placecontent": "place-content",
+    "placeitems": "place-items",
+    "placeself": "place-self",
+    "pointerevents": "pointer-events",
+    "rowgap": "row-gap",
+    "scrollbehavior": "scroll-behavior",
+    "scrollmargin": "scroll-margin",
+    "scrollmarginblock": "scroll-margin-block",
+    "scrollmarginblockend": "scroll-margin-block-end",
+    "scrollmarginblockstart": "scroll-margin-block-start",
+    "scrollmarginbottom": "scroll-margin-bottom",
+    "scrollmargininline": "scroll-margin-inline",
+    "scrollmargininlineend": "scroll-margin-inline-end",
+    "scrollmargininlinestart": "scroll-margin-inline-start",
+    "scrollmarginleft": "scroll-margin-left",
+    "scrollmarginright": "scroll-margin-right",
+    "scrollmargintop": "scroll-margin-top",
+    "scrollpadding": "scroll-padding",
+    "scrollpaddingblock": "scroll-padding-block",
+    "scrollpaddingblockend": "scroll-padding-block-end",
+    "scrollpaddingblockstart": "scroll-padding-block-start",
+    "scrollpaddingbottom": "scroll-padding-bottom",
+    "scrollpaddinginline": "scroll-padding-inline",
+    "scrollpaddinginlineend": "scroll-padding-inline-end",
+    "scrollpaddinginlinestart": "scroll-padding-inline-start",
+    "scrollpaddingleft": "scroll-padding-left",
+    "scrollpaddingright": "scroll-padding-right",
+    "scrollpaddingtop": "scroll-padding-top",
+    "scrollsnapalign": "scroll-snap-align",
+    "scrollsnapstop": "scroll-snap-stop",
+    "scrollsnaptype": "scroll-snap-type",
+    "shapeimagethreshold": "shape-image-threshold",
+    "shapemargin": "shape-margin",
+    "shapeoutside": "shape-outside",
+    "shaperendering": "shape-rendering",
+    "stopcolor": "stop-color",
+    "stopopacity": "stop-opacity",
+    "strokedasharray": "stroke-dasharray",
+    "strokedashoffset": "stroke-dashoffset",
+    "strokelinecap": "stroke-linecap",
+    "strokelinejoin": "stroke-linejoin",
+    "strokemiterlimit": "stroke-miterlimit",
+    "strokeopacity": "stroke-opacity",
+    "strokewidth": "stroke-width",
+    "tabsize": "tab-size",
+    "tablelayout": "table-layout",
+    "textalign": "text-align",
+    "textalignlast": "text-align-last",
+    "textanchor": "text-anchor",
+    "textcombineupright": "text-combine-upright",
+    "textdecoration": "text-decoration",
+    "textdecorationcolor": "text-decoration-color",
+    "textdecorationline": "text-decoration-line",
+    "textdecorationskipink": "text-decoration-skip-ink",
+    "textdecorationstyle": "text-decoration-style",
+    "textindent": "text-indent",
+    "textorientation": "text-orientation",
+    "textoverflow": "text-overflow",
+    "textrendering": "text-rendering",
+    "textshadow": "text-shadow",
+    "textsizeadjust": "text-size-adjust",
+    "texttransform": "text-transform",
+    "textunderlineposition": "text-underline-position",
+    "touchaction": "touch-action",
+    "transformbox": "transform-box",
+    "transformorigin": "transform-origin",
+    "transformstyle": "transform-style",
+    "transitiondelay": "transition-delay",
+    "transitionduration": "transition-duration",
+    "transitionproperty": "transition-property",
+    "transitiontimingfunction": "transition-timing-function",
+    "unicodebidi": "unicode-bidi",
+    "unicoderange": "unicode-range",
+    "userselect": "user-select",
+    "userzoom": "user-zoom",
+    "vectoreffect": "vector-effect",
+    "verticalalign": "vertical-align",
+    "webkitaligncontent": "webkit-align-content",
+    "webkitalignitems": "webkit-align-items",
+    "webkitalignself": "webkit-align-self",
+    "webkitanimation": "webkit-animation",
+    "webkitanimationdelay": "webkit-animation-delay",
+    "webkitanimationdirection": "webkit-animation-direction",
+    "webkitanimationduration": "webkit-animation-duration",
+    "webkitanimationfillmode": "webkit-animation-fill-mode",
+    "webkitanimationiterationcount": "webkit-animation-iteration-count",
+    "webkitanimationname": "webkit-animation-name",
+    "webkitanimationplaystate": "webkit-animation-play-state",
+    "webkitanimationtimingfunction": "webkit-animation-timing-function",
+    "webkitappregion": "webkit-app-region",
+    "webkitappearance": "webkit-appearance",
+    "webkitbackfacevisibility": "webkit-backface-visibility",
+    "webkitbackgroundclip": "webkit-background-clip",
+    "webkitbackgroundorigin": "webkit-background-origin",
+    "webkitbackgroundsize": "webkit-background-size",
+    "webkitborderafter": "webkit-border-after",
+    "webkitborderaftercolor": "webkit-border-after-color",
+    "webkitborderafterstyle": "webkit-border-after-style",
+    "webkitborderafterwidth": "webkit-border-after-width",
+    "webkitborderbefore": "webkit-border-before",
+    "webkitborderbeforecolor": "webkit-border-before-color",
+    "webkitborderbeforestyle": "webkit-border-before-style",
+    "webkitborderbeforewidth": "webkit-border-before-width",
+    "webkitborderbottomleftradius": "webkit-border-bottom-left-radius",
+    "webkitborderbottomrightradius": "webkit-border-bottom-right-radius",
+    "webkitborderend": "webkit-border-end",
+    "webkitborderendcolor": "webkit-border-end-color",
+    "webkitborderendstyle": "webkit-border-end-style",
+    "webkitborderendwidth": "webkit-border-end-width",
+    "webkitborderhorizontalspacing": "webkit-border-horizontal-spacing",
+    "webkitborderimage": "webkit-border-image",
+    "webkitborderradius": "webkit-border-radius",
+    "webkitborderstart": "webkit-border-start",
+    "webkitborderstartcolor": "webkit-border-start-color",
+    "webkitborderstartstyle": "webkit-border-start-style",
+    "webkitborderstartwidth": "webkit-border-start-width",
+    "webkitbordertopleftradius": "webkit-border-top-left-radius",
+    "webkitbordertoprightradius": "webkit-border-top-right-radius",
+    "webkitborderverticalspacing": "webkit-border-vertical-spacing",
+    "webkitboxalign": "webkit-box-align",
+    "webkitboxdecorationbreak": "webkit-box-decoration-break",
+    "webkitboxdirection": "webkit-box-direction",
+    "webkitboxflex": "webkit-box-flex",
+    "webkitboxordinalgroup": "webkit-box-ordinal-group",
+    "webkitboxorient": "webkit-box-orient",
+    "webkitboxpack": "webkit-box-pack",
+    "webkitboxreflect": "webkit-box-reflect",
+    "webkitboxshadow": "webkit-box-shadow",
+    "webkitboxsizing": "webkit-box-sizing",
+    "webkitclippath": "webkit-clip-path",
+    "webkitcolumnbreakafter": "webkit-column-break-after",
+    "webkitcolumnbreakbefore": "webkit-column-break-before",
+    "webkitcolumnbreakinside": "webkit-column-break-inside",
+    "webkitcolumncount": "webkit-column-count",
+    "webkitcolumngap": "webkit-column-gap",
+    "webkitcolumnrule": "webkit-column-rule",
+    "webkitcolumnrulecolor": "webkit-column-rule-color",
+    "webkitcolumnrulestyle": "webkit-column-rule-style",
+    "webkitcolumnrulewidth": "webkit-column-rule-width",
+    "webkitcolumnspan": "webkit-column-span",
+    "webkitcolumnwidth": "webkit-column-width",
+    "webkitcolumns": "webkit-columns",
+    "webkitfilter": "webkit-filter",
+    "webkitflex": "webkit-flex",
+    "webkitflexbasis": "webkit-flex-basis",
+    "webkitflexdirection": "webkit-flex-direction",
+    "webkitflexflow": "webkit-flex-flow",
+    "webkitflexgrow": "webkit-flex-grow",
+    "webkitflexshrink": "webkit-flex-shrink",
+    "webkitflexwrap": "webkit-flex-wrap",
+    "webkitfontfeaturesettings": "webkit-font-feature-settings",
+    "webkitfontsizedelta": "webkit-font-size-delta",
+    "webkitfontsmoothing": "webkit-font-smoothing",
+    "webkithighlight": "webkit-highlight",
+    "webkithyphenatecharacter": "webkit-hyphenate-character",
+    "webkitjustifycontent": "webkit-justify-content",
+    "webkitlinebreak": "webkit-line-break",
+    "webkitlineclamp": "webkit-line-clamp",
+    "webkitlocale": "webkit-locale",
+    "webkitlogicalheight": "webkit-logical-height",
+    "webkitlogicalwidth": "webkit-logical-width",
+    "webkitmarginafter": "webkit-margin-after",
+    "webkitmarginbefore": "webkit-margin-before",
+    "webkitmarginend": "webkit-margin-end",
+    "webkitmarginstart": "webkit-margin-start",
+    "webkitmask": "webkit-mask",
+    "webkitmaskboximage": "webkit-mask-box-image",
+    "webkitmaskboximageoutset": "webkit-mask-box-image-outset",
+    "webkitmaskboximagerepeat": "webkit-mask-box-image-repeat",
+    "webkitmaskboximageslice": "webkit-mask-box-image-slice",
+    "webkitmaskboximagesource": "webkit-mask-box-image-source",
+    "webkitmaskboximagewidth": "webkit-mask-box-image-width",
+    "webkitmaskclip": "webkit-mask-clip",
+    "webkitmaskcomposite": "webkit-mask-composite",
+    "webkitmaskimage": "webkit-mask-image",
+    "webkitmaskorigin": "webkit-mask-origin",
+    "webkitmaskposition": "webkit-mask-position",
+    "webkitmaskpositionx": "webkit-mask-position-x",
+    "webkitmaskpositiony": "webkit-mask-position-y",
+    "webkitmaskrepeat": "webkit-mask-repeat",
+    "webkitmaskrepeatx": "webkit-mask-repeat-x",
+    "webkitmaskrepeaty": "webkit-mask-repeat-y",
+    "webkitmasksize": "webkit-mask-size",
+    "webkitmaxlogicalheight": "webkit-max-logical-height",
+    "webkitmaxlogicalwidth": "webkit-max-logical-width",
+    "webkitminlogicalheight": "webkit-min-logical-height",
+    "webkitminlogicalwidth": "webkit-min-logical-width",
+    "webkitopacity": "webkit-opacity",
+    "webkitorder": "webkit-order",
+    "webkitpaddingafter": "webkit-padding-after",
+    "webkitpaddingbefore": "webkit-padding-before",
+    "webkitpaddingend": "webkit-padding-end",
+    "webkitpaddingstart": "webkit-padding-start",
+    "webkitperspective": "webkit-perspective",
+    "webkitperspectiveorigin": "webkit-perspective-origin",
+    "webkitperspectiveoriginx": "webkit-perspective-origin-x",
+    "webkitperspectiveoriginy": "webkit-perspective-origin-y",
+    "webkitprintcoloradjust": "webkit-print-color-adjust",
+    "webkitrtlordering": "webkit-rtl-ordering",
+    "webkitrubyposition": "webkit-ruby-position",
+    "webkitshapeimagethreshold": "webkit-shape-image-threshold",
+    "webkitshapemargin": "webkit-shape-margin",
+    "webkitshapeoutside": "webkit-shape-outside",
+    "webkittaphighlightcolor": "webkit-tap-highlight-color",
+    "webkittextcombine": "webkit-text-combine",
+    "webkittextdecorationsineffect": "webkit-text-decorations-in-effect",
+    "webkittextemphasis": "webkit-text-emphasis",
+    "webkittextemphasiscolor": "webkit-text-emphasis-color",
+    "webkittextemphasisposition": "webkit-text-emphasis-position",
+    "webkittextemphasisstyle": "webkit-text-emphasis-style",
+    "webkittextfillcolor": "webkit-text-fill-color",
+    "webkittextorientation": "webkit-text-orientation",
+    "webkittextsecurity": "webkit-text-security",
+    "webkittextsizeadjust": "webkit-text-size-adjust",
+    "webkittextstroke": "webkit-text-stroke",
+    "webkittextstrokecolor": "webkit-text-stroke-color",
+    "webkittextstrokewidth": "webkit-text-stroke-width",
+    "webkittransform": "webkit-transform",
+    "webkittransformorigin": "webkit-transform-origin",
+    "webkittransformoriginx": "webkit-transform-origin-x",
+    "webkittransformoriginy": "webkit-transform-origin-y",
+    "webkittransformoriginz": "webkit-transform-origin-z",
+    "webkittransformstyle": "webkit-transform-style",
+    "webkittransition": "webkit-transition",
+    "webkittransitiondelay": "webkit-transition-delay",
+    "webkittransitionduration": "webkit-transition-duration",
+    "webkittransitionproperty": "webkit-transition-property",
+    "webkittransitiontimingfunction": "webkit-transition-timing-function",
+    "webkituserdrag": "webkit-user-drag",
+    "webkitusermodify": "webkit-user-modify",
+    "webkituserselect": "webkit-user-select",
+    "webkitwritingmode": "webkit-writing-mode",
+    "whitespace": "white-space",
+    "willchange": "will-change",
+    "wordbreak": "word-break",
+    "wordspacing": "word-spacing",
+    "wordwrap": "word-wrap",
+    "writingmode": "writing-mode",
+    "zindex": "z-index",
+    "csstext": "css-text",
+    "parentrule": "parent-rule",
+    "cssfloat": "css-float",
+    "getpropertyvalue": "get-property-value",
+    "getpropertypriority": "get-property-priority",
+    "setproperty": "set-property",
+    "removeproperty": "remove-property"
+  },
+  "tojs": {
+    "aligncontent": "alignContent",
+    "alignitems": "alignItems",
+    "alignself": "alignSelf",
+    "alignmentbaseline": "alignmentBaseline",
+    "all": "all",
+    "animation": "animation",
+    "animationdelay": "animationDelay",
+    "animationdirection": "animationDirection",
+    "animationduration": "animationDuration",
+    "animationfillmode": "animationFillMode",
+    "animationiterationcount": "animationIterationCount",
+    "animationname": "animationName",
+    "animationplaystate": "animationPlayState",
+    "animationtimingfunction": "animationTimingFunction",
+    "backdropfilter": "backdropFilter",
+    "backfacevisibility": "backfaceVisibility",
+    "background": "background",
+    "backgroundattachment": "backgroundAttachment",
+    "backgroundblendmode": "backgroundBlendMode",
+    "backgroundclip": "backgroundClip",
+    "backgroundcolor": "backgroundColor",
+    "backgroundimage": "backgroundImage",
+    "backgroundorigin": "backgroundOrigin",
+    "backgroundposition": "backgroundPosition",
+    "backgroundpositionx": "backgroundPositionX",
+    "backgroundpositiony": "backgroundPositionY",
+    "backgroundrepeat": "backgroundRepeat",
+    "backgroundrepeatx": "backgroundRepeatX",
+    "backgroundrepeaty": "backgroundRepeatY",
+    "backgroundsize": "backgroundSize",
+    "baselineshift": "baselineShift",
+    "blocksize": "blockSize",
+    "border": "border",
+    "borderblockend": "borderBlockEnd",
+    "borderblockendcolor": "borderBlockEndColor",
+    "borderblockendstyle": "borderBlockEndStyle",
+    "borderblockendwidth": "borderBlockEndWidth",
+    "borderblockstart": "borderBlockStart",
+    "borderblockstartcolor": "borderBlockStartColor",
+    "borderblockstartstyle": "borderBlockStartStyle",
+    "borderblockstartwidth": "borderBlockStartWidth",
+    "borderbottom": "borderBottom",
+    "borderbottomcolor": "borderBottomColor",
+    "borderbottomleftradius": "borderBottomLeftRadius",
+    "borderbottomrightradius": "borderBottomRightRadius",
+    "borderbottomstyle": "borderBottomStyle",
+    "borderbottomwidth": "borderBottomWidth",
+    "bordercollapse": "borderCollapse",
+    "bordercolor": "borderColor",
+    "borderimage": "borderImage",
+    "borderimageoutset": "borderImageOutset",
+    "borderimagerepeat": "borderImageRepeat",
+    "borderimageslice": "borderImageSlice",
+    "borderimagesource": "borderImageSource",
+    "borderimagewidth": "borderImageWidth",
+    "borderinlineend": "borderInlineEnd",
+    "borderinlineendcolor": "borderInlineEndColor",
+    "borderinlineendstyle": "borderInlineEndStyle",
+    "borderinlineendwidth": "borderInlineEndWidth",
+    "borderinlinestart": "borderInlineStart",
+    "borderinlinestartcolor": "borderInlineStartColor",
+    "borderinlinestartstyle": "borderInlineStartStyle",
+    "borderinlinestartwidth": "borderInlineStartWidth",
+    "borderleft": "borderLeft",
+    "borderleftcolor": "borderLeftColor",
+    "borderleftstyle": "borderLeftStyle",
+    "borderleftwidth": "borderLeftWidth",
+    "borderradius": "borderRadius",
+    "borderright": "borderRight",
+    "borderrightcolor": "borderRightColor",
+    "borderrightstyle": "borderRightStyle",
+    "borderrightwidth": "borderRightWidth",
+    "borderspacing": "borderSpacing",
+    "borderstyle": "borderStyle",
+    "bordertop": "borderTop",
+    "bordertopcolor": "borderTopColor",
+    "bordertopleftradius": "borderTopLeftRadius",
+    "bordertoprightradius": "borderTopRightRadius",
+    "bordertopstyle": "borderTopStyle",
+    "bordertopwidth": "borderTopWidth",
+    "borderwidth": "borderWidth",
+    "bottom": "bottom",
+    "boxshadow": "boxShadow",
+    "boxsizing": "boxSizing",
+    "breakafter": "breakAfter",
+    "breakbefore": "breakBefore",
+    "breakinside": "breakInside",
+    "bufferedrendering": "bufferedRendering",
+    "captionside": "captionSide",
+    "caretcolor": "caretColor",
+    "clear": "clear",
+    "clip": "clip",
+    "clippath": "clipPath",
+    "cliprule": "clipRule",
+    "color": "color",
+    "colorinterpolation": "colorInterpolation",
+    "colorinterpolationfilters": "colorInterpolationFilters",
+    "colorrendering": "colorRendering",
+    "colorscheme": "colorScheme",
+    "columncount": "columnCount",
+    "columnfill": "columnFill",
+    "columngap": "columnGap",
+    "columnrule": "columnRule",
+    "columnrulecolor": "columnRuleColor",
+    "columnrulestyle": "columnRuleStyle",
+    "columnrulewidth": "columnRuleWidth",
+    "columnspan": "columnSpan",
+    "columnwidth": "columnWidth",
+    "columns": "columns",
+    "contain": "contain",
+    "containintrinsicsize": "containIntrinsicSize",
+    "content": "content",
+    "counterincrement": "counterIncrement",
+    "counterreset": "counterReset",
+    "cursor": "cursor",
+    "cx": "cx",
+    "cy": "cy",
+    "d": "d",
+    "direction": "direction",
+    "display": "display",
+    "dominantbaseline": "dominantBaseline",
+    "emptycells": "emptyCells",
+    "fill": "fill",
+    "fillopacity": "fillOpacity",
+    "fillrule": "fillRule",
+    "filter": "filter",
+    "flex": "flex",
+    "flexbasis": "flexBasis",
+    "flexdirection": "flexDirection",
+    "flexflow": "flexFlow",
+    "flexgrow": "flexGrow",
+    "flexshrink": "flexShrink",
+    "flexwrap": "flexWrap",
+    "float": "float",
+    "floodcolor": "floodColor",
+    "floodopacity": "floodOpacity",
+    "font": "font",
+    "fontdisplay": "fontDisplay",
+    "fontfamily": "fontFamily",
+    "fontfeaturesettings": "fontFeatureSettings",
+    "fontkerning": "fontKerning",
+    "fontopticalsizing": "fontOpticalSizing",
+    "fontsize": "fontSize",
+    "fontstretch": "fontStretch",
+    "fontstyle": "fontStyle",
+    "fontvariant": "fontVariant",
+    "fontvariantcaps": "fontVariantCaps",
+    "fontvarianteastasian": "fontVariantEastAsian",
+    "fontvariantligatures": "fontVariantLigatures",
+    "fontvariantnumeric": "fontVariantNumeric",
+    "fontvariationsettings": "fontVariationSettings",
+    "fontweight": "fontWeight",
+    "gap": "gap",
+    "grid": "grid",
+    "gridarea": "gridArea",
+    "gridautocolumns": "gridAutoColumns",
+    "gridautoflow": "gridAutoFlow",
+    "gridautorows": "gridAutoRows",
+    "gridcolumn": "gridColumn",
+    "gridcolumnend": "gridColumnEnd",
+    "gridcolumngap": "gridColumnGap",
+    "gridcolumnstart": "gridColumnStart",
+    "gridgap": "gridGap",
+    "gridrow": "gridRow",
+    "gridrowend": "gridRowEnd",
+    "gridrowgap": "gridRowGap",
+    "gridrowstart": "gridRowStart",
+    "gridtemplate": "gridTemplate",
+    "gridtemplateareas": "gridTemplateAreas",
+    "gridtemplatecolumns": "gridTemplateColumns",
+    "gridtemplaterows": "gridTemplateRows",
+    "height": "height",
+    "hyphens": "hyphens",
+    "imageorientation": "imageOrientation",
+    "imagerendering": "imageRendering",
+    "inlinesize": "inlineSize",
+    "isolation": "isolation",
+    "justifycontent": "justifyContent",
+    "justifyitems": "justifyItems",
+    "justifyself": "justifySelf",
+    "left": "left",
+    "letterspacing": "letterSpacing",
+    "lightingcolor": "lightingColor",
+    "linebreak": "lineBreak",
+    "lineheight": "lineHeight",
+    "liststyle": "listStyle",
+    "liststyleimage": "listStyleImage",
+    "liststyleposition": "listStylePosition",
+    "liststyletype": "listStyleType",
+    "margin": "margin",
+    "marginblockend": "marginBlockEnd",
+    "marginblockstart": "marginBlockStart",
+    "marginbottom": "marginBottom",
+    "margininlineend": "marginInlineEnd",
+    "margininlinestart": "marginInlineStart",
+    "marginleft": "marginLeft",
+    "marginright": "marginRight",
+    "margintop": "marginTop",
+    "marker": "marker",
+    "markerend": "markerEnd",
+    "markermid": "markerMid",
+    "markerstart": "markerStart",
+    "mask": "mask",
+    "masktype": "maskType",
+    "maxblocksize": "maxBlockSize",
+    "maxheight": "maxHeight",
+    "maxinlinesize": "maxInlineSize",
+    "maxwidth": "maxWidth",
+    "maxzoom": "maxZoom",
+    "minblocksize": "minBlockSize",
+    "minheight": "minHeight",
+    "mininlinesize": "minInlineSize",
+    "minwidth": "minWidth",
+    "minzoom": "minZoom",
+    "mixblendmode": "mixBlendMode",
+    "objectfit": "objectFit",
+    "objectposition": "objectPosition",
+    "offset": "offset",
+    "offsetdistance": "offsetDistance",
+    "offsetpath": "offsetPath",
+    "offsetrotate": "offsetRotate",
+    "opacity": "opacity",
+    "order": "order",
+    "orientation": "orientation",
+    "orphans": "orphans",
+    "outline": "outline",
+    "outlinecolor": "outlineColor",
+    "outlineoffset": "outlineOffset",
+    "outlinestyle": "outlineStyle",
+    "outlinewidth": "outlineWidth",
+    "overflow": "overflow",
+    "overflowanchor": "overflowAnchor",
+    "overflowwrap": "overflowWrap",
+    "overflowx": "overflowX",
+    "overflowy": "overflowY",
+    "overscrollbehavior": "overscrollBehavior",
+    "overscrollbehaviorblock": "overscrollBehaviorBlock",
+    "overscrollbehaviorinline": "overscrollBehaviorInline",
+    "overscrollbehaviorx": "overscrollBehaviorX",
+    "overscrollbehaviory": "overscrollBehaviorY",
+    "padding": "padding",
+    "paddingblockend": "paddingBlockEnd",
+    "paddingblockstart": "paddingBlockStart",
+    "paddingbottom": "paddingBottom",
+    "paddinginlineend": "paddingInlineEnd",
+    "paddinginlinestart": "paddingInlineStart",
+    "paddingleft": "paddingLeft",
+    "paddingright": "paddingRight",
+    "paddingtop": "paddingTop",
+    "pagebreakafter": "pageBreakAfter",
+    "pagebreakbefore": "pageBreakBefore",
+    "pagebreakinside": "pageBreakInside",
+    "paintorder": "paintOrder",
+    "perspective": "perspective",
+    "perspectiveorigin": "perspectiveOrigin",
+    "placecontent": "placeContent",
+    "placeitems": "placeItems",
+    "placeself": "placeSelf",
+    "pointerevents": "pointerEvents",
+    "position": "position",
+    "quotes": "quotes",
+    "r": "r",
+    "resize": "resize",
+    "right": "right",
+    "rowgap": "rowGap",
+    "rx": "rx",
+    "ry": "ry",
+    "scrollbehavior": "scrollBehavior",
+    "scrollmargin": "scrollMargin",
+    "scrollmarginblock": "scrollMarginBlock",
+    "scrollmarginblockend": "scrollMarginBlockEnd",
+    "scrollmarginblockstart": "scrollMarginBlockStart",
+    "scrollmarginbottom": "scrollMarginBottom",
+    "scrollmargininline": "scrollMarginInline",
+    "scrollmargininlineend": "scrollMarginInlineEnd",
+    "scrollmargininlinestart": "scrollMarginInlineStart",
+    "scrollmarginleft": "scrollMarginLeft",
+    "scrollmarginright": "scrollMarginRight",
+    "scrollmargintop": "scrollMarginTop",
+    "scrollpadding": "scrollPadding",
+    "scrollpaddingblock": "scrollPaddingBlock",
+    "scrollpaddingblockend": "scrollPaddingBlockEnd",
+    "scrollpaddingblockstart": "scrollPaddingBlockStart",
+    "scrollpaddingbottom": "scrollPaddingBottom",
+    "scrollpaddinginline": "scrollPaddingInline",
+    "scrollpaddinginlineend": "scrollPaddingInlineEnd",
+    "scrollpaddinginlinestart": "scrollPaddingInlineStart",
+    "scrollpaddingleft": "scrollPaddingLeft",
+    "scrollpaddingright": "scrollPaddingRight",
+    "scrollpaddingtop": "scrollPaddingTop",
+    "scrollsnapalign": "scrollSnapAlign",
+    "scrollsnapstop": "scrollSnapStop",
+    "scrollsnaptype": "scrollSnapType",
+    "shapeimagethreshold": "shapeImageThreshold",
+    "shapemargin": "shapeMargin",
+    "shapeoutside": "shapeOutside",
+    "shaperendering": "shapeRendering",
+    "size": "size",
+    "speak": "speak",
+    "src": "src",
+    "stopcolor": "stopColor",
+    "stopopacity": "stopOpacity",
+    "stroke": "stroke",
+    "strokedasharray": "strokeDasharray",
+    "strokedashoffset": "strokeDashoffset",
+    "strokelinecap": "strokeLinecap",
+    "strokelinejoin": "strokeLinejoin",
+    "strokemiterlimit": "strokeMiterlimit",
+    "strokeopacity": "strokeOpacity",
+    "strokewidth": "strokeWidth",
+    "tabsize": "tabSize",
+    "tablelayout": "tableLayout",
+    "textalign": "textAlign",
+    "textalignlast": "textAlignLast",
+    "textanchor": "textAnchor",
+    "textcombineupright": "textCombineUpright",
+    "textdecoration": "textDecoration",
+    "textdecorationcolor": "textDecorationColor",
+    "textdecorationline": "textDecorationLine",
+    "textdecorationskipink": "textDecorationSkipInk",
+    "textdecorationstyle": "textDecorationStyle",
+    "textindent": "textIndent",
+    "textorientation": "textOrientation",
+    "textoverflow": "textOverflow",
+    "textrendering": "textRendering",
+    "textshadow": "textShadow",
+    "textsizeadjust": "textSizeAdjust",
+    "texttransform": "textTransform",
+    "textunderlineposition": "textUnderlinePosition",
+    "top": "top",
+    "touchaction": "touchAction",
+    "transform": "transform",
+    "transformbox": "transformBox",
+    "transformorigin": "transformOrigin",
+    "transformstyle": "transformStyle",
+    "transition": "transition",
+    "transitiondelay": "transitionDelay",
+    "transitionduration": "transitionDuration",
+    "transitionproperty": "transitionProperty",
+    "transitiontimingfunction": "transitionTimingFunction",
+    "unicodebidi": "unicodeBidi",
+    "unicoderange": "unicodeRange",
+    "userselect": "userSelect",
+    "userzoom": "userZoom",
+    "vectoreffect": "vectorEffect",
+    "verticalalign": "verticalAlign",
+    "visibility": "visibility",
+    "webkitaligncontent": "webkitAlignContent",
+    "webkitalignitems": "webkitAlignItems",
+    "webkitalignself": "webkitAlignSelf",
+    "webkitanimation": "webkitAnimation",
+    "webkitanimationdelay": "webkitAnimationDelay",
+    "webkitanimationdirection": "webkitAnimationDirection",
+    "webkitanimationduration": "webkitAnimationDuration",
+    "webkitanimationfillmode": "webkitAnimationFillMode",
+    "webkitanimationiterationcount": "webkitAnimationIterationCount",
+    "webkitanimationname": "webkitAnimationName",
+    "webkitanimationplaystate": "webkitAnimationPlayState",
+    "webkitanimationtimingfunction": "webkitAnimationTimingFunction",
+    "webkitappregion": "webkitAppRegion",
+    "webkitappearance": "webkitAppearance",
+    "webkitbackfacevisibility": "webkitBackfaceVisibility",
+    "webkitbackgroundclip": "webkitBackgroundClip",
+    "webkitbackgroundorigin": "webkitBackgroundOrigin",
+    "webkitbackgroundsize": "webkitBackgroundSize",
+    "webkitborderafter": "webkitBorderAfter",
+    "webkitborderaftercolor": "webkitBorderAfterColor",
+    "webkitborderafterstyle": "webkitBorderAfterStyle",
+    "webkitborderafterwidth": "webkitBorderAfterWidth",
+    "webkitborderbefore": "webkitBorderBefore",
+    "webkitborderbeforecolor": "webkitBorderBeforeColor",
+    "webkitborderbeforestyle": "webkitBorderBeforeStyle",
+    "webkitborderbeforewidth": "webkitBorderBeforeWidth",
+    "webkitborderbottomleftradius": "webkitBorderBottomLeftRadius",
+    "webkitborderbottomrightradius": "webkitBorderBottomRightRadius",
+    "webkitborderend": "webkitBorderEnd",
+    "webkitborderendcolor": "webkitBorderEndColor",
+    "webkitborderendstyle": "webkitBorderEndStyle",
+    "webkitborderendwidth": "webkitBorderEndWidth",
+    "webkitborderhorizontalspacing": "webkitBorderHorizontalSpacing",
+    "webkitborderimage": "webkitBorderImage",
+    "webkitborderradius": "webkitBorderRadius",
+    "webkitborderstart": "webkitBorderStart",
+    "webkitborderstartcolor": "webkitBorderStartColor",
+    "webkitborderstartstyle": "webkitBorderStartStyle",
+    "webkitborderstartwidth": "webkitBorderStartWidth",
+    "webkitbordertopleftradius": "webkitBorderTopLeftRadius",
+    "webkitbordertoprightradius": "webkitBorderTopRightRadius",
+    "webkitborderverticalspacing": "webkitBorderVerticalSpacing",
+    "webkitboxalign": "webkitBoxAlign",
+    "webkitboxdecorationbreak": "webkitBoxDecorationBreak",
+    "webkitboxdirection": "webkitBoxDirection",
+    "webkitboxflex": "webkitBoxFlex",
+    "webkitboxordinalgroup": "webkitBoxOrdinalGroup",
+    "webkitboxorient": "webkitBoxOrient",
+    "webkitboxpack": "webkitBoxPack",
+    "webkitboxreflect": "webkitBoxReflect",
+    "webkitboxshadow": "webkitBoxShadow",
+    "webkitboxsizing": "webkitBoxSizing",
+    "webkitclippath": "webkitClipPath",
+    "webkitcolumnbreakafter": "webkitColumnBreakAfter",
+    "webkitcolumnbreakbefore": "webkitColumnBreakBefore",
+    "webkitcolumnbreakinside": "webkitColumnBreakInside",
+    "webkitcolumncount": "webkitColumnCount",
+    "webkitcolumngap": "webkitColumnGap",
+    "webkitcolumnrule": "webkitColumnRule",
+    "webkitcolumnrulecolor": "webkitColumnRuleColor",
+    "webkitcolumnrulestyle": "webkitColumnRuleStyle",
+    "webkitcolumnrulewidth": "webkitColumnRuleWidth",
+    "webkitcolumnspan": "webkitColumnSpan",
+    "webkitcolumnwidth": "webkitColumnWidth",
+    "webkitcolumns": "webkitColumns",
+    "webkitfilter": "webkitFilter",
+    "webkitflex": "webkitFlex",
+    "webkitflexbasis": "webkitFlexBasis",
+    "webkitflexdirection": "webkitFlexDirection",
+    "webkitflexflow": "webkitFlexFlow",
+    "webkitflexgrow": "webkitFlexGrow",
+    "webkitflexshrink": "webkitFlexShrink",
+    "webkitflexwrap": "webkitFlexWrap",
+    "webkitfontfeaturesettings": "webkitFontFeatureSettings",
+    "webkitfontsizedelta": "webkitFontSizeDelta",
+    "webkitfontsmoothing": "webkitFontSmoothing",
+    "webkithighlight": "webkitHighlight",
+    "webkithyphenatecharacter": "webkitHyphenateCharacter",
+    "webkitjustifycontent": "webkitJustifyContent",
+    "webkitlinebreak": "webkitLineBreak",
+    "webkitlineclamp": "webkitLineClamp",
+    "webkitlocale": "webkitLocale",
+    "webkitlogicalheight": "webkitLogicalHeight",
+    "webkitlogicalwidth": "webkitLogicalWidth",
+    "webkitmarginafter": "webkitMarginAfter",
+    "webkitmarginbefore": "webkitMarginBefore",
+    "webkitmarginend": "webkitMarginEnd",
+    "webkitmarginstart": "webkitMarginStart",
+    "webkitmask": "webkitMask",
+    "webkitmaskboximage": "webkitMaskBoxImage",
+    "webkitmaskboximageoutset": "webkitMaskBoxImageOutset",
+    "webkitmaskboximagerepeat": "webkitMaskBoxImageRepeat",
+    "webkitmaskboximageslice": "webkitMaskBoxImageSlice",
+    "webkitmaskboximagesource": "webkitMaskBoxImageSource",
+    "webkitmaskboximagewidth": "webkitMaskBoxImageWidth",
+    "webkitmaskclip": "webkitMaskClip",
+    "webkitmaskcomposite": "webkitMaskComposite",
+    "webkitmaskimage": "webkitMaskImage",
+    "webkitmaskorigin": "webkitMaskOrigin",
+    "webkitmaskposition": "webkitMaskPosition",
+    "webkitmaskpositionx": "webkitMaskPositionX",
+    "webkitmaskpositiony": "webkitMaskPositionY",
+    "webkitmaskrepeat": "webkitMaskRepeat",
+    "webkitmaskrepeatx": "webkitMaskRepeatX",
+    "webkitmaskrepeaty": "webkitMaskRepeatY",
+    "webkitmasksize": "webkitMaskSize",
+    "webkitmaxlogicalheight": "webkitMaxLogicalHeight",
+    "webkitmaxlogicalwidth": "webkitMaxLogicalWidth",
+    "webkitminlogicalheight": "webkitMinLogicalHeight",
+    "webkitminlogicalwidth": "webkitMinLogicalWidth",
+    "webkitopacity": "webkitOpacity",
+    "webkitorder": "webkitOrder",
+    "webkitpaddingafter": "webkitPaddingAfter",
+    "webkitpaddingbefore": "webkitPaddingBefore",
+    "webkitpaddingend": "webkitPaddingEnd",
+    "webkitpaddingstart": "webkitPaddingStart",
+    "webkitperspective": "webkitPerspective",
+    "webkitperspectiveorigin": "webkitPerspectiveOrigin",
+    "webkitperspectiveoriginx": "webkitPerspectiveOriginX",
+    "webkitperspectiveoriginy": "webkitPerspectiveOriginY",
+    "webkitprintcoloradjust": "webkitPrintColorAdjust",
+    "webkitrtlordering": "webkitRtlOrdering",
+    "webkitrubyposition": "webkitRubyPosition",
+    "webkitshapeimagethreshold": "webkitShapeImageThreshold",
+    "webkitshapemargin": "webkitShapeMargin",
+    "webkitshapeoutside": "webkitShapeOutside",
+    "webkittaphighlightcolor": "webkitTapHighlightColor",
+    "webkittextcombine": "webkitTextCombine",
+    "webkittextdecorationsineffect": "webkitTextDecorationsInEffect",
+    "webkittextemphasis": "webkitTextEmphasis",
+    "webkittextemphasiscolor": "webkitTextEmphasisColor",
+    "webkittextemphasisposition": "webkitTextEmphasisPosition",
+    "webkittextemphasisstyle": "webkitTextEmphasisStyle",
+    "webkittextfillcolor": "webkitTextFillColor",
+    "webkittextorientation": "webkitTextOrientation",
+    "webkittextsecurity": "webkitTextSecurity",
+    "webkittextsizeadjust": "webkitTextSizeAdjust",
+    "webkittextstroke": "webkitTextStroke",
+    "webkittextstrokecolor": "webkitTextStrokeColor",
+    "webkittextstrokewidth": "webkitTextStrokeWidth",
+    "webkittransform": "webkitTransform",
+    "webkittransformorigin": "webkitTransformOrigin",
+    "webkittransformoriginx": "webkitTransformOriginX",
+    "webkittransformoriginy": "webkitTransformOriginY",
+    "webkittransformoriginz": "webkitTransformOriginZ",
+    "webkittransformstyle": "webkitTransformStyle",
+    "webkittransition": "webkitTransition",
+    "webkittransitiondelay": "webkitTransitionDelay",
+    "webkittransitionduration": "webkitTransitionDuration",
+    "webkittransitionproperty": "webkitTransitionProperty",
+    "webkittransitiontimingfunction": "webkitTransitionTimingFunction",
+    "webkituserdrag": "webkitUserDrag",
+    "webkitusermodify": "webkitUserModify",
+    "webkituserselect": "webkitUserSelect",
+    "webkitwritingmode": "webkitWritingMode",
+    "whitespace": "whiteSpace",
+    "widows": "widows",
+    "width": "width",
+    "willchange": "willChange",
+    "wordbreak": "wordBreak",
+    "wordspacing": "wordSpacing",
+    "wordwrap": "wordWrap",
+    "writingmode": "writingMode",
+    "x": "x",
+    "y": "y",
+    "zindex": "zIndex",
+    "zoom": "zoom",
+    "csstext": "cssText",
+    "length": "length",
+    "parentrule": "parentRule",
+    "cssfloat": "cssFloat",
+    "item": "item",
+    "getpropertyvalue": "getPropertyValue",
+    "getpropertypriority": "getPropertyPriority",
+    "setproperty": "setProperty",
+    "removeproperty": "removeProperty"
+  }
+};
+
+/***/ }),
+/* 381 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var Mura = __webpack_require__(7);
+
+if (typeof document != 'undefined') {
+  var tocss = {};
+  var CSSStyleDeclaration = document.createElement('div').style;
+  var fromArray;
+  var toArray;
+
+  for (var s in CSSStyleDeclaration) {
+    fromArray = s.split(/(?=[A-Z])/);
+    toArray = [];
+
+    for (var i in fromArray) {
+      toArray.push(fromArray[i].toLowerCase());
+    }
+
+    tocss[s] = toArray.join("-");
+  }
+
+  var styleMap = {
+    tocss: tocss,
+    tojs: {}
+  };
+
+  for (var s in tocss) {
+    styleMap.tojs[s.toLowerCase()] = s;
+    styleMap.tocss[s.toLowerCase()] = styleMap.tocss[s];
+  }
+
+  Mura.styleMap = styleMap;
+}
 
 /***/ })
 /******/ ]);

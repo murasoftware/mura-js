@@ -1184,20 +1184,20 @@ Mura.DOMSelection = Mura.Core.extend(
 			this.each(function(el) {
 				try {
 					for (var p in ruleName) {
-						el.style[Mura.styleMap.tojs[p]] = ruleName[p];
+						el.style[Mura.styleMap.tojs[p.toLowerCase()]] = ruleName[p];
 					}
 				} catch (e) {console.log(e)}
 			});
 		} else if (typeof value != 'undefined') {
 			this.each(function(el) {
 				try {
-					el.style[Mura.styleMap.tojs[ruleName]] = value;
+					el.style[Mura.styleMap.tojs[ruleName.toLowerCase()]] = value;
 				} catch (e) {console.log(e)}
 			});
 			return this;
 		} else {
 			try {
-				return getComputedStyle(this.selection[	0])[Mura.styleMap.tojs[ruleName]];
+				return getComputedStyle(this.selection[	0])[Mura.styleMap.tojs[ruleName.toLowerCase()]];
 			} catch (e) {console.log(e)}
 		}
 	},
@@ -1210,11 +1210,10 @@ Mura.DOMSelection = Mura.Core.extend(
 	 calculateDisplayObjectStyles(windowResponse) {
 		
  		this.each(function(el) {
-
-			var obj=Mura(el);
 			var breakpoints=['mura-xs','mura-sm','mura-md','mura-lg'];
 			var objBreakpoint='mura-sm';
-			
+			var obj=Mura(el);
+
 			for(var b=0;b<breakpoints.length;b++){
 				if(obj.is('.' + breakpoints[b])){
 					objBreakpoint=breakpoints[b];
@@ -1222,126 +1221,7 @@ Mura.DOMSelection = Mura.Core.extend(
 				}
 			}
 
-			var styleTargets={
-				object:{
-					targets:[
-						{
-							name:'objectstyles',
-							selectors:[
-								'@media (min-width: 1200px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]',
-								'@media (min-width: 1500px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]'
-							]
-						},
-						{
-							name:'object_lg_styles',
-							selectors:[
-								'@media (min-width: 992px) and (max-width: 1199px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]',
-								'@media (min-width: 1292px) and (max-width: 1399px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]'
-							]
-						},
-						{
-							name:'object_md_styles',
-							selectors:[
-								'@media (min-width: 768px) and (max-width: 991px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]',
-								'@media (min-width: 1068px) and (max-width: 1291px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]'
-							]
-						},
-						{
-							name:'object_sm_styles',
-							selectors:[
-								'@media (min-width: 576px) and (max-width: 767px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]',
-								'@media (min-width: 876px) and (max-width: 1067px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]'
-							]
-						},
-						{
-							name:'object_xs_styles',
-							selectors:[
-								'@media (max-width: 575px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]',
-								'@media (max-width: 875px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"]'
-							]
-						}
-					]
-				},
-				meta:{
-					targets:[
-						{
-							name:'metastyles',
-							selectors:[
-								'@media (min-width: 1200px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta',
-								'@media (min-width: 1500px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta'
-							]
-						},
-						{
-							name:'meta_lg_styles',
-							selectors:[
-								'@media (min-width: 992px) and (max-width: 1199px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta',
-								'@media (min-width: 1292px) and (max-width: 1399px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta'
-							]
-						},
-						{
-							name:'meta_md_styles',
-							selectors:[
-								'@media (min-width: 768px) an (max-width: 991px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta',
-								'@media (min-width: 1068px) an (max-width: 1291px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta'
-							]
-						},
-						{
-							name:'meta_sm_styles',
-							selectors:[
-								'@media (min-width: 576px) an (max-width: 767) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta',
-								'@media (min-width: 876px) an (max-width: 1067) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta'
-							]
-						},
-						{
-							name:'meta_xs_styles',
-							selectors:[
-								'@media (max-width: 575px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta',
-								'@media (max-width: 875px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-meta-wrapper > div.mura-object-meta'
-							]
-						}
-					]
-				},
-				content:{
-					targets:[
-						{
-							name:'contentstyles',
-							selectors:[
-								'@media (min-width: 1200px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content',
-								'@media (min-width: 1500px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content'
-							]
-						},
-						{
-							name:'content_lg_styles',
-							selectors:[
-								'@media (max-width: 992px) and (max-width: 1199px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content',
-								'@media (max-width: 1292px) and (max-width: 1499px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content'
-							]
-						},
-						{
-							name:'content_md_styles',
-							selectors:[
-								'@media (min-width: 768px) and (max-width: 991px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content',
-								'@media (min-width: 1068px) and (max-width: 1291px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content'
-							]
-						},
-						{
-							name:'content_sm_styles',
-							selectors:[
-								'@media (min-width: 576px) and (max-width: 767px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content',
-								'@media (min-width: 876px) and (max-width: 1067px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content'
-							]
-						},
-						{
-							name:'content_xs_styles',
-							selectors:[
-								'@media (max-width: 575px) { div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content',
-								'@media (max-width: 875px) { .mura-editing div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] > div.mura-object-content'
-							]
-						}
-
-					]
-				}
-			}
+			var styleTargets=Mura.getModuleStyleTargets(obj.data('instanceid'));
 
 			var fullsize=breakpoints.indexOf('mura-' + Mura.getBreakpoint()) >= breakpoints.indexOf(objBreakpoint);
 			
@@ -1395,8 +1275,8 @@ Mura.DOMSelection = Mura.Core.extend(
 					sheet.deleteRule(0);
 				}
 				
-				applyConfiguratorStyles(styleSupport,styleTargets.object,sheet,obj);
-				applyConfiguratorCustomCSS(styleSupport);
+				Mura.applyModuleStyles(styleSupport,styleTargets.object,sheet,obj);
+				Mura.applyModuleCustomCSS(styleSupport,sheet,obj.data('instanceid'));
 			}
  			
 			var metaWrapper=obj.children('.mura-object-meta-wrapper');
@@ -1408,7 +1288,7 @@ Mura.DOMSelection = Mura.Core.extend(
 					meta.removeAttr('style');
 
 					if(!windowResponse){
-						applyConfiguratorStyles(styleSupport,styleTargets.meta,sheet,obj);
+						Mura.applyModuleStyles(styleSupport,styleTargets.meta,sheet,obj);
 					}
 
 					applyMetaClassesAndId(obj);
@@ -1421,7 +1301,7 @@ Mura.DOMSelection = Mura.Core.extend(
 			content.removeAttr('style');
 
 			if(!windowResponse){
-				applyConfiguratorStyles(styleSupport,styleTargets.content,sheet,obj);
+				Mura.applyModuleStyles(styleSupport,styleTargets.content,sheet,obj);
 			}
 
 			applyContentClassesAndId(obj,content,metaWrapper);
@@ -1429,90 +1309,6 @@ Mura.DOMSelection = Mura.Core.extend(
 			applyMarginWidthOffset(obj);
 
 			pinUIToolsToTopLeft(obj);
-
-			function handleBackround(styles){
-				var hasLayeredBg=(styles && typeof styles.backgroundColor != 'undefined' && styles.backgroundColor
-				&& typeof styles.backgroundImage != 'undefined' && styles.backgroundImage);	
-				
-				if(hasLayeredBg){
-					styles.backgroundImage='linear-gradient(' + styles.backgroundColor + ', ' + styles.backgroundColor +' ), ' + styles.backgroundImage;
-				}
-
-				hasLayeredBg=(styles && typeof styles.backgroundcolor != 'undefined' && styles.backgroundcolor
-				&& typeof styles.backgroundimage != 'undefined' && styles.backgroundimage);	
-				
-				if(hasLayeredBg){
-					styles.backgroundImage='linear-gradient(' + styles.backgroundcolor + ', ' + styles.backgroundcolor +' ), ' + styles.backgroundimage;
-				}
-			}
-
-			function handleTextColor(sheet,selector,styles){
-				try{
-					if(styles.color){
-						var style=selector + ', ' + selector + ' label, ' + selector + ' p, ' + selector + ' h1, ' + selector + ' h2, ' + selector + ' h3, ' + selector + ' h4, ' + selector + ' h5, ' + selector + ' h6, ' +selector + ' a:link, ' + selector + ' a:visited, '  + selector + ' a:hover, ' + selector + ' .breadcrumb-item + .breadcrumb-item::before, ' + selector + ' a:active { color:' + styles.color + ';} ';
-						sheet.insertRule(
-							style,
-							sheet.cssRules.length
-						);
-						sheet.insertRule(
-							selector + ' * {color:inherit}',
-							sheet.cssRules.length
-						);
-						sheet.insertRule(
-							selector + ' hr { border-color:' + styles.color + ';}',
-							sheet.cssRules.length
-						);
-					}
-				} catch (e){
-					console.log("error adding color: " + styles.color);
-					console.log(e);
-				}
-			}
-
-			function applyConfiguratorStyles(styleSupport,group,sheet,obj){
-				var acummulator={};
-				var dyncss='';
-	
-				group.targets.forEach((target)=>{
-					var styles={};
-
-					if(styleSupport && styleSupport[target.name]){
-						styles=styleSupport[target.name];
-					}
-				
-					acummulator=Mura.extend(acummulator,styles);
-			
-					handleBackround(styles);
-
-					for(var s in acummulator){
-						if(acummulator.hasOwnProperty(s)){
-							if(typeof Mura.styleMap.tojs[s] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[s]] != 'undefined'){
-								dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[s]]  + ': ' + acummulator[s] + '!important;';
-							} else {
-								obj.css(s,acummulator[s]);
-							}		
-						}
-					}
-
-					target.selectors.forEach((selector)=>{
-						handleTextColor(sheet,selector,styles);
-					});
-
-					if(dyncss){
-						try {
-							target.selectors.forEach((selector)=>{
-								sheet.insertRule(
-									selector + ' {' + dyncss+ '}}',
-									sheet.cssRules.length
-								);
-							});							
-						} catch (e){
-							console.log(selector + ' {' + dyncss+ '}}')
-							console.log(e);
-						}
-					}
-				});
-			}
 
 			function applyObjectClassesAndId(obj){
 				if (obj.data('class')) {
@@ -1591,37 +1387,6 @@ Mura.DOMSelection = Mura.Core.extend(
 							content.css('width','calc(50% - (' + left + ' + ' + right + '))');
 						}
 						Mura.windowResponsiveModules[obj.data('instanceid')]=true;
-					}
-				}
-			}
-
-			function applyConfiguratorCustomCSS(styleSupport){
-				if(styleSupport.css){
-					var styles=styleSupport.css.split('}');
-					if(Array.isArray(styles) && styles.length){
-						styles.forEach(function(style){
-							var styleParts=style.split("{");
-							if(styleParts.length > 1){
-								var selectors=styleParts[0].split(',');
-								selectors.forEach(function(subSelector){
-									try{
-										var subStyle='div.mura-object[data-instanceid="' + obj.data('instanceid') + '"] ' + subSelector.replace(/\$self/g,'') + '{' + styleParts[1] + '}';
-										sheet.insertRule(
-											subStyle,
-											sheet.cssRules.length
-										);
-										if(Mura.editing){
-											console.log('Applying dynamic styles:' + subStyle);
-										}
-									} catch(e){
-										if(Mura.editing){
-											console.log('Error applying dynamic styles:' + subStyle);
-											console.log(e);
-										}
-									}
-								});
-							}
-						});
 					}
 				}
 			}
@@ -1962,6 +1727,14 @@ Mura.DOMSelection = Mura.Core.extend(
 				}
 			});
 			return this;
+		} else if (this.selection[0].tagName=='SELECT'){
+			var val=[];
+			for (var j = this.selection[0].options.length - 1; j >= 0; j--) {
+				if (this.selection[0].options[j].selected){
+					val.push(this.selection[0].options[j].value);
+				}
+			}
+			return val.join(",");
 		} else {
 			if (Object.prototype.hasOwnProperty.call(this.selection[0], 'value') ||
 				typeof this.selection[0].value != 'undefined') {
