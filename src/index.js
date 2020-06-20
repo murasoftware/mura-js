@@ -36,7 +36,7 @@ if(Mura.isInNode()){
 
 	Mura._escapeHTML=eval("require('escape-html')");
 
-	require('./core/stylemap.static');
+	eval("require('./core/stylemap-static')");
 
 } else if (typeof window != 'undefined'){
 

@@ -2941,7 +2941,12 @@ function getStyleSheet(id) {
 					this.cssRules.push(rule);
 				},
 				cssRules:[],
-				id: id
+				instanceid: id,
+				targets:{
+					object:{},
+					meta:{},
+					content:{}	
+				}
 			}
 		} 
 
@@ -2995,6 +3000,22 @@ function applyModuleCustomCSS(styleSupport,sheet, id){
 			});
 		}
 	}
+}
+
+/**
+ * recordModuleStyles - ;
+ *
+ * @param	{object} styleSupport Object Containing Module Style configuration
+ * @param	{string} id module instanceid
+ * @return {void}	void
+ */
+function recordModuleStyles(styleSupport,id){
+	var sheet=getStyleSheet(id);
+	var styleTargets=getModuleStyleTargets(id);
+	applyModuleStyles(styleSupport,styleTargets.object,sheet);
+	applyModuleCustomCSS(styleSupport,sheet,id);
+	applyModuleStyles(styleSupport,styleTargets.meta,sheet);
+	applyModuleStyles(styleSupport,styleTargets.target,sheet);
 }
 
 /**
