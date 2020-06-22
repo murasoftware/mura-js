@@ -33,10 +33,8 @@ if(Mura.isInNode()){
 		https://github.com/node-fetch/
 	*/
 	Mura._request=eval("require('request')");
-
 	Mura._escapeHTML=eval("require('escape-html')");
-
-	eval("require('./core/stylemap-static')");
+	Mura.styleMap=eval("require('./core/stylemap-static')");
 
 } else if (typeof window != 'undefined'){
 

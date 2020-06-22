@@ -3026,9 +3026,18 @@ function getStyleSheet(id) {
         cssRules: [],
         instanceid: id,
         targets: {
-          object: {},
-          meta: {},
-          content: {}
+          object: {
+            "class": "mura-object"
+          },
+          meta: {
+            "class": "mura-object-meta"
+          },
+          metawrapper: {
+            "class": "mura-object-meta-wrapper"
+          },
+          content: {
+            "class": "mura-object-content"
+          }
         }
       };
     }
@@ -3088,19 +3097,55 @@ function applyModuleCustomCSS(styleSupport, sheet, id) {
 /**
  * recordModuleStyles - ;
  *
- * @param	{object} styleSupport Object Containing Module Style configuration
- * @param	{string} id module instanceid
- * @return {void}	void
+ * @param	{object} params Object Containing Module Style configuration
+ * @return {object}	style object
  */
 
 
-function recordModuleStyles(styleSupport, id) {
-  var sheet = getStyleSheet(id);
-  var styleTargets = getModuleStyleTargets(id);
-  applyModuleStyles(styleSupport, styleTargets.object, sheet);
-  applyModuleCustomCSS(styleSupport, sheet, id);
-  applyModuleStyles(styleSupport, styleTargets.meta, sheet);
-  applyModuleStyles(styleSupport, styleTargets.target, sheet);
+function recordModuleStyles(params) {
+  var sheet = getStyleSheet(params.instanceid);
+  var styleTargets = getModuleStyleTargets(params.instanceid);
+  params.styleSupport = params.stylesupport || {};
+  applyModuleStyles(params.stylesupport, styleTargets.object, sheet);
+  applyModuleCustomCSS(params.stylesupport, sheet, id);
+  applyModuleStyles(params.stylesupport, styleTargets.meta, sheet);
+  applyModuleStyles(params.stylesupport, styleTargets.target, sheet);
+
+  if (typeof params["class"] != 'undefined' && params["class"] != '') {
+    sheet.targets.object["class"] += ' ' + params["class"];
+  }
+
+  if (typeof params.cssclass != 'undefined' && params.cssclass != '') {
+    sheet.targets.object["class"] += ' ' + params.cssclass;
+  }
+
+  if (typeof params.cssid != 'undefined' && params.cssid != '') {
+    sheet.targets.object.id = params.cssid;
+  }
+
+  if (typeof params.metacssclass != 'undefined' && params.metacssclass != '') {
+    sheet.targets.meta["class"] += ' ' + params.metacssclass;
+  }
+
+  if (typeof params.metacssid != 'undefined' && params.metacssid != '') {
+    sheet.targets.meta.id = params.metacssid;
+  }
+
+  if (typeof params.contentcssclass != 'undefined' && params.contentcssclass != '') {
+    sheet.targets.content["class"] += ' ' + params.contentcssclass;
+  }
+
+  if (typeof params.contentcssid != 'undefined' && params.contentcssid != '') {
+    sheet.targets.content.id = params.contentcssid;
+  }
+
+  if (sheet.targets.content["class"].split(' ').find(function ($class) {
+    return $class = 'container';
+  })) {
+    sheet.targets.metawrapper["class"] += 'container';
+  }
+
+  return sheet;
 }
 /**
  * applyModuleStyles - Returns a stylesheet object;
@@ -3811,6 +3856,7 @@ var Mura = extend(function (selector, context) {
   parseString: parseString,
   createCookie: createCookie,
   readCookie: readCookie,
+  eraseCookie: eraseCookie,
   trim: trim,
   hashCode: hashCode,
   DisplayObject: {},
@@ -3837,6 +3883,7 @@ var Mura = extend(function (selector, context) {
   getStyleSheet: getStyleSheet,
   applyModuleStyles: applyModuleStyles,
   applyModuleCustomCSS: applyModuleCustomCSS,
+  recordModuleStyles: recordModuleStyles,
   getModuleStyleTargets: getModuleStyleTargets,
   getBreakpoint: getBreakpoint,
   getAPIEndpoint: getAPIEndpoint,
@@ -13920,7 +13967,7 @@ if (Mura.isInNode()) {
   */
   Mura._request = eval("require('request')");
   Mura._escapeHTML = eval("require('escape-html')");
-  eval("require('./core/stylemap-static')");
+  Mura.styleMap = eval("require('./core/stylemap-static')");
 } else if (typeof window != 'undefined') {
   __webpack_require__(380);
 

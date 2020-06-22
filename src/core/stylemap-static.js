@@ -1,6 +1,4 @@
-var Mura=require('./core');
-
-Mura.styleMap={
+var styleMap={
     "tocss": {
         "alignContent": "align-content",
         "alignItems": "align-items",
@@ -1513,3 +1511,5 @@ Mura.styleMap={
         "removeproperty": "removeProperty"
     }
 }
+
+module.exports=styleMap;
