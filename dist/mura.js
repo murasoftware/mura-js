@@ -3024,7 +3024,7 @@ function getStyleSheet(id) {
           this.cssRules.push(rule);
         },
         cssRules: [],
-        instanceid: id,
+        id: id,
         targets: {
           object: {
             "class": "mura-object"
@@ -3109,7 +3109,7 @@ function recordModuleStyles(params) {
   applyModuleStyles(params.stylesupport, styleTargets.object, sheet);
   applyModuleCustomCSS(params.stylesupport, sheet, id);
   applyModuleStyles(params.stylesupport, styleTargets.meta, sheet);
-  applyModuleStyles(params.stylesupport, styleTargets.target, sheet);
+  applyModuleStyles(params.stylesupport, styleTargets.content, sheet);
 
   if (typeof params["class"] != 'undefined' && params["class"] != '') {
     sheet.targets.object["class"] += ' ' + params["class"];
