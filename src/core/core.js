@@ -3076,11 +3076,10 @@ function recordModuleStyles(params){
  */
 function applyModuleStyles(styleSupport,group,sheet,obj){
 	var acummulator={};
-	var dyncss='';
-
+	
 	group.targets.forEach((target)=>{
 		var styles={};
-
+		var dyncss='';
 		if(styleSupport && styleSupport[target.name]){
 			styles=styleSupport[target.name];
 		}
@@ -3100,10 +3099,6 @@ function applyModuleStyles(styleSupport,group,sheet,obj){
 			}
 		}
 
-		target.selectors.forEach((selector)=>{
-			handleTextColor(sheet,selector,styles);
-		});
-
 		if(dyncss){
 			try {
 				target.selectors.forEach((selector)=>{
@@ -3111,6 +3106,8 @@ function applyModuleStyles(styleSupport,group,sheet,obj){
 						selector + ' {' + dyncss+ '}}',
 						sheet.cssRules.length
 					);
+					//console.log(selector + ' {' + dyncss+ '}}')
+					handleTextColor(sheet,selector,styles);
 				});							
 			} catch (e){
 				console.log(selector + ' {' + dyncss+ '}}')
@@ -3120,43 +3117,46 @@ function applyModuleStyles(styleSupport,group,sheet,obj){
 	});
 
 	function handleBackround(styles){
-			var hasLayeredBg=(styles && typeof styles.backgroundColor != 'undefined' && styles.backgroundColor
-			&& typeof styles.backgroundImage != 'undefined' && styles.backgroundImage);	
-			
-			if(hasLayeredBg){
-				styles.backgroundImage='linear-gradient(' + styles.backgroundColor + ', ' + styles.backgroundColor +' ), ' + styles.backgroundImage;
-			}
-
-			hasLayeredBg=(styles && typeof styles.backgroundcolor != 'undefined' && styles.backgroundcolor
-			&& typeof styles.backgroundimage != 'undefined' && styles.backgroundimage);	
-			
-			if(hasLayeredBg){
-				styles.backgroundImage='linear-gradient(' + styles.backgroundcolor + ', ' + styles.backgroundcolor +' ), ' + styles.backgroundimage;
-			}
+		var hasLayeredBg=(styles && typeof styles.backgroundColor != 'undefined' && styles.backgroundColor
+		&& typeof styles.backgroundImage != 'undefined' && styles.backgroundImage);	
+		
+		if(hasLayeredBg){
+			styles.backgroundImage='linear-gradient(' + styles.backgroundColor + ', ' + styles.backgroundColor +' ), ' + styles.backgroundImage;
 		}
 
-		function handleTextColor(sheet,selector,styles){
-			try{
-				if(styles.color){
-					var style=selector + ', ' + selector + ' label, ' + selector + ' p, ' + selector + ' h1, ' + selector + ' h2, ' + selector + ' h3, ' + selector + ' h4, ' + selector + ' h5, ' + selector + ' h6, ' +selector + ' a:link, ' + selector + ' a:visited, '  + selector + ' a:hover, ' + selector + ' .breadcrumb-item + .breadcrumb-item::before, ' + selector + ' a:active { color:' + styles.color + ';} ';
-					sheet.insertRule(
-						style,
-						sheet.cssRules.length
-					);
-					sheet.insertRule(
-						selector + ' * {color:inherit}',
-						sheet.cssRules.length
-					);
-					sheet.insertRule(
-						selector + ' hr { border-color:' + styles.color + ';}',
-						sheet.cssRules.length
-					);
-				}
-			} catch (e){
-				console.log("error adding color: " + styles.color);
-				console.log(e);
-			}
+		hasLayeredBg=(styles && typeof styles.backgroundcolor != 'undefined' && styles.backgroundcolor
+		&& typeof styles.backgroundimage != 'undefined' && styles.backgroundimage);	
+		
+		if(hasLayeredBg){
+			styles.backgroundImage='linear-gradient(' + styles.backgroundcolor + ', ' + styles.backgroundcolor +' ), ' + styles.backgroundimage;
 		}
+	}
+
+	function handleTextColor(sheet,selector,styles){
+		try{
+			if(styles.color){
+				//console.log(selector)
+				var style=selector + ', ' + selector + ' label, ' + selector + ' p, ' + selector + ' h1, ' + selector + ' h2, ' + selector + ' h3, ' + selector + ' h4, ' + selector + ' h5, ' + selector + ' h6, ' +selector + ' a:link, ' + selector + ' a:visited, '  + selector + ' a:hover, ' + selector + ' .breadcrumb-item + .breadcrumb-item::before, ' + selector + ' a:active { color:' + styles.color + ';} ';
+				sheet.insertRule(
+					style,
+					sheet.cssRules.length
+				);
+				//console.log(style)
+				sheet.insertRule(
+					selector + ' * {color:inherit}',
+					sheet.cssRules.length
+				);
+				//console.log(selector + ' * {color:inherit}')
+				sheet.insertRule(
+					selector + ' hr { border-color:' + styles.color + ';}',
+					sheet.cssRules.length
+				);
+			}
+		} catch (e){
+			console.log("error adding color: " + styles.color);
+			console.log(e);
+		}
+	}
 }
 
 function getModuleStyleTargets(id){
@@ -3219,21 +3219,21 @@ function getModuleStyleTargets(id){
 				{
 					name:'meta_md_styles',
 					selectors:[
-						'@media (min-width: 768px) an (max-width: 991px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta',
-						'@media (min-width: 1068px) an (max-width: 1291px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta'
+						'@media (min-width: 768px) and (max-width: 991px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta',
+						'@media (min-width: 1068px) and (max-width: 1291px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta'
 					]
 				},
 				{
 					name:'meta_sm_styles',
 					selectors:[
-						'@media (min-width: 576px) an (max-width: 767) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta',
-						'@media (min-width: 876px) an (max-width: 1067) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta'
+						'@media (min-width: 576px) and (max-width: 767px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta',
+						'@media (min-width: 876px) and (max-width: 1067px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta'
 					]
 				},
 				{
 					name:'meta_xs_styles',
 					selectors:[
-						'@media (max-width: 575px) { div.mura-object[data-instanceid="' +id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta',
+						'@media (max-width: 575px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta',
 						'@media (max-width: 875px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta'
 					]
 				}

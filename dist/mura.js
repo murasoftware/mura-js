@@ -3160,9 +3160,9 @@ function recordModuleStyles(params) {
 
 function applyModuleStyles(styleSupport, group, sheet, obj) {
   var acummulator = {};
-  var dyncss = '';
   group.targets.forEach(function (target) {
     var styles = {};
+    var dyncss = '';
 
     if (styleSupport && styleSupport[target.name]) {
       styles = styleSupport[target.name];
@@ -3183,14 +3183,12 @@ function applyModuleStyles(styleSupport, group, sheet, obj) {
       }
     }
 
-    target.selectors.forEach(function (selector) {
-      handleTextColor(sheet, selector, styles);
-    });
-
     if (dyncss) {
       try {
         target.selectors.forEach(function (selector) {
-          sheet.insertRule(selector + ' {' + dyncss + '}}', sheet.cssRules.length);
+          sheet.insertRule(selector + ' {' + dyncss + '}}', sheet.cssRules.length); //console.log(selector + ' {' + dyncss+ '}}')
+
+          handleTextColor(sheet, selector, styles);
         });
       } catch (e) {
         console.log(selector + ' {' + dyncss + '}}');
@@ -3216,9 +3214,12 @@ function applyModuleStyles(styleSupport, group, sheet, obj) {
   function handleTextColor(sheet, selector, styles) {
     try {
       if (styles.color) {
+        //console.log(selector)
         var style = selector + ', ' + selector + ' label, ' + selector + ' p, ' + selector + ' h1, ' + selector + ' h2, ' + selector + ' h3, ' + selector + ' h4, ' + selector + ' h5, ' + selector + ' h6, ' + selector + ' a:link, ' + selector + ' a:visited, ' + selector + ' a:hover, ' + selector + ' .breadcrumb-item + .breadcrumb-item::before, ' + selector + ' a:active { color:' + styles.color + ';} ';
-        sheet.insertRule(style, sheet.cssRules.length);
-        sheet.insertRule(selector + ' * {color:inherit}', sheet.cssRules.length);
+        sheet.insertRule(style, sheet.cssRules.length); //console.log(style)
+
+        sheet.insertRule(selector + ' * {color:inherit}', sheet.cssRules.length); //console.log(selector + ' * {color:inherit}')
+
         sheet.insertRule(selector + ' hr { border-color:' + styles.color + ';}', sheet.cssRules.length);
       }
     } catch (e) {
@@ -3257,10 +3258,10 @@ function getModuleStyleTargets(id) {
         selectors: ['@media (min-width: 992px) and (max-width: 1199px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta', '@media (min-width: 1292px) and (max-width: 1399px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta']
       }, {
         name: 'meta_md_styles',
-        selectors: ['@media (min-width: 768px) an (max-width: 991px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta', '@media (min-width: 1068px) an (max-width: 1291px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta']
+        selectors: ['@media (min-width: 768px) and (max-width: 991px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta', '@media (min-width: 1068px) and (max-width: 1291px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta']
       }, {
         name: 'meta_sm_styles',
-        selectors: ['@media (min-width: 576px) an (max-width: 767) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta', '@media (min-width: 876px) an (max-width: 1067) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta']
+        selectors: ['@media (min-width: 576px) and (max-width: 767px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta', '@media (min-width: 876px) and (max-width: 1067px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta']
       }, {
         name: 'meta_xs_styles',
         selectors: ['@media (max-width: 575px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta', '@media (max-width: 875px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta']
