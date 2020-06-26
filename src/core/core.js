@@ -3087,7 +3087,7 @@ function applyModuleStyles(styleSupport,group,sheet,obj){
 		//console.log(styles)
 		acummulator=Mura.extend(acummulator,styles);
 
-		handleBackround(styles);
+		handleBackround(acummulator);
 
 		for(var s in acummulator){
 			if(acummulator.hasOwnProperty(s)){
