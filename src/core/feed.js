@@ -513,6 +513,17 @@ Mura.Feed = Mura.Core.extend(
 		},
 
 		/**
+		 * no - Sets to include the homepage
+		 *
+		 * @param  {string} imageSizes A list of images sizes to return when image is in the fields list
+		 * @return {Mura.Feed}              Self
+		 */
+		imageSizes(imageSizes) {
+			this.queryString += '&imageSizes=' + encodeURIComponent(imageSizes);
+			return this;
+		},
+
+		/**
 		 * no - Sets to whether to require all categoryids in list of just one.
 		 *
 		 * @param  {boolean} useCategoryIntersect Whether require a match for all categories

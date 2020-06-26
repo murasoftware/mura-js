@@ -17340,6 +17340,9 @@ Mura.Feed = Mura.Core.extend((_Mura$Core$extend = {
 }), _defineProperty(_Mura$Core$extend, "applyPermFilter", function applyPermFilter(_applyPermFilter) {
   this.queryString += '&applyPermFilter=' + encodeURIComponent(_applyPermFilter);
   return this;
+}), _defineProperty(_Mura$Core$extend, "imageSizes", function imageSizes(_imageSizes) {
+  this.queryString += '&imageSizes=' + encodeURIComponent(_imageSizes);
+  return this;
 }), _defineProperty(_Mura$Core$extend, "useCategoryIntersect", function useCategoryIntersect(_useCategoryIntersect) {
   this.queryString += '&useCategoryIntersect=' + encodeURIComponent(_useCategoryIntersect);
   return this;
