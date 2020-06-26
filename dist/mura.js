@@ -3166,7 +3166,9 @@ function applyModuleStyles(styleSupport, group, sheet, obj) {
 
     if (styleSupport && styleSupport[target.name]) {
       styles = styleSupport[target.name];
-    }
+    } //console.log(target.name)
+    //console.log(styles)
+
 
     acummulator = Mura.extend(acummulator, styles);
     handleBackround(styles);
