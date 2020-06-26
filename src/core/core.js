@@ -3108,7 +3108,7 @@ function applyModuleStyles(styleSupport,group,sheet,obj){
 						sheet.cssRules.length
 					);
 					//console.log(selector + ' {' + dyncss+ '}}')
-					handleTextColor(sheet,selector,styles);
+					handleTextColor(sheet,selector,acummulator);
 				});							
 			} catch (e){
 				console.log(selector + ' {' + dyncss+ '}}')

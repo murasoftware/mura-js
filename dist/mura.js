@@ -3190,7 +3190,7 @@ function applyModuleStyles(styleSupport, group, sheet, obj) {
         target.selectors.forEach(function (selector) {
           sheet.insertRule(selector + ' {' + dyncss + '}}', sheet.cssRules.length); //console.log(selector + ' {' + dyncss+ '}}')
 
-          handleTextColor(sheet, selector, styles);
+          handleTextColor(sheet, selector, acummulator);
         });
       } catch (e) {
         console.log(selector + ' {' + dyncss + '}}');
