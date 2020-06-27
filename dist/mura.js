@@ -1415,50 +1415,77 @@ function setHTMLEditor(el) {
   });
 }
 
-var pressed_keys = '';
+var commandKeyActive = false;
 
-var loginCheck = function loginCheck(key) {
-  if (key == 27) {
-    pressed_keys = key.toString();
-  } else if (key == 76) {
-    pressed_keys = pressed_keys + "" + key.toString();
-  }
+var keyCmdCheck = function keyCmdCheck(key) {
+  switch (key) {
+    case 27:
+    case 91:
+      commandKeyActive = true;
+      break;
 
-  if (key != 27 && key != 76) {
-    pressed_keys = "";
-  }
+    case 69:
+      if (commandKeyActive) {
+        if (typeof MuraInlineEditor != 'undefined') {
+          MuraInlineEditor.init();
+        } else {
+          var params = getQueryStringParams(location.search);
 
-  if (pressed_keys != "") {
-    var aux = pressed_keys;
-    var lu = '';
-    var ru = '';
+          if (typeof params.editlayout == 'undefined') {
+            Mura.editroute = Mura.editroute || '';
 
-    if (aux.indexOf('2776') != -1 && location.search.indexOf("display=login") == -1) {
-      if (typeof Mura.loginURL != "undefined") {
-        lu = Mura.loginURL;
-      } else if (typeof Mura.loginurl != "undefined") {
-        lu = Mura.loginurl;
-      } else {
-        lu = "?display=login";
+            if (Mura.editroute) {
+              if (typeof params.previewid != 'undefined') {
+                location.href = Mura.editroute + location.pathname + "?editlayout=true&previewid=" + params.previewid;
+              } else {
+                location.href = Mura.editroute + location.pathname + "?editlayout=true";
+              }
+            }
+          }
+        }
       }
 
-      if (typeof Mura.returnURL != "undefined") {
-        ru = Mura.returnURL;
-      } else if (typeof Mura.returnurl != "undefined") {
-        ru = Mura.returnurl;
-      } else {
-        ru = location.href;
+      break;
+
+    case 76:
+      if (commandKeyActive) {
+        var params = getQueryStringParams(location.search);
+
+        if (params.display != 'login') {
+          var lu = '';
+          var ru = '';
+
+          if (typeof Mura.loginURL != "undefined") {
+            lu = Mura.loginURL;
+          } else if (typeof Mura.loginurl != "undefined") {
+            lu = Mura.loginurl;
+          } else {
+            lu = "?display=login";
+          }
+
+          if (typeof Mura.returnURL != "undefined") {
+            ru = Mura.returnURL;
+          } else if (typeof Mura.returnurl != "undefined") {
+            ru = Mura.returnurl;
+          } else {
+            ru = location.href;
+          }
+
+          lu = new String(lu);
+
+          if (lu.indexOf('?') != -1) {
+            location.href = lu + "&returnUrl=" + encodeURIComponent(ru);
+          } else {
+            location.href = lu + "?returnUrl=" + encodeURIComponent(ru);
+          }
+        }
       }
 
-      pressed_keys = "";
-      lu = new String(lu);
+      break;
 
-      if (lu.indexOf('?') != -1) {
-        location.href = lu + "&returnUrl=" + encodeURIComponent(ru);
-      } else {
-        location.href = lu + "?returnUrl=" + encodeURIComponent(ru);
-      }
-    }
+    default:
+      commandKeyActive = false;
+      break;
   }
 };
 /**
@@ -3747,7 +3774,7 @@ function init(config) {
         }
 
         Mura(document).on("keydown", function (event) {
-          loginCheck(event.which);
+          keyCmdCheck(event.which);
         });
         Mura.breakpoint = getBreakpoint();
         Mura.windowResponsiveModules = {};
