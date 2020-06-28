@@ -1419,6 +1419,8 @@ var commandKeyActive = false;
 
 var keyCmdCheck = function keyCmdCheck(key) {
   switch (key) {
+    case 17:
+    case 18:
     case 27:
     case 91:
       commandKeyActive = true;
