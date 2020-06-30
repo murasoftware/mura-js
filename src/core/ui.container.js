@@ -12,7 +12,15 @@ Mura.UI.Container=Mura.UI.extend(
 /** @lends Mura.DisplayObject.Container.prototype */
 {
 	renderClient(){		
-        var target=Mura(this.context.targetEl);		
+        var target=Mura(this.context.targetEl);	 
+        if(typeof this.context.items != 'undefined' && !Array.isArray(this.context.items)){
+            try{
+                this.context.items=JSON.parse(this.context.items);
+            } catch{
+                console.log(this.context.items)
+                delete this.context.items;
+            }
+        }
         if(!Array.isArray(this.context.items)){
             this.context.content=this.context.content || '';
             target.html(this.context.content);

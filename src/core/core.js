@@ -2024,12 +2024,6 @@ function submitForm(frm, obj) {
 			data.append('nocache', 1);
 		}
 
-		/*
-		if(data.object=='container' && data.content){
-			delete data.content;
-		}
-		*/
-
 		var postconfig = {
 			url: Mura.getAPIEndpoint() + '?method=processAsyncObject',
 			type: 'POST',
@@ -2998,7 +2992,8 @@ function getStyleSheet(id) {
  * @return {void}	void
  */
 function applyModuleCustomCSS(styleSupport,sheet, id){
-	if(styleSupport.css){
+	styleSupport=styleSupport || {};
+	if(typeof styleSupport.css != 'undefined' && styleSupport.css){
 		var styles=styleSupport.css.split('}');
 		if(Array.isArray(styles) && styles.length){
 			styles.forEach(function(style){
@@ -3035,12 +3030,14 @@ function applyModuleCustomCSS(styleSupport,sheet, id){
  * @return {object}	style object
  */
 function recordModuleStyles(params){
-	var sheet=getStyleSheet(params.instanceid);
-	var styleTargets=getModuleStyleTargets(params.instanceid);
+	params.instanceid=params.instanceid || createUUID();
 	params.styleSupport=params.stylesupport || {};
 
+	var sheet=getStyleSheet('mura-styles-' + params.instanceid);
+	var styleTargets=getModuleStyleTargets(params.instanceid);
+
 	applyModuleStyles(params.stylesupport,styleTargets.object,sheet);
-	applyModuleCustomCSS(params.stylesupport,sheet,id);
+	applyModuleCustomCSS(params.stylesupport,sheet,params.instanceid);
 	applyModuleStyles(params.stylesupport,styleTargets.meta,sheet);
 	applyModuleStyles(params.stylesupport,styleTargets.content,sheet);
 

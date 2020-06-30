@@ -2168,12 +2168,6 @@ function submitForm(frm, obj) {
     if ('nocache' in checkdata) {
       data.append('nocache', 1);
     }
-    /*
-    if(data.object=='container' && data.content){
-    	delete data.content;
-    }
-    */
-
 
     var postconfig = {
       url: Mura.getAPIEndpoint() + '?method=processAsyncObject',
@@ -3094,7 +3088,9 @@ function getStyleSheet(id) {
 
 
 function applyModuleCustomCSS(styleSupport, sheet, id) {
-  if (styleSupport.css) {
+  styleSupport = styleSupport || {};
+
+  if (typeof styleSupport.css != 'undefined' && styleSupport.css) {
     var styles = styleSupport.css.split('}');
 
     if (Array.isArray(styles) && styles.length) {
@@ -3132,11 +3128,12 @@ function applyModuleCustomCSS(styleSupport, sheet, id) {
 
 
 function recordModuleStyles(params) {
-  var sheet = getStyleSheet(params.instanceid);
-  var styleTargets = getModuleStyleTargets(params.instanceid);
+  params.instanceid = params.instanceid || createUUID();
   params.styleSupport = params.stylesupport || {};
+  var sheet = getStyleSheet('mura-styles-' + params.instanceid);
+  var styleTargets = getModuleStyleTargets(params.instanceid);
   applyModuleStyles(params.stylesupport, styleTargets.object, sheet);
-  applyModuleCustomCSS(params.stylesupport, sheet, id);
+  applyModuleCustomCSS(params.stylesupport, sheet, params.instanceid);
   applyModuleStyles(params.stylesupport, styleTargets.meta, sheet);
   applyModuleStyles(params.stylesupport, styleTargets.content, sheet);
 
@@ -21814,6 +21811,15 @@ Mura.UI.Container = Mura.UI.extend(
 {
   renderClient: function renderClient() {
     var target = Mura(this.context.targetEl);
+
+    if (typeof this.context.items != 'undefined' && !Array.isArray(this.context.items)) {
+      try {
+        this.context.items = JSON.parse(this.context.items);
+      } catch (_unused) {
+        console.log(this.context.items);
+        delete this.context.items;
+      }
+    }
 
     if (!Array.isArray(this.context.items)) {
       this.context.content = this.context.content || '';
