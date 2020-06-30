@@ -3034,6 +3034,11 @@ function recordModuleStyles(params){
 	params.styleSupport=params.stylesupport || {};
 
 	var sheet=getStyleSheet('mura-styles-' + params.instanceid);
+
+	if(typeof sheet.cssRules != 'undefined' && Array.isArray(sheet.cssRules) && sheet.cssRules.length){
+		return sheet;
+	}
+	
 	var styleTargets=getModuleStyleTargets(params.instanceid);
 
 	applyModuleStyles(params.stylesupport,styleTargets.object,sheet);
@@ -3073,7 +3078,7 @@ function recordModuleStyles(params){
 	}
 
 	if(sheet.targets.content.class.split(' ').find($class => $class = 'container')){
-		sheet.targets.metawrapper.class += 'container';
+		sheet.targets.metawrapper.class += ' container';
 	}
 
 	return sheet;
