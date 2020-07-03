@@ -2483,7 +2483,9 @@ function wireUpObject(obj, response, attempt) {
           item.find("img").each(function () {
             MuraInlineEditor.checkforImageCroppers(this);
           });
-          item.find('.mura-object').each(MuraInlineEditor.initObject);
+          item.find('.mura-object').each(function () {
+            initEditableObject(Mura(this));
+          });
         } else {
           var lcaseObject = item.data('object');
 
@@ -2516,7 +2518,9 @@ function wireUpObject(obj, response, attempt) {
                 item.find("img").each(function () {
                   MuraInlineEditor.checkforImageCroppers(this);
                 });
-                item.find('.mura-object').each(MuraInlineEditor.initObject);
+                item.find('.mura-object').each(function () {
+                  initEditableObject(Mura(this));
+                });
                 Mura.initDraggableObject(item.node);
               }
             }

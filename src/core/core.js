@@ -2343,7 +2343,7 @@ function wireUpObject(obj, response, attempt) {
 					}
 					item.off("click",Mura.handleObjectClick).on("click",Mura.handleObjectClick);
 					item.find("img").each(function(){MuraInlineEditor.checkforImageCroppers(this);});
-					item.find('.mura-object').each(MuraInlineEditor.initObject);
+					item.find('.mura-object').each(function(){initEditableObject(Mura(this))});
 				} else {
 					var lcaseObject=item.data('object');
 					if(typeof lcaseObject=='string'){
@@ -2367,7 +2367,7 @@ function wireUpObject(obj, response, attempt) {
 								}
 								item.off("click",Mura.handleObjectClick).on("click",Mura.handleObjectClick);
 								item.find("img").each(function(){MuraInlineEditor.checkforImageCroppers(this);});
-								item.find('.mura-object').each(MuraInlineEditor.initObject);
+								item.find('.mura-object').each(function(){initEditableObject(Mura(this))});
 								Mura.initDraggableObject(item.node);
 							}
 						}
