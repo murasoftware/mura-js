@@ -1440,9 +1440,9 @@ var keyCmdCheck = function keyCmdCheck(key) {
 
             if (Mura.editroute) {
               if (typeof params.previewid != 'undefined') {
-                location.href = Mura.editroute + location.pathname + "?editlayout=true&previewid=" + params.previewid;
+                location.href = Mura.editroute + location.pathname + "?previewid=" + params.previewid;
               } else {
-                location.href = Mura.editroute + location.pathname + "?editlayout=true";
+                location.href = Mura.editroute + location.pathname;
               }
             }
           }
