@@ -1417,8 +1417,8 @@ function setHTMLEditor(el) {
 
 var commandKeyActive = false;
 
-var keyCmdCheck = function keyCmdCheck(key) {
-  switch (key) {
+var keyCmdCheck = function keyCmdCheck(event) {
+  switch (event.which) {
     case 17:
     case 18:
     case 27:
@@ -1428,6 +1428,7 @@ var keyCmdCheck = function keyCmdCheck(key) {
 
     case 69:
       if (commandKeyActive) {
+        event.preventDefault();
         Mura.editroute = Mura.editroute || "/";
 
         if (typeof location.pathname.startsWith != 'undefined' && location.pathname.startsWith(Mura.editroute) && typeof MuraInlineEditor != 'undefined') {
@@ -1453,6 +1454,7 @@ var keyCmdCheck = function keyCmdCheck(key) {
 
     case 76:
       if (commandKeyActive) {
+        event.preventDefault();
         var params = getQueryStringParams(location.search);
 
         if (params.display != 'login') {
@@ -2680,6 +2682,15 @@ function processDisplayObject(el, queue, rerender, resolveFn, usePreloaderMarkup
   try {
     var obj = el.node ? el : Mura(el);
 
+    if (!obj.data('object')) {
+      obj.data('inited', true);
+      return new Promise(function (resolve, reject) {
+        if (typeof resolve == 'function') {
+          resolve(obj);
+        }
+      });
+    }
+
     if (obj.data('queue') != null) {
       queue = obj.data('queue');
 
@@ -3107,18 +3118,18 @@ function getStyleSheet(id) {
 /**
  * applyModuleCustomCSS - Returns a stylesheet object;
  *
- * @param	{object} styleSupport Object Containing Module Style configuration
+ * @param	{object} stylesupport Object Containing Module Style configuration
  * @param	{object} sheet Object StyleSheet object
  * @param	{string} id Text string
  * @return {void}	void
  */
 
 
-function applyModuleCustomCSS(styleSupport, sheet, id) {
-  styleSupport = styleSupport || {};
+function applyModuleCustomCSS(stylesupport, sheet, id) {
+  stylesupport = stylesupport || {};
 
-  if (typeof styleSupport.css != 'undefined' && styleSupport.css) {
-    var styles = styleSupport.css.split('}');
+  if (typeof stylesupport.css != 'undefined' && stylesupport.css) {
+    var styles = stylesupport.css.split('}');
 
     if (Array.isArray(styles) && styles.length) {
       styles.forEach(function (style) {
@@ -3156,7 +3167,7 @@ function applyModuleCustomCSS(styleSupport, sheet, id) {
 
 function recordModuleStyles(params) {
   params.instanceid = params.instanceid || createUUID();
-  params.styleSupport = params.stylesupport || {};
+  params.stylesupport = params.stylesupport || {};
   var sheet = getStyleSheet('mura-styles-' + params.instanceid);
 
   if (typeof sheet.cssRules != 'undefined' && Array.isArray(sheet.cssRules) && sheet.cssRules.length) {
@@ -3208,7 +3219,7 @@ function recordModuleStyles(params) {
 /**
  * applyModuleStyles - Returns a stylesheet object;
  *
- * @param	{object} styleSupport Object Containing Module Style configuration
+ * @param	{object} stylesupport Object Containing Module Style configuration
  * @param	{object} group Object Containing a group of selectors
  * @param	{object} sheet StyleSheet object
  * @param	{object} obj Mura.DomSelection
@@ -3216,14 +3227,14 @@ function recordModuleStyles(params) {
  */
 
 
-function applyModuleStyles(styleSupport, group, sheet, obj) {
+function applyModuleStyles(stylesupport, group, sheet, obj) {
   var acummulator = {};
   group.targets.forEach(function (target) {
     var styles = {};
     var dyncss = '';
 
-    if (styleSupport && styleSupport[target.name]) {
-      styles = styleSupport[target.name];
+    if (stylesupport && stylesupport[target.name]) {
+      styles = stylesupport[target.name];
     } //console.log(target.name)
     //console.log(styles)
 
@@ -3805,7 +3816,7 @@ function init(config) {
         }
 
         Mura(document).on("keydown", function (event) {
-          keyCmdCheck(event.which);
+          keyCmdCheck(event);
         });
         Mura.breakpoint = getBreakpoint();
         Mura.windowResponsiveModules = {};
