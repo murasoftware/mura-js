@@ -34,7 +34,7 @@ Mura.templates['text']=function(context){
 }
 Mura.templates['embed']=function(context){
 	context=context || {};
-	if(context.label){
+	if(context.source){
 		context.source=context.source || '';
 	} else {
 		context.source=context.source || '<p></p>';

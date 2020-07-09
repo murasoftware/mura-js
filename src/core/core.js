@@ -1185,18 +1185,27 @@ var keyCmdCheck = function(event) {
 			if (commandKeyActive) {
 				event.preventDefault();
 				Mura.editroute = Mura.editroute || "/";
-				if((typeof location.pathname.startsWith !='undefined' && location.pathname.startsWith(Mura.editroute)) && typeof MuraInlineEditor != 'undefined'){
+				var inEditRoute=typeof location.pathname.startsWith !='undefined' && location.pathname.startsWith(Mura.editroute);
+				if(inEditRoute && typeof MuraInlineEditor != 'undefined'){
 					MuraInlineEditor.init();
 				} else {
 					var params=getQueryStringParams(location.search);
 					if(typeof params.editlayout == 'undefined'){
 						Mura.editroute=Mura.editroute || '';
 						if(Mura.editroute){
-							if(typeof params.previewid != 'undefined'){
-								location.href=Mura.editroute + location.pathname + "?previewid=" + params.previewid;
+							if(inEditRoute){
+								if(typeof params.previewid != 'undefined'){
+									location.href=Mura.editroute + location.pathname + "?previewid=" + params.previewid;
+								}
 							} else {
-								location.href=Mura.editroute + location.pathname ;
+								if(typeof params.previewid != 'undefined'){
+									location.href=Mura.editroute + location.pathname + "?previewid=" + params.previewid;
+								} else {
+									location.href=Mura.editroute + location.pathname ;
+								}
 							}
+							
+							
 						}
 					}
 				}
@@ -3034,9 +3043,11 @@ function recordModuleStyles(params){
 
 	var sheet=getStyleSheet('mura-styles-' + params.instanceid);
 
-	if(typeof sheet.cssRules != 'undefined' && Array.isArray(sheet.cssRules) && sheet.cssRules.length){
+	if(sheet.recorded){
 		return sheet;
 	}
+	
+	sheet.recorded=true;
 	
 	var styleTargets=getModuleStyleTargets(params.instanceid);
 

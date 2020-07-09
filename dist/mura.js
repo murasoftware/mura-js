@@ -1430,8 +1430,9 @@ var keyCmdCheck = function keyCmdCheck(event) {
       if (commandKeyActive) {
         event.preventDefault();
         Mura.editroute = Mura.editroute || "/";
+        var inEditRoute = typeof location.pathname.startsWith != 'undefined' && location.pathname.startsWith(Mura.editroute);
 
-        if (typeof location.pathname.startsWith != 'undefined' && location.pathname.startsWith(Mura.editroute) && typeof MuraInlineEditor != 'undefined') {
+        if (inEditRoute && typeof MuraInlineEditor != 'undefined') {
           MuraInlineEditor.init();
         } else {
           var params = getQueryStringParams(location.search);
@@ -1440,10 +1441,16 @@ var keyCmdCheck = function keyCmdCheck(event) {
             Mura.editroute = Mura.editroute || '';
 
             if (Mura.editroute) {
-              if (typeof params.previewid != 'undefined') {
-                location.href = Mura.editroute + location.pathname + "?previewid=" + params.previewid;
+              if (inEditRoute) {
+                if (typeof params.previewid != 'undefined') {
+                  location.href = Mura.editroute + location.pathname + "?previewid=" + params.previewid;
+                }
               } else {
-                location.href = Mura.editroute + location.pathname;
+                if (typeof params.previewid != 'undefined') {
+                  location.href = Mura.editroute + location.pathname + "?previewid=" + params.previewid;
+                } else {
+                  location.href = Mura.editroute + location.pathname;
+                }
               }
             }
           }
@@ -3170,10 +3177,11 @@ function recordModuleStyles(params) {
   params.stylesupport = params.stylesupport || {};
   var sheet = getStyleSheet('mura-styles-' + params.instanceid);
 
-  if (typeof sheet.cssRules != 'undefined' && Array.isArray(sheet.cssRules) && sheet.cssRules.length) {
+  if (sheet.recorded) {
     return sheet;
   }
 
+  sheet.recorded = true;
   var styleTargets = getModuleStyleTargets(params.instanceid);
   applyModuleStyles(params.stylesupport, styleTargets.object, sheet);
   applyModuleCustomCSS(params.stylesupport, sheet, params.instanceid);
@@ -21954,7 +21962,7 @@ Mura.templates['text'] = function (context) {
 Mura.templates['embed'] = function (context) {
   context = context || {};
 
-  if (context.label) {
+  if (context.source) {
     context.source = context.source || '';
   } else {
     context.source = context.source || '<p></p>';
