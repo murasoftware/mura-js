@@ -19267,6 +19267,8 @@ Mura.DOMSelection = Mura.Core.extend(
       function applyMetaClassesAndId(obj) {
         if (obj.data('metacssid')) {
           meta.attr('id', obj.data('metacssid'));
+        } else {
+          meta.removeAttr('id');
         }
 
         if (obj.data('metacssclass')) {
@@ -19290,6 +19292,8 @@ Mura.DOMSelection = Mura.Core.extend(
       function applyContentClassesAndId(obj, content, metaWrapper) {
         if (obj.data('contentcssid')) {
           content.attr('id', obj.data('contentcssid'));
+        } else {
+          content.removeAttr('id');
         }
 
         if (obj.data('contentcssclass')) {
