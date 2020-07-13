@@ -2445,7 +2445,7 @@ function wireUpObject(obj, response, attempt) {
 
 	obj.hide().show();
 	
-	if(obj.data('object') != 'container' || obj.data('content') || obj.data('items')){
+	if(obj.data('object') != 'container' || obj.data('content')){
 		processMarkup(obj.node);
 	}
 	if(obj.data('object') != 'container'){
