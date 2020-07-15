@@ -359,11 +359,13 @@ function trackEvent(eventData) {
       trackingVars.ga.trackingvars.non_interaction = trackingVars.ga.trackingvars.nonInteraction;
       trackingVars.ga.trackingvars.hit_type = trackingVars.ga.trackingvars.hitType;
       trackingVars.ga.trackingvars.event_value = trackingVars.ga.trackingvars.eventValue;
+      trackingVars.ga.trackingvars.event_label = trackingVars.ga.trackingvars.eventLabel;
       delete trackingVars.ga.trackingvars.eventCategory;
       delete trackingVars.ga.trackingvars.eventAction;
       delete trackingVars.ga.trackingvars.nonInteraction;
       delete trackingVars.ga.trackingvars.hitType;
       delete trackingVars.ga.trackingvars.eventValue;
+      delete trackingVars.ga.trackingvars.eventLabel;
 
       if (isMXP) {
         trackingVars.ga.trackingvars.send_to = Mura.trackingVars.ga.trackingid;

@@ -102,7 +102,7 @@ function trackEvent(eventData) {
 
 			if (data.label) {
 				trackingVars.ga.trackingvars.eventLabel = data.label;
-				} else if(isMXP) {
+			} else if(isMXP) {
 				if(typeof trackingVars.object != 'undefined'){
 					trackingVars.ga.trackingvars.eventLabel = trackingVars.object.title;
 				} else {
@@ -110,7 +110,7 @@ function trackEvent(eventData) {
 				}
 
 				data.label=trackingVars.object.title;
-				}
+			}
 
 			Mura(document).trigger('muraTrackEvent',trackingVars);
 			Mura(document).trigger('muraRecordEvent',trackingVars);
@@ -122,12 +122,14 @@ function trackEvent(eventData) {
 			trackingVars.ga.trackingvars.non_interaction = trackingVars.ga.trackingvars.nonInteraction;
 			trackingVars.ga.trackingvars.hit_type = trackingVars.ga.trackingvars.hitType;
 			trackingVars.ga.trackingvars.event_value = trackingVars.ga.trackingvars.eventValue;
+			trackingVars.ga.trackingvars.event_label = trackingVars.ga.trackingvars.eventLabel;
 
 			delete trackingVars.ga.trackingvars.eventCategory;
 			delete trackingVars.ga.trackingvars.eventAction;
 			delete trackingVars.ga.trackingvars.nonInteraction;
 			delete trackingVars.ga.trackingvars.hitType;
 			delete trackingVars.ga.trackingvars.eventValue;
+			delete trackingVars.ga.trackingvars.eventLabel;
 
 			if(isMXP){
 				trackingVars.ga.trackingvars.send_to=Mura.trackingVars.ga.trackingid;
