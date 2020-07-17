@@ -21596,30 +21596,46 @@ Mura.UI.Text = Mura.UI.extend(
 /** @lends Mura.DisplayObject.Text.prototype */
 {
   renderClient: function renderClient() {
+    var _this = this;
+
     this.context.sourcetype = this.context.sourcetype || 'custom';
 
-    if (this.context.sourcetype == 'custom' || this.context.sourcetype == 'html') {
-      Mura(this.context.targetEl).html(Mura.templates['text'](this.context));
-    } else if (this.context.sourcetype == 'markdown') {
-      Mura(this.context.targetEl).html(Mura.templates['text'](this.deserializeMarkdown(this.context)));
-    }
+    if (this.context.sourcetype == 'component' && this.context.source) {
+      if (Mura.isUUID(this.context.source)) {
+        var loadbykey = 'contentid';
+      } else {
+        var loadbykey = 'tile';
+      }
 
-    this.trigger('afterRender');
+      Mura.getEntity('content').loadBy(loadbykey, this.context.source, {
+        fields: 'body'
+      }).then(function (content) {
+        if (content.get('body')) {
+          Mura(_this.context.targetEl).html(_this.deserialize(content.get('body')));
+        } else if (_this.context.label) {
+          Mura(_this.context.targetEl).html('');
+        } else {
+          Mura(_this.context.targetEl).html('<p></p>');
+        }
+
+        _this.trigger('afterRender');
+      });
+    } else {
+      Mura(this.context.targetEl).html(Mura.templates['text'](this.context));
+      this.trigger('afterRender');
+    }
   },
   renderServer: function renderServer() {
     this.context.sourcetype = this.context.sourcetype || 'custom';
 
-    if (this.context.sourcetype == 'custom' || this.context.sourcetype == 'html') {
-      return Mura.templates['text'](this.context);
-    } else if (this.context.sourcetype == 'markdown') {
-      return Mura.templates['text'](this.deserializeMarkdown(this.context));
+    if (this.context.sourcetype == 'custom') {
+      return this.deserialize(this.context.source);
     } else {
-      return '';
+      return '<p></p>';
     }
   },
-  deserializeMarkdown: function deserializeMarkdown(markdown) {
-    //add deserialization
-    return markdown;
+  deserialize: function deserialize(source) {
+    return source;
   }
 });
 Mura.DisplayObject.Text = Mura.UI.Text;

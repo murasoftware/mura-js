@@ -14,31 +14,41 @@ Mura.UI.Text=Mura.UI.extend(
 	renderClient(){
 		this.context.sourcetype=this.context.sourcetype || 'custom';
 
-		if(this.context.sourcetype=='custom' || this.context.sourcetype=='html'){
+		if(this.context.sourcetype=='component' && this.context.source){
+			if(Mura.isUUID(this.context.source)){
+				var loadbykey='contentid';
+			} else {
+				var loadbykey='tile';
+			}
+			Mura.getEntity('content')
+				.loadBy(loadbykey,this.context.source,{fields:'body'})
+				.then((content)=>{
+					if(content.get('body')){
+						Mura(this.context.targetEl).html(this.deserialize(content.get('body')));
+					} else if (this.context.label){
+						Mura(this.context.targetEl).html('');
+					} else {
+						Mura(this.context.targetEl).html('<p></p>');
+					}
+					this.trigger('afterRender');
+				});
+		} else {
 			Mura(this.context.targetEl).html(Mura.templates['text'](this.context));
-		} else if(this.context.sourcetype=='markdown'){
-			Mura(this.context.targetEl).html(Mura.templates['text'](this.deserializeMarkdown(this.context)));
-		} 
-		this.trigger('afterRender');
+			this.trigger('afterRender');
+		}
 	},
 
 	renderServer(){
 		this.context.sourcetype=this.context.sourcetype || 'custom';
-
-		if(this.context.sourcetype=='custom' || this.context.sourcetype=='html'){
-			return Mura.templates['text'](this.context);
-		} else if(this.context.sourcetype=='markdown'){
-			return Mura.templates['text'](this.deserializeMarkdown(this.context));
+		if(this.context.sourcetype=='custom' ){
+			return this.deserialize(this.context.source);
 		} else {
-			return '';
+			return '<p></p>';
 		}
 	},
-
-	deserializeMarkdown(markdown){
-		//add deserialization
-		return markdown;
+	deserialize(source){
+		return source;
 	}
-
 });
 
 Mura.DisplayObject.Text=Mura.UI.Text;
