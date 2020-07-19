@@ -17413,6 +17413,18 @@ Mura.Feed = Mura.Core.extend((_Mura$Core$extend = {
   }
 
   return this;
+}), _defineProperty(_Mura$Core$extend, "findMany", function findMany(ids) {
+  if (!ids.length) {
+    ids = [Mura.createUUID()];
+  }
+
+  if (ids.length === 1) {
+    this.andProp('id').isEQ(ids[0]);
+  } else {
+    this.queryString += '&id=' + encodeURIComponent(ids.join(","));
+  }
+
+  return this;
 }), _defineProperty(_Mura$Core$extend, "showExcludeSearch", function showExcludeSearch(_showExcludeSearch) {
   this.queryString += '&showExcludeSearch=' + encodeURIComponent(_showExcludeSearch);
   return this;

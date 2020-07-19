@@ -448,6 +448,7 @@ Mura.Feed = Mura.Core.extend(
 			this.queryString += '&maxItems=' + encodeURIComponent(maxItems);
 			return this;
 		},
+		
 
 		/**
 		 * showNavOnly - Sets to include the homepage
@@ -487,6 +488,25 @@ Mura.Feed = Mura.Core.extend(
 			if(Mura.isNumeric(expandDepth) && Number(parseFloat(expandDepth)) > 1){
 				this.queryString += '&expandDepth=' + encodeURIComponent(expandDepth);
 			}
+			return this;
+		},
+
+		/**
+		 * finMany - Sets a list of ids that you would like to fetch in the order
+		 *
+		 * @param  {array} ids Comma separated list of ids
+		 * @return {Mura.Feed}              Self
+		 */
+		findMany(ids) {
+			if(!ids.length){
+				ids=[Mura.createUUID()];
+			}
+			if(ids.length === 1){
+				this.andProp('id').isEQ(ids[0]);
+			} else {
+				this.queryString += '&id=' + encodeURIComponent(ids.join(","));
+			}
+		
 			return this;
 		},
 
