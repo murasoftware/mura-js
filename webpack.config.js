@@ -15,7 +15,7 @@ if (env === 'build') {
 }
 
 plugins.push(
-  new webpack.IgnorePlugin(/request/)
+  new webpack.IgnorePlugin(/(node-fetch)|(escape-html)|(form-data)/)
 );
 
 /*
@@ -49,7 +49,7 @@ module.exports = {
     rules: [
       {
         test: /\.(js)$/,
-        exclude: /node_modules/,
+        exclude:[ /node_modules/],
         use: ['babel-loader']
       }
     ]

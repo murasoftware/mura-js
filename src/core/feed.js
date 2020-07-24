@@ -498,6 +498,9 @@ Mura.Feed = Mura.Core.extend(
 		 * @return {Mura.Feed}              Self
 		 */
 		findMany(ids) {
+			if(!Array.isArray(ids)){
+				ids=ids.split(",");
+			}
 			if(!ids.length){
 				ids=[Mura.createUUID()];
 			}

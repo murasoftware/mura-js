@@ -14041,14 +14041,9 @@ __webpack_require__(362);
 __webpack_require__(363);
 
 if (Mura.isInNode()) {
-  /*
-  	This is an attempt to hide the require('request') from webpack
-  	It's also ignored in the webpack.config.js
-  	Need to switch to 
-  	https://github.com/node-fetch/
-  */
-  Mura._request = eval("require('request')");
-  Mura._escapeHTML = eval("require('escape-html')");
+  Mura._fetch = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module 'node-fetch'"); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+  Mura._formData = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module 'form-data'"); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+  Mura._escapeHTML = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module 'escape-html'"); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
   Mura.styleMap = eval("require('./core/stylemap-static')");
 } else if (typeof window != 'undefined') {
   __webpack_require__(380);
@@ -14300,6 +14295,10 @@ Mura.Core = Core;
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
 var Mura = __webpack_require__(8);
 /**
 * Creates a new Mura.Request
@@ -14347,7 +14346,7 @@ Mura.Request = Mura.Core.extend(
       params.headers = {};
     }
 
-    if (typeof XMLHttpRequest == 'undefined') {
+    if (typeof XMLHttpRequest === 'undefined') {
       this.nodeRequest(params);
     } else {
       this.xhrRequest(params);
@@ -14476,41 +14475,17 @@ Mura.Request = Mura.Core.extend(
     //console.log(params.headers)
 
 
-    if (params.type.toLowerCase() == 'post') {
-      Mura._request.post({
-        url: params.url,
-        formData: params.data,
-        headers: params.headers
-      }, nodeResponseHandler);
-    } else {
-      if (params.url.indexOf('?') == -1) {
-        params.url += '?';
-      }
-
-      var query = [];
-
-      for (var key in params.data) {
-        query.push(Mura.escape(key) + '=' + Mura.escape(params.data[key]));
-      }
-
-      if (typeof params.data['muraPointInTime'] == 'undefined' && typeof Mura.pointInTime != 'undefined') {
-        query.push('muraPointInTime=' + Mura.escape(Mura.pointInTime));
-      }
-
-      query = query.join('&');
-
-      Mura._request({
-        url: params.url + query,
-        headers: params.headers
-      }, nodeResponseHandler);
-    }
-
-    function nodeResponseHandler(error, httpResponse, body) {
+    var nodeProxyCookies = function nodeProxyCookies(httpResponse) {
       var debug = typeof Mura.debug != 'undefined' && Mura.debug;
 
-      if (typeof self.responseObject != 'undefined' && typeof httpResponse != 'undefined' && typeof httpResponse.headers != 'undefined' && typeof httpResponse.headers['set-cookie'] != 'undefined') {
+      if (typeof self.responseObject != 'undefined') {
         var existingCookies = (typeof self.requestObject.headers['cookie'] != 'undefined' ? self.requestObject.headers['cookie'] : '').split("; ");
-        var newSetCookies = httpResponse.headers['set-cookie'];
+        var headers = httpResponse.headers.raw();
+        var newSetCookies = [];
+
+        if (typeof headers['set-cookie'] != 'undefined') {
+          newSetCookies = headers['set-cookie'];
+        }
 
         if (debug) {
           console.log('response cookies:');
@@ -14521,7 +14496,11 @@ Mura.Request = Mura.Core.extend(
           newSetCookies = [newSetCookies];
         }
 
-        self.responseObject.setHeader('Set-Cookie', newSetCookies);
+        try {
+          self.responseObject.setHeader('Set-Cookie', newSetCookies);
+        } catch (e) {//console.log('Header already sent');
+        }
+
         var cookieMap = {};
         var setMap = {}; // pull out existing cookies
 
@@ -14611,40 +14590,128 @@ Mura.Request = Mura.Core.extend(
           console.log(self.requestObject.headers['cookie']);
         }
       }
+    };
 
-      if (typeof error == 'undefined' || typeof httpResponse != 'undefined' && httpResponse.statusCode >= 200 && httpResponse.statusCode < 400) {
-        try {
-          var data = JSON.parse.call(null, body);
-        } catch (e) {
-          var data = body;
-        }
+    var nodeResponseHandler = /*#__PURE__*/function () {
+      var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(httpResponse, body) {
+        var data;
+        return regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                if (!(typeof httpResponse != 'undefined' && httpResponse.ok)) {
+                  _context.next = 5;
+                  break;
+                }
 
-        params.success(data, httpResponse);
-      } else if (typeof error == 'undefined') {
-        try {
-          var data = JSON.parse.call(null, body);
-        } catch (e) {
-          var data = body;
-        }
+                try {
+                  data = JSON.parse.call(null, body);
+                } catch (e) {
+                  data = body;
+                }
 
-        if (typeof params.error == 'function') {
-          params.error(data, httpResponse);
-        } else {
-          throw data;
-        }
-      } else {
-        try {
-          var data = JSON.parse.call(null, body);
-        } catch (e) {
-          var data = body;
-        }
+                params.success(data, httpResponse);
+                _context.next = 11;
+                break;
 
-        if (typeof params.error == 'function') {
-          params.error(data, httpResponse);
-        } else {
-          throw data;
+              case 5:
+                try {
+                  data = JSON.parse.call(null, body);
+                } catch (e) {
+                  data = body;
+                }
+
+                if (!(typeof params.error == 'function')) {
+                  _context.next = 10;
+                  break;
+                }
+
+                params.error(data, httpResponse);
+                _context.next = 11;
+                break;
+
+              case 10:
+                throw data;
+
+              case 11:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee);
+      }));
+
+      return function nodeResponseHandler(_x, _x2) {
+        return _ref.apply(this, arguments);
+      };
+    }();
+
+    var routeNodeResponse = /*#__PURE__*/function () {
+      var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(res) {
+        var body;
+        return regeneratorRuntime.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                _context2.next = 2;
+                return res.text();
+
+              case 2:
+                body = _context2.sent;
+                nodeProxyCookies(res);
+                nodeResponseHandler(res, body);
+
+              case 5:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2);
+      }));
+
+      return function routeNodeResponse(_x3) {
+        return _ref2.apply(this, arguments);
+      };
+    }();
+
+    if (params.type.toLowerCase() === 'post') {
+      var formData = new Mura._formData();
+      Object.keys(params.data).forEach(function (key) {
+        formData.append(key, params.data[key]);
+      });
+
+      Mura._fetch(params.url, {
+        method: "POST",
+        body: formData,
+        headers: params.headers
+      }).then(routeNodeResponse)["catch"](function (e) {
+        console.log(e);
+      });
+    } else {
+      if (params.url.indexOf('?') === -1) {
+        params.url += '?';
+      }
+
+      var query = [];
+
+      for (var key in params.data) {
+        if (params.data.hasOwnProperty(key)) {
+          query.push(Mura.escape(key) + '=' + Mura.escape(params.data[key]));
         }
       }
+
+      if (typeof params.data['muraPointInTime'] == 'undefined' && typeof Mura.pointInTime != 'undefined') {
+        query.push('muraPointInTime=' + Mura.escape(Mura.pointInTime));
+      }
+
+      query = query.join('&');
+
+      Mura._fetch(params.url + query, {
+        method: "GET",
+        headers: params.headers
+      }).then(routeNodeResponse)["catch"](function (e) {
+        console.log(e);
+      });
     }
   },
   xhrRequest: function xhrRequest(params) {
@@ -17414,6 +17481,10 @@ Mura.Feed = Mura.Core.extend((_Mura$Core$extend = {
 
   return this;
 }), _defineProperty(_Mura$Core$extend, "findMany", function findMany(ids) {
+  if (!Array.isArray(ids)) {
+    ids = ids.split(",");
+  }
+
   if (!ids.length) {
     ids = [Mura.createUUID()];
   }

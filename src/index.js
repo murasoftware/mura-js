@@ -26,14 +26,10 @@ require('./core/ui.container');
 require('./core/templates');
 
 if(Mura.isInNode()){
-	/*
-		This is an attempt to hide the require('request') from webpack
-		It's also ignored in the webpack.config.js
-		Need to switch to 
-		https://github.com/node-fetch/
-	*/
-	Mura._request=eval("require('request')");
-	Mura._escapeHTML=eval("require('escape-html')");
+
+	Mura._fetch=require('node-fetch');
+	Mura._formData=require('form-data');
+	Mura._escapeHTML=require('escape-html');
 	Mura.styleMap=eval("require('./core/stylemap-static')");
 
 } else if (typeof window != 'undefined'){
