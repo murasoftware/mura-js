@@ -1234,9 +1234,9 @@ function createCookie(name, value, days, domain) {
   }
 
   if (typeof location != 'undefined' && location.protocol == 'https:') {
-    var secure = '; secure; samesite=None';
+    var secure = '; secure; samesite=None;';
   } else {
-    var secure = '';
+    var secure = ';samesite=None;';
   }
 
   if (typeof domain != 'undefined') {
