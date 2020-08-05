@@ -1,7 +1,7 @@
 {
   "name": "mura.js",
   "homepage": "http://www.murasoftware.com",
-  "version": "1.0.252",
+  "version": "1.0.253",
   "description": "Utility for interacting with the Mura JSON/REST API",
   "files": [
     "index.js",
@@ -23,16 +23,16 @@
   "author": "Mura Software",
   "license": "GPL-2.0 with execptions",
   "devDependencies": {
-    "@babel/core": "^7.10.1",
-    "@babel/preset-env": "^7.10.1",
+    "@babel/core": "^7.11.1",
+    "@babel/preset-env": "^7.11.0",
     "babel-loader": "^8.1.0",
     "express": "^4.17.1",
-    "grunt": "^1.1.0",
+    "grunt": "^1.2.1",
     "grunt-contrib-handlebars": "^2.0.0",
     "grunt-text-replace": "^0.4.0",
-    "webpack": "^4.43.0",
+    "webpack": "^4.44.1",
     "webpack-bundle-analyzer": "^3.8.0",
-    "webpack-cli": "^3.3.11"
+    "webpack-cli": "^3.3.12"
   },
   "dependencies": {
     "babel-polyfill": "^6.26.0",
