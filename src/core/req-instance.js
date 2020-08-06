@@ -82,6 +82,7 @@ Mura.Request=Mura.Core.extend(
 			return this.requestHeaders;
 		},
 		nodeRequest(params){
+			
 			var debug=typeof Mura.debug != 'undefined' && Mura.debug;
 			var self=this;
 			if(typeof this.requestObject != 'undefined'){
@@ -146,27 +147,26 @@ Mura.Request=Mura.Core.extend(
 							params.headers[h]= this.requestHeaders[h];
 					}
 			}
-			//console.log('pre:')
-			//console.log(params.headers);
-			//console.log(params.headers)
+			//console.log('pre:',params.headers)
 
 			const nodeProxyCookies = (httpResponse)=>{
 				var debug=typeof Mura.debug != 'undefined' && Mura.debug;
 				
 				if(typeof self.responseObject != 'undefined'){
 					var existingCookies=((typeof self.requestObject.headers['cookie'] != 'undefined') ? self.requestObject.headers['cookie'] : '').split("; ");
-					var headers=httpResponse.headers.raw();
-					var newSetCookies=[];
-					if(typeof headers['set-cookie']!='undefined'){
-						newSetCookies=headers['set-cookie'];
+					var newSetCookies=httpResponse.headers.get('set-cookie');
+					
+					if(newSetCookies){
+						newSetCookies=newSetCookies.split(",");
+					} else {
+						newSetCookies=[];
 					}
+
 					if(debug){
 						console.log('response cookies:');
-						console.log(httpResponse.headers['set-cookie']);
+						console.log(newSetCookies);
 					}
-					if(!(newSetCookies instanceof Array)){
-						newSetCookies=[newSetCookies];
-					}
+
 					try{
 						self.responseObject.setHeader('Set-Cookie',newSetCookies);
 					} catch (e){
