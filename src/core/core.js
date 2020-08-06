@@ -1420,7 +1420,7 @@ function isDate(dtStr, fldName) {
  * @memberof {class} Mura
  */
 function isEmail(e) {
-	return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+	return /^[a-zA-Z_0-9-'\+~]+(\.[a-zA-Z_0-9-'\+~]+)*@([a-zA-Z_0-9-]+\.)+[a-zA-Z]{2,7}$/.test(e);
 }
 
 function initShadowBox(el) {
