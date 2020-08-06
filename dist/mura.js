@@ -1236,7 +1236,7 @@ function createCookie(name, value, days, domain) {
   if (typeof location != 'undefined' && location.protocol == 'https:') {
     var secure = '; secure; samesite=None;';
   } else {
-    var secure = ';samesite=None;';
+    var secure = '';
   }
 
   if (typeof domain != 'undefined') {
