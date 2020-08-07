@@ -14478,11 +14478,9 @@ Mura.Request = Mura.Core.extend(
 
       if (typeof self.responseObject != 'undefined') {
         var existingCookies = (typeof self.requestObject.headers['cookie'] != 'undefined' ? self.requestObject.headers['cookie'] : '').split("; ");
-        var newSetCookies = httpResponse.headers.get('set-cookie');
+        var newSetCookies = httpResponse.headers.raw()['set-cookie'];
 
-        if (newSetCookies) {
-          newSetCookies = newSetCookies.split(",");
-        } else {
+        if (!Array.isArray(newSetCookies)) {
           newSetCookies = [];
         }
 
