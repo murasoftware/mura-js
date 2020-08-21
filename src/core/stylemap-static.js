@@ -1514,6 +1514,6 @@ var styleMap={
     }
 }
 
-Mura.stylemap=stylemap;
+Mura.styleMap=styleMap;
 
 module.exports=styleMap;
