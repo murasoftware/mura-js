@@ -24,13 +24,13 @@ require('./core/ui.image');
 require('./core/ui.collection');
 require('./core/ui.container');
 require('./core/templates');
+require('./core/stylemap');
 
 if(Mura.isInNode()){
 
 	Mura._fetch=require('node-fetch');
 	Mura._formData=require('form-data');
 	Mura._escapeHTML=require('escape-html');
-	Mura.styleMap=eval("require('./core/stylemap-static')");
 
 } else if (typeof window != 'undefined'){
 

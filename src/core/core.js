@@ -2114,6 +2114,10 @@ function firstToUpperCase(str) {
 	return str.substr(0, 1).toUpperCase() + str.substr(1);
 }
 
+function firstToLowerCase(str) {
+	return str.substr(0, 1).toLowerCase() + str.substr(1);
+}
+
 function resetAsyncObject(el,empty) {
 	var self = Mura(el);
 
@@ -3108,6 +3112,15 @@ function recordModuleStyles(params){
  */
 function applyModuleStyles(stylesupport,group,sheet,obj){
 	var acummulator={};
+
+	function camelize(str){
+		let arr = str.split('-');
+		let capital = arr.map((item, index) => index ? item.charAt(0).toUpperCase() + item.slice(1).toLowerCase() : item);
+		// ^-- change here.
+		let capitalString = capital.join("");
+	  
+		return firstToLowerCase(capitalString);
+	}
 	
 	group.targets.forEach((target)=>{
 		var styles={};
@@ -3891,6 +3904,7 @@ const Mura=extend(
 		buildDisplayRegion:buildDisplayRegion,
 		openGate:openGate,
 		firstToUpperCase:firstToUpperCase,
+		firstToLowerCase:firstToLowerCase,
 		normalizeRequestHandler:normalizeRequestHandler,
 		getStyleSheet:getStyleSheet,
 		applyModuleStyles:applyModuleStyles,
