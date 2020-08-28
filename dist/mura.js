@@ -3243,17 +3243,6 @@ function recordModuleStyles(params) {
 
 function applyModuleStyles(stylesupport, group, sheet, obj) {
   var acummulator = {};
-
-  function camelize(str) {
-    var arr = str.split('-');
-    var capital = arr.map(function (item, index) {
-      return index ? item.charAt(0).toUpperCase() + item.slice(1).toLowerCase() : item;
-    }); // ^-- change here.
-
-    var capitalString = capital.join("");
-    return firstToLowerCase(capitalString);
-  }
-
   group.targets.forEach(function (target) {
     var styles = {};
     var dyncss = '';
@@ -3271,7 +3260,7 @@ function applyModuleStyles(stylesupport, group, sheet, obj) {
       if (acummulator.hasOwnProperty(s)) {
         var p = s.toLowerCase();
 
-        if (typeof Mura.styleMap.tojs[p] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[p]] != 'undefined') {
+        if (Mura.styleMap && typeof Mura.styleMap.tojs[p] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[p]] != 'undefined') {
           dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[p]] + ': ' + acummulator[s] + '!important;';
         } else if (typeof obj != 'undefined') {
           obj.css(s, acummulator[s]);
