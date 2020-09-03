@@ -3358,7 +3358,7 @@ function getModuleStyleTargets(id, dynamic) {
         selectors: ['@media (min-width: 1200px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content', '@media (min-width: 1500px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content']
       }, {
         name: 'content_lg_styles',
-        selectors: ['@media (max-width: 992px) and (max-width: 1199px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content', '@media (max-width: 1292px) and (max-width: 1499px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content']
+        selectors: ['@media (min-width: 992px) and (max-width: 1199px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content', '@media (min-width: 1292px) and (max-width: 1499px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content']
       }, {
         name: 'content_md_styles',
         selectors: ['@media (min-width: 768px) and (max-width: 991px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content', '@media (min-width: 1068px) and (max-width: 1291px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content']
