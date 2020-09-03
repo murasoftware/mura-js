@@ -1220,8 +1220,8 @@ Mura.DOMSelection = Mura.Core.extend(
 					break;
 				}
 			}
-
-			var styleTargets=Mura.getModuleStyleTargets(obj.data('instanceid'));
+		
+			var styleTargets=Mura.getModuleStyleTargets(obj.data('instanceid'),true);
 
 			var fullsize=breakpoints.indexOf('mura-' + Mura.getBreakpoint()) >= breakpoints.indexOf(objBreakpoint);
 			
