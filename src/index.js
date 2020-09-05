@@ -34,8 +34,6 @@ if(Mura.isInNode()){
 
 } else if (typeof window != 'undefined'){
 
-	require('./core/stylemap');
-
 	window.m=Mura;
 	window.mura=Mura;
 	window.Mura=Mura;
