@@ -15796,9 +15796,13 @@ Mura.Entity = Mura.Core.extend(
         url: self.getApiEndPoint() + name,
         data: params,
         success: function success(resp) {
-          if (resp.data != 'undefined') {
+          if (typeof resp.error == 'undefined') {
             if (typeof eventHandler.success == 'function') {
-              eventHandler.success(resp.data);
+              if (typeof resp.data != 'undefined') {
+                eventHandler.success(resp.data);
+              } else {
+                eventHandler.success(resp);
+              }
             }
           } else {
             if (typeof eventHandler.error == 'function') {
