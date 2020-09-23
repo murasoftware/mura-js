@@ -3283,16 +3283,32 @@ function applyModuleStyles(stylesupport, group, sheet, obj) {
   });
 
   function handleBackround(styles) {
+    if (typeof styles.backgroundImage != 'undefined' && styles.backgroundImage) {
+      var bgArray = styles.backgroundImage.split(',');
+
+      if (bgArray.length) {
+        styles.backgroundImage = Mura.trim(bgArray[bgArray.length - 1]);
+      }
+    }
+
     var hasLayeredBg = styles && typeof styles.backgroundColor != 'undefined' && styles.backgroundColor && typeof styles.backgroundImage != 'undefined' && styles.backgroundImage;
 
     if (hasLayeredBg) {
       styles.backgroundImage = 'linear-gradient(' + styles.backgroundColor + ', ' + styles.backgroundColor + ' ), ' + styles.backgroundImage;
-    }
+    } else {
+      if (typeof styles.backgroundimage != 'undefined' && styles.backgroundimage) {
+        var bgArray = styles.backgroundimage.split(',');
 
-    hasLayeredBg = styles && typeof styles.backgroundcolor != 'undefined' && styles.backgroundcolor && typeof styles.backgroundimage != 'undefined' && styles.backgroundimage;
+        if (bgArray.length) {
+          styles.backgroundimage = Mura.trim(bgArray[bgArray.length - 1]);
+        }
+      }
 
-    if (hasLayeredBg) {
-      styles.backgroundImage = 'linear-gradient(' + styles.backgroundcolor + ', ' + styles.backgroundcolor + ' ), ' + styles.backgroundimage;
+      hasLayeredBg = styles && typeof styles.backgroundcolor != 'undefined' && styles.backgroundcolor && typeof styles.backgroundimage != 'undefined' && styles.backgroundimage;
+
+      if (hasLayeredBg) {
+        styles.backgroundImage = 'linear-gradient(' + styles.backgroundcolor + ', ' + styles.backgroundcolor + ' ), ' + styles.backgroundimage;
+      }
     }
   }
 
