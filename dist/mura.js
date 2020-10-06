@@ -1674,7 +1674,7 @@ function isDate(dtStr, fldName) {
 
 
 function isEmail(e) {
-  return /^[a-zA-Z_0-9-'\+~]+(\.[a-zA-Z_0-9-'\+~]+)*@([a-zA-Z_0-9-]+\.)+[a-zA-Z]{2,7}$/.test(e);
+  return /^[a-zA-Z_0-9-'\+~]+(\.[a-zA-Z_0-9-'\+~]+)*@([a-zA-Z_0-9-]+\.)+[a-zA-Z]{2,8}$/.test(e);
 }
 
 function initShadowBox(el) {
