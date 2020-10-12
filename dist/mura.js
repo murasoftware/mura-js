@@ -3087,36 +3087,30 @@ function inArray(elem, array, i) {
 
 function getStyleSheet(id) {
   if (Mura.isInNode()) {
-    Mura.dyncss = Mura.dyncss || {};
-
-    if (typeof Mura.dyncss[id] == 'undefined') {
-      Mura.dyncss[id] = {
-        deleteRule: function deleteRule(idx) {
-          this.cssRules.splice(idx, 1);
+    return {
+      deleteRule: function deleteRule(idx) {
+        this.cssRules.splice(idx, 1);
+      },
+      insertRule: function insertRule(rule) {
+        this.cssRules.push(rule);
+      },
+      cssRules: [],
+      id: id,
+      targets: {
+        object: {
+          "class": "mura-object"
         },
-        insertRule: function insertRule(rule) {
-          this.cssRules.push(rule);
+        meta: {
+          "class": "mura-object-meta"
         },
-        cssRules: [],
-        id: id,
-        targets: {
-          object: {
-            "class": "mura-object"
-          },
-          meta: {
-            "class": "mura-object-meta"
-          },
-          metawrapper: {
-            "class": "mura-object-meta-wrapper"
-          },
-          content: {
-            "class": "mura-object-content"
-          }
+        metawrapper: {
+          "class": "mura-object-meta-wrapper"
+        },
+        content: {
+          "class": "mura-object-content"
         }
-      };
-    }
-
-    return Mura.dyncss[id];
+      }
+    };
   } else {
     var sheet = Mura('#' + id);
 
@@ -3330,60 +3324,75 @@ function applyModuleStyles(stylesupport, group, sheet, obj) {
   }
 }
 
+function getBreakpoints() {
+  if (typeof Mura.breakpoints != 'undefined') {
+    return Mura.breakpoints;
+  } else {
+    return {
+      xl: 1200,
+      lg: 992,
+      md: 768,
+      sm: 576
+    };
+  }
+}
+
 function getModuleStyleTargets(id, dynamic) {
+  var breakpoints = getBreakpoints();
+  var sidebar = 300;
   var objTargets = {
     object: {
       targets: [{
         name: 'objectstyles',
-        selectors: ['@media (min-width: 1200px) { div.mura-object[data-instanceid="' + id + '"]', '@media (min-width: 1500px) { .mura-editing div.mura-object[data-instanceid="' + id + '"]']
+        selectors: ['@media (min-width: ' + breakpoints.xl + 'px) { div[data-instanceid="' + id + '"]', '@media (min-width: ' + (breakpoints.xl + sidebar) + 'px) { .mura-editing div[data-instanceid="' + id + '"]']
       }, {
         name: 'object_lg_styles',
-        selectors: ['@media (min-width: 992px) and (max-width: 1199px) { div.mura-object[data-instanceid="' + id + '"]', '@media (min-width: 1292px) and (max-width: 1399px) { .mura-editing div.mura-object[data-instanceid="' + id + '"]']
+        selectors: ['@media (min-width: ' + breakpoints.lg + 'px) and (max-width: ' + (breakpoints.xl - 1) + 'px) { div[data-instanceid="' + id + '"]', '@media (min-width: ' + (breakpoints.lg + sidebar) + 'px) and (max-width: ' + (breakpoints.xl + sidebar - 1) + 'px) { .mura-editing div[data-instanceid="' + id + '"]']
       }, {
         name: 'object_md_styles',
-        selectors: ['@media (min-width: 768px) and (max-width: 991px) { div.mura-object[data-instanceid="' + id + '"]', '@media (min-width: 1068px) and (max-width: 1291px) { .mura-editing div.mura-object[data-instanceid="' + id + '"]']
+        selectors: ['@media (min-width: ' + breakpoints.md + 'px) and (max-width:' + (breakpoints.lg - 1) + 'px) { div[data-instanceid="' + id + '"]', '@media (min-width: ' + (breakpoints.md + sidebar) + 'px) and (max-width: ' + (breakpoints.lg + sidebar - 1) + 'px) { .mura-editing div[data-instanceid="' + id + '"]']
       }, {
         name: 'object_sm_styles',
-        selectors: ['@media (min-width: 576px) and (max-width: 767px) { div.mura-object[data-instanceid="' + id + '"]', '@media (min-width: 876px) and (max-width: 1067px) { .mura-editing div.mura-object[data-instanceid="' + id + '"]']
+        selectors: ['@media (min-width: ' + breakpoints.sm + 'px) and (max-width: ' + (breakpoints.md - 1) + 'px) { div[data-instanceid="' + id + '"]', '@media (min-width: ' + (breakpoints.sm + sidebar) + 'px) and (max-width: ' + (breakpoints.md + sidebar - 1) + 'px) { .mura-editing div[data-instanceid="' + id + '"]']
       }, {
         name: 'object_xs_styles',
-        selectors: ['@media (max-width: 575px) { div.mura-object[data-instanceid="' + id + '"]', '@media (max-width: 875px) { .mura-editing div.mura-object[data-instanceid="' + id + '"]']
+        selectors: ['@media (max-width: ' + (breakpoints.sm - 1) + 'px) { div[data-instanceid="' + id + '"]', '@media (max-width: ' + (breakpoints.sm + sidebar - 1) + 'px) { .mura-editing div[data-instanceid="' + id + '"]']
       }]
     },
     meta: {
       targets: [{
         name: 'metastyles',
-        selectors: ['@media (min-width: 1200px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta', '@media (min-width: 1500px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta']
+        selectors: ['@media (min-width: ' + breakpoints.xl + 'px) { div[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta', '@media (min-width: ' + (breakpoints.xl + sidebar) + 'px) { .mura-editing div[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta']
       }, {
         name: 'meta_lg_styles',
-        selectors: ['@media (min-width: 992px) and (max-width: 1199px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta', '@media (min-width: 1292px) and (max-width: 1399px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta']
+        selectors: ['@media (min-width: ' + breakpoints.lg + 'px) and (max-width: ' + (breakpoints.xl - 1) + 'px) { div[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta', '@media (min-width: ' + (breakpoints.lg + sidebar) + 'px) and (max-width: ' + (breakpoints.xl + sidebar - 1) + 'px) { .mura-editing div[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta']
       }, {
         name: 'meta_md_styles',
-        selectors: ['@media (min-width: 768px) and (max-width: 991px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta', '@media (min-width: 1068px) and (max-width: 1291px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta']
+        selectors: ['@media (min-width: ' + breakpoints.md + 'px) and (max-width: ' + (breakpoints.lg - 1) + 'px) { div[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta', '@media (min-width: ' + (breakpoints.md + sidebar) + 'px) and (max-width: ' + (breakpoints.lg + sidebar - 1) + 'px) { .mura-editing div[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta']
       }, {
         name: 'meta_sm_styles',
-        selectors: ['@media (min-width: 576px) and (max-width: 767px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta', '@media (min-width: 876px) and (max-width: 1067px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta']
+        selectors: ['@media (min-width: ' + breakpoints.sm + 'px) and (max-width: ' + (breakpoints.md - 1) + 'px) { div[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta', '@media (min-width: ' + (breakpoints.sm + sidebar) + 'px) and (max-width: ' + (breakpoints.md + sidebar - 1) + 'px) { .mura-editing div[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta']
       }, {
         name: 'meta_xs_styles',
-        selectors: ['@media (max-width: 575px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta', '@media (max-width: 875px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta']
+        selectors: ['@media (max-width: ' + (breakpoints.sm - 1) + 'px) { div[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta', '@media (max-width: ' + (breakpoints.sm + sidebar - 1) + 'px) { .mura-editing div[data-instanceid="' + id + '"] > div.mura-object-meta-wrapper > div.mura-object-meta']
       }]
     },
     content: {
       targets: [{
         name: 'contentstyles',
-        selectors: ['@media (min-width: 1200px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content', '@media (min-width: 1500px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content']
+        selectors: ['@media (min-width: ' + breakpoints.xl + 'px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content', '@media (min-width: ' + (breakpoints.xl + sidebar) + 'px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content']
       }, {
         name: 'content_lg_styles',
-        selectors: ['@media (min-width: 992px) and (max-width: 1199px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content', '@media (min-width: 1292px) and (max-width: 1499px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content']
+        selectors: ['@media (min-width: ' + breakpoints.lg + 'px) and (max-width: ' + (breakpoints.xl - 1) + 'px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content', '@media (min-width: ' + (breakpoints.lg + sidebar) + 'px) and (max-width: ' + (breakpoints.xl + sidebar - 1) + 'px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content']
       }, {
         name: 'content_md_styles',
-        selectors: ['@media (min-width: 768px) and (max-width: 991px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content', '@media (min-width: 1068px) and (max-width: 1291px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content']
+        selectors: ['@media (min-width: ' + breakpoints.md + 'px) and (max-width: ' + (breakpoints.lg - 1) + 'px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content', '@media (min-width: ' + (breakpoints.md + sidebar) + 'px) and (max-width: ' + (breakpoints.lg + sidebar - 1) + 'px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content']
       }, {
         name: 'content_sm_styles',
-        selectors: ['@media (min-width: 576px) and (max-width: 767px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content', '@media (min-width: 876px) and (max-width: 1067px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content']
+        selectors: ['@media (min-width: ' + breakpoints.sm + 'px) and (max-width: ' + (breakpoints.md - 1) + 'px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content', '@media (min-width: ' + (breakpoints.sm + sidebar) + 'px) and (max-width: ' + (breakpoints.md + sidebar - 1) + 'px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content']
       }, {
         name: 'content_xs_styles',
-        selectors: ['@media (max-width: 575px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content', '@media (max-width: 875px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content']
+        selectors: ['@media (max-width: ' + (breakpoints.sm - 1) + 'px) { div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content', '@media (max-width: ' + (breakpoints.sm + sidebar - 1) + 'px) { .mura-editing div.mura-object[data-instanceid="' + id + '"] > div.mura-object-content']
       }]
     }
   };
