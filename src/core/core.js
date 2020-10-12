@@ -3202,6 +3202,31 @@ function applyModuleStyles(stylesupport,group,sheet,obj){
 	}
 }
 
+function getBreakpoint(){
+	if(typeof document != 'undefined'){
+		var breakpoints=getBreakpoints();
+		var width=document.documentElement.clientWidth;
+		
+		if(Mura.editing){
+			width=width-300;
+		}
+	
+		if(width >=breakpoints.xl){
+			return 'xl';
+		} else if(width >= breakpoints.lg){
+			return 'lg';
+		} else if(width >= breakpoints.md){
+			return 'md';
+		} else if(width >= breakpoints.sm){
+			return 'sm';
+		} else {
+			return 'xs';
+		}
+	} else {
+		return '';
+	}
+}
+
 function getBreakpoints(){
 	if(typeof Mura.breakpoints != 'undefined'){
 		return  Mura.breakpoints;
@@ -3431,28 +3456,6 @@ function isInNode(){
  * Global Request Headers
 **/
 var requestHeaders={};
-
-function getBreakpoint(){
-	if(typeof document != 'undefined'){
-		var width=document.documentElement.clientWidth;
-		
-		if(Mura.editing){
-			width=width-300;
-		}
-	
-		if(width >=1200){
-			return 'lg';
-		} else if(width >=992){
-			return 'md';
-		} else if(width >=769){
-			return 'sm';
-		} else {
-			return 'xs';
-		}
-	} else {
-		return '';
-	}
-}
 
 function throttle (func, interval) {
 	var timeout;
