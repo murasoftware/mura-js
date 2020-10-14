@@ -2049,13 +2049,6 @@ function processMarkup(scope) {
     }, function () {
       Mura.reCAPTCHALanguage = Mura.reCAPTCHALanguage || 'en';
 
-      if (find(".g-recaptcha").length) {
-        var fileref = document.createElement('script');
-        fileref.setAttribute("type", "text/javascript");
-        fileref.setAttribute("src", "https://www.recaptcha.net/recaptcha/api.js?onload=MuraCheckForReCaptcha&render=explicit&hl=" + Mura.reCAPTCHALanguage);
-        document.getElementsByTagName("head")[0].appendChild(fileref);
-      }
-
       if (find(".g-recaptcha-container").length) {
         loader().loadjs("https://www.recaptcha.net/recaptcha/api.js?onload=MuraCheckForReCaptcha&render=explicit&hl=" + Mura.reCAPTCHALanguage, function () {
           find(".g-recaptcha-container").each(function (el) {
@@ -20072,7 +20065,7 @@ Mura.DOMSelection = Mura.Core.extend(
     <label class="mura-editable-label" style="">TITLE</label>
     <div contenteditable="false" id="mura-editable-attribute-title" class="mura-inactive mura-editable-attribute inline" data-attribute="title" data-type="text" data-required="false" data-message="" data-label="title">About</div>
     </div>
-    	<div class="mura-region mura-region-loose mura-editable mura-inactive">
+    		<div class="mura-region mura-region-loose mura-editable mura-inactive">
     <label class="mura-editable-label" style="">BODY</label>
     <div contenteditable="false" id="mura-editable-attribute-body" class="mura-region-local mura-inactive mura-editable-attribute" data-attribute="body" data-type="htmlEditor" data-required="false" data-message="" data-label="body" data-loose="true" data-perm="true" data-inited="false"></div>
     </div>
@@ -20201,8 +20194,10 @@ Mura.UI = Mura.Core.extend(
 
   /*
   	This method's current implementation is to support backward compatibility
-  		Typically it would look like:
-  		Mura(this.context.targetEl).html(Mura.templates[context.object](this.context));
+  
+  	Typically it would look like:
+  
+  	Mura(this.context.targetEl).html(Mura.templates[context.object](this.context));
   	this.trigger('afterRender');
   */
   renderClient: function renderClient() {
@@ -20326,7 +20321,7 @@ Mura.UI.Form = Mura.UI.extend(
     /*
     if(Mura.templatesLoaded.length){
     	var temp = Mura.templateList.pop();
-    		Mura.ajax(
+    			Mura.ajax(
     		{
     			url:Mura.assetpath + '/includes/display_objects/form/templates/' + temp + '.hb',
     			type:'get',
@@ -20345,7 +20340,7 @@ Mura.UI.Form = Mura.UI.extend(
     			}
     		}
     	);
-    	}
+    		}
     */
 
   },
@@ -20892,27 +20887,27 @@ Mura.UI.Form = Mura.UI.extend(
     		 + '?fields=body,title,filename,responsemessage&ishuman=true'
     		).then(function(data) {
     		 	formJSON = JSON.parse( data.data.body );
-    				// old forms
+    					// old forms
     			if(!formJSON.form.pages) {
     				formJSON.form.pages = [];
     				formJSON.form.pages[0] = formJSON.form.fieldorder;
     				formJSON.form.fieldorder = [];
     			}
-    				entityName = data.data.filename.replace(/\W+/g, "");
+    					entityName = data.data.filename.replace(/\W+/g, "");
     			self.entity = entityName;
     		 	self.formJSON = formJSON;
     		 	self.fields = formJSON.form.fields;
     		 	self.responsemessage = data.data.responsemessage;
     			self.ishuman=data.data.ishuman;
-    				if (formJSON.form.formattributes && formJSON.form.formattributes.Muraormentities == 1) {
+    					if (formJSON.form.formattributes && formJSON.form.formattributes.Muraormentities == 1) {
     				self.ormform = true;
     			}
-    				for(var i=0;i < self.formJSON.datasets;i++){
+    					for(var i=0;i < self.formJSON.datasets;i++){
     				self.datasets.push(i);
     			}
-    				if(self.ormform) {
+    					if(self.ormform) {
     			 	self.entity = entityName;
-    				 	if(self.entityid == undefined) {
+    					 	if(self.entityid == undefined) {
     					Mura.get(
     						Mura.getAPIEndpoint() +'/'+ entityName + '/new?expand=all&ishuman=true'
     					).then(function(resp) {
@@ -20934,7 +20929,7 @@ Mura.UI.Form = Mura.UI.extend(
     			}
     		 }
     	);
-    	*/
+    		*/
 
   },
   initForm: function initForm() {
@@ -21133,14 +21128,14 @@ Mura.UI.Form = Mura.UI.extend(
     /*
     for(var i in self.fields) {
     	var field = self.fields[i];
-    		if( errors[ field.name ] ) {
+    			if( errors[ field.name ] ) {
     		var error = {};
     		error.message = field.validatemessage && field.validatemessage.length ? field.validatemessage : errors[field.name];
     		error.field = field.name;
     		error.label = field.label;
     		errorData[field.name] = error;
     	}
-    	}
+    		}
     */
 
     for (var e in errors) {
@@ -21255,14 +21250,14 @@ Mura.UI.Form = Mura.UI.extend(
     		entityName = data.data.filename.replace(/\W+/g, "");
     		self.entity = entityName;
     	 	self.formJSON = formJSON;
-    			if (formJSON.form.formattributes && formJSON.form.formattributes.Muraormentities == 1) {
+    				if (formJSON.form.formattributes && formJSON.form.formattributes.Muraormentities == 1) {
     			self.ormform = true;
     		}
     		else {
     			Mura(self.context.formEl).append("Unsupported for pre-Mura 7.0 MuraORM Forms.");
     			return;
     		}
-    			self.getTableData();
+    				self.getTableData();
     });
     */
   },
@@ -24002,7 +23997,7 @@ this["Mura"]["templates"]["dropdown_static"] = this.Mura.Handlebars.template({
           "column": 139
         }
       }
-    }) : helper)) + "</option>\n";
+    }) : helper)) + "</option>\r\n";
   },
   "10": function _(container, depth0, helpers, partials, data) {
     return "selected='selected'";
@@ -24051,7 +24046,7 @@ this["Mura"]["templates"]["dropdown_static"] = this.Mura.Handlebars.template({
           "column": 56
         }
       }
-    }) : helper)) + "-container\">\n		<label for=\"" + alias4((helper = (helper = lookupProperty(helpers, "labelForValue") || (depth0 != null ? lookupProperty(depth0, "labelForValue") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+    }) : helper)) + "-container\">\r\n		<label for=\"" + alias4((helper = (helper = lookupProperty(helpers, "labelForValue") || (depth0 != null ? lookupProperty(depth0, "labelForValue") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
       "name": "labelForValue",
       "hash": {},
       "data": data,
@@ -24111,7 +24106,7 @@ this["Mura"]["templates"]["dropdown_static"] = this.Mura.Handlebars.template({
           "column": 161
         }
       }
-    })) != null ? stack1 : "") + "</label>\n		" + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "summary") : depth0, {
+    })) != null ? stack1 : "") + "</label>\r\n		" + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "summary") : depth0, {
       "name": "if",
       "hash": {},
       "fn": container.program(7, data, 0),
@@ -24127,7 +24122,7 @@ this["Mura"]["templates"]["dropdown_static"] = this.Mura.Handlebars.template({
           "column": 29
         }
       }
-    })) != null ? stack1 : "") + "\n		<select " + ((stack1 = (helper = (helper = lookupProperty(helpers, "commonInputAttributes") || (depth0 != null ? lookupProperty(depth0, "commonInputAttributes") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+    })) != null ? stack1 : "") + "\r\n		<select " + ((stack1 = (helper = (helper = lookupProperty(helpers, "commonInputAttributes") || (depth0 != null ? lookupProperty(depth0, "commonInputAttributes") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
       "name": "commonInputAttributes",
       "hash": {},
       "data": data,
@@ -24141,7 +24136,7 @@ this["Mura"]["templates"]["dropdown_static"] = this.Mura.Handlebars.template({
           "column": 37
         }
       }
-    }) : helper)) != null ? stack1 : "") + ">\n" + ((stack1 = (lookupProperty(helpers, "eachStatic") || depth0 && lookupProperty(depth0, "eachStatic") || alias2).call(alias1, depth0 != null ? lookupProperty(depth0, "dataset") : depth0, {
+    }) : helper)) != null ? stack1 : "") + ">\r\n" + ((stack1 = (lookupProperty(helpers, "eachStatic") || depth0 && lookupProperty(depth0, "eachStatic") || alias2).call(alias1, depth0 != null ? lookupProperty(depth0, "dataset") : depth0, {
       "name": "eachStatic",
       "hash": {},
       "fn": container.program(9, data, 0),
@@ -24157,7 +24152,7 @@ this["Mura"]["templates"]["dropdown_static"] = this.Mura.Handlebars.template({
           "column": 18
         }
       }
-    })) != null ? stack1 : "") + "		</select>\n	</div>\n";
+    })) != null ? stack1 : "") + "		</select>\r\n	</div>\r\n";
   },
   "useData": true
 });
@@ -24330,7 +24325,7 @@ this["Mura"]["templates"]["dropdown"] = this.Mura.Handlebars.template({
           "column": 127
         }
       }
-    }) : helper)) + "</option>\n";
+    }) : helper)) + "</option>\r\n";
   },
   "10": function _(container, depth0, helpers, partials, data) {
     return "selected='selected'";
@@ -24379,7 +24374,7 @@ this["Mura"]["templates"]["dropdown"] = this.Mura.Handlebars.template({
           "column": 56
         }
       }
-    }) : helper)) + "-container\">\n		<label for=\"" + alias4((helper = (helper = lookupProperty(helpers, "labelForValue") || (depth0 != null ? lookupProperty(depth0, "labelForValue") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+    }) : helper)) + "-container\">\r\n		<label for=\"" + alias4((helper = (helper = lookupProperty(helpers, "labelForValue") || (depth0 != null ? lookupProperty(depth0, "labelForValue") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
       "name": "labelForValue",
       "hash": {},
       "data": data,
@@ -24439,7 +24434,7 @@ this["Mura"]["templates"]["dropdown"] = this.Mura.Handlebars.template({
           "column": 161
         }
       }
-    })) != null ? stack1 : "") + "</label>\n		" + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "summary") : depth0, {
+    })) != null ? stack1 : "") + "</label>\r\n		" + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "summary") : depth0, {
       "name": "if",
       "hash": {},
       "fn": container.program(7, data, 0),
@@ -24455,7 +24450,7 @@ this["Mura"]["templates"]["dropdown"] = this.Mura.Handlebars.template({
           "column": 29
         }
       }
-    })) != null ? stack1 : "") + "\n			<select " + ((stack1 = (helper = (helper = lookupProperty(helpers, "commonInputAttributes") || (depth0 != null ? lookupProperty(depth0, "commonInputAttributes") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+    })) != null ? stack1 : "") + "\r\n			<select " + ((stack1 = (helper = (helper = lookupProperty(helpers, "commonInputAttributes") || (depth0 != null ? lookupProperty(depth0, "commonInputAttributes") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
       "name": "commonInputAttributes",
       "hash": {},
       "data": data,
@@ -24469,7 +24464,7 @@ this["Mura"]["templates"]["dropdown"] = this.Mura.Handlebars.template({
           "column": 38
         }
       }
-    }) : helper)) != null ? stack1 : "") + ">\n" + ((stack1 = lookupProperty(helpers, "each").call(alias1, (stack1 = depth0 != null ? lookupProperty(depth0, "dataset") : depth0) != null ? lookupProperty(stack1, "options") : stack1, {
+    }) : helper)) != null ? stack1 : "") + ">\r\n" + ((stack1 = lookupProperty(helpers, "each").call(alias1, (stack1 = depth0 != null ? lookupProperty(depth0, "dataset") : depth0) != null ? lookupProperty(stack1, "options") : stack1, {
       "name": "each",
       "hash": {},
       "fn": container.program(9, data, 0),
@@ -24485,7 +24480,7 @@ this["Mura"]["templates"]["dropdown"] = this.Mura.Handlebars.template({
           "column": 13
         }
       }
-    })) != null ? stack1 : "") + "			</select>\n	</div>\n";
+    })) != null ? stack1 : "") + "			</select>\r\n	</div>\r\n";
   },
   "useData": true
 });
@@ -24856,7 +24851,7 @@ this["Mura"]["templates"]["form"] = this.Mura.Handlebars.template({
           "column": 49
         }
       }
-    }) : helper)) != null ? stack1 : "") + "\" novalidate=\"novalidate\" enctype=\"multipart/form-data\">\n<div class=\"error-container-" + alias4((helper = (helper = lookupProperty(helpers, "objectid") || (depth0 != null ? lookupProperty(depth0, "objectid") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+    }) : helper)) != null ? stack1 : "") + "\" novalidate=\"novalidate\" enctype=\"multipart/form-data\">\r\n<div class=\"error-container-" + alias4((helper = (helper = lookupProperty(helpers, "objectid") || (depth0 != null ? lookupProperty(depth0, "objectid") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
       "name": "objectid",
       "hash": {},
       "data": data,
@@ -24870,7 +24865,7 @@ this["Mura"]["templates"]["form"] = this.Mura.Handlebars.template({
           "column": 40
         }
       }
-    }) : helper)) + "\">\n</div>\n<div class=\"field-container-" + alias4((helper = (helper = lookupProperty(helpers, "objectid") || (depth0 != null ? lookupProperty(depth0, "objectid") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+    }) : helper)) + "\">\r\n</div>\r\n<div class=\"field-container-" + alias4((helper = (helper = lookupProperty(helpers, "objectid") || (depth0 != null ? lookupProperty(depth0, "objectid") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
       "name": "objectid",
       "hash": {},
       "data": data,
@@ -24884,7 +24879,7 @@ this["Mura"]["templates"]["form"] = this.Mura.Handlebars.template({
           "column": 40
         }
       }
-    }) : helper)) + "\">\n</div>\n<div class=\"paging-container-" + alias4((helper = (helper = lookupProperty(helpers, "objectid") || (depth0 != null ? lookupProperty(depth0, "objectid") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+    }) : helper)) + "\">\r\n</div>\r\n<div class=\"paging-container-" + alias4((helper = (helper = lookupProperty(helpers, "objectid") || (depth0 != null ? lookupProperty(depth0, "objectid") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
       "name": "objectid",
       "hash": {},
       "data": data,
@@ -24898,7 +24893,7 @@ this["Mura"]["templates"]["form"] = this.Mura.Handlebars.template({
           "column": 41
         }
       }
-    }) : helper)) + "\">\n</div>\n	<input type=\"hidden\" name=\"formid\" value=\"" + alias4((helper = (helper = lookupProperty(helpers, "objectid") || (depth0 != null ? lookupProperty(depth0, "objectid") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+    }) : helper)) + "\">\r\n</div>\r\n	<input type=\"hidden\" name=\"formid\" value=\"" + alias4((helper = (helper = lookupProperty(helpers, "objectid") || (depth0 != null ? lookupProperty(depth0, "objectid") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
       "name": "objectid",
       "hash": {},
       "data": data,
@@ -24912,7 +24907,7 @@ this["Mura"]["templates"]["form"] = this.Mura.Handlebars.template({
           "column": 55
         }
       }
-    }) : helper)) + "\">\n</form>\n";
+    }) : helper)) + "\">\r\n</form>\r\n";
   },
   "useData": true
 });
@@ -24975,7 +24970,7 @@ this["Mura"]["templates"]["hidden"] = this.Mura.Handlebars.template({
           "column": 81
         }
       }
-    }) : helper)) + "\" />			\n";
+    }) : helper)) + "\" />			\r\n";
   },
   "useData": true
 });
@@ -25022,7 +25017,7 @@ this["Mura"]["templates"]["list"] = this.Mura.Handlebars.template({
           "column": 38
         }
       }
-    }) : helper)) + "</option>\n";
+    }) : helper)) + "</option>\r\n";
   },
   "compiler": [8, ">= 4.3.0"],
   "main": function main(container, depth0, helpers, partials, data) {
@@ -25035,7 +25030,7 @@ this["Mura"]["templates"]["list"] = this.Mura.Handlebars.template({
       return undefined;
     };
 
-    return "<form>\n	<div class=\"mura-control-group\">\n		<label for=\"beanList\">Choose Entity:</label>	\n		<div class=\"form-group-select\">\n			<select type=\"text\" name=\"bean\" id=\"select-bean-value\">\n" + ((stack1 = lookupProperty(helpers, "each").call(depth0 != null ? depth0 : container.nullContext || {}, depth0, {
+    return "<form>\r\n	<div class=\"mura-control-group\">\r\n		<label for=\"beanList\">Choose Entity:</label>	\r\n		<div class=\"form-group-select\">\r\n			<select type=\"text\" name=\"bean\" id=\"select-bean-value\">\r\n" + ((stack1 = lookupProperty(helpers, "each").call(depth0 != null ? depth0 : container.nullContext || {}, depth0, {
       "name": "each",
       "hash": {},
       "fn": container.program(1, data, 0),
@@ -25051,7 +25046,7 @@ this["Mura"]["templates"]["list"] = this.Mura.Handlebars.template({
           "column": 13
         }
       }
-    })) != null ? stack1 : "") + "			</select>\n		</div>\n	</div>\n	<div class=\"mura-control-group\">\n		<button type=\"button\" id=\"select-bean\">Go</button>\n	</div>\n</form>";
+    })) != null ? stack1 : "") + "			</select>\r\n		</div>\r\n	</div>\r\n	<div class=\"mura-control-group\">\r\n		<button type=\"button\" id=\"select-bean\">Go</button>\r\n	</div>\r\n</form>";
   },
   "useData": true
 });
@@ -25258,7 +25253,7 @@ this["Mura"]["templates"]["radio_static"] = this.Mura.Handlebars.template({
           "column": 39
         }
       }
-    }) : helper)) != null ? stack1 : "") + "\">\n					<input type=\"radio\" name=\"" + alias4(container.lambda(depths[1] != null ? lookupProperty(depths[1], "name") : depths[1], depth0)) + "\" class=\"" + ((stack1 = (helper = (helper = lookupProperty(helpers, "radioClass") || (depth0 != null ? lookupProperty(depth0, "radioClass") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+    }) : helper)) != null ? stack1 : "") + "\">\r\n					<input type=\"radio\" name=\"" + alias4(container.lambda(depths[1] != null ? lookupProperty(depths[1], "name") : depths[1], depth0)) + "\" class=\"" + ((stack1 = (helper = (helper = lookupProperty(helpers, "radioClass") || (depth0 != null ? lookupProperty(depth0, "radioClass") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
       "name": "radioClass",
       "hash": {},
       "data": data,
@@ -25316,7 +25311,7 @@ this["Mura"]["templates"]["radio_static"] = this.Mura.Handlebars.template({
           "column": 158
         }
       }
-    })) != null ? stack1 : "") + "/>\n					<label for=\"field-" + alias4((helper = (helper = lookupProperty(helpers, "datarecordid") || (depth0 != null ? lookupProperty(depth0, "datarecordid") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+    })) != null ? stack1 : "") + "/>\r\n					<label for=\"field-" + alias4((helper = (helper = lookupProperty(helpers, "datarecordid") || (depth0 != null ? lookupProperty(depth0, "datarecordid") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
       "name": "datarecordid",
       "hash": {},
       "data": data,
@@ -25358,7 +25353,7 @@ this["Mura"]["templates"]["radio_static"] = this.Mura.Handlebars.template({
           "column": 80
         }
       }
-    }) : helper)) + "</label>\n				</div>\n";
+    }) : helper)) + "</label>\r\n				</div>\r\n";
   },
   "10": function _(container, depth0, helpers, partials, data) {
     return "checked='checked'";
@@ -25407,7 +25402,7 @@ this["Mura"]["templates"]["radio_static"] = this.Mura.Handlebars.template({
           "column": 56
         }
       }
-    }) : helper)) + "-container\">\n		<div class=\"mura-radio-group\">\n			<label class=\"mura-group-label\" for=\"" + alias4((helper = (helper = lookupProperty(helpers, "name") || (depth0 != null ? lookupProperty(depth0, "name") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+    }) : helper)) + "-container\">\r\n		<div class=\"mura-radio-group\">\r\n			<label class=\"mura-group-label\" for=\"" + alias4((helper = (helper = lookupProperty(helpers, "name") || (depth0 != null ? lookupProperty(depth0, "name") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
       "name": "name",
       "hash": {},
       "data": data,
@@ -25421,7 +25416,7 @@ this["Mura"]["templates"]["radio_static"] = this.Mura.Handlebars.template({
           "column": 48
         }
       }
-    }) : helper)) + "\">\n				" + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "summary") : depth0, {
+    }) : helper)) + "\">\r\n				" + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "summary") : depth0, {
       "name": "if",
       "hash": {},
       "fn": container.program(1, data, 0, blockParams, depths),
@@ -25453,7 +25448,7 @@ this["Mura"]["templates"]["radio_static"] = this.Mura.Handlebars.template({
           "column": 112
         }
       }
-    })) != null ? stack1 : "") + "\n			</label>\n			" + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "summary") : depth0, {
+    })) != null ? stack1 : "") + "\r\n			</label>\r\n			" + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "summary") : depth0, {
       "name": "if",
       "hash": {},
       "fn": container.program(7, data, 0, blockParams, depths),
@@ -25469,7 +25464,7 @@ this["Mura"]["templates"]["radio_static"] = this.Mura.Handlebars.template({
           "column": 30
         }
       }
-    })) != null ? stack1 : "") + "\n" + ((stack1 = (lookupProperty(helpers, "eachStatic") || depth0 && lookupProperty(depth0, "eachStatic") || alias2).call(alias1, depth0 != null ? lookupProperty(depth0, "dataset") : depth0, {
+    })) != null ? stack1 : "") + "\r\n" + ((stack1 = (lookupProperty(helpers, "eachStatic") || depth0 && lookupProperty(depth0, "eachStatic") || alias2).call(alias1, depth0 != null ? lookupProperty(depth0, "dataset") : depth0, {
       "name": "eachStatic",
       "hash": {},
       "fn": container.program(9, data, 0, blockParams, depths),
@@ -25485,7 +25480,7 @@ this["Mura"]["templates"]["radio_static"] = this.Mura.Handlebars.template({
           "column": 18
         }
       }
-    })) != null ? stack1 : "") + "		</div>\n	</div>\n";
+    })) != null ? stack1 : "") + "		</div>\r\n	</div>\r\n";
   },
   "useData": true,
   "useDepths": true
@@ -25601,7 +25596,7 @@ this["Mura"]["templates"]["radio"] = this.Mura.Handlebars.template({
           "column": 39
         }
       }
-    }) : helper)) != null ? stack1 : "") + "\">\n					<input type=\"radio\" name=\"" + alias4(container.lambda(depths[1] != null ? lookupProperty(depths[1], "name") : depths[1], depth0)) + "id\" class=\"" + ((stack1 = (helper = (helper = lookupProperty(helpers, "radioClass") || (depth0 != null ? lookupProperty(depth0, "radioClass") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+    }) : helper)) != null ? stack1 : "") + "\">\r\n					<input type=\"radio\" name=\"" + alias4(container.lambda(depths[1] != null ? lookupProperty(depths[1], "name") : depths[1], depth0)) + "id\" class=\"" + ((stack1 = (helper = (helper = lookupProperty(helpers, "radioClass") || (depth0 != null ? lookupProperty(depth0, "radioClass") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
       "name": "radioClass",
       "hash": {},
       "data": data,
@@ -25659,7 +25654,7 @@ this["Mura"]["templates"]["radio"] = this.Mura.Handlebars.template({
           "column": 146
         }
       }
-    })) != null ? stack1 : "") + "/>\n					<label for=\"field-" + alias4((helper = (helper = lookupProperty(helpers, "id") || (depth0 != null ? lookupProperty(depth0, "id") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+    })) != null ? stack1 : "") + "/>\r\n					<label for=\"field-" + alias4((helper = (helper = lookupProperty(helpers, "id") || (depth0 != null ? lookupProperty(depth0, "id") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
       "name": "id",
       "hash": {},
       "data": data,
@@ -25701,7 +25696,7 @@ this["Mura"]["templates"]["radio"] = this.Mura.Handlebars.template({
           "column": 78
         }
       }
-    }) : helper)) + "</label>\n				</div>\n";
+    }) : helper)) + "</label>\r\n				</div>\r\n";
   },
   "10": function _(container, depth0, helpers, partials, data) {
     return "checked='checked'";
@@ -25750,7 +25745,7 @@ this["Mura"]["templates"]["radio"] = this.Mura.Handlebars.template({
           "column": 56
         }
       }
-    }) : helper)) + "-container\">\n		<div class=\"mura-radio-group\">\n			<label class=\"mura-group-label\" for=\"" + alias4((helper = (helper = lookupProperty(helpers, "name") || (depth0 != null ? lookupProperty(depth0, "name") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+    }) : helper)) + "-container\">\r\n		<div class=\"mura-radio-group\">\r\n			<label class=\"mura-group-label\" for=\"" + alias4((helper = (helper = lookupProperty(helpers, "name") || (depth0 != null ? lookupProperty(depth0, "name") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
       "name": "name",
       "hash": {},
       "data": data,
@@ -25764,7 +25759,7 @@ this["Mura"]["templates"]["radio"] = this.Mura.Handlebars.template({
           "column": 48
         }
       }
-    }) : helper)) + "\">\n				" + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "summary") : depth0, {
+    }) : helper)) + "\">\r\n				" + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "summary") : depth0, {
       "name": "if",
       "hash": {},
       "fn": container.program(1, data, 0, blockParams, depths),
@@ -25796,7 +25791,7 @@ this["Mura"]["templates"]["radio"] = this.Mura.Handlebars.template({
           "column": 112
         }
       }
-    })) != null ? stack1 : "") + "\n			</label>\n			" + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "summary") : depth0, {
+    })) != null ? stack1 : "") + "\r\n			</label>\r\n			" + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "summary") : depth0, {
       "name": "if",
       "hash": {},
       "fn": container.program(7, data, 0, blockParams, depths),
@@ -25812,7 +25807,7 @@ this["Mura"]["templates"]["radio"] = this.Mura.Handlebars.template({
           "column": 30
         }
       }
-    })) != null ? stack1 : "") + "\n" + ((stack1 = lookupProperty(helpers, "each").call(alias1, (stack1 = depth0 != null ? lookupProperty(depth0, "dataset") : depth0) != null ? lookupProperty(stack1, "options") : stack1, {
+    })) != null ? stack1 : "") + "\r\n" + ((stack1 = lookupProperty(helpers, "each").call(alias1, (stack1 = depth0 != null ? lookupProperty(depth0, "dataset") : depth0) != null ? lookupProperty(stack1, "options") : stack1, {
       "name": "each",
       "hash": {},
       "fn": container.program(9, data, 0, blockParams, depths),
@@ -25828,7 +25823,7 @@ this["Mura"]["templates"]["radio"] = this.Mura.Handlebars.template({
           "column": 12
         }
       }
-    })) != null ? stack1 : "") + "		</div>\n	</div>\n";
+    })) != null ? stack1 : "") + "		</div>\r\n	</div>\r\n";
   },
   "useData": true,
   "useDepths": true
@@ -25940,7 +25935,7 @@ this["Mura"]["templates"]["success"] = this.Mura.Handlebars.template({
           "column": 65
         }
       }
-    }) : helper)) != null ? stack1 : "") + "</div>\n";
+    }) : helper)) != null ? stack1 : "") + "</div>\r\n";
   },
   "useData": true
 });
@@ -26059,7 +26054,7 @@ this["Mura"]["templates"]["table"] = this.Mura.Handlebars.template({
           "column": 58
         }
       }
-    }) : helper)) + "</option>\n";
+    }) : helper)) + "</option>\r\n";
   },
   "5": function _(container, depth0, helpers, partials, data) {
     var helper,
@@ -26103,7 +26098,7 @@ this["Mura"]["templates"]["table"] = this.Mura.Handlebars.template({
           "column": 64
         }
       }
-    }) : helper)) + "</th>\n";
+    }) : helper)) + "</th>\r\n";
   },
   "7": function _(container, depth0, helpers, partials, data, blockParams, depths) {
     var stack1,
@@ -26117,7 +26112,7 @@ this["Mura"]["templates"]["table"] = this.Mura.Handlebars.template({
       return undefined;
     };
 
-    return "			<tr class=\"even\">\n" + ((stack1 = (lookupProperty(helpers, "eachColRow") || depth0 && lookupProperty(depth0, "eachColRow") || alias2).call(alias1, depth0, depths[1] != null ? lookupProperty(depths[1], "columns") : depths[1], {
+    return "			<tr class=\"even\">\r\n" + ((stack1 = (lookupProperty(helpers, "eachColRow") || depth0 && lookupProperty(depth0, "eachColRow") || alias2).call(alias1, depth0, depths[1] != null ? lookupProperty(depths[1], "columns") : depths[1], {
       "name": "eachColRow",
       "hash": {},
       "fn": container.program(8, data, 0, blockParams, depths),
@@ -26133,7 +26128,7 @@ this["Mura"]["templates"]["table"] = this.Mura.Handlebars.template({
           "column": 19
         }
       }
-    })) != null ? stack1 : "") + "				<td>\n" + ((stack1 = (lookupProperty(helpers, "eachColButton") || depth0 && lookupProperty(depth0, "eachColButton") || alias2).call(alias1, depth0, {
+    })) != null ? stack1 : "") + "				<td>\r\n" + ((stack1 = (lookupProperty(helpers, "eachColButton") || depth0 && lookupProperty(depth0, "eachColButton") || alias2).call(alias1, depth0, {
       "name": "eachColButton",
       "hash": {},
       "fn": container.program(10, data, 0, blockParams, depths),
@@ -26149,10 +26144,10 @@ this["Mura"]["templates"]["table"] = this.Mura.Handlebars.template({
           "column": 22
         }
       }
-    })) != null ? stack1 : "") + "				</td>\n			</tr>\n";
+    })) != null ? stack1 : "") + "				</td>\r\n			</tr>\r\n";
   },
   "8": function _(container, depth0, helpers, partials, data) {
-    return "					<td>" + container.escapeExpression(container.lambda(depth0, depth0)) + "</td>\n";
+    return "					<td>" + container.escapeExpression(container.lambda(depth0, depth0)) + "</td>\r\n";
   },
   "10": function _(container, depth0, helpers, partials, data) {
     var helper,
@@ -26224,7 +26219,7 @@ this["Mura"]["templates"]["table"] = this.Mura.Handlebars.template({
           "column": 94
         }
       }
-    }) : helper)) + "</button>\n";
+    }) : helper)) + "</button>\r\n";
   },
   "12": function _(container, depth0, helpers, partials, data) {
     var stack1,
@@ -26236,7 +26231,7 @@ this["Mura"]["templates"]["table"] = this.Mura.Handlebars.template({
       return undefined;
     };
 
-    return "				<button class='data-nav' data-value=\"" + container.escapeExpression(container.lambda((stack1 = (stack1 = depth0 != null ? lookupProperty(depth0, "rows") : depth0) != null ? lookupProperty(stack1, "links") : stack1) != null ? lookupProperty(stack1, "first") : stack1, depth0)) + "\">First</button>\n";
+    return "				<button class='data-nav' data-value=\"" + container.escapeExpression(container.lambda((stack1 = (stack1 = depth0 != null ? lookupProperty(depth0, "rows") : depth0) != null ? lookupProperty(stack1, "links") : stack1) != null ? lookupProperty(stack1, "first") : stack1, depth0)) + "\">First</button>\r\n";
   },
   "14": function _(container, depth0, helpers, partials, data) {
     var stack1,
@@ -26248,7 +26243,7 @@ this["Mura"]["templates"]["table"] = this.Mura.Handlebars.template({
       return undefined;
     };
 
-    return "				<button class='data-nav' data-value=\"" + container.escapeExpression(container.lambda((stack1 = (stack1 = depth0 != null ? lookupProperty(depth0, "rows") : depth0) != null ? lookupProperty(stack1, "links") : stack1) != null ? lookupProperty(stack1, "previous") : stack1, depth0)) + "\">Prev</button>\n";
+    return "				<button class='data-nav' data-value=\"" + container.escapeExpression(container.lambda((stack1 = (stack1 = depth0 != null ? lookupProperty(depth0, "rows") : depth0) != null ? lookupProperty(stack1, "links") : stack1) != null ? lookupProperty(stack1, "previous") : stack1, depth0)) + "\">Prev</button>\r\n";
   },
   "16": function _(container, depth0, helpers, partials, data) {
     var stack1,
@@ -26260,7 +26255,7 @@ this["Mura"]["templates"]["table"] = this.Mura.Handlebars.template({
       return undefined;
     };
 
-    return "				<button class='data-nav' data-value=\"" + container.escapeExpression(container.lambda((stack1 = (stack1 = depth0 != null ? lookupProperty(depth0, "rows") : depth0) != null ? lookupProperty(stack1, "links") : stack1) != null ? lookupProperty(stack1, "next") : stack1, depth0)) + "\">Next</button>\n";
+    return "				<button class='data-nav' data-value=\"" + container.escapeExpression(container.lambda((stack1 = (stack1 = depth0 != null ? lookupProperty(depth0, "rows") : depth0) != null ? lookupProperty(stack1, "links") : stack1) != null ? lookupProperty(stack1, "next") : stack1, depth0)) + "\">Next</button>\r\n";
   },
   "18": function _(container, depth0, helpers, partials, data) {
     var stack1,
@@ -26272,7 +26267,7 @@ this["Mura"]["templates"]["table"] = this.Mura.Handlebars.template({
       return undefined;
     };
 
-    return "				<button class='data-nav' data-value=\"" + container.escapeExpression(container.lambda((stack1 = (stack1 = depth0 != null ? lookupProperty(depth0, "rows") : depth0) != null ? lookupProperty(stack1, "links") : stack1) != null ? lookupProperty(stack1, "last") : stack1, depth0)) + "\">Last</button>\n";
+    return "				<button class='data-nav' data-value=\"" + container.escapeExpression(container.lambda((stack1 = (stack1 = depth0 != null ? lookupProperty(depth0, "rows") : depth0) != null ? lookupProperty(stack1, "links") : stack1) != null ? lookupProperty(stack1, "last") : stack1, depth0)) + "\">Last</button>\r\n";
   },
   "compiler": [8, ">= 4.3.0"],
   "main": function main(container, depth0, helpers, partials, data, blockParams, depths) {
@@ -26289,7 +26284,7 @@ this["Mura"]["templates"]["table"] = this.Mura.Handlebars.template({
       return undefined;
     };
 
-    return "	<div class=\"mura-control-group\">\n		<div id=\"filter-results-container\">\n			<div id=\"date-filters\">\n				<div class=\"control-group\">\n				  <label>From</label>\n				  <div class=\"controls\">\n				  	<input type=\"text\" class=\"datepicker mura-date\" id=\"date1\" name=\"date1\" validate=\"date\" value=\"" + alias2(alias1((stack1 = depth0 != null ? lookupProperty(depth0, "filters") : depth0) != null ? lookupProperty(stack1, "fromdate") : stack1, depth0)) + "\">\n				  	<select id=\"hour1\" name=\"hour1\" class=\"mura-date\">" + ((stack1 = (lookupProperty(helpers, "eachHour") || depth0 && lookupProperty(depth0, "eachHour") || alias4).call(alias3, (stack1 = depth0 != null ? lookupProperty(depth0, "filters") : depth0) != null ? lookupProperty(stack1, "fromhour") : stack1, {
+    return "	<div class=\"mura-control-group\">\r\n		<div id=\"filter-results-container\">\r\n			<div id=\"date-filters\">\r\n				<div class=\"control-group\">\r\n				  <label>From</label>\r\n				  <div class=\"controls\">\r\n				  	<input type=\"text\" class=\"datepicker mura-date\" id=\"date1\" name=\"date1\" validate=\"date\" value=\"" + alias2(alias1((stack1 = depth0 != null ? lookupProperty(depth0, "filters") : depth0) != null ? lookupProperty(stack1, "fromdate") : stack1, depth0)) + "\">\r\n				  	<select id=\"hour1\" name=\"hour1\" class=\"mura-date\">" + ((stack1 = (lookupProperty(helpers, "eachHour") || depth0 && lookupProperty(depth0, "eachHour") || alias4).call(alias3, (stack1 = depth0 != null ? lookupProperty(depth0, "filters") : depth0) != null ? lookupProperty(stack1, "fromhour") : stack1, {
       "name": "eachHour",
       "hash": {},
       "fn": container.program(1, data, 0, blockParams, depths),
@@ -26305,7 +26300,7 @@ this["Mura"]["templates"]["table"] = this.Mura.Handlebars.template({
           "column": 155
         }
       }
-    })) != null ? stack1 : "") + "</select></select>\n					</div>\n				</div>\n			\n				<div class=\"control-group\">\n				  <label>To</label>\n				  <div class=\"controls\">\n				  	<input type=\"text\" class=\"datepicker mura-date\" id=\"date2\" name=\"date2\" validate=\"date\" value=\"" + alias2(alias1((stack1 = depth0 != null ? lookupProperty(depth0, "filters") : depth0) != null ? lookupProperty(stack1, "todate") : stack1, depth0)) + "\">\n				  	<select id=\"hour2\" name=\"hour2\"  class=\"mura-date\">" + ((stack1 = (lookupProperty(helpers, "eachHour") || depth0 && lookupProperty(depth0, "eachHour") || alias4).call(alias3, (stack1 = depth0 != null ? lookupProperty(depth0, "filters") : depth0) != null ? lookupProperty(stack1, "tohour") : stack1, {
+    })) != null ? stack1 : "") + "</select></select>\r\n					</div>\r\n				</div>\r\n			\r\n				<div class=\"control-group\">\r\n				  <label>To</label>\r\n				  <div class=\"controls\">\r\n				  	<input type=\"text\" class=\"datepicker mura-date\" id=\"date2\" name=\"date2\" validate=\"date\" value=\"" + alias2(alias1((stack1 = depth0 != null ? lookupProperty(depth0, "filters") : depth0) != null ? lookupProperty(stack1, "todate") : stack1, depth0)) + "\">\r\n				  	<select id=\"hour2\" name=\"hour2\"  class=\"mura-date\">" + ((stack1 = (lookupProperty(helpers, "eachHour") || depth0 && lookupProperty(depth0, "eachHour") || alias4).call(alias3, (stack1 = depth0 != null ? lookupProperty(depth0, "filters") : depth0) != null ? lookupProperty(stack1, "tohour") : stack1, {
       "name": "eachHour",
       "hash": {},
       "fn": container.program(1, data, 0, blockParams, depths),
@@ -26321,7 +26316,7 @@ this["Mura"]["templates"]["table"] = this.Mura.Handlebars.template({
           "column": 154
         }
       }
-    })) != null ? stack1 : "") + "</select></select>\n				   </select>\n					</div>\n				</div>\n			</div>\n					\n			<div class=\"control-group\">\n				<label>Keywords</label>\n				<div class=\"controls\">\n					<select name=\"filterBy\" class=\"mura-date\" id=\"results-filterby\">\n" + ((stack1 = (lookupProperty(helpers, "eachKey") || depth0 && lookupProperty(depth0, "eachKey") || alias4).call(alias3, depth0 != null ? lookupProperty(depth0, "properties") : depth0, (stack1 = depth0 != null ? lookupProperty(depth0, "filters") : depth0) != null ? lookupProperty(stack1, "filterby") : stack1, {
+    })) != null ? stack1 : "") + "</select></select>\r\n				   </select>\r\n					</div>\r\n				</div>\r\n			</div>\r\n					\r\n			<div class=\"control-group\">\r\n				<label>Keywords</label>\r\n				<div class=\"controls\">\r\n					<select name=\"filterBy\" class=\"mura-date\" id=\"results-filterby\">\r\n" + ((stack1 = (lookupProperty(helpers, "eachKey") || depth0 && lookupProperty(depth0, "eachKey") || alias4).call(alias3, depth0 != null ? lookupProperty(depth0, "properties") : depth0, (stack1 = depth0 != null ? lookupProperty(depth0, "filters") : depth0) != null ? lookupProperty(stack1, "filterby") : stack1, {
       "name": "eachKey",
       "hash": {},
       "fn": container.program(3, data, 0, blockParams, depths),
@@ -26337,7 +26332,7 @@ this["Mura"]["templates"]["table"] = this.Mura.Handlebars.template({
           "column": 17
         }
       }
-    })) != null ? stack1 : "") + "					</select>\n					<input type=\"text\" class=\"mura-half\" name=\"keywords\" id=\"results-keywords\" value=\"" + alias2(alias1((stack1 = depth0 != null ? lookupProperty(depth0, "filters") : depth0) != null ? lookupProperty(stack1, "filterkey") : stack1, depth0)) + "\">\n				</div>\n			</div>\n			<div class=\"form-actions\">\n				<button type=\"button\" class=\"btn\" id=\"btn-results-search\" ><i class=\"mi-bar-chart\"></i> View Data</button>\n				<button type=\"button\" class=\"btn\"  id=\"btn-results-download\" ><i class=\"mi-download\"></i> Download</button>\n			</div>\n		</div>\n	<div>\n\n	<ul class=\"metadata\">\n		<li>Page:\n			<strong>" + alias2(alias1((stack1 = depth0 != null ? lookupProperty(depth0, "rows") : depth0) != null ? lookupProperty(stack1, "pageindex") : stack1, depth0)) + " of " + alias2(alias1((stack1 = depth0 != null ? lookupProperty(depth0, "rows") : depth0) != null ? lookupProperty(stack1, "totalpages") : stack1, depth0)) + "</strong>\n		</li>\n		<li>Total Records:\n			<strong>" + alias2(alias1((stack1 = depth0 != null ? lookupProperty(depth0, "rows") : depth0) != null ? lookupProperty(stack1, "totalitems") : stack1, depth0)) + "</strong>\n		</li>\n	</ul>\n\n	<table style=\"width: 100%\" class=\"table\">\n		<thead>\n		<tr>\n" + ((stack1 = lookupProperty(helpers, "each").call(alias3, depth0 != null ? lookupProperty(depth0, "columns") : depth0, {
+    })) != null ? stack1 : "") + "					</select>\r\n					<input type=\"text\" class=\"mura-half\" name=\"keywords\" id=\"results-keywords\" value=\"" + alias2(alias1((stack1 = depth0 != null ? lookupProperty(depth0, "filters") : depth0) != null ? lookupProperty(stack1, "filterkey") : stack1, depth0)) + "\">\r\n				</div>\r\n			</div>\r\n			<div class=\"form-actions\">\r\n				<button type=\"button\" class=\"btn\" id=\"btn-results-search\" ><i class=\"mi-bar-chart\"></i> View Data</button>\r\n				<button type=\"button\" class=\"btn\"  id=\"btn-results-download\" ><i class=\"mi-download\"></i> Download</button>\r\n			</div>\r\n		</div>\r\n	<div>\r\n\r\n	<ul class=\"metadata\">\r\n		<li>Page:\r\n			<strong>" + alias2(alias1((stack1 = depth0 != null ? lookupProperty(depth0, "rows") : depth0) != null ? lookupProperty(stack1, "pageindex") : stack1, depth0)) + " of " + alias2(alias1((stack1 = depth0 != null ? lookupProperty(depth0, "rows") : depth0) != null ? lookupProperty(stack1, "totalpages") : stack1, depth0)) + "</strong>\r\n		</li>\r\n		<li>Total Records:\r\n			<strong>" + alias2(alias1((stack1 = depth0 != null ? lookupProperty(depth0, "rows") : depth0) != null ? lookupProperty(stack1, "totalitems") : stack1, depth0)) + "</strong>\r\n		</li>\r\n	</ul>\r\n\r\n	<table style=\"width: 100%\" class=\"table\">\r\n		<thead>\r\n		<tr>\r\n" + ((stack1 = lookupProperty(helpers, "each").call(alias3, depth0 != null ? lookupProperty(depth0, "columns") : depth0, {
       "name": "each",
       "hash": {},
       "fn": container.program(5, data, 0, blockParams, depths),
@@ -26353,7 +26348,7 @@ this["Mura"]["templates"]["table"] = this.Mura.Handlebars.template({
           "column": 11
         }
       }
-    })) != null ? stack1 : "") + "			<th></th>\n		</tr>\n		</thead>\n		<tbody>\n" + ((stack1 = lookupProperty(helpers, "each").call(alias3, (stack1 = depth0 != null ? lookupProperty(depth0, "rows") : depth0) != null ? lookupProperty(stack1, "items") : stack1, {
+    })) != null ? stack1 : "") + "			<th></th>\r\n		</tr>\r\n		</thead>\r\n		<tbody>\r\n" + ((stack1 = lookupProperty(helpers, "each").call(alias3, (stack1 = depth0 != null ? lookupProperty(depth0, "rows") : depth0) != null ? lookupProperty(stack1, "items") : stack1, {
       "name": "each",
       "hash": {},
       "fn": container.program(7, data, 0, blockParams, depths),
@@ -26369,7 +26364,7 @@ this["Mura"]["templates"]["table"] = this.Mura.Handlebars.template({
           "column": 11
         }
       }
-    })) != null ? stack1 : "") + "		</tbody>\n		<tfoot>\n		<tr>\n			<td>\n" + ((stack1 = lookupProperty(helpers, "if").call(alias3, (stack1 = (stack1 = depth0 != null ? lookupProperty(depth0, "rows") : depth0) != null ? lookupProperty(stack1, "links") : stack1) != null ? lookupProperty(stack1, "first") : stack1, {
+    })) != null ? stack1 : "") + "		</tbody>\r\n		<tfoot>\r\n		<tr>\r\n			<td>\r\n" + ((stack1 = lookupProperty(helpers, "if").call(alias3, (stack1 = (stack1 = depth0 != null ? lookupProperty(depth0, "rows") : depth0) != null ? lookupProperty(stack1, "links") : stack1) != null ? lookupProperty(stack1, "first") : stack1, {
       "name": "if",
       "hash": {},
       "fn": container.program(12, data, 0, blockParams, depths),
@@ -26433,7 +26428,7 @@ this["Mura"]["templates"]["table"] = this.Mura.Handlebars.template({
           "column": 11
         }
       }
-    })) != null ? stack1 : "") + "			</td>\n		</tfoot>\n	</table>\n</div>";
+    })) != null ? stack1 : "") + "			</td>\r\n		</tfoot>\r\n	</table>\r\n</div>";
   },
   "useData": true,
   "useDepths": true
@@ -27081,7 +27076,7 @@ this["Mura"]["templates"]["view"] = this.Mura.Handlebars.template({
       return undefined;
     };
 
-    return "	<li>\n		<strong>" + alias4((helper = (helper = lookupProperty(helpers, "displayName") || (depth0 != null ? lookupProperty(depth0, "displayName") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+    return "	<li>\r\n		<strong>" + alias4((helper = (helper = lookupProperty(helpers, "displayName") || (depth0 != null ? lookupProperty(depth0, "displayName") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
       "name": "displayName",
       "hash": {},
       "data": data,
@@ -27109,7 +27104,7 @@ this["Mura"]["templates"]["view"] = this.Mura.Handlebars.template({
           "column": 53
         }
       }
-    }) : helper)) + " \n	</li>\n";
+    }) : helper)) + " \r\n	</li>\r\n";
   },
   "compiler": [8, ">= 4.3.0"],
   "main": function main(container, depth0, helpers, partials, data) {
@@ -27122,7 +27117,7 @@ this["Mura"]["templates"]["view"] = this.Mura.Handlebars.template({
       return undefined;
     };
 
-    return "<div class=\"mura-control-group\">\n<ul>\n" + ((stack1 = (lookupProperty(helpers, "eachProp") || depth0 && lookupProperty(depth0, "eachProp") || container.hooks.helperMissing).call(depth0 != null ? depth0 : container.nullContext || {}, depth0, {
+    return "<div class=\"mura-control-group\">\r\n<ul>\r\n" + ((stack1 = (lookupProperty(helpers, "eachProp") || depth0 && lookupProperty(depth0, "eachProp") || container.hooks.helperMissing).call(depth0 != null ? depth0 : container.nullContext || {}, depth0, {
       "name": "eachProp",
       "hash": {},
       "fn": container.program(1, data, 0),
@@ -27138,7 +27133,7 @@ this["Mura"]["templates"]["view"] = this.Mura.Handlebars.template({
           "column": 13
         }
       }
-    })) != null ? stack1 : "") + "</ul>\n<button type=\"button\" class=\"nav-back\">Back</button>\n</div>";
+    })) != null ? stack1 : "") + "</ul>\r\n<button type=\"button\" class=\"nav-back\">Back</button>\r\n</div>";
   },
   "useData": true
 });
