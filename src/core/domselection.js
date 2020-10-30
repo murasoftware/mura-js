@@ -1210,7 +1210,7 @@ Mura.DOMSelection = Mura.Core.extend(
 	 calculateDisplayObjectStyles(windowResponse) {
 		
  		this.each(function(el) {
-			var breakpoints=['mura-xs','mura-sm','mura-md','mura-lg'];
+			var breakpoints=['mura-xs','mura-sm','mura-md','mura-lg','mura-xl'];
 			var objBreakpoint='mura-sm';
 			var obj=Mura(el);
 
