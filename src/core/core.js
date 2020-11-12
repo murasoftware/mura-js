@@ -1845,17 +1845,6 @@ function processMarkup(scope) {
 			function() {
 				Mura.reCAPTCHALanguage = Mura.reCAPTCHALanguage || 'en';
 
-				if (find(".g-recaptcha").length) {
-					var fileref = document.createElement('script')
-					fileref.setAttribute("type","text/javascript");
-					fileref.setAttribute(
-						"src",
-						"https://www.recaptcha.net/recaptcha/api.js?onload=MuraCheckForReCaptcha&render=explicit&hl=" +	Mura.reCAPTCHALanguage
-					);
-
-					document.getElementsByTagName("head")[0].appendChild(fileref);
-				}
-
 				if (find(".g-recaptcha-container").length) {
 					loader().loadjs("https://www.recaptcha.net/recaptcha/api.js?onload=MuraCheckForReCaptcha&render=explicit&hl=" + Mura.reCAPTCHALanguage,
 						function() {
