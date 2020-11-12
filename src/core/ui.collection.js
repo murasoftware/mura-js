@@ -63,7 +63,11 @@ Mura.UI.Collection=Mura.UI.extend(
 					if(typeof this.context.items != 'undefined'){
 						this.context.items=this.context.items.join();
 					}
-					return Mura.get(Mura.getAPIEndpoint() + 'content/' + this.context.items + ',_',{
+					if(!this.context.items){
+						this.context.items=Mura.createUUID();
+					}
+					return Mura.get(Mura.getAPIEndpoint() + 'content',{
+						id:this.context.items,
 						itemsperpage:this.context.itemsperpage,
 						maxitems:this.context.maxitems,
 						expand:this.context.expand,
