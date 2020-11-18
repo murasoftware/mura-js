@@ -3038,7 +3038,7 @@ function recordModuleStyles(params){
 	}
 	
 	sheet.recorded=true;
-	
+	//console.log(params.instanceid,params.stylesupport)
 	var styleTargets=getModuleStyleTargets(params.instanceid,false);
 
 	applyModuleStyles(params.stylesupport,styleTargets.object,sheet);
@@ -3076,8 +3076,8 @@ function recordModuleStyles(params){
 		&& params.contentcssid != ''){
 		sheet.targets.content.id = params.contentcssid;
 	}
-
-	if(sheet.targets.content.class.split(' ').find($class => $class = 'container')){
+	
+	if(sheet.targets.content.class.split(' ').find($class => $class === 'container')){
 		sheet.targets.metawrapper.class += ' container';
 	}
 
@@ -3095,7 +3095,7 @@ function recordModuleStyles(params){
  */
 function applyModuleStyles(stylesupport,group,sheet,obj){
 	var acummulator={};
-	
+	//group is for object, content, meta
 	group.targets.forEach((target)=>{
 		var styles={};
 		var dyncss='';
@@ -3112,16 +3112,18 @@ function applyModuleStyles(stylesupport,group,sheet,obj){
 			if(acummulator.hasOwnProperty(s)){
 				var p=s.toLowerCase()
 				if( Mura.styleMap && typeof Mura.styleMap.tojs[p] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[p]] != 'undefined'){
-					dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[p]]  + ': ' + acummulator[s] + '!important;';
+					dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[p]]  + ': ' + acummulator[s] + ' !important;';
 				} else if ( typeof obj != 'undefined') {
 					obj.css(s,acummulator[s]);
 				}		
 			}
 		}
-
+		//console.log(target.name,acummulator,dyncss)
 		if(dyncss){
 			try {
+				//selector is for edit mode or standard
 				target.selectors.forEach((selector)=>{
+					//console.log(selector)
 					sheet.insertRule(
 						selector + ' {' + dyncss+ '}}',
 						sheet.cssRules.length
@@ -3167,20 +3169,21 @@ function applyModuleStyles(stylesupport,group,sheet,obj){
 	function handleTextColor(sheet,selector,styles){
 		try{
 			if(styles.color){
-				//console.log(selector)
-				var style=selector + ', ' + selector + ' label, ' + selector + ' p, ' + selector + ' h1, ' + selector + ' h2, ' + selector + ' h3, ' + selector + ' h4, ' + selector + ' h5, ' + selector + ' h6, ' +selector + ' a:link, ' + selector + ' a:visited, '  + selector + ' a:hover, ' + selector + ' .breadcrumb-item + .breadcrumb-item::before, ' + selector + ' a:active { color:' + styles.color + ';} ';
+				var selectorArray=selector.split('{');
+				var style=selectorArray[0] + '{' + selectorArray[1] + ', ' + selectorArray[1] + ' label, ' + selectorArray[1] + ' p, ' + selectorArray[1] + ' h1, ' + selectorArray[1] + ' h2, ' + selectorArray[1] + ' h3, ' + selectorArray[1] + ' h4, ' + selectorArray[1] + ' h5, ' + selectorArray[1] + ' h6, ' + selectorArray[1] + ' a, ' + selectorArray[1] + ' a:link, ' + selectorArray[1] + ' a:visited, '  + selectorArray[1] + ' a:hover, ' + selectorArray[1] + ' .breadcrumb-item + .breadcrumb-item::before, ' + selectorArray[1] + ' a:active { color:' + styles.color + ' !important;}} ';
+
 				sheet.insertRule(
 					style,
 					sheet.cssRules.length
 				);
 				//console.log(style)
 				sheet.insertRule(
-					selector + ' * {color:inherit}',
+					selector + ' * {color:inherit !important}}',
 					sheet.cssRules.length
 				);
 				//console.log(selector + ' * {color:inherit}')
 				sheet.insertRule(
-					selector + ' hr { border-color:' + styles.color + ';}',
+					selector + ' hr { border-color:' + styles.color + ' !important;}}',
 					sheet.cssRules.length
 				);
 			}

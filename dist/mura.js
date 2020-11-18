@@ -3174,7 +3174,8 @@ function recordModuleStyles(params) {
     return sheet;
   }
 
-  sheet.recorded = true;
+  sheet.recorded = true; //console.log(params.instanceid,params.stylesupport)
+
   var styleTargets = getModuleStyleTargets(params.instanceid, false);
   applyModuleStyles(params.stylesupport, styleTargets.object, sheet);
   applyModuleCustomCSS(params.stylesupport, sheet, params.instanceid);
@@ -3210,7 +3211,7 @@ function recordModuleStyles(params) {
   }
 
   if (sheet.targets.content["class"].split(' ').find(function ($class) {
-    return $class = 'container';
+    return $class === 'container';
   })) {
     sheet.targets.metawrapper["class"] += ' container';
   }
@@ -3229,7 +3230,8 @@ function recordModuleStyles(params) {
 
 
 function applyModuleStyles(stylesupport, group, sheet, obj) {
-  var acummulator = {};
+  var acummulator = {}; //group is for object, content, meta
+
   group.targets.forEach(function (target) {
     var styles = {};
     var dyncss = '';
@@ -3248,16 +3250,19 @@ function applyModuleStyles(stylesupport, group, sheet, obj) {
         var p = s.toLowerCase();
 
         if (Mura.styleMap && typeof Mura.styleMap.tojs[p] != 'undefined' && Mura.styleMap.tocss[Mura.styleMap.tojs[p]] != 'undefined') {
-          dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[p]] + ': ' + acummulator[s] + '!important;';
+          dyncss += Mura.styleMap.tocss[Mura.styleMap.tojs[p]] + ': ' + acummulator[s] + ' !important;';
         } else if (typeof obj != 'undefined') {
           obj.css(s, acummulator[s]);
         }
       }
-    }
+    } //console.log(target.name,acummulator,dyncss)
+
 
     if (dyncss) {
       try {
+        //selector is for edit mode or standard
         target.selectors.forEach(function (selector) {
+          //console.log(selector)
           sheet.insertRule(selector + ' {' + dyncss + '}}', sheet.cssRules.length); //console.log(selector + ' {' + dyncss+ '}}')
 
           handleTextColor(sheet, selector, acummulator);
@@ -3302,13 +3307,13 @@ function applyModuleStyles(stylesupport, group, sheet, obj) {
   function handleTextColor(sheet, selector, styles) {
     try {
       if (styles.color) {
-        //console.log(selector)
-        var style = selector + ', ' + selector + ' label, ' + selector + ' p, ' + selector + ' h1, ' + selector + ' h2, ' + selector + ' h3, ' + selector + ' h4, ' + selector + ' h5, ' + selector + ' h6, ' + selector + ' a:link, ' + selector + ' a:visited, ' + selector + ' a:hover, ' + selector + ' .breadcrumb-item + .breadcrumb-item::before, ' + selector + ' a:active { color:' + styles.color + ';} ';
+        var selectorArray = selector.split('{');
+        var style = selectorArray[0] + '{' + selectorArray[1] + ', ' + selectorArray[1] + ' label, ' + selectorArray[1] + ' p, ' + selectorArray[1] + ' h1, ' + selectorArray[1] + ' h2, ' + selectorArray[1] + ' h3, ' + selectorArray[1] + ' h4, ' + selectorArray[1] + ' h5, ' + selectorArray[1] + ' h6, ' + selectorArray[1] + ' a, ' + selectorArray[1] + ' a:link, ' + selectorArray[1] + ' a:visited, ' + selectorArray[1] + ' a:hover, ' + selectorArray[1] + ' .breadcrumb-item + .breadcrumb-item::before, ' + selectorArray[1] + ' a:active { color:' + styles.color + ' !important;}} ';
         sheet.insertRule(style, sheet.cssRules.length); //console.log(style)
 
-        sheet.insertRule(selector + ' * {color:inherit}', sheet.cssRules.length); //console.log(selector + ' * {color:inherit}')
+        sheet.insertRule(selector + ' * {color:inherit !important}}', sheet.cssRules.length); //console.log(selector + ' * {color:inherit}')
 
-        sheet.insertRule(selector + ' hr { border-color:' + styles.color + ';}', sheet.cssRules.length);
+        sheet.insertRule(selector + ' hr { border-color:' + styles.color + ' !important;}}', sheet.cssRules.length);
       }
     } catch (e) {
       console.log("error adding color: " + styles.color);
@@ -19465,7 +19470,7 @@ Mura.DOMSelection = Mura.Core.extend(
               width = '50%';
             } else if (obj.is('.mura-seven')) {
               width = '58.33';
-            } else if (obj.is('.mura-eigth')) {
+            } else if (obj.is('.mura-eight')) {
               width = '66.66%';
             } else if (obj.is('.mura-nine')) {
               width = '75%';
