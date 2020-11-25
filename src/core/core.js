@@ -746,7 +746,7 @@ function buildDisplayRegion(data){
 				if(typeof data[p] == 'object'){
 					header+=" data-" + p + "=\'" +  escapeHTML(JSON.stringify(data[p]).replace(/'/g,"&#39;")) + "\'";
 				} else {
-					header+=" data-" + p + "=\"" + escapeHTML(data[p]) + "\"";
+					header+=" data-" + p + "=\"" + escapeHTML(data[p]).replace(/"/g, "&quot;") + "\"";
 				}
 			}
 		}
