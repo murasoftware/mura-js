@@ -15811,7 +15811,7 @@ Mura.Entity = Mura.Core.extend(
         eventHandler.error = reject;
       }
 
-      if (params instanceof FormData) {
+      if (Mura.formdata && params instanceof FormData) {
         params.append('_cacheid', Math.random());
       } else {
         params._cacheid = Math.random();
@@ -15892,7 +15892,7 @@ Mura.Entity = Mura.Core.extend(
             context: name
           },
           success: function success(resp) {
-            if (params instanceof FormData) {
+            if (Mura.formdata && params instanceof FormData) {
               params.append('csrf_token', resp.data.csrf_token);
               params.append('csrf_token_expires', resp.data.csrf_token_expires);
             } else {
