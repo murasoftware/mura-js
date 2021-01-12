@@ -2334,7 +2334,7 @@ function wireUpObject(obj, response, attempt) {
 				} else if(
 					Mura.type=='Variation'
 					&& !(
-						item.is('.mxp-editable')
+						item.is('[data-mxp-editable]')
 						|| item.closest('.mxp-editable').length
 					)
 				){
