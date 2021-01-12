@@ -2467,6 +2467,8 @@ function wireUpObject(obj, response, attempt) {
 
         if (item.data('transient')) {
           item.remove();
+        } else if (Mura.type == 'Variation' && !(item.is('.mxp-editable') || item.closest('.mxp-editable').length)) {
+          return;
         }
 
         item.addClass("mura-active");
