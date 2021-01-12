@@ -2465,11 +2465,15 @@ function wireUpObject(obj, response, attempt) {
 		obj.find('form').each(function() {
 			var form = Mura(this);
 			if(form.closest('.mura-object').data('instanceid')==obj.data('instanceid')) {		
-				if(form.data('async') || !(form.hasData('async') &&
-					!form.data('async')) && !(form.hasData(
-					'autowire') && !form.data('autowire')) && !
-					form.attr('action') && !form.attr('onsubmit') &&
-					!form.attr('onSubmit')) {
+				if(form.data('async') 
+					|| !(
+							form.hasData('async') && !form.data('async')
+						)
+						&& !(form.hasData('autowire') && !form.data('autowire')) 
+						&& !form.attr('action') 
+						&& !form.attr('onsubmit') 
+						&& !form.attr('onSubmit')
+				) {
 					form.on('submit', function(e) {
 						e.preventDefault();
 						validateForm(this,
@@ -2632,23 +2636,25 @@ function processDisplayObject(el, queue, rerender, resolveFn, usePreloaderMarkup
 					var form = Mura(this);
 					if(form.closest('.mura-object').data('instanceid')==obj.data('instanceid')) {
 						if(form.data('async')
-							|| !(form.hasData('async')
-							&& !form.data('async'))
+							|| !(
+									form.hasData('async') && !form.data('async')
+								)
 							&& !(form.hasData('autowire')
 							&& !form.data('autowire'))
 							&& !form.attr('action')
 							&& !form.attr('onsubmit')
-							&& !form.attr('onSubmit')) {
-								form.on('submit', function(e) {
-									e.preventDefault();
-									validateForm(this,
-										function(frm) {
-											submitForm(frm,obj);
-										}
-									);
+							&& !form.attr('onSubmit')
+					) {
+						form.on('submit', function(e) {
+							e.preventDefault();
+							validateForm(this,
+								function(frm) {
+									submitForm(frm,obj);
+								}
+							);
 
-									return false;
-								});
+							return false;
+						});
 						}
 					}
 				});

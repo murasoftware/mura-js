@@ -19281,7 +19281,11 @@ Mura.DOMSelection = Mura.Core.extend(
       Mura.windowResponsiveModules = Mura.windowResponsiveModules || {};
       Mura.windowResponsiveModules[obj.data('instanceid')] = false;
       obj = obj.node ? obj : Mura(obj);
-      applyObjectClassesAndId(obj);
+
+      if (!windowResponse) {
+        applyObjectClassesAndId(obj);
+      }
+
       var styleSupport = obj.data('stylesupport') || {};
 
       if (typeof styleSupport == 'string') {
@@ -19334,10 +19338,9 @@ Mura.DOMSelection = Mura.Core.extend(
           meta.removeAttr('style');
 
           if (!windowResponse) {
+            applyMetaClassesAndId(obj);
             Mura.applyModuleStyles(styleSupport, styleTargets.meta, sheet, obj);
           }
-
-          applyMetaClassesAndId(obj);
         }
       }
 
@@ -19345,10 +19348,10 @@ Mura.DOMSelection = Mura.Core.extend(
       content.removeAttr('style');
 
       if (!windowResponse) {
+        applyContentClassesAndId(obj, content, metaWrapper);
         Mura.applyModuleStyles(styleSupport, styleTargets.content, sheet, obj);
       }
 
-      applyContentClassesAndId(obj, content, metaWrapper);
       applyMarginWidthOffset(obj);
       pinUIToolsToTopLeft(obj);
 
