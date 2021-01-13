@@ -2496,6 +2496,7 @@ function wireUpObject(obj, response, attempt) {
           item.find('.mura-object').each(function () {
             initEditableObject(Mura(this));
           });
+          Mura.initDraggableObject(item.node);
         } else {
           var lcaseObject = item.data('object');
 

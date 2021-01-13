@@ -2340,7 +2340,7 @@ function wireUpObject(obj, response, attempt) {
 				){
 					return;
 				}
-				
+
 				item.addClass("mura-active");
 		
 				if(Mura.type =='Variation'){
@@ -2359,6 +2359,7 @@ function wireUpObject(obj, response, attempt) {
 					item.off("click",Mura.handleObjectClick).on("click",Mura.handleObjectClick);
 					item.find("img").each(function(){MuraInlineEditor.checkforImageCroppers(this);});
 					item.find('.mura-object').each(function(){initEditableObject(Mura(this))});
+					Mura.initDraggableObject(item.node);
 				} else {
 					var lcaseObject=item.data('object');
 					if(typeof lcaseObject=='string'){
