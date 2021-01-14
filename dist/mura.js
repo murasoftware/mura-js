@@ -18560,6 +18560,10 @@ Mura.DOMSelection = Mura.Core.extend(
         name = '#' + node.attr('id');
         path = name + (path ? ' > ' + path : '');
         break;
+      } else if (node.data('instanceid')) {
+        name = '[data-instanceid="' + node.data('instanceid') + '"]';
+        path = name + (path ? ' > ' + path : '');
+        break;
       } else {
         name = name.toLowerCase();
         var parent = node.parent();
@@ -21131,8 +21135,8 @@ Mura.UI.Form = Mura.UI.extend(
     var frm = Mura(this.context.formEl);
     var frmErrors = frm.find(".error-container-" + self.context.objectid);
     frm.find('.mura-form-submit').html(self.rb.formbuttonsubmitlabel);
-    frm.find('.mura-response-error').remove();
-    console.log(errors); //var errorData = {};
+    frm.find('.mura-response-error').remove(); //console.log(errors);
+    //var errorData = {};
 
     /*
     for(var i in self.fields) {
@@ -21147,25 +21151,47 @@ Mura.UI.Form = Mura.UI.extend(
     	}
     */
 
+    var fieldKeys = Object.keys(self.fields);
+
     for (var e in errors) {
-      if (typeof self.fields[e] != 'undefined') {
-        var field = self.fields[e];
-        var error = {};
-        error.message = field.validatemessage && field.validatemessage.length ? field.validatemessage : errors[field.name];
-        error.field = field.name;
-        error.label = field.label; //errorData[e] = error;
+      var fieldKey = fieldKeys.find(function (key) {
+        return self.fields[key].name === e;
+      });
+
+      if (fieldKey) {
+        var field = self.fields[fieldKey]; //console.log(field)
+
+        var error = {}; //error.message = field.validatemessage && field.validatemessage.length ? field.validatemessage : errors[field.name];
+        //error.field = field.name;
+        //error.label = field.label;
+
+        error.message = errors[e];
+        error.selector = '#field-' + e;
+        error.field = '';
+        error.label = '';
+
+        if (field.cssid) {
+          error.selector = '#' + field.cssid;
+        } //errorData[e] = error;
+
       } else {
         var error = {};
         error.message = errors[e];
+        error.selector = '#field-' + e;
         error.field = '';
         error.label = ''; //errorData[e] = error;
-      }
+      } //console.log(error);
+
 
       if (this.inlineerrors) {
-        var label = Mura(this.context.formEl).find('label[data-for="' + e + '"]');
+        var field = Mura(this.context.formEl).find(error.selector);
 
-        if (label.length) {
-          label.node.insertAdjacentHTML('afterend', Mura.templates['error'](error));
+        if (!field.length) {
+          field = Mura('label[for="' + e + '"]');
+        }
+
+        if (field.length) {
+          field.node.insertAdjacentHTML('afterend', Mura.templates['error'](error));
         } else {
           frmErrors.append(Mura.templates['error'](error));
         }
@@ -23308,22 +23334,6 @@ this["Mura"]["templates"]["checkbox_static"] = this.Mura.Handlebars.template({
           "column": 163
         }
       }
-    })) != null ? stack1 : "") + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "selected") : depth0, {
-      "name": "if",
-      "hash": {},
-      "fn": container.program(10, data, 0, blockParams, depths),
-      "inverse": container.noop,
-      "data": data,
-      "loc": {
-        "start": {
-          "line": 9,
-          "column": 163
-        },
-        "end": {
-          "line": 9,
-          "column": 204
-        }
-      }
     })) != null ? stack1 : "") + "/>\r\n				<label class=\"" + ((stack1 = (helper = (helper = lookupProperty(helpers, "checkboxLabelClass") || (depth0 != null ? lookupProperty(depth0, "checkboxLabelClass") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
       "name": "checkboxLabelClass",
       "hash": {},
@@ -23925,6 +23935,9 @@ this["Mura"]["templates"]["dropdown_static"] = this.Mura.Handlebars.template({
     return "</br>";
   },
   "9": function _(container, depth0, helpers, partials, data) {
+    return " aria-required=\"true\"";
+  },
+  "11": function _(container, depth0, helpers, partials, data) {
     var stack1,
         helper,
         alias1 = depth0 != null ? depth0 : container.nullContext || {},
@@ -23984,7 +23997,7 @@ this["Mura"]["templates"]["dropdown_static"] = this.Mura.Handlebars.template({
     }) : helper)) + "\" " + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "isselected") : depth0, {
       "name": "if",
       "hash": {},
-      "fn": container.program(10, data, 0),
+      "fn": container.program(12, data, 0),
       "inverse": container.noop,
       "data": data,
       "loc": {
@@ -24013,7 +24026,7 @@ this["Mura"]["templates"]["dropdown_static"] = this.Mura.Handlebars.template({
       }
     }) : helper)) + "</option>\n";
   },
-  "10": function _(container, depth0, helpers, partials, data) {
+  "12": function _(container, depth0, helpers, partials, data) {
     return "selected='selected'";
   },
   "compiler": [8, ">= 4.3.0"],
@@ -24150,10 +24163,26 @@ this["Mura"]["templates"]["dropdown_static"] = this.Mura.Handlebars.template({
           "column": 37
         }
       }
-    }) : helper)) != null ? stack1 : "") + ">\n" + ((stack1 = (lookupProperty(helpers, "eachStatic") || depth0 && lookupProperty(depth0, "eachStatic") || alias2).call(alias1, depth0 != null ? lookupProperty(depth0, "dataset") : depth0, {
-      "name": "eachStatic",
+    }) : helper)) != null ? stack1 : "") + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "isrequired") : depth0, {
+      "name": "if",
       "hash": {},
       "fn": container.program(9, data, 0),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 4,
+          "column": 37
+        },
+        "end": {
+          "line": 4,
+          "column": 83
+        }
+      }
+    })) != null ? stack1 : "") + ">\n" + ((stack1 = (lookupProperty(helpers, "eachStatic") || depth0 && lookupProperty(depth0, "eachStatic") || alias2).call(alias1, depth0 != null ? lookupProperty(depth0, "dataset") : depth0, {
+      "name": "eachStatic",
+      "hash": {},
+      "fn": container.program(11, data, 0),
       "inverse": container.noop,
       "data": data,
       "loc": {
@@ -24172,6 +24201,9 @@ this["Mura"]["templates"]["dropdown_static"] = this.Mura.Handlebars.template({
 });
 this["Mura"]["templates"]["dropdown"] = this.Mura.Handlebars.template({
   "1": function _(container, depth0, helpers, partials, data) {
+    return " aria-required=\"true\"";
+  },
+  "3": function _(container, depth0, helpers, partials, data) {
     var helper,
         lookupProperty = container.lookupProperty || function (parent, propertyName) {
       if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
@@ -24188,16 +24220,16 @@ this["Mura"]["templates"]["dropdown"] = this.Mura.Handlebars.template({
       "loc": {
         "start": {
           "line": 2,
-          "column": 68
+          "column": 114
         },
         "end": {
           "line": 2,
-          "column": 79
+          "column": 125
         }
       }
     }) : helper));
   },
-  "3": function _(container, depth0, helpers, partials, data) {
+  "5": function _(container, depth0, helpers, partials, data) {
     var helper,
         lookupProperty = container.lookupProperty || function (parent, propertyName) {
       if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
@@ -24214,16 +24246,16 @@ this["Mura"]["templates"]["dropdown"] = this.Mura.Handlebars.template({
       "loc": {
         "start": {
           "line": 2,
-          "column": 87
+          "column": 133
         },
         "end": {
           "line": 2,
-          "column": 96
+          "column": 142
         }
       }
     }) : helper));
   },
-  "5": function _(container, depth0, helpers, partials, data) {
+  "7": function _(container, depth0, helpers, partials, data) {
     var helper,
         lookupProperty = container.lookupProperty || function (parent, propertyName) {
       if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
@@ -24240,19 +24272,19 @@ this["Mura"]["templates"]["dropdown"] = this.Mura.Handlebars.template({
       "loc": {
         "start": {
           "line": 2,
-          "column": 127
+          "column": 173
         },
         "end": {
           "line": 2,
-          "column": 148
+          "column": 194
         }
       }
     }) : helper)) + "</ins>";
   },
-  "7": function _(container, depth0, helpers, partials, data) {
+  "9": function _(container, depth0, helpers, partials, data) {
     return "</br>";
   },
-  "9": function _(container, depth0, helpers, partials, data) {
+  "11": function _(container, depth0, helpers, partials, data) {
     var stack1,
         helper,
         alias1 = depth0 != null ? depth0 : container.nullContext || {},
@@ -24312,7 +24344,7 @@ this["Mura"]["templates"]["dropdown"] = this.Mura.Handlebars.template({
     }) : helper)) + "\" " + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "isselected") : depth0, {
       "name": "if",
       "hash": {},
-      "fn": container.program(10, data, 0),
+      "fn": container.program(12, data, 0),
       "inverse": container.noop,
       "data": data,
       "loc": {
@@ -24341,7 +24373,7 @@ this["Mura"]["templates"]["dropdown"] = this.Mura.Handlebars.template({
       }
     }) : helper)) + "</option>\n";
   },
-  "10": function _(container, depth0, helpers, partials, data) {
+  "12": function _(container, depth0, helpers, partials, data) {
     return "selected='selected'";
   },
   "compiler": [8, ">= 4.3.0"],
@@ -24416,42 +24448,58 @@ this["Mura"]["templates"]["dropdown"] = this.Mura.Handlebars.template({
           "column": 51
         }
       }
-    }) : helper)) + "\">" + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "summary") : depth0, {
+    }) : helper)) + "\"" + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "isrequired") : depth0, {
       "name": "if",
       "hash": {},
       "fn": container.program(1, data, 0),
-      "inverse": container.program(3, data, 0),
-      "data": data,
-      "loc": {
-        "start": {
-          "line": 2,
-          "column": 53
-        },
-        "end": {
-          "line": 2,
-          "column": 103
-        }
-      }
-    })) != null ? stack1 : "") + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "isrequired") : depth0, {
-      "name": "if",
-      "hash": {},
-      "fn": container.program(5, data, 0),
       "inverse": container.noop,
       "data": data,
       "loc": {
         "start": {
           "line": 2,
-          "column": 103
+          "column": 52
         },
         "end": {
           "line": 2,
-          "column": 161
+          "column": 98
+        }
+      }
+    })) != null ? stack1 : "") + ">" + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "summary") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(3, data, 0),
+      "inverse": container.program(5, data, 0),
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 2,
+          "column": 99
+        },
+        "end": {
+          "line": 2,
+          "column": 149
+        }
+      }
+    })) != null ? stack1 : "") + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "isrequired") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(7, data, 0),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 2,
+          "column": 149
+        },
+        "end": {
+          "line": 2,
+          "column": 207
         }
       }
     })) != null ? stack1 : "") + "</label>\n		" + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "summary") : depth0, {
       "name": "if",
       "hash": {},
-      "fn": container.program(7, data, 0),
+      "fn": container.program(9, data, 0),
       "inverse": container.noop,
       "data": data,
       "loc": {
@@ -24481,7 +24529,7 @@ this["Mura"]["templates"]["dropdown"] = this.Mura.Handlebars.template({
     }) : helper)) != null ? stack1 : "") + ">\n" + ((stack1 = lookupProperty(helpers, "each").call(alias1, (stack1 = depth0 != null ? lookupProperty(depth0, "dataset") : depth0) != null ? lookupProperty(stack1, "options") : stack1, {
       "name": "each",
       "hash": {},
-      "fn": container.program(9, data, 0),
+      "fn": container.program(11, data, 0),
       "inverse": container.noop,
       "data": data,
       "loc": {
@@ -24630,6 +24678,9 @@ this["Mura"]["templates"]["file"] = this.Mura.Handlebars.template({
       }
     }) : helper)) + "</ins>";
   },
+  "3": function _(container, depth0, helpers, partials, data) {
+    return " aria-required=\"true\"";
+  },
   "compiler": [8, ">= 4.3.0"],
   "main": function main(container, depth0, helpers, partials, data) {
     var stack1,
@@ -24746,18 +24797,34 @@ this["Mura"]["templates"]["file"] = this.Mura.Handlebars.template({
           "column": 52
         }
       }
-    }) : helper)) + "_attachment\" placeholder=\"" + alias4((helper = (helper = lookupProperty(helpers, "filePlaceholder") || (depth0 != null ? lookupProperty(depth0, "filePlaceholder") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
+    }) : helper)) + "_attachment\"" + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "isrequired") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(3, data, 0),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 3,
+          "column": 64
+        },
+        "end": {
+          "line": 3,
+          "column": 110
+        }
+      }
+    })) != null ? stack1 : "") + " placeholder=\"" + alias4((helper = (helper = lookupProperty(helpers, "filePlaceholder") || (depth0 != null ? lookupProperty(depth0, "filePlaceholder") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
       "name": "filePlaceholder",
       "hash": {},
       "data": data,
       "loc": {
         "start": {
           "line": 3,
-          "column": 78
+          "column": 124
         },
         "end": {
           "line": 3,
-          "column": 97
+          "column": 143
         }
       }
     }) : helper)) + "\" " + ((stack1 = (helper = (helper = lookupProperty(helpers, "fileAttributes") || (depth0 != null ? lookupProperty(depth0, "fileAttributes") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
@@ -24767,11 +24834,11 @@ this["Mura"]["templates"]["file"] = this.Mura.Handlebars.template({
       "loc": {
         "start": {
           "line": 3,
-          "column": 99
+          "column": 145
         },
         "end": {
           "line": 3,
-          "column": 119
+          "column": 165
         }
       }
     }) : helper)) != null ? stack1 : "") + ">\r\n	<input hidden data-filename=\"" + alias4((helper = (helper = lookupProperty(helpers, "name") || (depth0 != null ? lookupProperty(depth0, "name") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
@@ -26530,6 +26597,9 @@ this["Mura"]["templates"]["textarea"] = this.Mura.Handlebars.template({
     return "</br>";
   },
   "9": function _(container, depth0, helpers, partials, data) {
+    return " aria-required=\"true\"";
+  },
+  "11": function _(container, depth0, helpers, partials, data) {
     var helper,
         lookupProperty = container.lookupProperty || function (parent, propertyName) {
       if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
@@ -26546,11 +26616,11 @@ this["Mura"]["templates"]["textarea"] = this.Mura.Handlebars.template({
       "loc": {
         "start": {
           "line": 4,
-          "column": 71
+          "column": 117
         },
         "end": {
           "line": 4,
-          "column": 86
+          "column": 132
         }
       }
     }) : helper)) + "\"";
@@ -26689,7 +26759,7 @@ this["Mura"]["templates"]["textarea"] = this.Mura.Handlebars.template({
           "column": 38
         }
       }
-    }) : helper)) != null ? stack1 : "") + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "placeholder") : depth0, {
+    }) : helper)) != null ? stack1 : "") + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "isrequired") : depth0, {
       "name": "if",
       "hash": {},
       "fn": container.program(9, data, 0),
@@ -26702,7 +26772,23 @@ this["Mura"]["templates"]["textarea"] = this.Mura.Handlebars.template({
         },
         "end": {
           "line": 4,
-          "column": 94
+          "column": 84
+        }
+      }
+    })) != null ? stack1 : "") + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "placeholder") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(11, data, 0),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 4,
+          "column": 84
+        },
+        "end": {
+          "line": 4,
+          "column": 140
         }
       }
     })) != null ? stack1 : "") + ">" + alias4((helper = (helper = lookupProperty(helpers, "value") || (depth0 != null ? lookupProperty(depth0, "value") : depth0)) != null ? helper : alias2, _typeof(helper) === alias3 ? helper.call(alias1, {
@@ -26712,11 +26798,11 @@ this["Mura"]["templates"]["textarea"] = this.Mura.Handlebars.template({
       "loc": {
         "start": {
           "line": 4,
-          "column": 95
+          "column": 141
         },
         "end": {
           "line": 4,
-          "column": 104
+          "column": 150
         }
       }
     }) : helper)) + "</textarea>\r\n</div>\r\n";
@@ -26868,6 +26954,9 @@ this["Mura"]["templates"]["textfield"] = this.Mura.Handlebars.template({
     return "</br>";
   },
   "9": function _(container, depth0, helpers, partials, data) {
+    return " aria-required=\"true\"";
+  },
+  "11": function _(container, depth0, helpers, partials, data) {
     var helper,
         lookupProperty = container.lookupProperty || function (parent, propertyName) {
       if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
@@ -26884,11 +26973,11 @@ this["Mura"]["templates"]["textfield"] = this.Mura.Handlebars.template({
       "loc": {
         "start": {
           "line": 4,
-          "column": 118
+          "column": 164
         },
         "end": {
           "line": 4,
-          "column": 133
+          "column": 179
         }
       }
     }) : helper)) + "\"";
@@ -27055,7 +27144,7 @@ this["Mura"]["templates"]["textfield"] = this.Mura.Handlebars.template({
           "column": 84
         }
       }
-    }) : helper)) + "\"" + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "placeholder") : depth0, {
+    }) : helper)) + "\"" + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "isrequired") : depth0, {
       "name": "if",
       "hash": {},
       "fn": container.program(9, data, 0),
@@ -27068,7 +27157,23 @@ this["Mura"]["templates"]["textfield"] = this.Mura.Handlebars.template({
         },
         "end": {
           "line": 4,
-          "column": 141
+          "column": 131
+        }
+      }
+    })) != null ? stack1 : "") + ((stack1 = lookupProperty(helpers, "if").call(alias1, depth0 != null ? lookupProperty(depth0, "placeholder") : depth0, {
+      "name": "if",
+      "hash": {},
+      "fn": container.program(11, data, 0),
+      "inverse": container.noop,
+      "data": data,
+      "loc": {
+        "start": {
+          "line": 4,
+          "column": 131
+        },
+        "end": {
+          "line": 4,
+          "column": 187
         }
       }
     })) != null ? stack1 : "") + "/>\r\n</div>\r\n";

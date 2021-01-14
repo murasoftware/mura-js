@@ -1,5 +1,5 @@
 <div class="{{{inputWrapperClass}}}" id="field-{{name}}-container">
 	<label for="{{labelForValue}}" data-for="{{name}}">{{#if summary}}{{summary}}{{else}}{{label}}{{/if}}{{#if isrequired}} <ins>{{formRequiredLabel}}</ins>{{/if}}</label>
 	{{#if summary}}</br>{{/if}}
-	<textarea {{{commonInputAttributes}}}{{#if placeholder}} placeholder="{{placeholder}}"{{/if}}>{{value}}</textarea>
+	<textarea {{{commonInputAttributes}}}{{#if isrequired}} aria-required="true"{{/if}}{{#if placeholder}} placeholder="{{placeholder}}"{{/if}}>{{value}}</textarea>
 </div>

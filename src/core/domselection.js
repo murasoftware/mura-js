@@ -550,6 +550,10 @@ Mura.DOMSelection = Mura.Core.extend(
 				name = '#' + node.attr('id');
 				path = name + (path ? ' > ' + path : '');
 				break;
+			} else if (node.data('instanceid')) {
+				name = '[data-instanceid="' + node.data('instanceid') + '"]';
+				path = name + (path ? ' > ' + path : '');
+				break;
 			} else {
 				name = name.toLowerCase();
 				var parent = node.parent();

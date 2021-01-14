@@ -994,7 +994,7 @@ Mura.UI.Form=Mura.UI.extend(
 		frm.find('.mura-form-submit').html(self.rb.formbuttonsubmitlabel);
 		frm.find('.mura-response-error').remove();
 
-		console.log(errors);
+		//console.log(errors);
 
 		//var errorData = {};
 
@@ -1012,28 +1012,56 @@ Mura.UI.Form=Mura.UI.extend(
 
 		}
 		*/
+		
+		var fieldKeys=Object.keys(self.fields);
 
 		for(var e in errors) {
-			if( typeof self.fields[e] != 'undefined' ) {
-				var field = self.fields[e]
+		
+			var fieldKey=fieldKeys.find(function(key){
+				return (self.fields[key].name===e);
+			});
+
+			if( fieldKey ) {
+				var field = self.fields[fieldKey];
+
+				//console.log(field)
+
 				var error = {};
-				error.message = field.validatemessage && field.validatemessage.length ? field.validatemessage : errors[field.name];
-				error.field = field.name;
-				error.label = field.label;
+				
+				//error.message = field.validatemessage && field.validatemessage.length ? field.validatemessage : errors[field.name];
+				//error.field = field.name;
+				//error.label = field.label;
+				
+				error.message = errors[e];
+				error.selector='#field-' + e
+				error.field = '';
+				error.label = '';
+
+				if(field.cssid){
+					error.selector= '#' + field.cssid;
+				} 
+
 				//errorData[e] = error;
 			} else {
 				var error = {};
 				error.message = errors[e];
+				error.selector='#field-' + e
 				error.field = '';
 				error.label = '';
 				//errorData[e] = error;
 			}
 
-			if(this.inlineerrors){
-				var label=Mura(this.context.formEl).find('label[data-for="' + e + '"]');
+			//console.log(error);
 
-				if(label.length){
-					label.node.insertAdjacentHTML('afterend',Mura.templates['error'](error));
+			if(this.inlineerrors){
+				var field=Mura(this.context.formEl).find(error.selector);
+
+				if(!field.length){
+					field=Mura('label[for="'+ e + '"]');
+				}
+
+				if(field.length){
+					field.node.insertAdjacentHTML('afterend',Mura.templates['error'](error));
 				} else {
 					frmErrors.append(Mura.templates['error'](error));
 				}

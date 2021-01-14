@@ -1,7 +1,7 @@
 	<div class="{{{inputWrapperClass}}}" id="field-{{name}}-container">
 		<label for="{{labelForValue}}" data-for="{{name}}">{{#if summary}}{{summary}}{{else}}{{label}}{{/if}}{{#if isrequired}} <ins>{{formRequiredLabel}}</ins>{{/if}}</label>
 		{{#if summary}}</br>{{/if}}
-		<select {{{commonInputAttributes}}}>
+		<select {{{commonInputAttributes}}}{{#if isrequired}} aria-required="true"{{/if}}>
 			{{#eachStatic dataset}}
 				<option data-isother="{{isother}}" id="field-{{datarecordid}}" value="{{value}}" {{#if isselected}}selected='selected'{{/if}}>{{label}}</option>
 			{{/eachStatic}}

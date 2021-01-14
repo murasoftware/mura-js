@@ -1,6 +1,6 @@
 <div class="{{{inputWrapperClass}}} mura-form-file-container" id="field-{{name}}-container">
 	<label for="{{labelForValue}} mura-form-file-label" data-for="{{name}}_attachment">{{label}}{{#if isrequired}} <ins>{{formRequiredLabel}}</ins>{{/if}}</label>
-	<input readonly type="text" data-filename="{{name}}_attachment" placeholder="{{filePlaceholder}}" {{{fileAttributes}}}>
+	<input readonly type="text" data-filename="{{name}}_attachment"{{#if isrequired}} aria-required="true"{{/if}} placeholder="{{filePlaceholder}}" {{{fileAttributes}}}>
 	<input hidden data-filename="{{name}}_attachment" type="file" {{{commonInputAttributes}}}/>
 	<div class="mura-form-preview" style="display:none;">
 		<img style="display:none;" id="mura-form-preview-{{name}}_attachment" src="" onerror="this.onerror=null;this.src='';this.style.display='none';">
