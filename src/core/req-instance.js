@@ -82,7 +82,9 @@ Mura.Request=Mura.Core.extend(
 			return this.requestHeaders;
 		},
 		nodeRequest(params){
-			
+			if(typeof Mura.renderMode != 'undefined'){
+				params.renderMode=Mura.renderMode;
+			}
 			var debug=typeof Mura.debug != 'undefined' && Mura.debug;
 			var self=this;
 			if(typeof this.requestObject != 'undefined'){
@@ -276,7 +278,16 @@ Mura.Request=Mura.Core.extend(
 					const formData=new Mura._formData();
 
 					Object.keys(params.data).forEach((key)=>{
-						formData.append(key, params.data[key]);
+						if(typeof params.data[key]==='boolean'){
+							//boolean values seem to throw error in node-fetch
+							if(params.data[key]){
+								formData.append(key, 'true');
+							} else {
+								formData.append(key, 'false');
+							}
+						} else  {
+							formData.append(key, params.data[key]);
+						}
 					})
 
 					Mura._fetch(

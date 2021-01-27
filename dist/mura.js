@@ -14433,6 +14433,10 @@ Mura.Request = Mura.Core.extend(
     return this.requestHeaders;
   },
   nodeRequest: function nodeRequest(params) {
+    if (typeof Mura.renderMode != 'undefined') {
+      params.renderMode = Mura.renderMode;
+    }
+
     var debug = typeof Mura.debug != 'undefined' && Mura.debug;
     var self = this;
 
@@ -14715,7 +14719,16 @@ Mura.Request = Mura.Core.extend(
     if (params.type.toLowerCase() === 'post') {
       var formData = new Mura._formData();
       Object.keys(params.data).forEach(function (key) {
-        formData.append(key, params.data[key]);
+        if (typeof params.data[key] === 'boolean') {
+          //boolean values seem to throw error in node-fetch
+          if (params.data[key]) {
+            formData.append(key, 'true');
+          } else {
+            formData.append(key, 'false');
+          }
+        } else {
+          formData.append(key, params.data[key]);
+        }
       });
 
       Mura._fetch(params.url, {
@@ -17537,6 +17550,9 @@ Mura.Feed = Mura.Core.extend((_Mura$Core$extend = {
     this.queryString += '&id=' + encodeURIComponent(ids.join(","));
   }
 
+  return this;
+}), _defineProperty(_Mura$Core$extend, "pointInTime", function pointInTime(_pointInTime) {
+  this.queryString += '&pointInTime=' + encodeURIComponent(_pointInTime);
   return this;
 }), _defineProperty(_Mura$Core$extend, "showExcludeSearch", function showExcludeSearch(_showExcludeSearch) {
   this.queryString += '&showExcludeSearch=' + encodeURIComponent(_showExcludeSearch);

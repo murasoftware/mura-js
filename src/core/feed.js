@@ -516,6 +516,17 @@ Mura.Feed = Mura.Core.extend(
 		/**
 		 * no - Sets to include the homepage
 		 *
+		 * @param  {date} pointInTime What time historical Mura ORM entities should think it is
+		 * @return {Mura.Feed}              Self
+		 */
+		pointInTime(pointInTime) {
+			this.queryString += '&pointInTime=' + encodeURIComponent(pointInTime);
+			return this;
+		},
+
+		/**
+		 * no - Sets to include the homepage
+		 *
 		 * @param  {boolean} showExcludeSearch Whether to return items that have been excluded from search
 		 * @return {Mura.Feed}              Self
 		 */
