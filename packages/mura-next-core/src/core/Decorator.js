@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import GlobalContext from './GlobalContext';
-import {ExternalModules, ComponentRegistry} from 'mura.config';
+import {ExternalModules, ComponentRegistry} from '~/mura.config';
 import Mura from 'mura.js';
 
 function Decorator(props) {

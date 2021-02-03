@@ -1,5 +1,5 @@
 import react from 'react';
-import {ConnectorConfig} from 'mura.config';
+import {ConnectorConfig} from '~/mura.config';
 import ReactMarkdown from "react-markdown";
 
 function OutputMarkup({source,className}){

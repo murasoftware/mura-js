@@ -2,8 +2,8 @@ import React from 'react';
 import Mura from 'mura.js/src/core/core';
 
 // eslint-disable-next-line
-import { getComponent } from '@mura/core/Connector';
-import MuraDecorator from '@mura/core/Decorator';
+import { getComponent } from '@murasoftware/next-core';
+import { Decorator } from '@murasoftware/next-core';
 
 function Container(props) {
   const { items,content } = props;
@@ -20,7 +20,7 @@ function Container(props) {
           obj.moduleStyleData=props.moduleStyleData;
           obj.content = content;
           obj.inited = true;
-          return (<MuraDecorator {...obj}> {getComponent(obj)} </MuraDecorator>)
+          return (<Decorator {...obj}> {getComponent(obj)} </Decorator>)
       })
    
   );

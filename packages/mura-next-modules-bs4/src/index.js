@@ -1,14 +1,14 @@
 export { default as Video} from "./modules/Video";
 export { default as ArticleMeta} from "./modules/ArticleMeta";
-export { getDynamicProps as getCollectionDynamicProps, default as Collection} from "./modules/Collection";
+export { getDynamicProps as getCollectionDynamicProps, default as Collection , getLayout as getCollectionLayout, RouterlessLink , RouterLink } from "./modules/Collection";
 export { getQueryProps as getCollectionLayoutQueryProps, default as CollectionLayout} from "./modules/CollectionLayout";
 export { getQueryProps as getCollectionLayoutAccordianQueryProps, default as CollectionLayoutAccordian} from "./modules/CollectionLayoutAccordion";
-export { getQueryProps as getCollectionLayoutAlternatingBoxesProps, default as CollectionLayoutAlternatingBoxes} from "./modules/CollectionLayoutAlternatingBoxes";
-export { getQueryProps as getCollectionLayoutAlternatingRowsAueryProps, default as CollectionLayoutAlternatingRows} from "./modules/CollectionLayoutAlternatingRows";
+export { getQueryProps as getCollectionLayoutAlternatingBoxesQueryProps, default as CollectionLayoutAlternatingBoxes} from "./modules/CollectionLayoutAlternatingBoxes";
+export { getQueryProps as getCollectionLayoutAlternatingRowsQueryProps, default as CollectionLayoutAlternatingRows} from "./modules/CollectionLayoutAlternatingRows";
 export { getQueryProps as getCollectionLayoutCardsQueryProps, default as CollectionLayoutCards} from "./modules/CollectionLayoutCards";
 export { getQueryProps as getCollectionLayoutListQueryProps, default as CollectionLayoutList} from "./modules/CollectionLayoutList";
 export { getQueryProps as getCollectionLayoutMasonryQueryProps, default as CollectionLayoutMasonry} from "./modules/CollectionLayoutMasonry";
-export { getQueryProps as getCollectionLayoutSlickSliderAueryProps, default as CollectionLayoutSlickSlider} from "./modules/CollectionLayoutSlickSlider";
+export { getQueryProps as getCollectionLayoutSlickSliderQueryProps, default as CollectionLayoutSlickSlider} from "./modules/CollectionLayoutSlickSlider";
 export { default as CollectionNav} from "./modules/CollectionNav";
 export { default as CollectionReadMoreBtn} from "./modules/CollectionReadMoreBtn";
 export { default as Container} from "./modules/Container";
@@ -20,11 +20,12 @@ export { default as ItemDate} from "./modules/ItemDate";
 export { default as ItemImage} from "./modules/ItemImage";
 export { default as ItemTags} from "./modules/ItemTags";
 export { default as Login} from "./modules/Login";
-export { default as MatrixSelector} from "./modules/MatrixSelector";
+export { getDynamicProps as getMatrixSelectorDynamicProps, default as MatrixSelector} from "./modules/MatrixSelector";
 export { default as NoItemsMessage} from "./modules/NoItemsMessage";
 export { default as OutputMarkup} from "./modules/OutputMarkup";
-export { default as PrimaryNav} from "./modules/PrimaryNav";
-export { default as ResourceHub} from "./modules/ResourceHub";
-export { default as Text} from "./modules/Text";
+export { getDynamicProps as getPrimaryNavDynamicProps, default as PrimaryNav} from "./modules/PrimaryNav";
+export { getDynamicProps as getResourceHubDynamicProps, default as ResourceHub} from "./modules/ResourceHub";
+export { getDynamicProps as getTextDynamicProps, default as Text} from "./modules/Text";
+export { default as PrivacyTools } from "./modules/PrivacyTools";
 
 
