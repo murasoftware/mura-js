@@ -1,11 +1,11 @@
-import { MuraJSRefPlaceholder, getMuraProps, getRootPath, getMuraPaths, getSiteName, getComponent, getMura, getHref, useAsync } from "./core/Connector";
-import { default as Decorator} from "./core/Decorator";
-import { default as GlobalContext } from "./core/GlobalContext";
-import { default as DisplayRegion} from "./core/DisplayRegion";
-import { default as ExternalAssets} from "./core/ExternalAssets";
-import { default as EditLayout} from "./core/EditLayout";
-import { default as MainLayout} from "./core/MainLayout";
-import { default as Styles} from "./core/Styles";
+import { MuraJSRefPlaceholder, getMuraProps, getRootPath, getMuraPaths, getSiteName, getComponent, getMura, getHref, useAsync } from "./Connector";
+import { default as Decorator} from "./Decorator";
+import { default as GlobalContext } from "./GlobalContext";
+import { default as DisplayRegion} from "./DisplayRegion";
+import { default as ExternalAssets} from "./ExternalAssets";
+import { default as EditLayout} from "./EditLayout";
+import { default as MainLayout} from "./MainLayout";
+import { default as Styles} from "./Styles";
 
 export {
     MuraJSRefPlaceholder, 
