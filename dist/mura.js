@@ -20742,7 +20742,7 @@ Mura.UI.Form = Mura.UI.extend(
     var fileChangeHandler = function fileChangeHandler(e) {
       var inputEl = Mura(this);
       var fn = inputEl.val().replace(/\\/g, '/').replace(/.*\//, '');
-      var fnEl = $('.mura-newfile-filename[data-filename="' + inputEl.attr("name") + '"]').val(fn);
+      var fnEl = Mura('.mura-newfile-filename[data-filename="' + inputEl.attr("name") + '"]').val(fn);
       var f = Mura('input[type="file"][data-filename="' + inputEl.attr("name") + '"]').node.files[0];
       var fImg = Mura('img#mura-form-preview-' + inputEl.attr("name"));
       var fUrl = ''; // file upload
