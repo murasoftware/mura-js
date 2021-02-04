@@ -1,5 +1,5 @@
 import Mura from 'mura.js';
-import { ConnectorConfig, ComponentRegistry, ExternalModules } from '@muraconfig';
+import { ConnectorConfig, ComponentRegistry, ExternalModules } from 'mura.config';
 import React$1, { createContext, useContext, useEffect as useEffect$1 } from 'react';
 
 function _extends() {

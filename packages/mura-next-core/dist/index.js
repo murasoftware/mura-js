@@ -1,7 +1,7 @@
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
 var Mura = _interopDefault(require('mura.js'));
-var _muraconfig = require('@muraconfig');
+var mura_config = require('mura.config');
 var React$1 = require('react');
 var React$1__default = _interopDefault(React$1);
 
@@ -166,12 +166,12 @@ var getModuleProps = function getModuleProps(item, moduleStyleData, isEditMode, 
     var _temp23 = _catch(function () {
       var objectkey = item.object;
 
-      if (typeof _muraconfig.ComponentRegistry[objectkey] == 'undefined') {
+      if (typeof mura_config.ComponentRegistry[objectkey] == 'undefined') {
         objectkey = Mura.firstToUpperCase(item.object);
       }
 
       var _temp19 = function () {
-        if (typeof _muraconfig.ComponentRegistry[objectkey] != 'undefined') {
+        if (typeof mura_config.ComponentRegistry[objectkey] != 'undefined') {
           var _temp24 = function _temp24() {
             var _temp16 = function () {
               if (item.object == 'container') {
@@ -199,8 +199,8 @@ var getModuleProps = function getModuleProps(item, moduleStyleData, isEditMode, 
           };
 
           var _temp25 = function () {
-            if (_muraconfig.ComponentRegistry[objectkey].SSR) {
-              return Promise.resolve(_muraconfig.ComponentRegistry[objectkey].getDynamicProps(_extends({}, item, {
+            if (mura_config.ComponentRegistry[objectkey].SSR) {
+              return Promise.resolve(mura_config.ComponentRegistry[objectkey].getDynamicProps(_extends({}, item, {
                 content: content
               }))).then(function (_ComponentRegistry$ob) {
                 item.dynamicProps = _ComponentRegistry$ob;
@@ -336,7 +336,7 @@ var renderContent = function renderContent(context, isEditMode, params) {
 
 require('mura.js/src/core/stylemap-static');
 
-var connectorConfig = Object.assign({}, _muraconfig.ConnectorConfig);
+var connectorConfig = Object.assign({}, mura_config.ConnectorConfig);
 var MuraJSRefPlaceholder = '"undefined"!=typeof window&&function(u){u.queuedMuraCmds=[],u.queuedMuraPreInitCmds=[],"function"!=typeof u.Mura&&(u.Mura=u.mura=u.Mura=function(e){u.queuedMuraCmds.push(e)},u.Mura.preInit=function(e){u.queuedMuraPreInitCmds.push(e)})}(window);';
 var useAsync = function useAsync(asyncFn, onSuccess) {
   useEffect(function () {
@@ -364,12 +364,12 @@ var getComponent = function getComponent(item) {
   getMura();
   var objectkey = item.object;
 
-  if (typeof _muraconfig.ComponentRegistry[objectkey] == 'undefined') {
+  if (typeof mura_config.ComponentRegistry[objectkey] == 'undefined') {
     objectkey = Mura.firstToUpperCase(item.object);
   }
 
-  if (typeof _muraconfig.ComponentRegistry[objectkey] != 'undefined') {
-    var ComponentVariable = _muraconfig.ComponentRegistry[objectkey].component;
+  if (typeof mura_config.ComponentRegistry[objectkey] != 'undefined') {
+    var ComponentVariable = mura_config.ComponentRegistry[objectkey].component;
     return /*#__PURE__*/React.createElement(ComponentVariable, _extends({
       key: item.instanceid
     }, item));
@@ -402,7 +402,7 @@ var getMuraPaths = function getMuraPaths() {
       return paths;
     };
 
-    var siteids = _muraconfig.ConnectorConfig.siteid;
+    var siteids = mura_config.ConnectorConfig.siteid;
     var pathList = [];
 
     if (!Array.isArray(siteids)) {
@@ -430,16 +430,16 @@ var getMuraPaths = function getMuraPaths() {
 var getMura = function getMura(context) {
   var startingsiteid = Mura.siteid;
 
-  if (typeof context == 'string' && _muraconfig.ConnectorConfig.siteid.find(function (item) {
+  if (typeof context == 'string' && mura_config.ConnectorConfig.siteid.find(function (item) {
     return item === context;
   })) {
     connectorConfig.siteid = context;
   } else {
-    var ishomepage = context && !(context.params && context.params.page) || typeof location != 'undefined' && (location.pathname == "/" || location.pathname == _muraconfig.ConnectorConfig.editroute + "/");
+    var ishomepage = context && !(context.params && context.params.page) || typeof location != 'undefined' && (location.pathname == "/" || location.pathname == mura_config.ConnectorConfig.editroute + "/");
 
-    if (Array.isArray(_muraconfig.ConnectorConfig.siteid)) {
+    if (Array.isArray(mura_config.ConnectorConfig.siteid)) {
       if (ishomepage) {
-        connectorConfig.siteid = _muraconfig.ConnectorConfig.siteid[0];
+        connectorConfig.siteid = mura_config.ConnectorConfig.siteid[0];
       } else {
         var page = [];
 
@@ -454,19 +454,19 @@ var getMura = function getMura(context) {
             return item.length;
           });
 
-          if (page.length && _muraconfig.ConnectorConfig.editroute && page[0] === _muraconfig.ConnectorConfig.editroute.split("/")[1]) {
+          if (page.length && mura_config.ConnectorConfig.editroute && page[0] === mura_config.ConnectorConfig.editroute.split("/")[1]) {
             page.shift();
           }
         }
 
         if (page.length) {
-          if (_muraconfig.ConnectorConfig.siteid.find(function (item) {
+          if (mura_config.ConnectorConfig.siteid.find(function (item) {
             return item === page[0];
           })) {
             connectorConfig.siteid = page[0];
             connectorConfig.siteidinurls = true;
           } else {
-            connectorConfig.siteid = _muraconfig.ConnectorConfig.siteid[0];
+            connectorConfig.siteid = mura_config.ConnectorConfig.siteid[0];
           }
         }
       }
@@ -524,7 +524,7 @@ var getMuraProps = function getMuraProps(context, isEditMode, params) {
           var props = {
             content: content,
             moduleStyleData: moduleStyleData,
-            externalModules: _muraconfig.ExternalModules,
+            externalModules: mura_config.ExternalModules,
             codeblocks: codeblocks
           };
 
@@ -607,14 +607,14 @@ function Decorator(props) {
   var domMetaWrapper = {
     className: "mura-object-meta-wrapper"
   };
-  var isExternalModule = _muraconfig.ExternalModules[props.object];
+  var isExternalModule = mura_config.ExternalModules[props.object];
   var objectKey = props.object;
 
-  if (typeof _muraconfig.ComponentRegistry[objectKey] == 'undefined') {
+  if (typeof mura_config.ComponentRegistry[objectKey] == 'undefined') {
     objectKey = Mura.firstToUpperCase(props.object);
   }
 
-  var isSSR = _muraconfig.ComponentRegistry[objectKey] && (_muraconfig.ComponentRegistry[objectKey].SSR || _muraconfig.ComponentRegistry[objectKey].ssr);
+  var isSSR = mura_config.ComponentRegistry[objectKey] && (mura_config.ComponentRegistry[objectKey].SSR || mura_config.ComponentRegistry[objectKey].ssr);
 
   if (isEditMode || isExternalModule || !isSSR) {
     Object.keys(props).forEach(function (key) {
