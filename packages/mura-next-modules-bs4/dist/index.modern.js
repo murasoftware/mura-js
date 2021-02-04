@@ -1,10 +1,11 @@
 import React$1, { useContext, createContext, useState, useEffect, useCallback, useRef, useMemo, useReducer } from 'react';
 import Head from 'next/head';
 import ReactMarkdown from 'react-markdown';
-import { ConnectorConfig, ComponentRegistry, ExternalModules } from '@muraconfig';
+import { ConnectorConfig, ComponentRegistry as ComponentRegistry$1 } from 'mura.config';
 import Mura$1 from 'mura.js';
 import Link from 'next/link';
 import 'mura.js/src/core/stylemap-static';
+import { ConnectorConfig as ConnectorConfig$1, ComponentRegistry, ExternalModules } from '@muraconfig';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronRight, faChevronLeft } from '@fortawesome/free-solid-svg-icons';
 import Slider from 'react-slick';
@@ -145,7 +146,7 @@ var ItemDate = function ItemDate(props) {
   return formatteddate;
 };
 
-function ItemCredits(props) {
+var ItemCredits = function ItemCredits(props) {
   var Credits = props.credits.split(',');
   var creditsList = [];
   var credit = '';
@@ -159,7 +160,7 @@ function ItemCredits(props) {
   }
 
   return creditsList;
-}
+};
 
 function _extends() {
   _extends = Object.assign || function (target) {
@@ -316,7 +317,7 @@ function OutputMarkup(_ref) {
   });
 }
 
-function ArticleMeta(props) {
+var ArticleMeta = function ArticleMeta(props) {
   var fields = props.fields ? props.fields : 'Date,Credits,Tags';
   var fieldlist = fields ? fields.toLowerCase().split(",") : [];
   var item = props.content;
@@ -379,7 +380,7 @@ function ArticleMeta(props) {
         }, props.content[field]);
     }
   }));
-}
+};
 
 function _extends$1() {
   _extends$1 = Object.assign || function (target) {
@@ -405,7 +406,7 @@ const _asyncIteratorSymbol = /*#__PURE__*/ typeof Symbol !== "undefined" ? (Symb
 
 
 
-var connectorConfig = Object.assign({}, ConnectorConfig);
+var connectorConfig = Object.assign({}, ConnectorConfig$1);
 var getHref = function getHref(filename) {
   var path = filename.split('/').filter(function (item) {
     return item.length;
@@ -439,16 +440,16 @@ var getComponent = function getComponent(item) {
 var getMura = function getMura(context) {
   var startingsiteid = Mura$1.siteid;
 
-  if (typeof context == 'string' && ConnectorConfig.siteid.find(function (item) {
+  if (typeof context == 'string' && ConnectorConfig$1.siteid.find(function (item) {
     return item === context;
   })) {
     connectorConfig.siteid = context;
   } else {
-    var ishomepage = context && !(context.params && context.params.page) || typeof location != 'undefined' && (location.pathname == "/" || location.pathname == ConnectorConfig.editroute + "/");
+    var ishomepage = context && !(context.params && context.params.page) || typeof location != 'undefined' && (location.pathname == "/" || location.pathname == ConnectorConfig$1.editroute + "/");
 
-    if (Array.isArray(ConnectorConfig.siteid)) {
+    if (Array.isArray(ConnectorConfig$1.siteid)) {
       if (ishomepage) {
-        connectorConfig.siteid = ConnectorConfig.siteid[0];
+        connectorConfig.siteid = ConnectorConfig$1.siteid[0];
       } else {
         var page = [];
 
@@ -463,19 +464,19 @@ var getMura = function getMura(context) {
             return item.length;
           });
 
-          if (page.length && ConnectorConfig.editroute && page[0] === ConnectorConfig.editroute.split("/")[1]) {
+          if (page.length && ConnectorConfig$1.editroute && page[0] === ConnectorConfig$1.editroute.split("/")[1]) {
             page.shift();
           }
         }
 
         if (page.length) {
-          if (ConnectorConfig.siteid.find(function (item) {
+          if (ConnectorConfig$1.siteid.find(function (item) {
             return item === page[0];
           })) {
             connectorConfig.siteid = page[0];
             connectorConfig.siteidinurls = true;
           } else {
-            connectorConfig.siteid = ConnectorConfig.siteid[0];
+            connectorConfig.siteid = ConnectorConfig$1.siteid[0];
           }
         }
       }
@@ -650,11 +651,11 @@ var Meta = function Meta(_ref) {
 var getLayout = function getLayout(layout) {
   var uselayout = !layout || layout == 'default' ? "List" : layout;
 
-  if (typeof ComponentRegistry[uselayout] != 'undefined') {
-    return ComponentRegistry[uselayout];
+  if (typeof ComponentRegistry$1[uselayout] != 'undefined') {
+    return ComponentRegistry$1[uselayout];
   } else {
     console.log("Layout not registered: ", layout);
-    return ComponentRegistry['List'];
+    return ComponentRegistry$1['List'];
   }
 };
 
@@ -30047,7 +30048,7 @@ var CollectionReadMoreBtn = function CollectionReadMoreBtn(props) {
   }));
 };
 
-function ItemImage(_ref) {
+var ItemImage = function ItemImage(_ref) {
   var image = _ref.image,
       className = _ref.className,
       alt = _ref.alt;
@@ -30062,9 +30063,9 @@ function ItemImage(_ref) {
   }
 
   return null;
-}
+};
 
-var AccordionLayout = function AccordionLayout(_ref) {
+var CollectionLayoutAccordian = function CollectionLayoutAccordian(_ref) {
   var props = _ref.props,
       collection = _ref.collection,
       link = _ref.link;
@@ -30482,7 +30483,7 @@ var getQueryProps$3 = function getQueryProps() {
   return data;
 };
 
-function ItemCategories(props) {
+var ItemCategories = function ItemCategories(props) {
   var Categories = props.categories;
   var catsList = [];
   var cat = '';
@@ -30503,7 +30504,7 @@ function ItemCategories(props) {
   }
 
   return /*#__PURE__*/React.createElement("span", null, "No Categories");
-}
+};
 
 function CheckForItems() {
   return /*#__PURE__*/React$1.createElement("div", {
@@ -31156,7 +31157,7 @@ var getQueryProps$7 = function getQueryProps() {
   return data;
 };
 
-function Container(props) {
+var Container = function Container(props) {
   var items = props.items,
       content = props.content;
   if (!items) return '';
@@ -31173,13 +31174,13 @@ function Container(props) {
     obj.inited = true;
     return /*#__PURE__*/React$1.createElement(Decorator, obj, " ", getComponent(obj), " ");
   });
-}
+};
 
-function Hr(props) {
+var Hr = function Hr(props) {
   return /*#__PURE__*/React$1.createElement("hr", null);
-}
+};
 
-function CTAButton(_ref) {
+var CTAButton = function CTAButton(_ref) {
   var buttontext = _ref.buttontext,
       buttoncolor = _ref.buttoncolor,
       buttonsize = _ref.buttonsize,
@@ -31206,9 +31207,9 @@ function CTAButton(_ref) {
   }, buttontext || 'Press Me', " ", /*#__PURE__*/React$1.createElement(FontAwesomeIcon, {
     icon: faChevronRight
   }))));
-}
+};
 
-function Embed(props) {
+var Embed = function Embed(props) {
   var objectparams = Object.assign({}, props);
   objectparams.source = objectparams.source || '';
   return /*#__PURE__*/React$1.createElement("div", {
@@ -31216,9 +31217,9 @@ function Embed(props) {
       __html: objectparams.source
     }
   });
-}
+};
 
-function Image(props) {
+var Image = function Image(props) {
   var objectparams = Object.assign({}, props);
   objectparams = objectparams || {};
   objectparams.src = objectparams.src || '';
@@ -31244,7 +31245,7 @@ function Image(props) {
       }
     }, /*#__PURE__*/React$1.createElement(Img, objectparams), /*#__PURE__*/React$1.createElement(FigCaption, objectparams));
   }
-}
+};
 
 var FigCaption = function FigCaption(_ref) {
   var caption = _ref.caption;
@@ -37074,5 +37075,5 @@ var getCurrentPrivacy = function getCurrentPrivacy() {
   }
 };
 
-export { ArticleMeta, CTAButton, Collection, CollectionLayout, AccordionLayout as CollectionLayoutAccordian, AlternatingBoxes as CollectionLayoutAlternatingBoxes, AlternatingRows as CollectionLayoutAlternatingRows, Cards as CollectionLayoutCards, List as CollectionLayoutList, Masonry as CollectionLayoutMasonry, SlickSlider as CollectionLayoutSlickSlider, CollectionNav, CollectionReadMoreBtn, Container, Embed, Hr, Image, ItemCategories, ItemCredits, ItemDate, ItemImage, ItemTags, Login, MatrixSelector, CheckForItems as NoItemsMessage, OutputMarkup, PrimaryNav, PrivacyTools, ResourceHub, RouterLink, RouterlessLink, Text, Video, getDynamicProps as getCollectionDynamicProps, getLayout as getCollectionLayout, getQueryProps$1 as getCollectionLayoutAccordianQueryProps, getQueryProps$2 as getCollectionLayoutAlternatingBoxesQueryProps, getQueryProps$3 as getCollectionLayoutAlternatingRowsQueryProps, getQueryProps$4 as getCollectionLayoutCardsQueryProps, getQueryProps$5 as getCollectionLayoutListQueryProps, getQueryProps$6 as getCollectionLayoutMasonryQueryProps, getQueryProps as getCollectionLayoutQueryProps, getQueryProps$7 as getCollectionLayoutSlickSliderQueryProps, getDynamicProps$1 as getMatrixSelectorDynamicProps, getDynamicProps$2 as getPrimaryNavDynamicProps, getDynamicProps$3 as getResourceHubDynamicProps, getDynamicProps$4 as getTextDynamicProps };
+export { ArticleMeta, CTAButton, Collection, CollectionLayout, CollectionLayoutAccordian as CollectionLayoutAccordion, AlternatingBoxes as CollectionLayoutAlternatingBoxes, AlternatingRows as CollectionLayoutAlternatingRows, Cards as CollectionLayoutCards, List as CollectionLayoutList, Masonry as CollectionLayoutMasonry, SlickSlider as CollectionLayoutSlickSlider, CollectionNav, CollectionReadMoreBtn, Container, Embed, Hr, Image, ItemCategories, ItemCredits, ItemDate, ItemImage, ItemTags, Login, MatrixSelector, CheckForItems as NoItemsMessage, OutputMarkup, PrimaryNav, PrivacyTools, ResourceHub, RouterLink, RouterlessLink, Text, Video, getDynamicProps as getCollectionDynamicProps, getLayout as getCollectionLayout, getQueryProps$1 as getCollectionLayoutAccordionQueryProps, getQueryProps$2 as getCollectionLayoutAlternatingBoxesQueryProps, getQueryProps$3 as getCollectionLayoutAlternatingRowsQueryProps, getQueryProps$4 as getCollectionLayoutCardsQueryProps, getQueryProps$5 as getCollectionLayoutListQueryProps, getQueryProps$6 as getCollectionLayoutMasonryQueryProps, getQueryProps as getCollectionLayoutQueryProps, getQueryProps$7 as getCollectionLayoutSlickSliderQueryProps, getDynamicProps$1 as getMatrixSelectorDynamicProps, getDynamicProps$2 as getPrimaryNavDynamicProps, getDynamicProps$3 as getResourceHubDynamicProps, getDynamicProps$4 as getTextDynamicProps };
 //# sourceMappingURL=index.modern.js.map

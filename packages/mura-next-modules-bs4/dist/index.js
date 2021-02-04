@@ -4,10 +4,11 @@ var React$1 = require('react');
 var React$1__default = _interopDefault(React$1);
 var Head = _interopDefault(require('next/head'));
 var ReactMarkdown = _interopDefault(require('react-markdown'));
-var _muraconfig = require('@muraconfig');
+var mura_config = require('mura.config');
 var Mura$1 = _interopDefault(require('mura.js'));
 var Link = _interopDefault(require('next/link'));
 require('mura.js/src/core/stylemap-static');
+var _muraconfig = require('@muraconfig');
 var reactFontawesome = require('@fortawesome/react-fontawesome');
 var freeSolidSvgIcons = require('@fortawesome/free-solid-svg-icons');
 var Slider = _interopDefault(require('react-slick'));
@@ -148,7 +149,7 @@ var ItemDate = function ItemDate(props) {
   return formatteddate;
 };
 
-function ItemCredits(props) {
+var ItemCredits = function ItemCredits(props) {
   var Credits = props.credits.split(',');
   var creditsList = [];
   var credit = '';
@@ -162,7 +163,7 @@ function ItemCredits(props) {
   }
 
   return creditsList;
-}
+};
 
 function _extends() {
   _extends = Object.assign || function (target) {
@@ -302,7 +303,7 @@ function ItemTags(props) {
 function OutputMarkup(_ref) {
   var source = _ref.source,
       className = _ref.className;
-  var connectorConfig = Object.assign({}, _muraconfig.ConnectorConfig);
+  var connectorConfig = Object.assign({}, mura_config.ConnectorConfig);
 
   if (connectorConfig.htmleditortype == 'markdown') {
     return /*#__PURE__*/React.createElement(ReactMarkdown, {
@@ -319,7 +320,7 @@ function OutputMarkup(_ref) {
   });
 }
 
-function ArticleMeta(props) {
+var ArticleMeta = function ArticleMeta(props) {
   var fields = props.fields ? props.fields : 'Date,Credits,Tags';
   var fieldlist = fields ? fields.toLowerCase().split(",") : [];
   var item = props.content;
@@ -382,7 +383,7 @@ function ArticleMeta(props) {
         }, props.content[field]);
     }
   }));
-}
+};
 
 function _extends$1() {
   _extends$1 = Object.assign || function (target) {
@@ -652,11 +653,11 @@ var Meta = function Meta(_ref) {
 var getLayout = function getLayout(layout) {
   var uselayout = !layout || layout == 'default' ? "List" : layout;
 
-  if (typeof _muraconfig.ComponentRegistry[uselayout] != 'undefined') {
-    return _muraconfig.ComponentRegistry[uselayout];
+  if (typeof mura_config.ComponentRegistry[uselayout] != 'undefined') {
+    return mura_config.ComponentRegistry[uselayout];
   } else {
     console.log("Layout not registered: ", layout);
-    return _muraconfig.ComponentRegistry['List'];
+    return mura_config.ComponentRegistry['List'];
   }
 };
 
@@ -30049,7 +30050,7 @@ var CollectionReadMoreBtn = function CollectionReadMoreBtn(props) {
   }));
 };
 
-function ItemImage(_ref) {
+var ItemImage = function ItemImage(_ref) {
   var image = _ref.image,
       className = _ref.className,
       alt = _ref.alt;
@@ -30064,9 +30065,9 @@ function ItemImage(_ref) {
   }
 
   return null;
-}
+};
 
-var AccordionLayout = function AccordionLayout(_ref) {
+var CollectionLayoutAccordian = function CollectionLayoutAccordian(_ref) {
   var props = _ref.props,
       collection = _ref.collection,
       link = _ref.link;
@@ -30484,7 +30485,7 @@ var getQueryProps$3 = function getQueryProps() {
   return data;
 };
 
-function ItemCategories(props) {
+var ItemCategories = function ItemCategories(props) {
   var Categories = props.categories;
   var catsList = [];
   var cat = '';
@@ -30505,7 +30506,7 @@ function ItemCategories(props) {
   }
 
   return /*#__PURE__*/React.createElement("span", null, "No Categories");
-}
+};
 
 function CheckForItems() {
   return /*#__PURE__*/React$1__default.createElement("div", {
@@ -31158,7 +31159,7 @@ var getQueryProps$7 = function getQueryProps() {
   return data;
 };
 
-function Container(props) {
+var Container = function Container(props) {
   var items = props.items,
       content = props.content;
   if (!items) return '';
@@ -31175,13 +31176,13 @@ function Container(props) {
     obj.inited = true;
     return /*#__PURE__*/React$1__default.createElement(Decorator, obj, " ", getComponent(obj), " ");
   });
-}
+};
 
-function Hr(props) {
+var Hr = function Hr(props) {
   return /*#__PURE__*/React$1__default.createElement("hr", null);
-}
+};
 
-function CTAButton(_ref) {
+var CTAButton = function CTAButton(_ref) {
   var buttontext = _ref.buttontext,
       buttoncolor = _ref.buttoncolor,
       buttonsize = _ref.buttonsize,
@@ -31208,9 +31209,9 @@ function CTAButton(_ref) {
   }, buttontext || 'Press Me', " ", /*#__PURE__*/React$1__default.createElement(reactFontawesome.FontAwesomeIcon, {
     icon: freeSolidSvgIcons.faChevronRight
   }))));
-}
+};
 
-function Embed(props) {
+var Embed = function Embed(props) {
   var objectparams = Object.assign({}, props);
   objectparams.source = objectparams.source || '';
   return /*#__PURE__*/React$1__default.createElement("div", {
@@ -31218,9 +31219,9 @@ function Embed(props) {
       __html: objectparams.source
     }
   });
-}
+};
 
-function Image(props) {
+var Image = function Image(props) {
   var objectparams = Object.assign({}, props);
   objectparams = objectparams || {};
   objectparams.src = objectparams.src || '';
@@ -31246,7 +31247,7 @@ function Image(props) {
       }
     }, /*#__PURE__*/React$1__default.createElement(Img, objectparams), /*#__PURE__*/React$1__default.createElement(FigCaption, objectparams));
   }
-}
+};
 
 var FigCaption = function FigCaption(_ref) {
   var caption = _ref.caption;
@@ -37080,7 +37081,7 @@ exports.ArticleMeta = ArticleMeta;
 exports.CTAButton = CTAButton;
 exports.Collection = Collection;
 exports.CollectionLayout = CollectionLayout;
-exports.CollectionLayoutAccordian = AccordionLayout;
+exports.CollectionLayoutAccordion = CollectionLayoutAccordian;
 exports.CollectionLayoutAlternatingBoxes = AlternatingBoxes;
 exports.CollectionLayoutAlternatingRows = AlternatingRows;
 exports.CollectionLayoutCards = Cards;
@@ -37111,7 +37112,7 @@ exports.Text = Text;
 exports.Video = Video;
 exports.getCollectionDynamicProps = getDynamicProps;
 exports.getCollectionLayout = getLayout;
-exports.getCollectionLayoutAccordianQueryProps = getQueryProps$1;
+exports.getCollectionLayoutAccordionQueryProps = getQueryProps$1;
 exports.getCollectionLayoutAlternatingBoxesQueryProps = getQueryProps$2;
 exports.getCollectionLayoutAlternatingRowsQueryProps = getQueryProps$3;
 exports.getCollectionLayoutCardsQueryProps = getQueryProps$4;
