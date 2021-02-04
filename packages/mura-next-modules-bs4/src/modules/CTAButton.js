@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons'
 
-function CTAButton({buttontext,buttoncolor,buttonsize,buttonlink,buttontarget,buttonblock}) {
+export const CTAButton = ({buttontext,buttoncolor,buttonsize,buttonlink,buttontarget,buttonblock}) => {
 
   var btnclass = `btn btn-${buttoncolor||'primary'}`;
   if (buttonsize != 'md'){

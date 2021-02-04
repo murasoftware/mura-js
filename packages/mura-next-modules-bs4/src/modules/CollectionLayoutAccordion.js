@@ -14,7 +14,7 @@ import ItemImage from './ItemImage';
   reconfigured in edit mode. Hence CollectionLink
 */
 
-const AccordionLayout = ({props,collection,link}) => {
+export const CollectionLayoutAccordian = ({props,collection,link}) => {
   const [pos, setPos] = useState(0);
   return (
     <>
@@ -132,4 +132,4 @@ export const getQueryProps = () => {
   return data;
 };
 
-export default AccordionLayout;
+export default CollectionLayoutAccordian;

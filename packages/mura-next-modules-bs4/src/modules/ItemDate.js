@@ -1,4 +1,4 @@
-const ItemDate = (props) => {
+export const ItemDate = (props) => {
     let date = '';
     let formatteddate = '';
   

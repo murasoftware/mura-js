@@ -1,10 +1,10 @@
-import React$1, { useContext, useState, useEffect, useCallback, useRef, useMemo, useReducer } from 'react';
+import React$1, { useContext, createContext, useState, useEffect, useCallback, useRef, useMemo, useReducer } from 'react';
 import Head from 'next/head';
-import ComponentRegistry, { ConnectorConfig } from '~/mura.config';
 import ReactMarkdown from 'react-markdown';
+import { ConnectorConfig, ComponentRegistry, ExternalModules } from '@muraconfig';
 import Mura$1 from 'mura.js';
 import Link from 'next/link';
-import { getHref, Decorator, getComponent } from '@murasoftware/next-core';
+import 'mura.js/src/core/stylemap-static';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronRight, faChevronLeft } from '@fortawesome/free-solid-svg-icons';
 import Slider from 'react-slick';
@@ -381,6 +381,272 @@ function ArticleMeta(props) {
   }));
 }
 
+function _extends$1() {
+  _extends$1 = Object.assign || function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+
+    return target;
+  };
+
+  return _extends$1.apply(this, arguments);
+}
+
+const _iteratorSymbol = /*#__PURE__*/ typeof Symbol !== "undefined" ? (Symbol.iterator || (Symbol.iterator = Symbol("Symbol.iterator"))) : "@@iterator";
+
+const _asyncIteratorSymbol = /*#__PURE__*/ typeof Symbol !== "undefined" ? (Symbol.asyncIterator || (Symbol.asyncIterator = Symbol("Symbol.asyncIterator"))) : "@@asyncIterator";
+
+
+
+var connectorConfig = Object.assign({}, ConnectorConfig);
+var getHref = function getHref(filename) {
+  var path = filename.split('/').filter(function (item) {
+    return item.length;
+  });
+
+  if (connectorConfig.siteidinurls) {
+    return '/' + Mura$1.siteid + '/' + path.join('/');
+  } else {
+    return '/' + path.join('/');
+  }
+};
+var getComponent = function getComponent(item) {
+  getMura();
+  var objectkey = item.object;
+
+  if (typeof ComponentRegistry[objectkey] == 'undefined') {
+    objectkey = Mura$1.firstToUpperCase(item.object);
+  }
+
+  if (typeof ComponentRegistry[objectkey] != 'undefined') {
+    var ComponentVariable = ComponentRegistry[objectkey].component;
+    return /*#__PURE__*/React.createElement(ComponentVariable, _extends$1({
+      key: item.instanceid
+    }, item));
+  }
+
+  return /*#__PURE__*/React.createElement("p", {
+    key: item.instanceid
+  }, "DisplayRegion: ", item.objectname);
+};
+var getMura = function getMura(context) {
+  var startingsiteid = Mura$1.siteid;
+
+  if (typeof context == 'string' && ConnectorConfig.siteid.find(function (item) {
+    return item === context;
+  })) {
+    connectorConfig.siteid = context;
+  } else {
+    var ishomepage = context && !(context.params && context.params.page) || typeof location != 'undefined' && (location.pathname == "/" || location.pathname == ConnectorConfig.editroute + "/");
+
+    if (Array.isArray(ConnectorConfig.siteid)) {
+      if (ishomepage) {
+        connectorConfig.siteid = ConnectorConfig.siteid[0];
+      } else {
+        var page = [];
+
+        if (context && context.params && context.params.page) {
+          page = [].concat(context.params.page);
+          page = page.filter(function (item) {
+            return item.length;
+          });
+        } else if (typeof location != 'undefined') {
+          page = location.pathname.split("/");
+          page = page.filter(function (item) {
+            return item.length;
+          });
+
+          if (page.length && ConnectorConfig.editroute && page[0] === ConnectorConfig.editroute.split("/")[1]) {
+            page.shift();
+          }
+        }
+
+        if (page.length) {
+          if (ConnectorConfig.siteid.find(function (item) {
+            return item === page[0];
+          })) {
+            connectorConfig.siteid = page[0];
+            connectorConfig.siteidinurls = true;
+          } else {
+            connectorConfig.siteid = ConnectorConfig.siteid[0];
+          }
+        }
+      }
+    }
+  }
+
+  var clearMuraAPICache = function clearMuraAPICache() {
+    delete connectorConfig.apiEndpoint;
+    delete connectorConfig.apiendpoint;
+    delete Mura$1.apiEndpoint;
+    delete Mura$1.apiendpoint;
+  };
+
+  if (context && context.res) {
+    Object.assign(connectorConfig, {
+      response: context.res,
+      request: context.req
+    });
+    clearMuraAPICache();
+    console.log('initing', connectorConfig.siteid);
+    Mura$1.init(connectorConfig);
+  } else if (startingsiteid != connectorConfig.siteid) {
+    console.log('changing siteid', startingsiteid, connectorConfig.siteid);
+    clearMuraAPICache();
+    Mura$1.init(connectorConfig);
+  }
+
+  Mura$1.holdReady(true);
+  return Mura$1;
+};
+
+var GlobalContext = createContext();
+
+function Decorator(props) {
+  var label = props.label,
+      instanceid = props.instanceid,
+      labeltag = props.labeltag,
+      children = props.children;
+  var isEditMode = true;
+
+  try {
+    var _useContext = useContext(GlobalContext);
+
+    isEditMode = _useContext[0];
+  } catch (e) {
+    isEditMode = true;
+  }
+
+  var domObject = {
+    className: 'mura-object mura-async-object'
+  };
+  var domContent = {
+    className: 'mura-object-content'
+  };
+  var domMeta = {
+    className: "mura-object-meta"
+  };
+  var domMetaWrapper = {
+    className: "mura-object-meta-wrapper"
+  };
+  var isExternalModule = ExternalModules[props.object];
+  var objectKey = props.object;
+
+  if (typeof ComponentRegistry[objectKey] == 'undefined') {
+    objectKey = Mura$1.firstToUpperCase(props.object);
+  }
+
+  var isSSR = ComponentRegistry[objectKey] && (ComponentRegistry[objectKey].SSR || ComponentRegistry[objectKey].ssr);
+
+  if (isEditMode || isExternalModule || !isSSR) {
+    Object.keys(props).forEach(function (key) {
+      if (!['html', 'content', 'children', 'isEditMode', 'dynamicProps', 'moduleStyleData'].find(function (restrictedkey) {
+        return restrictedkey === key;
+      })) {
+        if (typeof props[key] === 'object') {
+          domObject["data-" + key] = JSON.stringify(props[key]);
+        } else if (typeof props[key] !== 'undefined' && !(typeof props[key] === 'string' && props[key] === '')) {
+          domObject["data-" + key] = props[key];
+        }
+      }
+
+      if (key === 'class') {
+        domObject.className += " " + props[key];
+      } else if (key === 'cssclass') {
+        domObject.className += " " + props[key];
+      } else if (key === 'cssid') {
+        domObject.id += " " + props[key];
+      } else if (key === 'contentcssclass') {
+        domContent.className += " " + props[key];
+      } else if (key === 'contentcssid') {
+        domContent.id += " " + props[key];
+      } else if (key === 'metacssclass') {
+        domMeta.className += " " + props[key];
+      } else if (key === 'metacssid') {
+        domMeta.id += " " + props[key];
+      }
+    });
+
+    if (domObject.className.split(' ').find(function ($class) {
+      return $class === 'container';
+    })) {
+      domMetaWrapper.className += ' container';
+    }
+  } else {
+    domObject['data-instanceid'] = instanceid;
+    domObject['data-inited'] = true;
+    domObject.className = "mura-object-" + props.object;
+
+    if (typeof props.moduleStyleData != 'undefined' && typeof props.moduleStyleData[instanceid] != 'undefined') {
+      domObject.className += " " + props.moduleStyleData[instanceid].targets.object["class"];
+      domObject.id = props.moduleStyleData[props.instanceid].targets.object.id;
+      domContent.className = props.moduleStyleData[props.instanceid].targets.content["class"];
+      domContent.id = props.moduleStyleData[props.instanceid].targets.content.id;
+      domMetaWrapper.className = props.moduleStyleData[props.instanceid].targets.metawrapper["class"];
+      domMeta.className = props.moduleStyleData[props.instanceid].targets.meta["class"];
+      domMeta.id = props.moduleStyleData[props.instanceid].targets.meta.id;
+    } else {
+      domObject.id = '';
+      domContent.id = '';
+      domMetaWrapper.className = '';
+      domMeta.className = '';
+      domMeta.id = ';';
+    }
+
+    ['objectspacing', 'contentspacing', 'metaspacing'].forEach(function (key) {
+      if (typeof props[key] != 'undefined' && props[key] && props[key] != 'custom') {
+        domObject['data-' + key] = props[key];
+      }
+    });
+  }
+
+  if (isExternalModule || !isSSR) {
+    if (isExternalModule && props.html) {
+      /*#__PURE__*/
+      React$1.createElement("div", domObject, label ? /*#__PURE__*/React$1.createElement(MuraMeta, {
+        label: label,
+        labeltag: labeltag,
+        dommeta: domMeta,
+        dommetawrapper: domMetaWrapper
+      }) : null, label ? /*#__PURE__*/React$1.createElement("div", {
+        className: "mura-flex-break"
+      }) : null, /*#__PURE__*/React$1.createElement("div", _extends$1({}, domContent, {
+        dangerouslySetInnerHTML: {
+          __html: props.html
+        }
+      })));
+    } else {
+      return /*#__PURE__*/React$1.createElement("div", domObject);
+    }
+  } else {
+    return /*#__PURE__*/React$1.createElement("div", domObject, label ? /*#__PURE__*/React$1.createElement(Meta, {
+      label: label,
+      labeltag: labeltag,
+      dommeta: domMeta,
+      dommetawrapper: domMetaWrapper
+    }) : null, label ? /*#__PURE__*/React$1.createElement("div", {
+      className: "mura-flex-break"
+    }) : null, /*#__PURE__*/React$1.createElement("div", domContent, children));
+  }
+}
+
+var Meta = function Meta(_ref) {
+  var label = _ref.label,
+      labeltag = _ref.labeltag,
+      dommeta = _ref.dommeta,
+      dommetawrapper = _ref.dommetawrapper;
+  var LabelHeader = labeltag ? "" + labeltag : 'h2';
+  return /*#__PURE__*/React$1.createElement("div", dommetawrapper, /*#__PURE__*/React$1.createElement("div", dommeta, /*#__PURE__*/React$1.createElement(LabelHeader, null, label)));
+};
+//# sourceMappingURL=index.modern.js.map
+
 var getLayout = function getLayout(layout) {
   var uselayout = !layout || layout == 'default' ? "List" : layout;
 
@@ -683,8 +949,8 @@ var getSelectFields = function getSelectFields(item) {
   return fieldarray.join(',').toLowerCase();
 };
 
-function _extends$1() {
-  _extends$1 = Object.assign || function (target) {
+function _extends$2() {
+  _extends$2 = Object.assign || function (target) {
     for (var i = 1; i < arguments.length; i++) {
       var source = arguments[i];
 
@@ -698,7 +964,7 @@ function _extends$1() {
     return target;
   };
 
-  return _extends$1.apply(this, arguments);
+  return _extends$2.apply(this, arguments);
 }
 
 function _objectWithoutPropertiesLoose$1(source, excluded) {
@@ -844,12 +1110,12 @@ var CollectionLayout = function CollectionLayout(_ref) {
     style: {
       'listStyle': 'none'
     }
-  }, /*#__PURE__*/React.createElement(CurrentItems, _extends$1({
+  }, /*#__PURE__*/React.createElement(CurrentItems, _extends$2({
     collection: collection,
     itemsTo: itemsTo,
     pos: pos,
     link: link
-  }, props))), /*#__PURE__*/React.createElement(CollectionNav, _extends$1({
+  }, props))), /*#__PURE__*/React.createElement(CollectionNav, _extends$2({
     collection: collection,
     itemsTo: itemsTo,
     setItemsTo: setItemsTo,
@@ -29809,7 +30075,7 @@ var AccordionLayout = function AccordionLayout(_ref) {
 
   return /*#__PURE__*/React$1.createElement(Fragment, null, /*#__PURE__*/React$1.createElement(Accordion, {
     className: "collectionLayoutAccordion " + props.accordionpadding + "-spacing " + props.collapseindicators + " " + props.collapseindicatorslocation + "-indicator"
-  }, /*#__PURE__*/React$1.createElement(CurrentItems$1, _extends$1({
+  }, /*#__PURE__*/React$1.createElement(CurrentItems$1, _extends$2({
     collection: collection,
     pos: pos,
     link: link
@@ -29817,7 +30083,7 @@ var AccordionLayout = function AccordionLayout(_ref) {
     className: "row"
   }, /*#__PURE__*/React$1.createElement("div", {
     className: "col-12"
-  }, /*#__PURE__*/React$1.createElement(CollectionNav, _extends$1({
+  }, /*#__PURE__*/React$1.createElement(CollectionNav, _extends$2({
     collection: collection,
     pos: pos,
     setPos: setPos,
@@ -29958,7 +30224,7 @@ var AlternatingBoxes = function AlternatingBoxes(_ref) {
 
   return /*#__PURE__*/React$1.createElement(Fragment, null, /*#__PURE__*/React$1.createElement("div", {
     className: "collectionLayoutAlternatingBoxes"
-  }, /*#__PURE__*/React$1.createElement(CurrentItems$2, _extends$1({
+  }, /*#__PURE__*/React$1.createElement(CurrentItems$2, _extends$2({
     collection: collection,
     pos: pos,
     link: link
@@ -29966,7 +30232,7 @@ var AlternatingBoxes = function AlternatingBoxes(_ref) {
     className: "row"
   }, /*#__PURE__*/React$1.createElement("div", {
     className: "col-12"
-  }, /*#__PURE__*/React$1.createElement(CollectionNav, _extends$1({
+  }, /*#__PURE__*/React$1.createElement(CollectionNav, _extends$2({
     collection: collection,
     pos: pos,
     setPos: setPos,
@@ -30092,7 +30358,7 @@ var AlternatingRows = function AlternatingRows(_ref) {
 
   return /*#__PURE__*/React$1.createElement(Fragment, null, /*#__PURE__*/React$1.createElement("div", {
     className: "collectionLayoutAlternatingBoxes"
-  }, /*#__PURE__*/React$1.createElement(CurrentItems$3, _extends$1({
+  }, /*#__PURE__*/React$1.createElement(CurrentItems$3, _extends$2({
     collection: collection,
     pos: pos,
     link: link
@@ -30100,7 +30366,7 @@ var AlternatingRows = function AlternatingRows(_ref) {
     className: "row"
   }, /*#__PURE__*/React$1.createElement("div", {
     className: "col-12"
-  }, /*#__PURE__*/React$1.createElement(CollectionNav, _extends$1({
+  }, /*#__PURE__*/React$1.createElement(CollectionNav, _extends$2({
     collection: collection,
     pos: pos,
     setPos: setPos,
@@ -30260,7 +30526,7 @@ var Cards = function Cards(_ref) {
 
   return /*#__PURE__*/React$1.createElement(Fragment, null, /*#__PURE__*/React$1.createElement("div", {
     className: "row collectionLayoutCards row-cols-1 row-cols-sm-" + props.rowcolssm + " row-cols-md-" + props.rowcolsmd + " row-cols-lg-" + props.rowcolslg + " row-cols-xl-" + props.rowcolsxl
-  }, /*#__PURE__*/React$1.createElement(CurrentItems$4, _extends$1({
+  }, /*#__PURE__*/React$1.createElement(CurrentItems$4, _extends$2({
     collection: collection,
     pos: pos,
     link: link
@@ -30268,7 +30534,7 @@ var Cards = function Cards(_ref) {
     className: "row"
   }, /*#__PURE__*/React$1.createElement("div", {
     className: "col-12"
-  }, /*#__PURE__*/React$1.createElement(CollectionNav, _extends$1({
+  }, /*#__PURE__*/React$1.createElement(CollectionNav, _extends$2({
     collection: collection,
     pos: pos,
     setPos: setPos,
@@ -30373,7 +30639,7 @@ var List = function List(_ref) {
       pos = _useState[0],
       setPos = _useState[1];
 
-  return /*#__PURE__*/React$1.createElement(Fragment, null, /*#__PURE__*/React$1.createElement(CurrentItems$5, _extends$1({
+  return /*#__PURE__*/React$1.createElement(Fragment, null, /*#__PURE__*/React$1.createElement(CurrentItems$5, _extends$2({
     collection: collection,
     pos: pos,
     link: link
@@ -30381,7 +30647,7 @@ var List = function List(_ref) {
     className: "row"
   }, /*#__PURE__*/React$1.createElement("div", {
     className: "col-12"
-  }, /*#__PURE__*/React$1.createElement(CollectionNav, _extends$1({
+  }, /*#__PURE__*/React$1.createElement(CollectionNav, _extends$2({
     collection: collection,
     pos: pos,
     setPos: setPos,
@@ -30548,7 +30814,7 @@ var Masonry = function Masonry(_ref) {
 
   return /*#__PURE__*/React$1.createElement(Fragment, null, /*#__PURE__*/React$1.createElement("div", {
     className: "collectionLayoutMasonry card-columns"
-  }, /*#__PURE__*/React$1.createElement(CurrentItems$6, _extends$1({
+  }, /*#__PURE__*/React$1.createElement(CurrentItems$6, _extends$2({
     collection: collection,
     pos: pos,
     link: link
@@ -30556,7 +30822,7 @@ var Masonry = function Masonry(_ref) {
     className: "row"
   }, /*#__PURE__*/React$1.createElement("div", {
     className: "col-12"
-  }, /*#__PURE__*/React$1.createElement(CollectionNav, _extends$1({
+  }, /*#__PURE__*/React$1.createElement(CollectionNav, _extends$2({
     collection: collection,
     pos: pos,
     setPos: setPos,
@@ -30692,7 +30958,7 @@ var SlickSlider = function SlickSlider(_ref) {
   }
 
   var slides = collection.map(function (item) {
-    return /*#__PURE__*/React$1.createElement(SliderItem, _extends$1({
+    return /*#__PURE__*/React$1.createElement(SliderItem, _extends$2({
       sliderimage: item.get('images')[props.imagesize],
       imagesize: props.imagesize,
       item: item,
@@ -30911,6 +31177,45 @@ function Container(props) {
 
 function Hr(props) {
   return /*#__PURE__*/React$1.createElement("hr", null);
+}
+
+function CTAButton(_ref) {
+  var buttontext = _ref.buttontext,
+      buttoncolor = _ref.buttoncolor,
+      buttonsize = _ref.buttonsize,
+      buttonlink = _ref.buttonlink,
+      buttontarget = _ref.buttontarget,
+      buttonblock = _ref.buttonblock;
+  var btnclass = "btn btn-" + (buttoncolor || 'primary');
+
+  if (buttonsize != 'md') {
+    btnclass = btnclass + (" btn-" + buttonsize);
+  }
+
+  if (buttonblock) {
+    btnclass = btnclass + " btn-block";
+  }
+
+  return /*#__PURE__*/React$1.createElement(Fragment, null, /*#__PURE__*/React$1.createElement(Link, {
+    href: buttonlink || 'https://www.murasoftware.com',
+    passHref: true
+  }, /*#__PURE__*/React$1.createElement("a", {
+    target: buttontarget || '_self',
+    className: btnclass,
+    role: "button"
+  }, buttontext || 'Press Me', " ", /*#__PURE__*/React$1.createElement(FontAwesomeIcon, {
+    icon: faChevronRight
+  }))));
+}
+
+function Embed(props) {
+  var objectparams = Object.assign({}, props);
+  objectparams.source = objectparams.source || '';
+  return /*#__PURE__*/React$1.createElement("div", {
+    dangerouslySetInnerHTML: {
+      __html: objectparams.source
+    }
+  });
 }
 
 function Image(props) {
@@ -36183,7 +36488,7 @@ function ResourceHub(props) {
 
     if (collection) {
       console.log('dynamic');
-      return /*#__PURE__*/React$1.createElement("div", null, /*#__PURE__*/React$1.createElement(RenderFilterForm, _extends$1({
+      return /*#__PURE__*/React$1.createElement("div", null, /*#__PURE__*/React$1.createElement(RenderFilterForm, _extends$2({
         updateFilter: updateFilter
       }, props, {
         curSubtype: curSubtype,
@@ -36226,7 +36531,7 @@ function ResourceHub(props) {
         isMounted = false;
       };
     }, [filterUpdated]);
-    return /*#__PURE__*/React$1.createElement("div", null, /*#__PURE__*/React$1.createElement(RenderFilterForm, _extends$1({
+    return /*#__PURE__*/React$1.createElement("div", null, /*#__PURE__*/React$1.createElement(RenderFilterForm, _extends$2({
       updateFilter: updateFilter
     }, props, {
       curSubtype: curSubtype,
@@ -36769,5 +37074,5 @@ var getCurrentPrivacy = function getCurrentPrivacy() {
   }
 };
 
-export { ArticleMeta, Collection, CollectionLayout, AccordionLayout as CollectionLayoutAccordian, AlternatingBoxes as CollectionLayoutAlternatingBoxes, AlternatingRows as CollectionLayoutAlternatingRows, Cards as CollectionLayoutCards, List as CollectionLayoutList, Masonry as CollectionLayoutMasonry, SlickSlider as CollectionLayoutSlickSlider, CollectionNav, CollectionReadMoreBtn, Container, Hr as HR, Image, ItemCategories, ItemCredits, ItemDate, ItemImage, ItemTags, Login, MatrixSelector, CheckForItems as NoItemsMessage, OutputMarkup, PrimaryNav, PrivacyTools, ResourceHub, RouterLink, RouterlessLink, Text, Video, getDynamicProps as getCollectionDynamicProps, getLayout as getCollectionLayout, getQueryProps$1 as getCollectionLayoutAccordianQueryProps, getQueryProps$2 as getCollectionLayoutAlternatingBoxesQueryProps, getQueryProps$3 as getCollectionLayoutAlternatingRowsQueryProps, getQueryProps$4 as getCollectionLayoutCardsQueryProps, getQueryProps$5 as getCollectionLayoutListQueryProps, getQueryProps$6 as getCollectionLayoutMasonryQueryProps, getQueryProps as getCollectionLayoutQueryProps, getQueryProps$7 as getCollectionLayoutSlickSliderQueryProps, getDynamicProps$1 as getMatrixSelectorDynamicProps, getDynamicProps$2 as getPrimaryNavDynamicProps, getDynamicProps$3 as getResourceHubDynamicProps, getDynamicProps$4 as getTextDynamicProps };
+export { ArticleMeta, CTAButton, Collection, CollectionLayout, AccordionLayout as CollectionLayoutAccordian, AlternatingBoxes as CollectionLayoutAlternatingBoxes, AlternatingRows as CollectionLayoutAlternatingRows, Cards as CollectionLayoutCards, List as CollectionLayoutList, Masonry as CollectionLayoutMasonry, SlickSlider as CollectionLayoutSlickSlider, CollectionNav, CollectionReadMoreBtn, Container, Embed, Hr, Image, ItemCategories, ItemCredits, ItemDate, ItemImage, ItemTags, Login, MatrixSelector, CheckForItems as NoItemsMessage, OutputMarkup, PrimaryNav, PrivacyTools, ResourceHub, RouterLink, RouterlessLink, Text, Video, getDynamicProps as getCollectionDynamicProps, getLayout as getCollectionLayout, getQueryProps$1 as getCollectionLayoutAccordianQueryProps, getQueryProps$2 as getCollectionLayoutAlternatingBoxesQueryProps, getQueryProps$3 as getCollectionLayoutAlternatingRowsQueryProps, getQueryProps$4 as getCollectionLayoutCardsQueryProps, getQueryProps$5 as getCollectionLayoutListQueryProps, getQueryProps$6 as getCollectionLayoutMasonryQueryProps, getQueryProps as getCollectionLayoutQueryProps, getQueryProps$7 as getCollectionLayoutSlickSliderQueryProps, getDynamicProps$1 as getMatrixSelectorDynamicProps, getDynamicProps$2 as getPrimaryNavDynamicProps, getDynamicProps$3 as getResourceHubDynamicProps, getDynamicProps$4 as getTextDynamicProps };
 //# sourceMappingURL=index.modern.js.map

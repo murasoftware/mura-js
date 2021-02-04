@@ -1,6 +1,6 @@
 import react from 'react';
 
-function ItemImage({image,className,alt}){
+export const ItemImage = function ({image,className,alt}){
     const itemImage = image;
     if(typeof itemImage != 'undefined'){
         return(

@@ -1,6 +1,6 @@
 import React from 'react';
 
-function Hr(props) {
+const Hr = function(props) {
     return (
       <hr />
     );

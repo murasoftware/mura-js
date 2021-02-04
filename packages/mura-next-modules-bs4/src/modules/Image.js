@@ -1,7 +1,7 @@
 import React from 'react';
 import OutputMarkup from "./OutputMarkup";
 
-function Image(props) {
+const Image =function(props) {
   let objectparams = Object.assign({},props);
   objectparams=objectparams || {};
 	objectparams.src=objectparams.src||'';

@@ -1,6 +1,6 @@
 import React from 'react';
 
-function ItemCredits(props){
+const ItemCredits = (props) => {
     const Credits = props.credits.split(',');
     let creditsList = [];
     let credit = '';

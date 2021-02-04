@@ -3,12 +3,11 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 var React$1 = require('react');
 var React$1__default = _interopDefault(React$1);
 var Head = _interopDefault(require('next/head'));
-var ComponentRegistry = require('~/mura.config');
-var ComponentRegistry__default = _interopDefault(ComponentRegistry);
 var ReactMarkdown = _interopDefault(require('react-markdown'));
+var _muraconfig = require('@muraconfig');
 var Mura$1 = _interopDefault(require('mura.js'));
 var Link = _interopDefault(require('next/link'));
-var nextCore = require('@murasoftware/next-core');
+require('mura.js/src/core/stylemap-static');
 var reactFontawesome = require('@fortawesome/react-fontawesome');
 var freeSolidSvgIcons = require('@fortawesome/free-solid-svg-icons');
 var Slider = _interopDefault(require('react-slick'));
@@ -303,7 +302,7 @@ function ItemTags(props) {
 function OutputMarkup(_ref) {
   var source = _ref.source,
       className = _ref.className;
-  var connectorConfig = Object.assign({}, ComponentRegistry.ConnectorConfig);
+  var connectorConfig = Object.assign({}, _muraconfig.ConnectorConfig);
 
   if (connectorConfig.htmleditortype == 'markdown') {
     return /*#__PURE__*/React.createElement(ReactMarkdown, {
@@ -385,14 +384,279 @@ function ArticleMeta(props) {
   }));
 }
 
+function _extends$1() {
+  _extends$1 = Object.assign || function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+
+    return target;
+  };
+
+  return _extends$1.apply(this, arguments);
+}
+
+const _iteratorSymbol = /*#__PURE__*/ typeof Symbol !== "undefined" ? (Symbol.iterator || (Symbol.iterator = Symbol("Symbol.iterator"))) : "@@iterator";
+
+const _asyncIteratorSymbol = /*#__PURE__*/ typeof Symbol !== "undefined" ? (Symbol.asyncIterator || (Symbol.asyncIterator = Symbol("Symbol.asyncIterator"))) : "@@asyncIterator";
+
+
+
+var connectorConfig = Object.assign({}, _muraconfig.ConnectorConfig);
+var getHref = function getHref(filename) {
+  var path = filename.split('/').filter(function (item) {
+    return item.length;
+  });
+
+  if (connectorConfig.siteidinurls) {
+    return '/' + Mura$1.siteid + '/' + path.join('/');
+  } else {
+    return '/' + path.join('/');
+  }
+};
+var getComponent = function getComponent(item) {
+  getMura();
+  var objectkey = item.object;
+
+  if (typeof _muraconfig.ComponentRegistry[objectkey] == 'undefined') {
+    objectkey = Mura$1.firstToUpperCase(item.object);
+  }
+
+  if (typeof _muraconfig.ComponentRegistry[objectkey] != 'undefined') {
+    var ComponentVariable = _muraconfig.ComponentRegistry[objectkey].component;
+    return /*#__PURE__*/React.createElement(ComponentVariable, _extends$1({
+      key: item.instanceid
+    }, item));
+  }
+
+  return /*#__PURE__*/React.createElement("p", {
+    key: item.instanceid
+  }, "DisplayRegion: ", item.objectname);
+};
+var getMura = function getMura(context) {
+  var startingsiteid = Mura$1.siteid;
+
+  if (typeof context == 'string' && _muraconfig.ConnectorConfig.siteid.find(function (item) {
+    return item === context;
+  })) {
+    connectorConfig.siteid = context;
+  } else {
+    var ishomepage = context && !(context.params && context.params.page) || typeof location != 'undefined' && (location.pathname == "/" || location.pathname == _muraconfig.ConnectorConfig.editroute + "/");
+
+    if (Array.isArray(_muraconfig.ConnectorConfig.siteid)) {
+      if (ishomepage) {
+        connectorConfig.siteid = _muraconfig.ConnectorConfig.siteid[0];
+      } else {
+        var page = [];
+
+        if (context && context.params && context.params.page) {
+          page = [].concat(context.params.page);
+          page = page.filter(function (item) {
+            return item.length;
+          });
+        } else if (typeof location != 'undefined') {
+          page = location.pathname.split("/");
+          page = page.filter(function (item) {
+            return item.length;
+          });
+
+          if (page.length && _muraconfig.ConnectorConfig.editroute && page[0] === _muraconfig.ConnectorConfig.editroute.split("/")[1]) {
+            page.shift();
+          }
+        }
+
+        if (page.length) {
+          if (_muraconfig.ConnectorConfig.siteid.find(function (item) {
+            return item === page[0];
+          })) {
+            connectorConfig.siteid = page[0];
+            connectorConfig.siteidinurls = true;
+          } else {
+            connectorConfig.siteid = _muraconfig.ConnectorConfig.siteid[0];
+          }
+        }
+      }
+    }
+  }
+
+  var clearMuraAPICache = function clearMuraAPICache() {
+    delete connectorConfig.apiEndpoint;
+    delete connectorConfig.apiendpoint;
+    delete Mura$1.apiEndpoint;
+    delete Mura$1.apiendpoint;
+  };
+
+  if (context && context.res) {
+    Object.assign(connectorConfig, {
+      response: context.res,
+      request: context.req
+    });
+    clearMuraAPICache();
+    console.log('initing', connectorConfig.siteid);
+    Mura$1.init(connectorConfig);
+  } else if (startingsiteid != connectorConfig.siteid) {
+    console.log('changing siteid', startingsiteid, connectorConfig.siteid);
+    clearMuraAPICache();
+    Mura$1.init(connectorConfig);
+  }
+
+  Mura$1.holdReady(true);
+  return Mura$1;
+};
+
+var GlobalContext = React$1.createContext();
+
+function Decorator(props) {
+  var label = props.label,
+      instanceid = props.instanceid,
+      labeltag = props.labeltag,
+      children = props.children;
+  var isEditMode = true;
+
+  try {
+    var _useContext = React$1.useContext(GlobalContext);
+
+    isEditMode = _useContext[0];
+  } catch (e) {
+    isEditMode = true;
+  }
+
+  var domObject = {
+    className: 'mura-object mura-async-object'
+  };
+  var domContent = {
+    className: 'mura-object-content'
+  };
+  var domMeta = {
+    className: "mura-object-meta"
+  };
+  var domMetaWrapper = {
+    className: "mura-object-meta-wrapper"
+  };
+  var isExternalModule = _muraconfig.ExternalModules[props.object];
+  var objectKey = props.object;
+
+  if (typeof _muraconfig.ComponentRegistry[objectKey] == 'undefined') {
+    objectKey = Mura$1.firstToUpperCase(props.object);
+  }
+
+  var isSSR = _muraconfig.ComponentRegistry[objectKey] && (_muraconfig.ComponentRegistry[objectKey].SSR || _muraconfig.ComponentRegistry[objectKey].ssr);
+
+  if (isEditMode || isExternalModule || !isSSR) {
+    Object.keys(props).forEach(function (key) {
+      if (!['html', 'content', 'children', 'isEditMode', 'dynamicProps', 'moduleStyleData'].find(function (restrictedkey) {
+        return restrictedkey === key;
+      })) {
+        if (typeof props[key] === 'object') {
+          domObject["data-" + key] = JSON.stringify(props[key]);
+        } else if (typeof props[key] !== 'undefined' && !(typeof props[key] === 'string' && props[key] === '')) {
+          domObject["data-" + key] = props[key];
+        }
+      }
+
+      if (key === 'class') {
+        domObject.className += " " + props[key];
+      } else if (key === 'cssclass') {
+        domObject.className += " " + props[key];
+      } else if (key === 'cssid') {
+        domObject.id += " " + props[key];
+      } else if (key === 'contentcssclass') {
+        domContent.className += " " + props[key];
+      } else if (key === 'contentcssid') {
+        domContent.id += " " + props[key];
+      } else if (key === 'metacssclass') {
+        domMeta.className += " " + props[key];
+      } else if (key === 'metacssid') {
+        domMeta.id += " " + props[key];
+      }
+    });
+
+    if (domObject.className.split(' ').find(function ($class) {
+      return $class === 'container';
+    })) {
+      domMetaWrapper.className += ' container';
+    }
+  } else {
+    domObject['data-instanceid'] = instanceid;
+    domObject['data-inited'] = true;
+    domObject.className = "mura-object-" + props.object;
+
+    if (typeof props.moduleStyleData != 'undefined' && typeof props.moduleStyleData[instanceid] != 'undefined') {
+      domObject.className += " " + props.moduleStyleData[instanceid].targets.object["class"];
+      domObject.id = props.moduleStyleData[props.instanceid].targets.object.id;
+      domContent.className = props.moduleStyleData[props.instanceid].targets.content["class"];
+      domContent.id = props.moduleStyleData[props.instanceid].targets.content.id;
+      domMetaWrapper.className = props.moduleStyleData[props.instanceid].targets.metawrapper["class"];
+      domMeta.className = props.moduleStyleData[props.instanceid].targets.meta["class"];
+      domMeta.id = props.moduleStyleData[props.instanceid].targets.meta.id;
+    } else {
+      domObject.id = '';
+      domContent.id = '';
+      domMetaWrapper.className = '';
+      domMeta.className = '';
+      domMeta.id = ';';
+    }
+
+    ['objectspacing', 'contentspacing', 'metaspacing'].forEach(function (key) {
+      if (typeof props[key] != 'undefined' && props[key] && props[key] != 'custom') {
+        domObject['data-' + key] = props[key];
+      }
+    });
+  }
+
+  if (isExternalModule || !isSSR) {
+    if (isExternalModule && props.html) {
+      /*#__PURE__*/
+      React$1__default.createElement("div", domObject, label ? /*#__PURE__*/React$1__default.createElement(MuraMeta, {
+        label: label,
+        labeltag: labeltag,
+        dommeta: domMeta,
+        dommetawrapper: domMetaWrapper
+      }) : null, label ? /*#__PURE__*/React$1__default.createElement("div", {
+        className: "mura-flex-break"
+      }) : null, /*#__PURE__*/React$1__default.createElement("div", _extends$1({}, domContent, {
+        dangerouslySetInnerHTML: {
+          __html: props.html
+        }
+      })));
+    } else {
+      return /*#__PURE__*/React$1__default.createElement("div", domObject);
+    }
+  } else {
+    return /*#__PURE__*/React$1__default.createElement("div", domObject, label ? /*#__PURE__*/React$1__default.createElement(Meta, {
+      label: label,
+      labeltag: labeltag,
+      dommeta: domMeta,
+      dommetawrapper: domMetaWrapper
+    }) : null, label ? /*#__PURE__*/React$1__default.createElement("div", {
+      className: "mura-flex-break"
+    }) : null, /*#__PURE__*/React$1__default.createElement("div", domContent, children));
+  }
+}
+
+var Meta = function Meta(_ref) {
+  var label = _ref.label,
+      labeltag = _ref.labeltag,
+      dommeta = _ref.dommeta,
+      dommetawrapper = _ref.dommetawrapper;
+  var LabelHeader = labeltag ? "" + labeltag : 'h2';
+  return /*#__PURE__*/React$1__default.createElement("div", dommetawrapper, /*#__PURE__*/React$1__default.createElement("div", dommeta, /*#__PURE__*/React$1__default.createElement(LabelHeader, null, label)));
+};
+
 var getLayout = function getLayout(layout) {
   var uselayout = !layout || layout == 'default' ? "List" : layout;
 
-  if (typeof ComponentRegistry__default[uselayout] != 'undefined') {
-    return ComponentRegistry__default[uselayout];
+  if (typeof _muraconfig.ComponentRegistry[uselayout] != 'undefined') {
+    return _muraconfig.ComponentRegistry[uselayout];
   } else {
     console.log("Layout not registered: ", layout);
-    return ComponentRegistry__default['List'];
+    return _muraconfig.ComponentRegistry['List'];
   }
 };
 
@@ -449,7 +713,7 @@ var RouterlessLink = function RouterlessLink(_ref) {
       children = _ref.children,
       className = _ref.className;
   return /*#__PURE__*/React$1__default.createElement("a", {
-    href: nextCore.getHref(href),
+    href: getHref(href),
     className: className
   }, children);
 };
@@ -458,7 +722,7 @@ var RouterLink = function RouterLink(_ref2) {
       children = _ref2.children,
       className = _ref2.className;
   return /*#__PURE__*/React$1__default.createElement(Link, {
-    href: nextCore.getHref(href)
+    href: getHref(href)
   }, /*#__PURE__*/React$1__default.createElement("a", {
     className: className
   }, children));
@@ -687,8 +951,8 @@ var getSelectFields = function getSelectFields(item) {
   return fieldarray.join(',').toLowerCase();
 };
 
-function _extends$1() {
-  _extends$1 = Object.assign || function (target) {
+function _extends$2() {
+  _extends$2 = Object.assign || function (target) {
     for (var i = 1; i < arguments.length; i++) {
       var source = arguments[i];
 
@@ -702,7 +966,7 @@ function _extends$1() {
     return target;
   };
 
-  return _extends$1.apply(this, arguments);
+  return _extends$2.apply(this, arguments);
 }
 
 function _objectWithoutPropertiesLoose$1(source, excluded) {
@@ -848,12 +1112,12 @@ var CollectionLayout = function CollectionLayout(_ref) {
     style: {
       'listStyle': 'none'
     }
-  }, /*#__PURE__*/React.createElement(CurrentItems, _extends$1({
+  }, /*#__PURE__*/React.createElement(CurrentItems, _extends$2({
     collection: collection,
     itemsTo: itemsTo,
     pos: pos,
     link: link
-  }, props))), /*#__PURE__*/React.createElement(CollectionNav, _extends$1({
+  }, props))), /*#__PURE__*/React.createElement(CollectionNav, _extends$2({
     collection: collection,
     itemsTo: itemsTo,
     setItemsTo: setItemsTo,
@@ -29813,7 +30077,7 @@ var AccordionLayout = function AccordionLayout(_ref) {
 
   return /*#__PURE__*/React$1__default.createElement(Fragment, null, /*#__PURE__*/React$1__default.createElement(Accordion, {
     className: "collectionLayoutAccordion " + props.accordionpadding + "-spacing " + props.collapseindicators + " " + props.collapseindicatorslocation + "-indicator"
-  }, /*#__PURE__*/React$1__default.createElement(CurrentItems$1, _extends$1({
+  }, /*#__PURE__*/React$1__default.createElement(CurrentItems$1, _extends$2({
     collection: collection,
     pos: pos,
     link: link
@@ -29821,7 +30085,7 @@ var AccordionLayout = function AccordionLayout(_ref) {
     className: "row"
   }, /*#__PURE__*/React$1__default.createElement("div", {
     className: "col-12"
-  }, /*#__PURE__*/React$1__default.createElement(CollectionNav, _extends$1({
+  }, /*#__PURE__*/React$1__default.createElement(CollectionNav, _extends$2({
     collection: collection,
     pos: pos,
     setPos: setPos,
@@ -29962,7 +30226,7 @@ var AlternatingBoxes = function AlternatingBoxes(_ref) {
 
   return /*#__PURE__*/React$1__default.createElement(Fragment, null, /*#__PURE__*/React$1__default.createElement("div", {
     className: "collectionLayoutAlternatingBoxes"
-  }, /*#__PURE__*/React$1__default.createElement(CurrentItems$2, _extends$1({
+  }, /*#__PURE__*/React$1__default.createElement(CurrentItems$2, _extends$2({
     collection: collection,
     pos: pos,
     link: link
@@ -29970,7 +30234,7 @@ var AlternatingBoxes = function AlternatingBoxes(_ref) {
     className: "row"
   }, /*#__PURE__*/React$1__default.createElement("div", {
     className: "col-12"
-  }, /*#__PURE__*/React$1__default.createElement(CollectionNav, _extends$1({
+  }, /*#__PURE__*/React$1__default.createElement(CollectionNav, _extends$2({
     collection: collection,
     pos: pos,
     setPos: setPos,
@@ -30096,7 +30360,7 @@ var AlternatingRows = function AlternatingRows(_ref) {
 
   return /*#__PURE__*/React$1__default.createElement(Fragment, null, /*#__PURE__*/React$1__default.createElement("div", {
     className: "collectionLayoutAlternatingBoxes"
-  }, /*#__PURE__*/React$1__default.createElement(CurrentItems$3, _extends$1({
+  }, /*#__PURE__*/React$1__default.createElement(CurrentItems$3, _extends$2({
     collection: collection,
     pos: pos,
     link: link
@@ -30104,7 +30368,7 @@ var AlternatingRows = function AlternatingRows(_ref) {
     className: "row"
   }, /*#__PURE__*/React$1__default.createElement("div", {
     className: "col-12"
-  }, /*#__PURE__*/React$1__default.createElement(CollectionNav, _extends$1({
+  }, /*#__PURE__*/React$1__default.createElement(CollectionNav, _extends$2({
     collection: collection,
     pos: pos,
     setPos: setPos,
@@ -30264,7 +30528,7 @@ var Cards = function Cards(_ref) {
 
   return /*#__PURE__*/React$1__default.createElement(Fragment, null, /*#__PURE__*/React$1__default.createElement("div", {
     className: "row collectionLayoutCards row-cols-1 row-cols-sm-" + props.rowcolssm + " row-cols-md-" + props.rowcolsmd + " row-cols-lg-" + props.rowcolslg + " row-cols-xl-" + props.rowcolsxl
-  }, /*#__PURE__*/React$1__default.createElement(CurrentItems$4, _extends$1({
+  }, /*#__PURE__*/React$1__default.createElement(CurrentItems$4, _extends$2({
     collection: collection,
     pos: pos,
     link: link
@@ -30272,7 +30536,7 @@ var Cards = function Cards(_ref) {
     className: "row"
   }, /*#__PURE__*/React$1__default.createElement("div", {
     className: "col-12"
-  }, /*#__PURE__*/React$1__default.createElement(CollectionNav, _extends$1({
+  }, /*#__PURE__*/React$1__default.createElement(CollectionNav, _extends$2({
     collection: collection,
     pos: pos,
     setPos: setPos,
@@ -30377,7 +30641,7 @@ var List = function List(_ref) {
       pos = _useState[0],
       setPos = _useState[1];
 
-  return /*#__PURE__*/React$1__default.createElement(Fragment, null, /*#__PURE__*/React$1__default.createElement(CurrentItems$5, _extends$1({
+  return /*#__PURE__*/React$1__default.createElement(Fragment, null, /*#__PURE__*/React$1__default.createElement(CurrentItems$5, _extends$2({
     collection: collection,
     pos: pos,
     link: link
@@ -30385,7 +30649,7 @@ var List = function List(_ref) {
     className: "row"
   }, /*#__PURE__*/React$1__default.createElement("div", {
     className: "col-12"
-  }, /*#__PURE__*/React$1__default.createElement(CollectionNav, _extends$1({
+  }, /*#__PURE__*/React$1__default.createElement(CollectionNav, _extends$2({
     collection: collection,
     pos: pos,
     setPos: setPos,
@@ -30552,7 +30816,7 @@ var Masonry = function Masonry(_ref) {
 
   return /*#__PURE__*/React$1__default.createElement(Fragment, null, /*#__PURE__*/React$1__default.createElement("div", {
     className: "collectionLayoutMasonry card-columns"
-  }, /*#__PURE__*/React$1__default.createElement(CurrentItems$6, _extends$1({
+  }, /*#__PURE__*/React$1__default.createElement(CurrentItems$6, _extends$2({
     collection: collection,
     pos: pos,
     link: link
@@ -30560,7 +30824,7 @@ var Masonry = function Masonry(_ref) {
     className: "row"
   }, /*#__PURE__*/React$1__default.createElement("div", {
     className: "col-12"
-  }, /*#__PURE__*/React$1__default.createElement(CollectionNav, _extends$1({
+  }, /*#__PURE__*/React$1__default.createElement(CollectionNav, _extends$2({
     collection: collection,
     pos: pos,
     setPos: setPos,
@@ -30696,7 +30960,7 @@ var SlickSlider = function SlickSlider(_ref) {
   }
 
   var slides = collection.map(function (item) {
-    return /*#__PURE__*/React$1__default.createElement(SliderItem, _extends$1({
+    return /*#__PURE__*/React$1__default.createElement(SliderItem, _extends$2({
       sliderimage: item.get('images')[props.imagesize],
       imagesize: props.imagesize,
       item: item,
@@ -30909,12 +31173,51 @@ function Container(props) {
     obj.moduleStyleData = props.moduleStyleData;
     obj.content = content;
     obj.inited = true;
-    return /*#__PURE__*/React$1__default.createElement(nextCore.Decorator, obj, " ", nextCore.getComponent(obj), " ");
+    return /*#__PURE__*/React$1__default.createElement(Decorator, obj, " ", getComponent(obj), " ");
   });
 }
 
 function Hr(props) {
   return /*#__PURE__*/React$1__default.createElement("hr", null);
+}
+
+function CTAButton(_ref) {
+  var buttontext = _ref.buttontext,
+      buttoncolor = _ref.buttoncolor,
+      buttonsize = _ref.buttonsize,
+      buttonlink = _ref.buttonlink,
+      buttontarget = _ref.buttontarget,
+      buttonblock = _ref.buttonblock;
+  var btnclass = "btn btn-" + (buttoncolor || 'primary');
+
+  if (buttonsize != 'md') {
+    btnclass = btnclass + (" btn-" + buttonsize);
+  }
+
+  if (buttonblock) {
+    btnclass = btnclass + " btn-block";
+  }
+
+  return /*#__PURE__*/React$1__default.createElement(Fragment, null, /*#__PURE__*/React$1__default.createElement(Link, {
+    href: buttonlink || 'https://www.murasoftware.com',
+    passHref: true
+  }, /*#__PURE__*/React$1__default.createElement("a", {
+    target: buttontarget || '_self',
+    className: btnclass,
+    role: "button"
+  }, buttontext || 'Press Me', " ", /*#__PURE__*/React$1__default.createElement(reactFontawesome.FontAwesomeIcon, {
+    icon: freeSolidSvgIcons.faChevronRight
+  }))));
+}
+
+function Embed(props) {
+  var objectparams = Object.assign({}, props);
+  objectparams.source = objectparams.source || '';
+  return /*#__PURE__*/React$1__default.createElement("div", {
+    dangerouslySetInnerHTML: {
+      __html: objectparams.source
+    }
+  });
 }
 
 function Image(props) {
@@ -35915,17 +36218,17 @@ var RouterlessLink$1 = function RouterlessLink(_ref2) {
   switch (type) {
     case "navdropdownitem":
       return /*#__PURE__*/React$1__default.createElement(NavDropdown.Item, {
-        href: nextCore.getHref(href)
+        href: getHref(href)
       }, menutitle);
 
     case "navlink":
       return /*#__PURE__*/React$1__default.createElement(Nav.Link, {
-        href: nextCore.getHref(href)
+        href: getHref(href)
       }, menutitle);
 
     case "navbarbrand":
       return /*#__PURE__*/React$1__default.createElement(Navbar.Brand, {
-        href: nextCore.getHref(href)
+        href: getHref(href)
       }, /*#__PURE__*/React$1__default.createElement("img", {
         src: navlogo,
         loading: "lazy"
@@ -35934,7 +36237,7 @@ var RouterlessLink$1 = function RouterlessLink(_ref2) {
     default:
       return /*#__PURE__*/React$1__default.createElement("a", {
         className: className,
-        href: nextCore.getHref(href)
+        href: getHref(href)
       }, menutitle);
   }
 };
@@ -35949,19 +36252,19 @@ var RouterLink$1 = function RouterLink(_ref3) {
   switch (type) {
     case "navdropdownitem":
       return /*#__PURE__*/React$1__default.createElement(Link, {
-        href: nextCore.getHref(href),
+        href: getHref(href),
         passHref: true
       }, /*#__PURE__*/React$1__default.createElement(NavDropdown.Item, null, menutitle));
 
     case "navlink":
       return /*#__PURE__*/React$1__default.createElement(Link, {
-        href: nextCore.getHref(href),
+        href: getHref(href),
         passHref: true
       }, /*#__PURE__*/React$1__default.createElement(Nav.Link, null, menutitle));
 
     case "navbarbrand":
       return /*#__PURE__*/React$1__default.createElement(Link, {
-        href: nextCore.getHref(href),
+        href: getHref(href),
         passHref: true
       }, /*#__PURE__*/React$1__default.createElement(Navbar.Brand, null, /*#__PURE__*/React$1__default.createElement("img", {
         src: navlogo,
@@ -35970,7 +36273,7 @@ var RouterLink$1 = function RouterLink(_ref3) {
 
     default:
       return /*#__PURE__*/React$1__default.createElement(Link, {
-        href: nextCore.getHref(href)
+        href: getHref(href)
       }, /*#__PURE__*/React$1__default.createElement("a", {
         className: className
       }, menutitle));
@@ -36187,7 +36490,7 @@ function ResourceHub(props) {
 
     if (collection) {
       console.log('dynamic');
-      return /*#__PURE__*/React$1__default.createElement("div", null, /*#__PURE__*/React$1__default.createElement(RenderFilterForm, _extends$1({
+      return /*#__PURE__*/React$1__default.createElement("div", null, /*#__PURE__*/React$1__default.createElement(RenderFilterForm, _extends$2({
         updateFilter: updateFilter
       }, props, {
         curSubtype: curSubtype,
@@ -36230,7 +36533,7 @@ function ResourceHub(props) {
         isMounted = false;
       };
     }, [filterUpdated]);
-    return /*#__PURE__*/React$1__default.createElement("div", null, /*#__PURE__*/React$1__default.createElement(RenderFilterForm, _extends$1({
+    return /*#__PURE__*/React$1__default.createElement("div", null, /*#__PURE__*/React$1__default.createElement(RenderFilterForm, _extends$2({
       updateFilter: updateFilter
     }, props, {
       curSubtype: curSubtype,
@@ -36774,6 +37077,7 @@ var getCurrentPrivacy = function getCurrentPrivacy() {
 };
 
 exports.ArticleMeta = ArticleMeta;
+exports.CTAButton = CTAButton;
 exports.Collection = Collection;
 exports.CollectionLayout = CollectionLayout;
 exports.CollectionLayoutAccordian = AccordionLayout;
@@ -36786,7 +37090,8 @@ exports.CollectionLayoutSlickSlider = SlickSlider;
 exports.CollectionNav = CollectionNav;
 exports.CollectionReadMoreBtn = CollectionReadMoreBtn;
 exports.Container = Container;
-exports.HR = Hr;
+exports.Embed = Embed;
+exports.Hr = Hr;
 exports.Image = Image;
 exports.ItemCategories = ItemCategories;
 exports.ItemCredits = ItemCredits;

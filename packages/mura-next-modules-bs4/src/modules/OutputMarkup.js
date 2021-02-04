@@ -1,6 +1,6 @@
 import react from 'react';
-import {ConnectorConfig} from '~/mura.config';
 import ReactMarkdown from "react-markdown";
+import { ConnectorConfig } from 'mura.config';
 
 function OutputMarkup({source,className}){
     let connectorConfig=Object.assign({},ConnectorConfig);

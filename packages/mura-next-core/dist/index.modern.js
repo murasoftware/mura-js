@@ -1,9 +1,6 @@
-function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
-
-var Mura = _interopDefault(require('mura.js'));
-var mura_config = require('~/mura.config');
-var React$1 = require('react');
-var React$1__default = _interopDefault(React$1);
+import Mura from 'mura.js';
+import { ConnectorConfig, ComponentRegistry, ExternalModules } from '@muraconfig';
+import React$1, { createContext, useContext, useEffect as useEffect$1 } from 'react';
 
 function _extends() {
   _extends = Object.assign || function (target) {
@@ -166,12 +163,12 @@ var getModuleProps = function getModuleProps(item, moduleStyleData, isEditMode, 
     var _temp23 = _catch(function () {
       var objectkey = item.object;
 
-      if (typeof mura_config.ComponentRegistry[objectkey] == 'undefined') {
+      if (typeof ComponentRegistry[objectkey] == 'undefined') {
         objectkey = Mura.firstToUpperCase(item.object);
       }
 
       var _temp19 = function () {
-        if (typeof mura_config.ComponentRegistry[objectkey] != 'undefined') {
+        if (typeof ComponentRegistry[objectkey] != 'undefined') {
           var _temp24 = function _temp24() {
             var _temp16 = function () {
               if (item.object == 'container') {
@@ -199,8 +196,8 @@ var getModuleProps = function getModuleProps(item, moduleStyleData, isEditMode, 
           };
 
           var _temp25 = function () {
-            if (mura_config.ComponentRegistry[objectkey].SSR) {
-              return Promise.resolve(mura_config.ComponentRegistry[objectkey].getDynamicProps(_extends({}, item, {
+            if (ComponentRegistry[objectkey].SSR) {
+              return Promise.resolve(ComponentRegistry[objectkey].getDynamicProps(_extends({}, item, {
                 content: content
               }))).then(function (_ComponentRegistry$ob) {
                 item.dynamicProps = _ComponentRegistry$ob;
@@ -336,7 +333,7 @@ var renderContent = function renderContent(context, isEditMode, params) {
 
 require('mura.js/src/core/stylemap-static');
 
-var connectorConfig = Object.assign({}, mura_config.ConnectorConfig);
+var connectorConfig = Object.assign({}, ConnectorConfig);
 var MuraJSRefPlaceholder = '"undefined"!=typeof window&&function(u){u.queuedMuraCmds=[],u.queuedMuraPreInitCmds=[],"function"!=typeof u.Mura&&(u.Mura=u.mura=u.Mura=function(e){u.queuedMuraCmds.push(e)},u.Mura.preInit=function(e){u.queuedMuraPreInitCmds.push(e)})}(window);';
 var useAsync = function useAsync(asyncFn, onSuccess) {
   useEffect(function () {
@@ -364,12 +361,12 @@ var getComponent = function getComponent(item) {
   getMura();
   var objectkey = item.object;
 
-  if (typeof mura_config.ComponentRegistry[objectkey] == 'undefined') {
+  if (typeof ComponentRegistry[objectkey] == 'undefined') {
     objectkey = Mura.firstToUpperCase(item.object);
   }
 
-  if (typeof mura_config.ComponentRegistry[objectkey] != 'undefined') {
-    var ComponentVariable = mura_config.ComponentRegistry[objectkey].component;
+  if (typeof ComponentRegistry[objectkey] != 'undefined') {
+    var ComponentVariable = ComponentRegistry[objectkey].component;
     return /*#__PURE__*/React.createElement(ComponentVariable, _extends({
       key: item.instanceid
     }, item));
@@ -402,7 +399,7 @@ var getMuraPaths = function getMuraPaths() {
       return paths;
     };
 
-    var siteids = mura_config.ConnectorConfig.siteid;
+    var siteids = ConnectorConfig.siteid;
     var pathList = [];
 
     if (!Array.isArray(siteids)) {
@@ -430,16 +427,16 @@ var getMuraPaths = function getMuraPaths() {
 var getMura = function getMura(context) {
   var startingsiteid = Mura.siteid;
 
-  if (typeof context == 'string' && mura_config.ConnectorConfig.siteid.find(function (item) {
+  if (typeof context == 'string' && ConnectorConfig.siteid.find(function (item) {
     return item === context;
   })) {
     connectorConfig.siteid = context;
   } else {
-    var ishomepage = context && !(context.params && context.params.page) || typeof location != 'undefined' && (location.pathname == "/" || location.pathname == mura_config.ConnectorConfig.editroute + "/");
+    var ishomepage = context && !(context.params && context.params.page) || typeof location != 'undefined' && (location.pathname == "/" || location.pathname == ConnectorConfig.editroute + "/");
 
-    if (Array.isArray(mura_config.ConnectorConfig.siteid)) {
+    if (Array.isArray(ConnectorConfig.siteid)) {
       if (ishomepage) {
-        connectorConfig.siteid = mura_config.ConnectorConfig.siteid[0];
+        connectorConfig.siteid = ConnectorConfig.siteid[0];
       } else {
         var page = [];
 
@@ -454,19 +451,19 @@ var getMura = function getMura(context) {
             return item.length;
           });
 
-          if (page.length && mura_config.ConnectorConfig.editroute && page[0] === mura_config.ConnectorConfig.editroute.split("/")[1]) {
+          if (page.length && ConnectorConfig.editroute && page[0] === ConnectorConfig.editroute.split("/")[1]) {
             page.shift();
           }
         }
 
         if (page.length) {
-          if (mura_config.ConnectorConfig.siteid.find(function (item) {
+          if (ConnectorConfig.siteid.find(function (item) {
             return item === page[0];
           })) {
             connectorConfig.siteid = page[0];
             connectorConfig.siteidinurls = true;
           } else {
-            connectorConfig.siteid = mura_config.ConnectorConfig.siteid[0];
+            connectorConfig.siteid = ConnectorConfig.siteid[0];
           }
         }
       }
@@ -524,7 +521,7 @@ var getMuraProps = function getMuraProps(context, isEditMode, params) {
           var props = {
             content: content,
             moduleStyleData: moduleStyleData,
-            externalModules: mura_config.ExternalModules,
+            externalModules: ExternalModules,
             codeblocks: codeblocks
           };
 
@@ -578,7 +575,7 @@ var getMuraProps = function getMuraProps(context, isEditMode, params) {
   }
 };
 
-var GlobalContext = React$1.createContext();
+var GlobalContext = createContext();
 
 function Decorator(props) {
   var label = props.label,
@@ -588,7 +585,7 @@ function Decorator(props) {
   var isEditMode = true;
 
   try {
-    var _useContext = React$1.useContext(GlobalContext);
+    var _useContext = useContext(GlobalContext);
 
     isEditMode = _useContext[0];
   } catch (e) {
@@ -607,14 +604,14 @@ function Decorator(props) {
   var domMetaWrapper = {
     className: "mura-object-meta-wrapper"
   };
-  var isExternalModule = mura_config.ExternalModules[props.object];
+  var isExternalModule = ExternalModules[props.object];
   var objectKey = props.object;
 
-  if (typeof mura_config.ComponentRegistry[objectKey] == 'undefined') {
+  if (typeof ComponentRegistry[objectKey] == 'undefined') {
     objectKey = Mura.firstToUpperCase(props.object);
   }
 
-  var isSSR = mura_config.ComponentRegistry[objectKey] && (mura_config.ComponentRegistry[objectKey].SSR || mura_config.ComponentRegistry[objectKey].ssr);
+  var isSSR = ComponentRegistry[objectKey] && (ComponentRegistry[objectKey].SSR || ComponentRegistry[objectKey].ssr);
 
   if (isEditMode || isExternalModule || !isSSR) {
     Object.keys(props).forEach(function (key) {
@@ -681,30 +678,30 @@ function Decorator(props) {
   if (isExternalModule || !isSSR) {
     if (isExternalModule && props.html) {
       /*#__PURE__*/
-      React$1__default.createElement("div", domObject, label ? /*#__PURE__*/React$1__default.createElement(MuraMeta, {
+      React$1.createElement("div", domObject, label ? /*#__PURE__*/React$1.createElement(MuraMeta, {
         label: label,
         labeltag: labeltag,
         dommeta: domMeta,
         dommetawrapper: domMetaWrapper
-      }) : null, label ? /*#__PURE__*/React$1__default.createElement("div", {
+      }) : null, label ? /*#__PURE__*/React$1.createElement("div", {
         className: "mura-flex-break"
-      }) : null, /*#__PURE__*/React$1__default.createElement("div", _extends({}, domContent, {
+      }) : null, /*#__PURE__*/React$1.createElement("div", _extends({}, domContent, {
         dangerouslySetInnerHTML: {
           __html: props.html
         }
       })));
     } else {
-      return /*#__PURE__*/React$1__default.createElement("div", domObject);
+      return /*#__PURE__*/React$1.createElement("div", domObject);
     }
   } else {
-    return /*#__PURE__*/React$1__default.createElement("div", domObject, label ? /*#__PURE__*/React$1__default.createElement(Meta, {
+    return /*#__PURE__*/React$1.createElement("div", domObject, label ? /*#__PURE__*/React$1.createElement(Meta, {
       label: label,
       labeltag: labeltag,
       dommeta: domMeta,
       dommetawrapper: domMetaWrapper
-    }) : null, label ? /*#__PURE__*/React$1__default.createElement("div", {
+    }) : null, label ? /*#__PURE__*/React$1.createElement("div", {
       className: "mura-flex-break"
-    }) : null, /*#__PURE__*/React$1__default.createElement("div", domContent, children));
+    }) : null, /*#__PURE__*/React$1.createElement("div", domContent, children));
   }
 }
 
@@ -714,7 +711,7 @@ var Meta = function Meta(_ref) {
       dommeta = _ref.dommeta,
       dommetawrapper = _ref.dommetawrapper;
   var LabelHeader = labeltag ? "" + labeltag : 'h2';
-  return /*#__PURE__*/React$1__default.createElement("div", dommetawrapper, /*#__PURE__*/React$1__default.createElement("div", dommeta, /*#__PURE__*/React$1__default.createElement(LabelHeader, null, label)));
+  return /*#__PURE__*/React$1.createElement("div", dommetawrapper, /*#__PURE__*/React$1.createElement("div", dommeta, /*#__PURE__*/React$1.createElement(LabelHeader, null, label)));
 };
 
 var DisplayRegionSection = function DisplayRegionSection(_ref) {
@@ -726,25 +723,25 @@ var DisplayRegionSection = function DisplayRegionSection(_ref) {
 
   if (typeof region.name !== 'undefined' && iseditmode) {
     if (section === 'inherited' && region.inherited.items.length) {
-      out = /*#__PURE__*/React$1__default.createElement("div", {
+      out = /*#__PURE__*/React$1.createElement("div", {
         className: "mura-region-inherited"
-      }, /*#__PURE__*/React$1__default.createElement("div", {
+      }, /*#__PURE__*/React$1.createElement("div", {
         className: "frontEndToolsModal mura"
-      }, /*#__PURE__*/React$1__default.createElement("span", {
+      }, /*#__PURE__*/React$1.createElement("span", {
         className: "mura-edit-label mi-lock"
       }, region.name.toUpperCase(), ": Inherited")), children);
     }
 
     if (section === 'local') {
-      out = /*#__PURE__*/React$1__default.createElement("div", {
+      out = /*#__PURE__*/React$1.createElement("div", {
         className: "mura-editable mura-inactive"
-      }, /*#__PURE__*/React$1__default.createElement("div", {
+      }, /*#__PURE__*/React$1.createElement("div", {
         className: "mura-region-local mura-inactive mura-editable-attribute",
         "data-loose": "false",
         "data-regionid": region.regionid,
         "data-inited": "false",
         "data-perm": "true"
-      }, /*#__PURE__*/React$1__default.createElement("label", {
+      }, /*#__PURE__*/React$1.createElement("label", {
         className: "mura-editable-label",
         style: {
           display: 'none'
@@ -753,7 +750,7 @@ var DisplayRegionSection = function DisplayRegionSection(_ref) {
     }
   } else {
     var regionName = "mura-region-" + section;
-    out = /*#__PURE__*/React$1__default.createElement("div", {
+    out = /*#__PURE__*/React$1.createElement("div", {
       className: regionName
     }, children);
   }
@@ -766,13 +763,13 @@ var DisplayRegion = function DisplayRegion(_ref2) {
       moduleStyleData = _ref2.moduleStyleData,
       content = _ref2.content;
 
-  var _useContext = React$1.useContext(GlobalContext),
+  var _useContext = useContext(GlobalContext),
       isEditMode = _useContext[0];
 
   var inherited = '';
 
   if (region.inherited && region.inherited.items.length) {
-    inherited = /*#__PURE__*/React$1__default.createElement(DisplayRegionSection, {
+    inherited = /*#__PURE__*/React$1.createElement(DisplayRegionSection, {
       region: region,
       iseditmode: isEditMode,
       section: "inherited"
@@ -781,14 +778,14 @@ var DisplayRegion = function DisplayRegion(_ref2) {
       obj.key = obj.instanceid;
       obj.moduleStyleData = moduleStyleData;
       obj.content = content;
-      return /*#__PURE__*/React$1__default.createElement(Decorator, obj, getComponent(obj));
+      return /*#__PURE__*/React$1.createElement(Decorator, obj, getComponent(obj));
     }));
   }
 
-  return /*#__PURE__*/React$1__default.createElement("div", {
+  return /*#__PURE__*/React$1.createElement("div", {
     className: "mura-region",
     "data-regionid": region.regionid
-  }, inherited, /*#__PURE__*/React$1__default.createElement(DisplayRegionSection, {
+  }, inherited, /*#__PURE__*/React$1.createElement(DisplayRegionSection, {
     region: region,
     iseditmode: isEditMode,
     content: content,
@@ -798,7 +795,7 @@ var DisplayRegion = function DisplayRegion(_ref2) {
     obj.key = obj.instanceid;
     obj.moduleStyleData = moduleStyleData;
     obj.content = content;
-    return /*#__PURE__*/React$1__default.createElement(Decorator, obj, getComponent(obj));
+    return /*#__PURE__*/React$1.createElement(Decorator, obj, getComponent(obj));
   })));
 };
 
@@ -806,14 +803,14 @@ function ExternalAssets(props) {
   var externalModules = props.externalModules;
 
   if (typeof externalModules !== 'undefined') {
-    return /*#__PURE__*/React$1__default.createElement("div", {
+    return /*#__PURE__*/React$1.createElement("div", {
       className: "mura-external-assets"
     }, Object.keys(externalModules).map(function (key) {
       var module = externalModules[key];
 
       if (module.js && Array.isArray(module.js)) {
         return module.js.map(function (item) {
-          return /*#__PURE__*/React$1__default.createElement("script", {
+          return /*#__PURE__*/React$1.createElement("script", {
             key: item,
             src: item,
             defer: true
@@ -825,7 +822,7 @@ function ExternalAssets(props) {
 
       if (module.css && Array.isArray(module.css)) {
         return module.css.map(function (item) {
-          return /*#__PURE__*/React$1__default.createElement("link", {
+          return /*#__PURE__*/React$1.createElement("link", {
             key: item,
             rel: "stylesheet",
             href: item
@@ -834,7 +831,7 @@ function ExternalAssets(props) {
       }
     }));
   } else {
-    return /*#__PURE__*/React$1__default.createElement("div", {
+    return /*#__PURE__*/React$1.createElement("div", {
       className: "mura-external-assets"
     });
   }
@@ -843,13 +840,13 @@ function ExternalAssets(props) {
 var EditLayout = function EditLayout(_ref) {
   var children = _ref.children;
 
-  var _useContext = React$1.useContext(GlobalContext),
+  var _useContext = useContext(GlobalContext),
       setIsEditMode = _useContext[1];
 
-  React$1.useEffect(function () {
+  useEffect$1(function () {
     setIsEditMode(true);
   }, [setIsEditMode]);
-  return /*#__PURE__*/React$1__default.createElement("div", null, children, /*#__PURE__*/React$1__default.createElement("div", {
+  return /*#__PURE__*/React$1.createElement("div", null, children, /*#__PURE__*/React$1.createElement("div", {
     id: "htmlqueues"
   }));
 };
@@ -858,11 +855,11 @@ function Styles(props) {
   var moduleStyleData = props.moduleStyleData;
 
   if (typeof moduleStyleData !== 'undefined') {
-    return /*#__PURE__*/React$1__default.createElement(Fragment, null, Object.keys(moduleStyleData).map(function (instanceid) {
+    return /*#__PURE__*/React$1.createElement(Fragment, null, Object.keys(moduleStyleData).map(function (instanceid) {
       var rules = moduleStyleData[instanceid];
 
       if (!rules.isEditMode) {
-        return /*#__PURE__*/React$1__default.createElement("style", {
+        return /*#__PURE__*/React$1.createElement("style", {
           id: rules.id,
           key: rules.id,
           dangerouslySetInnerHTML: {
@@ -875,7 +872,7 @@ function Styles(props) {
     }));
   }
 
-  return /*#__PURE__*/React$1__default.createElement(Fragment, null);
+  return /*#__PURE__*/React$1.createElement(Fragment, null);
 }
 
 var MainLayout = function MainLayout(props) {
@@ -883,10 +880,10 @@ var MainLayout = function MainLayout(props) {
       moduleStyleData = props.moduleStyleData,
       children = props.children;
   Mura.moduleStyleData = moduleStyleData;
-  React$1.useEffect(function () {
+  useEffect$1(function () {
     contentDidChange(content);
   });
-  return /*#__PURE__*/React$1__default.createElement("div", null, children, /*#__PURE__*/React$1__default.createElement(ExternalAssets, props), /*#__PURE__*/React$1__default.createElement(Styles, props));
+  return /*#__PURE__*/React$1.createElement("div", null, children, /*#__PURE__*/React$1.createElement(ExternalAssets, props), /*#__PURE__*/React$1.createElement(Styles, props));
 };
 
 function contentDidChange(_content) {
@@ -963,20 +960,5 @@ function contentDidChange(_content) {
   }, 5);
 }
 
-exports.Decorator = Decorator;
-exports.DisplayRegion = DisplayRegion;
-exports.EditLayout = EditLayout;
-exports.ExternalAssets = ExternalAssets;
-exports.GlobalContext = GlobalContext;
-exports.MainLayout = MainLayout;
-exports.MuraJSRefPlaceholder = MuraJSRefPlaceholder;
-exports.Styles = Styles;
-exports.getComponent = getComponent;
-exports.getHref = getHref;
-exports.getMura = getMura;
-exports.getMuraPaths = getMuraPaths;
-exports.getMuraProps = getMuraProps;
-exports.getRootPath = getRootPath;
-exports.getSiteName = getSiteName;
-exports.useAsync = useAsync;
+export { Decorator, DisplayRegion, EditLayout, ExternalAssets, GlobalContext, MainLayout, MuraJSRefPlaceholder, Styles, getComponent, getHref, getMura, getMuraPaths, getMuraProps, getRootPath, getSiteName, useAsync };
 //# sourceMappingURL=index.modern.js.map

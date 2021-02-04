@@ -4,7 +4,7 @@ import ItemCredits from './ItemCredits';
 import ItemTags from './ItemTags';
 import OutputMarkup from './OutputMarkup';
 
-function ArticleMeta(props){
+const ArticleMeta = (props) => {
     // console.log('fields ArticleMeta: ' + props.fields);
     
     const fields = props.fields ? props.fields : 'Date,Credits,Tags';

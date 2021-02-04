@@ -5,7 +5,7 @@
   "author": "Mura Software",
   "license": "MIT",
   "repository": "https://github.com/murasoftware/mura-js.git",
-  "main": "dist/index.modern.js",
+  "main": "dist/index.js",
   "module": "dist/index.modern.js",
   "source": "src/index.js",
   "engines": {
@@ -20,6 +20,7 @@
   },
   "devDependencies": {
     "babel-eslint": "^10.0.3",
+    "babel-plugin-root-import": "^6.6.0",
     "cross-env": "^7.0.2",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.7.0",
@@ -43,5 +44,7 @@
   "files": [
     "dist"
   ],
-  "dependencies": {}
+  "dependencies": {
+    "parent-module": "^2.0.0"
+  }
 }

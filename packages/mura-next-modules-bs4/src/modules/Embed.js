@@ -1,6 +1,6 @@
 import React from 'react';
 
-function Embed(props) {
+const Embed = function(props) {
   let objectparams=Object.assign({},props);
   objectparams.source=objectparams.source || '';
 

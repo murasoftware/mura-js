@@ -1,4 +1,4 @@
-function ItemCategories(props) {
+const ItemCategories = (props) => {
     const Categories = props.categories;
     // console.log('category assignments ItemCategories: ', Categories);
     let catsList = [];
