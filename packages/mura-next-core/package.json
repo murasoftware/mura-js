@@ -1,6 +1,6 @@
 {
   "name": "@murasoftware/next-core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Core utilties for Mura.js and Next.js",
   "author": "Mura Software",
   "license": "MIT",

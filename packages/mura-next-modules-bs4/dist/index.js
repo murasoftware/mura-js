@@ -4,11 +4,9 @@ var React$1 = require('react');
 var React$1__default = _interopDefault(React$1);
 var Head = _interopDefault(require('next/head'));
 var ReactMarkdown = _interopDefault(require('react-markdown'));
-var mura_config = require('mura.config');
+require('mura.js/src/core/stylemap-static');
 var Mura$1 = _interopDefault(require('mura.js'));
 var Link = _interopDefault(require('next/link'));
-require('mura.js/src/core/stylemap-static');
-var _muraconfig = require('@muraconfig');
 var reactFontawesome = require('@fortawesome/react-fontawesome');
 var freeSolidSvgIcons = require('@fortawesome/free-solid-svg-icons');
 var Slider = _interopDefault(require('react-slick'));
@@ -300,91 +298,6 @@ function ItemTags(props) {
   return tagList;
 }
 
-function OutputMarkup(_ref) {
-  var source = _ref.source,
-      className = _ref.className;
-  var connectorConfig = Object.assign({}, mura_config.ConnectorConfig);
-
-  if (connectorConfig.htmleditortype == 'markdown') {
-    return /*#__PURE__*/React.createElement(ReactMarkdown, {
-      source: source,
-      className: className
-    });
-  }
-
-  return /*#__PURE__*/React.createElement("div", {
-    dangerouslySetInnerHTML: {
-      __html: source
-    },
-    className: className
-  });
-}
-
-var ArticleMeta = function ArticleMeta(props) {
-  var fields = props.fields ? props.fields : 'Date,Credits,Tags';
-  var fieldlist = fields ? fields.toLowerCase().split(",") : [];
-  var item = props.content;
-  return /*#__PURE__*/React$1__default.createElement("div", {
-    className: "pb-4"
-  }, fieldlist.map(function (field) {
-    var _React$createElement, _React$createElement2;
-
-    switch (field) {
-      case "title":
-        return /*#__PURE__*/React$1__default.createElement("h1", (_React$createElement = {
-          key: "title"
-        }, _React$createElement["key"] = field, _React$createElement), item.title);
-
-      case "summary":
-        return /*#__PURE__*/React$1__default.createElement(OutputMarkup, {
-          source: item.summary,
-          className: "lead",
-          key: field
-        });
-
-      case "date":
-      case "releasedate":
-        return /*#__PURE__*/React$1__default.createElement("div", (_React$createElement2 = {
-          className: "mura-item-meta__date",
-          key: "date"
-        }, _React$createElement2["key"] = field, _React$createElement2), /*#__PURE__*/React$1__default.createElement("span", null, "Published on: "), " ", /*#__PURE__*/React$1__default.createElement(ItemDate, {
-          releasedate: item.releasedate,
-          lastupdate: item.lastupdate
-        }));
-
-      case "credits":
-        if (item.credits) {
-          var _React$createElement3;
-
-          return /*#__PURE__*/React$1__default.createElement(ItemCredits, (_React$createElement3 = {
-            credits: item.credits,
-            key: "credits"
-          }, _React$createElement3["key"] = field, _React$createElement3));
-        }
-
-      case "tags":
-        if (item.tags) {
-          var _React$createElement4;
-
-          return /*#__PURE__*/React$1__default.createElement("div", (_React$createElement4 = {
-            className: "mura-item-meta__tags",
-            key: "tags"
-          }, _React$createElement4["key"] = field, _React$createElement4), /*#__PURE__*/React$1__default.createElement("span", null, "Tags: "), /*#__PURE__*/React$1__default.createElement(ItemTags, {
-            tags: item.tags,
-            key: "tags"
-          }));
-        }
-
-      default:
-        return /*#__PURE__*/React$1__default.createElement("div", {
-          className: "mura-item-meta__" + field,
-          key: field,
-          "data-value": props.content[field]
-        }, props.content[field]);
-    }
-  }));
-};
-
 function _extends$1() {
   _extends$1 = Object.assign || function (target) {
     for (var i = 1; i < arguments.length; i++) {
@@ -407,17 +320,18 @@ const _iteratorSymbol = /*#__PURE__*/ typeof Symbol !== "undefined" ? (Symbol.it
 
 const _asyncIteratorSymbol = /*#__PURE__*/ typeof Symbol !== "undefined" ? (Symbol.asyncIterator || (Symbol.asyncIterator = Symbol("Symbol.asyncIterator"))) : "@@asyncIterator";
 
+var EditContext = React$1.createContext();
+var MuraContext = React$1.createContext();
 
 
-var connectorConfig = Object.assign({}, _muraconfig.ConnectorConfig);
+
+var connectorConfig, ComponentRegistry, ConnectorConfig;
 var getHref = function getHref(filename) {
   var path = filename.split('/').filter(function (item) {
     return item.length;
   });
 
-  if (connectorConfig.siteidinurls) {
-    return '/' + Mura$1.siteid + '/' + path.join('/');
-  } else {
+  {
     return '/' + path.join('/');
   }
 };
@@ -425,34 +339,27 @@ var getComponent = function getComponent(item) {
   getMura();
   var objectkey = item.object;
 
-  if (typeof _muraconfig.ComponentRegistry[objectkey] == 'undefined') {
+  if (typeof ComponentRegistry[objectkey] == 'undefined') {
     objectkey = Mura$1.firstToUpperCase(item.object);
   }
 
-  if (typeof _muraconfig.ComponentRegistry[objectkey] != 'undefined') {
-    var ComponentVariable = _muraconfig.ComponentRegistry[objectkey].component;
-    return /*#__PURE__*/React.createElement(ComponentVariable, _extends$1({
-      key: item.instanceid
-    }, item));
-  }
-
-  return /*#__PURE__*/React.createElement("p", {
+  return /*#__PURE__*/React$1__default.createElement("p", {
     key: item.instanceid
   }, "DisplayRegion: ", item.objectname);
 };
 var getMura = function getMura(context) {
   var startingsiteid = Mura$1.siteid;
 
-  if (typeof context == 'string' && _muraconfig.ConnectorConfig.siteid.find(function (item) {
+  if (typeof context == 'string' && ConnectorConfig.siteid.find(function (item) {
     return item === context;
   })) {
     connectorConfig.siteid = context;
   } else {
-    var ishomepage = context && !(context.params && context.params.page) || typeof location != 'undefined' && (location.pathname == "/" || location.pathname == _muraconfig.ConnectorConfig.editroute + "/");
+    var ishomepage = context && !(context.params && context.params.page) || typeof location != 'undefined' && (location.pathname == "/" || location.pathname == ConnectorConfig.editroute + "/");
 
-    if (Array.isArray(_muraconfig.ConnectorConfig.siteid)) {
+    if (Array.isArray(ConnectorConfig.siteid)) {
       if (ishomepage) {
-        connectorConfig.siteid = _muraconfig.ConnectorConfig.siteid[0];
+        connectorConfig.siteid = ConnectorConfig.siteid[0];
       } else {
         var page = [];
 
@@ -467,19 +374,19 @@ var getMura = function getMura(context) {
             return item.length;
           });
 
-          if (page.length && _muraconfig.ConnectorConfig.editroute && page[0] === _muraconfig.ConnectorConfig.editroute.split("/")[1]) {
+          if (page.length && ConnectorConfig.editroute && page[0] === ConnectorConfig.editroute.split("/")[1]) {
             page.shift();
           }
         }
 
         if (page.length) {
-          if (_muraconfig.ConnectorConfig.siteid.find(function (item) {
+          if (ConnectorConfig.siteid.find(function (item) {
             return item === page[0];
           })) {
             connectorConfig.siteid = page[0];
             connectorConfig.siteidinurls = true;
           } else {
-            connectorConfig.siteid = _muraconfig.ConnectorConfig.siteid[0];
+            connectorConfig.siteid = ConnectorConfig.siteid[0];
           }
         }
       }
@@ -511,9 +418,10 @@ var getMura = function getMura(context) {
   return Mura$1;
 };
 
-var GlobalContext = React$1.createContext();
-
 function Decorator(props) {
+  var MuraConfig = React$1.useContext(MuraContext);
+  var ComponentRegistry = MuraConfig.ComponentRegistry,
+      ExternalModules = MuraConfig.ExternalModules;
   var label = props.label,
       instanceid = props.instanceid,
       labeltag = props.labeltag,
@@ -521,7 +429,7 @@ function Decorator(props) {
   var isEditMode = true;
 
   try {
-    var _useContext = React$1.useContext(GlobalContext);
+    var _useContext = React$1.useContext(EditContext);
 
     isEditMode = _useContext[0];
   } catch (e) {
@@ -540,14 +448,14 @@ function Decorator(props) {
   var domMetaWrapper = {
     className: "mura-object-meta-wrapper"
   };
-  var isExternalModule = _muraconfig.ExternalModules[props.object];
+  var isExternalModule = ExternalModules[props.object];
   var objectKey = props.object;
 
-  if (typeof _muraconfig.ComponentRegistry[objectKey] == 'undefined') {
+  if (typeof ComponentRegistry[objectKey] == 'undefined') {
     objectKey = Mura$1.firstToUpperCase(props.object);
   }
 
-  var isSSR = _muraconfig.ComponentRegistry[objectKey] && (_muraconfig.ComponentRegistry[objectKey].SSR || _muraconfig.ComponentRegistry[objectKey].ssr);
+  var isSSR = ComponentRegistry[objectKey] && (ComponentRegistry[objectKey].SSR || ComponentRegistry[objectKey].ssr);
 
   if (isEditMode || isExternalModule || !isSSR) {
     Object.keys(props).forEach(function (key) {
@@ -650,14 +558,103 @@ var Meta = function Meta(_ref) {
   return /*#__PURE__*/React$1__default.createElement("div", dommetawrapper, /*#__PURE__*/React$1__default.createElement("div", dommeta, /*#__PURE__*/React$1__default.createElement(LabelHeader, null, label)));
 };
 
+function OutputMarkup(_ref) {
+  var source = _ref.source,
+      className = _ref.className;
+  var MuraConfig = React$1.useContext(MuraContext);
+  var ConnectorConfig = MuraConfig.ConnectorConfig;
+  var connectorConfig = Object.assign({}, ConnectorConfig);
+
+  if (connectorConfig.htmleditortype == 'markdown') {
+    return /*#__PURE__*/React.createElement(ReactMarkdown, {
+      source: source,
+      className: className
+    });
+  }
+
+  return /*#__PURE__*/React.createElement("div", {
+    dangerouslySetInnerHTML: {
+      __html: source
+    },
+    className: className
+  });
+}
+
+var ArticleMeta = function ArticleMeta(props) {
+  var fields = props.fields ? props.fields : 'Date,Credits,Tags';
+  var fieldlist = fields ? fields.toLowerCase().split(",") : [];
+  var item = props.content;
+  return /*#__PURE__*/React$1__default.createElement("div", {
+    className: "pb-4"
+  }, fieldlist.map(function (field) {
+    var _React$createElement, _React$createElement2;
+
+    switch (field) {
+      case "title":
+        return /*#__PURE__*/React$1__default.createElement("h1", (_React$createElement = {
+          key: "title"
+        }, _React$createElement["key"] = field, _React$createElement), item.title);
+
+      case "summary":
+        return /*#__PURE__*/React$1__default.createElement(OutputMarkup, {
+          source: item.summary,
+          className: "lead",
+          key: field
+        });
+
+      case "date":
+      case "releasedate":
+        return /*#__PURE__*/React$1__default.createElement("div", (_React$createElement2 = {
+          className: "mura-item-meta__date",
+          key: "date"
+        }, _React$createElement2["key"] = field, _React$createElement2), /*#__PURE__*/React$1__default.createElement("span", null, "Published on: "), " ", /*#__PURE__*/React$1__default.createElement(ItemDate, {
+          releasedate: item.releasedate,
+          lastupdate: item.lastupdate
+        }));
+
+      case "credits":
+        if (item.credits) {
+          var _React$createElement3;
+
+          return /*#__PURE__*/React$1__default.createElement(ItemCredits, (_React$createElement3 = {
+            credits: item.credits,
+            key: "credits"
+          }, _React$createElement3["key"] = field, _React$createElement3));
+        }
+
+      case "tags":
+        if (item.tags) {
+          var _React$createElement4;
+
+          return /*#__PURE__*/React$1__default.createElement("div", (_React$createElement4 = {
+            className: "mura-item-meta__tags",
+            key: "tags"
+          }, _React$createElement4["key"] = field, _React$createElement4), /*#__PURE__*/React$1__default.createElement("span", null, "Tags: "), /*#__PURE__*/React$1__default.createElement(ItemTags, {
+            tags: item.tags,
+            key: "tags"
+          }));
+        }
+
+      default:
+        return /*#__PURE__*/React$1__default.createElement("div", {
+          className: "mura-item-meta__" + field,
+          key: field,
+          "data-value": props.content[field]
+        }, props.content[field]);
+    }
+  }));
+};
+
 var getLayout = function getLayout(layout) {
+  var MuraConfig = React$1.useContext(MuraContext);
+  var ComponentRegistry = MuraConfig.ComponentRegistry;
   var uselayout = !layout || layout == 'default' ? "List" : layout;
 
-  if (typeof mura_config.ComponentRegistry[uselayout] != 'undefined') {
-    return mura_config.ComponentRegistry[uselayout];
+  if (typeof ComponentRegistry[uselayout] != 'undefined') {
+    return ComponentRegistry[uselayout];
   } else {
     console.log("Layout not registered: ", layout);
-    return mura_config.ComponentRegistry['List'];
+    return ComponentRegistry['List'];
   }
 };
 
@@ -32282,7 +32279,7 @@ function MatrixSelector(props) {
 
     if (curSelPersona != newPersona) {
       setCurSelPersona(newPersona);
-      updateButtonStatus(newPersona, curSelStage);
+      checkSelectValidation(newPersona, curSelStage);
     }
   };
 
@@ -32291,31 +32288,25 @@ function MatrixSelector(props) {
 
     if (curSelStage != newStage) {
       setCurSelStage(newStage);
-      updateButtonStatus(curSelPersona, newStage);
+      checkSelectValidation(curSelPersona, newStage);
     }
   };
 
-  var updateButtonStatus = function updateButtonStatus(persona, stage) {
+  var checkSelectValidation = function checkSelectValidation(persona, stage) {
     if (persona != '' && personaIds.length) {
       setSelPersonaValidated(true);
-      checkSelectValidation(true, selStageValidated);
     } else if (persona = '' ) {
       setSelPersonaValidated(false);
-      checkSelectValidation(false, selStageValidated);
     }
 
     if (stage != '' && stageIds.length) {
       setSelStageValidated(true);
-      checkSelectValidation(selPersonaValidated, true);
     } else if (stage = '' ) {
       setSelStageValidated(false);
-      checkSelectValidation(selPersonaValidated, false);
     }
   };
 
-  var checkSelectValidation = function checkSelectValidation(selPersonaValidated, selStageValidated) {
-    console.log('selPersonaValidated: ' + selPersonaValidated + ' selStageValidated: ' + selStageValidated);
-
+  var updateButtonStatus = function updateButtonStatus(selPersonaValidated, selStageValidated) {
     if (selPersonaValidated && selStageValidated) {
       setButtonEnabled(true);
     } else {
@@ -32363,6 +32354,18 @@ function MatrixSelector(props) {
       return Promise.reject(e);
     }
   };
+
+  React$1.useEffect(function () {
+    var isMounted = true;
+
+    if (isMounted) {
+      updateButtonStatus(selPersonaValidated, selStageValidated);
+    }
+
+    return function () {
+      isMounted = false;
+    };
+  }, [selPersonaValidated, selStageValidated]);
 
   if (!objectparams.dynamicProps) {
     React$1.useEffect(function () {

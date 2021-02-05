@@ -1,6 +1,6 @@
 import react , { useContext} from 'react';
 import ReactMarkdown from "react-markdown";
-import { MuraContext  } from '@murasoftware/next-core/GlobalContext';
+import { MuraContext  } from '@murasoftware/next-core';
 
 function OutputMarkup({source,className}){
     const MuraConfig = useContext(MuraContext);

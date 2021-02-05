@@ -2,7 +2,7 @@ import React,{useState,useEffect,useContext} from 'react';
 import Mura from 'mura.js';
 import Link from "next/link";
 import {getHref} from '@murasoftware/next-core';
-import { MuraContext  } from '@murasoftware/next-core/GlobalContext';
+import { MuraContext  } from '@murasoftware/next-core';
 
 export const getLayout=(layout) => {
   const MuraConfig =useContext(MuraContext);

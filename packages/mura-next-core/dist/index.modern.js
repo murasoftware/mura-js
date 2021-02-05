@@ -1,6 +1,5 @@
+import React, { createContext, useContext, useEffect as useEffect$1 } from 'react';
 import Mura from 'mura.js';
-import { ConnectorConfig, ComponentRegistry, ExternalModules } from 'mura.config';
-import React$1, { createContext, useContext, useEffect as useEffect$1 } from 'react';
 
 function _extends() {
   _extends = Object.assign || function (target) {
@@ -144,6 +143,9 @@ function _catch(body, recover) {
 	}
 	return result;
 }
+
+var EditContext = createContext();
+var MuraContext = createContext();
 
 var getModuleProps = function getModuleProps(item, moduleStyleData, isEditMode, content) {
   try {
@@ -333,8 +335,14 @@ var renderContent = function renderContent(context, isEditMode, params) {
 
 require('mura.js/src/core/stylemap-static');
 
-var connectorConfig = Object.assign({}, ConnectorConfig);
+var connectorConfig, ComponentRegistry, ConnectorConfig, ExternalModules;
 var MuraJSRefPlaceholder = '"undefined"!=typeof window&&function(u){u.queuedMuraCmds=[],u.queuedMuraPreInitCmds=[],"function"!=typeof u.Mura&&(u.Mura=u.mura=u.Mura=function(e){u.queuedMuraCmds.push(e)},u.Mura.preInit=function(e){u.queuedMuraPreInitCmds.push(e)})}(window);';
+var initConnector = function initConnector(MuraConfig) {
+  ComponentRegistry = MuraConfig.ComponentRegistry;
+  ConnectorConfig = MuraConfig.ConnectorConfig;
+  ExternalModules = MuraConfig.ExternalModules;
+  connectorConfig = Object.assign({}, ConnectorConfig);
+};
 var useAsync = function useAsync(asyncFn, onSuccess) {
   useEffect(function () {
     var isMounted = true;
@@ -575,9 +583,10 @@ var getMuraProps = function getMuraProps(context, isEditMode, params) {
   }
 };
 
-var GlobalContext = createContext();
-
 function Decorator(props) {
+  var MuraConfig = useContext(MuraContext);
+  var ComponentRegistry = MuraConfig.ComponentRegistry,
+      ExternalModules = MuraConfig.ExternalModules;
   var label = props.label,
       instanceid = props.instanceid,
       labeltag = props.labeltag,
@@ -585,7 +594,7 @@ function Decorator(props) {
   var isEditMode = true;
 
   try {
-    var _useContext = useContext(GlobalContext);
+    var _useContext = useContext(EditContext);
 
     isEditMode = _useContext[0];
   } catch (e) {
@@ -678,30 +687,30 @@ function Decorator(props) {
   if (isExternalModule || !isSSR) {
     if (isExternalModule && props.html) {
       /*#__PURE__*/
-      React$1.createElement("div", domObject, label ? /*#__PURE__*/React$1.createElement(MuraMeta, {
+      React.createElement("div", domObject, label ? /*#__PURE__*/React.createElement(MuraMeta, {
         label: label,
         labeltag: labeltag,
         dommeta: domMeta,
         dommetawrapper: domMetaWrapper
-      }) : null, label ? /*#__PURE__*/React$1.createElement("div", {
+      }) : null, label ? /*#__PURE__*/React.createElement("div", {
         className: "mura-flex-break"
-      }) : null, /*#__PURE__*/React$1.createElement("div", _extends({}, domContent, {
+      }) : null, /*#__PURE__*/React.createElement("div", _extends({}, domContent, {
         dangerouslySetInnerHTML: {
           __html: props.html
         }
       })));
     } else {
-      return /*#__PURE__*/React$1.createElement("div", domObject);
+      return /*#__PURE__*/React.createElement("div", domObject);
     }
   } else {
-    return /*#__PURE__*/React$1.createElement("div", domObject, label ? /*#__PURE__*/React$1.createElement(Meta, {
+    return /*#__PURE__*/React.createElement("div", domObject, label ? /*#__PURE__*/React.createElement(Meta, {
       label: label,
       labeltag: labeltag,
       dommeta: domMeta,
       dommetawrapper: domMetaWrapper
-    }) : null, label ? /*#__PURE__*/React$1.createElement("div", {
+    }) : null, label ? /*#__PURE__*/React.createElement("div", {
       className: "mura-flex-break"
-    }) : null, /*#__PURE__*/React$1.createElement("div", domContent, children));
+    }) : null, /*#__PURE__*/React.createElement("div", domContent, children));
   }
 }
 
@@ -711,7 +720,7 @@ var Meta = function Meta(_ref) {
       dommeta = _ref.dommeta,
       dommetawrapper = _ref.dommetawrapper;
   var LabelHeader = labeltag ? "" + labeltag : 'h2';
-  return /*#__PURE__*/React$1.createElement("div", dommetawrapper, /*#__PURE__*/React$1.createElement("div", dommeta, /*#__PURE__*/React$1.createElement(LabelHeader, null, label)));
+  return /*#__PURE__*/React.createElement("div", dommetawrapper, /*#__PURE__*/React.createElement("div", dommeta, /*#__PURE__*/React.createElement(LabelHeader, null, label)));
 };
 
 var DisplayRegionSection = function DisplayRegionSection(_ref) {
@@ -723,25 +732,25 @@ var DisplayRegionSection = function DisplayRegionSection(_ref) {
 
   if (typeof region.name !== 'undefined' && iseditmode) {
     if (section === 'inherited' && region.inherited.items.length) {
-      out = /*#__PURE__*/React$1.createElement("div", {
+      out = /*#__PURE__*/React.createElement("div", {
         className: "mura-region-inherited"
-      }, /*#__PURE__*/React$1.createElement("div", {
+      }, /*#__PURE__*/React.createElement("div", {
         className: "frontEndToolsModal mura"
-      }, /*#__PURE__*/React$1.createElement("span", {
+      }, /*#__PURE__*/React.createElement("span", {
         className: "mura-edit-label mi-lock"
       }, region.name.toUpperCase(), ": Inherited")), children);
     }
 
     if (section === 'local') {
-      out = /*#__PURE__*/React$1.createElement("div", {
+      out = /*#__PURE__*/React.createElement("div", {
         className: "mura-editable mura-inactive"
-      }, /*#__PURE__*/React$1.createElement("div", {
+      }, /*#__PURE__*/React.createElement("div", {
         className: "mura-region-local mura-inactive mura-editable-attribute",
         "data-loose": "false",
         "data-regionid": region.regionid,
         "data-inited": "false",
         "data-perm": "true"
-      }, /*#__PURE__*/React$1.createElement("label", {
+      }, /*#__PURE__*/React.createElement("label", {
         className: "mura-editable-label",
         style: {
           display: 'none'
@@ -750,7 +759,7 @@ var DisplayRegionSection = function DisplayRegionSection(_ref) {
     }
   } else {
     var regionName = "mura-region-" + section;
-    out = /*#__PURE__*/React$1.createElement("div", {
+    out = /*#__PURE__*/React.createElement("div", {
       className: regionName
     }, children);
   }
@@ -763,13 +772,13 @@ var DisplayRegion = function DisplayRegion(_ref2) {
       moduleStyleData = _ref2.moduleStyleData,
       content = _ref2.content;
 
-  var _useContext = useContext(GlobalContext),
+  var _useContext = useContext(EditContext),
       isEditMode = _useContext[0];
 
   var inherited = '';
 
   if (region.inherited && region.inherited.items.length) {
-    inherited = /*#__PURE__*/React$1.createElement(DisplayRegionSection, {
+    inherited = /*#__PURE__*/React.createElement(DisplayRegionSection, {
       region: region,
       iseditmode: isEditMode,
       section: "inherited"
@@ -778,14 +787,14 @@ var DisplayRegion = function DisplayRegion(_ref2) {
       obj.key = obj.instanceid;
       obj.moduleStyleData = moduleStyleData;
       obj.content = content;
-      return /*#__PURE__*/React$1.createElement(Decorator, obj, getComponent(obj));
+      return /*#__PURE__*/React.createElement(Decorator, obj, getComponent(obj));
     }));
   }
 
-  return /*#__PURE__*/React$1.createElement("div", {
+  return /*#__PURE__*/React.createElement("div", {
     className: "mura-region",
     "data-regionid": region.regionid
-  }, inherited, /*#__PURE__*/React$1.createElement(DisplayRegionSection, {
+  }, inherited, /*#__PURE__*/React.createElement(DisplayRegionSection, {
     region: region,
     iseditmode: isEditMode,
     content: content,
@@ -795,7 +804,7 @@ var DisplayRegion = function DisplayRegion(_ref2) {
     obj.key = obj.instanceid;
     obj.moduleStyleData = moduleStyleData;
     obj.content = content;
-    return /*#__PURE__*/React$1.createElement(Decorator, obj, getComponent(obj));
+    return /*#__PURE__*/React.createElement(Decorator, obj, getComponent(obj));
   })));
 };
 
@@ -803,14 +812,14 @@ function ExternalAssets(props) {
   var externalModules = props.externalModules;
 
   if (typeof externalModules !== 'undefined') {
-    return /*#__PURE__*/React$1.createElement("div", {
+    return /*#__PURE__*/React.createElement("div", {
       className: "mura-external-assets"
     }, Object.keys(externalModules).map(function (key) {
       var module = externalModules[key];
 
       if (module.js && Array.isArray(module.js)) {
         return module.js.map(function (item) {
-          return /*#__PURE__*/React$1.createElement("script", {
+          return /*#__PURE__*/React.createElement("script", {
             key: item,
             src: item,
             defer: true
@@ -822,7 +831,7 @@ function ExternalAssets(props) {
 
       if (module.css && Array.isArray(module.css)) {
         return module.css.map(function (item) {
-          return /*#__PURE__*/React$1.createElement("link", {
+          return /*#__PURE__*/React.createElement("link", {
             key: item,
             rel: "stylesheet",
             href: item
@@ -831,7 +840,7 @@ function ExternalAssets(props) {
       }
     }));
   } else {
-    return /*#__PURE__*/React$1.createElement("div", {
+    return /*#__PURE__*/React.createElement("div", {
       className: "mura-external-assets"
     });
   }
@@ -840,13 +849,13 @@ function ExternalAssets(props) {
 var EditLayout = function EditLayout(_ref) {
   var children = _ref.children;
 
-  var _useContext = useContext(GlobalContext),
+  var _useContext = useContext(EditContext),
       setIsEditMode = _useContext[1];
 
   useEffect$1(function () {
     setIsEditMode(true);
   }, [setIsEditMode]);
-  return /*#__PURE__*/React$1.createElement("div", null, children, /*#__PURE__*/React$1.createElement("div", {
+  return /*#__PURE__*/React.createElement("div", null, children, /*#__PURE__*/React.createElement("div", {
     id: "htmlqueues"
   }));
 };
@@ -855,11 +864,11 @@ function Styles(props) {
   var moduleStyleData = props.moduleStyleData;
 
   if (typeof moduleStyleData !== 'undefined') {
-    return /*#__PURE__*/React$1.createElement(Fragment, null, Object.keys(moduleStyleData).map(function (instanceid) {
+    return /*#__PURE__*/React.createElement(Fragment, null, Object.keys(moduleStyleData).map(function (instanceid) {
       var rules = moduleStyleData[instanceid];
 
       if (!rules.isEditMode) {
-        return /*#__PURE__*/React$1.createElement("style", {
+        return /*#__PURE__*/React.createElement("style", {
           id: rules.id,
           key: rules.id,
           dangerouslySetInnerHTML: {
@@ -872,7 +881,7 @@ function Styles(props) {
     }));
   }
 
-  return /*#__PURE__*/React$1.createElement(Fragment, null);
+  return /*#__PURE__*/React.createElement(Fragment, null);
 }
 
 var MainLayout = function MainLayout(props) {
@@ -883,7 +892,7 @@ var MainLayout = function MainLayout(props) {
   useEffect$1(function () {
     contentDidChange(content);
   });
-  return /*#__PURE__*/React$1.createElement("div", null, children, /*#__PURE__*/React$1.createElement(ExternalAssets, props), /*#__PURE__*/React$1.createElement(Styles, props));
+  return /*#__PURE__*/React.createElement("div", null, children, /*#__PURE__*/React.createElement(ExternalAssets, props), /*#__PURE__*/React.createElement(Styles, props));
 };
 
 function contentDidChange(_content) {
@@ -960,5 +969,5 @@ function contentDidChange(_content) {
   }, 5);
 }
 
-export { Decorator, DisplayRegion, EditLayout, ExternalAssets, GlobalContext, MainLayout, MuraJSRefPlaceholder, Styles, getComponent, getHref, getMura, getMuraPaths, getMuraProps, getRootPath, getSiteName, useAsync };
+export { Decorator, DisplayRegion, EditContext, EditLayout, ExternalAssets, MainLayout, MuraContext, MuraJSRefPlaceholder, Styles, getComponent, getHref, getMura, getMuraPaths, getMuraProps, getRootPath, getSiteName, initConnector, useAsync };
 //# sourceMappingURL=index.modern.js.map
