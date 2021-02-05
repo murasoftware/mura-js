@@ -1,5 +1,10 @@
 import { createContext } from 'react';
 
-export const GlobalContext = createContext();
+export const EditContext = createContext();
 
-export default GlobalContext;
+export const MuraContext = createContext();
+
+export default {
+    EditContext,
+    MuraContext
+};

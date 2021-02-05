@@ -1,8 +1,10 @@
-import react from 'react';
+import react , { useContext} from 'react';
 import ReactMarkdown from "react-markdown";
-import { ConnectorConfig } from 'mura.config';
+import { MuraContext  } from '@murasoftware/next-core/GlobalContext';
 
 function OutputMarkup({source,className}){
+    const MuraConfig = useContext(MuraContext);
+    const { ConnectorConfig } = MuraConfig;
     let connectorConfig=Object.assign({},ConnectorConfig);
 
     if(connectorConfig.htmleditortype == 'markdown'){

@@ -1,15 +1,15 @@
 import React, { useContext } from 'react';
-import GlobalContext from './GlobalContext';
 import Mura from 'mura.js';
-import { ComponentRegistry, ExternalModules } from 'mura.config';
-
+import {  EditContext, MuraContext  } from './GlobalContext';
 
 function Decorator(props) {
+  const MuraConfig =useContext(MuraContext);
+  const { ComponentRegistry, ExternalModules } = MuraConfig;
   const { label, instanceid, labeltag, children } = props;
   let isEditMode = true;
 
   try {
-    [isEditMode] = useContext(GlobalContext);
+    [isEditMode] = useContext(EditContext);
   } catch (e) {
     isEditMode = true;
   }

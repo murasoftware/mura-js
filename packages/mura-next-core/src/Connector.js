@@ -1,12 +1,20 @@
 /* eslint-disable */
+import React, { useContext } from 'react';
 import Mura from 'mura.js';
-import {ComponentRegistry, ConnectorConfig, ExternalModules} from 'mura.config';
+import {  MuraContext  } from './GlobalContext';
 
 require('mura.js/src/core/stylemap-static');
 
-let connectorConfig=Object.assign({},ConnectorConfig);
+var connectorConfig, ComponentRegistry, ConnectorConfig, ExternalModules;
 
 export const MuraJSRefPlaceholder = '"undefined"!=typeof window&&function(u){u.queuedMuraCmds=[],u.queuedMuraPreInitCmds=[],"function"!=typeof u.Mura&&(u.Mura=u.mura=u.Mura=function(e){u.queuedMuraCmds.push(e)},u.Mura.preInit=function(e){u.queuedMuraPreInitCmds.push(e)})}(window);';
+
+export const initConnector = (MuraConfig) => {
+  ComponentRegistry = MuraConfig.ComponentRegistry;
+  ConnectorConfig = MuraConfig.ConnectorConfig;
+  ExternalModules = MuraConfig.ExternalModules;
+  connectorConfig=Object.assign({},ConnectorConfig);
+}
 
 export const useAsync=function(asyncFn, onSuccess) {
   useEffect(() => {
@@ -45,7 +53,7 @@ export const getComponent = item => {
   return <p key={item.instanceid}>DisplayRegion: {item.objectname}</p>;
 };
 
-export const getMuraPaths = async () => {
+export const getMuraPaths = async function() {
   
   let siteids=ConnectorConfig.siteid;
   let pathList=[];
@@ -85,12 +93,11 @@ export const getMuraPaths = async () => {
   return paths;
 };
 
-export const getMuraExternalModules = ()=>{
+export const getMuraExternalModules = function(){
   return ExternalModules;
 }
 
-export const getMura = context => {
-
+export const getMura = function(context){
   const startingsiteid=Mura.siteid;
 
   if(typeof context == 'string'
@@ -148,7 +155,7 @@ export const getMura = context => {
 
   }
 
-  const clearMuraAPICache = ()=>{
+  const clearMuraAPICache = function(){
     delete connectorConfig.apiEndpoint;
     delete connectorConfig.apiendpoint;
     delete Mura.apiEndpoint;

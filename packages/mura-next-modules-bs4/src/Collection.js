@@ -1,11 +1,12 @@
-import React,{useState,useEffect} from 'react';
+import React,{useState,useEffect,useContext} from 'react';
 import Mura from 'mura.js';
 import Link from "next/link";
 import {getHref} from '@murasoftware/next-core';
-import { ComponentRegistry } from 'mura.config';
+import { MuraContext  } from '@murasoftware/next-core/GlobalContext';
 
 export const getLayout=(layout) => {
-
+  const MuraConfig =useContext(MuraContext);
+  const { ComponentRegistry } = MuraConfig;
   const uselayout = (!layout || layout == 'default') ? "List" : layout;
 
   if(typeof ComponentRegistry[uselayout] != 'undefined') {

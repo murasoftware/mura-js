@@ -1,6 +1,6 @@
-import { MuraJSRefPlaceholder, getMuraProps, getRootPath, getMuraPaths, getSiteName, getComponent, getMura, getHref, useAsync } from "./Connector";
+import { initConnector, MuraJSRefPlaceholder, getMuraProps, getRootPath, getMuraPaths, getSiteName, getComponent, getMura, getHref, useAsync } from "./Connector";
 import { default as Decorator} from "./Decorator";
-import { default as GlobalContext } from "./GlobalContext";
+import {  EditContext, MuraContext } from "./GlobalContext";
 import { default as DisplayRegion} from "./DisplayRegion";
 import { default as ExternalAssets} from "./ExternalAssets";
 import { default as EditLayout} from "./EditLayout";
@@ -18,10 +18,12 @@ export {
     getHref, 
     useAsync,
     Decorator,
-    GlobalContext,
+    EditContext,
+    MuraContext,
     DisplayRegion,
     ExternalAssets,
     EditLayout,
     MainLayout,
-    Styles
+    Styles,
+    initConnector
 }

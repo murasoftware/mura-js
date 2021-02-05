@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { getComponent } from './Connector';
 import MuraDecorator from './Decorator';
-import GlobalContext from './GlobalContext';
+import {  EditContext  } from './GlobalContext';
 
 const DisplayRegionSection = ({ children, region, section, iseditmode }) => {
   let out = null;
@@ -44,7 +44,7 @@ const DisplayRegionSection = ({ children, region, section, iseditmode }) => {
 };
 
 const DisplayRegion = ({ region, moduleStyleData,content }) => {
-  const [isEditMode] = useContext(GlobalContext);
+  const [isEditMode] = useContext(EditContext);
   let inherited = '';
 // Mura inheritance, where modules are inherited from parent content
   if (region.inherited && region.inherited.items.length) {
