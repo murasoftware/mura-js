@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import Mura from 'mura.js';
 import { getIsEditMode, getMuraConfig } from '@murasoftware/next-core';
 
