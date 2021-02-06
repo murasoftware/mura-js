@@ -1,6 +1,6 @@
 {
   "name": "@murasoftware/next-core",
-  "version": "1.0.1",
+  "version": "1.0.4",
   "description": "Core utilties for Mura.js and Next.js",
   "author": "Mura Software",
   "license": "MIT",
@@ -12,11 +12,11 @@
     "node": ">=10"
   },
   "scripts": {
-    "build": "microbundle-crl --no-compress --format modern,cjs"
+    "build": "microbundle-crl --jsxFragment React.Fragment --no-compress --format modern,cjs"
   },
   "peerDependencies": {
-    "react": "^16.0.0",
-    "mura.js": "^1.0.0"
+    "mura.js": "^1.0.0",
+    "react": "^16.0.0"
   },
   "devDependencies": {
     "babel-eslint": "^10.0.3",
@@ -43,8 +43,5 @@
   },
   "files": [
     "dist"
-  ],
-  "dependencies": {
-    "parent-module": "^2.0.0"
-  }
+  ]
 }

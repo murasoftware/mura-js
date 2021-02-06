@@ -298,34 +298,16 @@ function ItemTags(props) {
   return tagList;
 }
 
-function _extends$1() {
-  _extends$1 = Object.assign || function (target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i];
-
-      for (var key in source) {
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          target[key] = source[key];
-        }
-      }
-    }
-
-    return target;
-  };
-
-  return _extends$1.apply(this, arguments);
-}
-
 const _iteratorSymbol = /*#__PURE__*/ typeof Symbol !== "undefined" ? (Symbol.iterator || (Symbol.iterator = Symbol("Symbol.iterator"))) : "@@iterator";
 
 const _asyncIteratorSymbol = /*#__PURE__*/ typeof Symbol !== "undefined" ? (Symbol.asyncIterator || (Symbol.asyncIterator = Symbol("Symbol.asyncIterator"))) : "@@asyncIterator";
 
-var EditContext = React$1.createContext();
-var MuraContext = React$1.createContext();
 
 
-
-var connectorConfig, ComponentRegistry, ConnectorConfig;
+var muraConfig, connectorConfig, ComponentRegistry, ConnectorConfig;
+var getMuraConfig = function getMuraConfig() {
+  return muraConfig;
+};
 var getHref = function getHref(filename) {
   var path = filename.split('/').filter(function (item) {
     return item.length;
@@ -419,23 +401,12 @@ var getMura = function getMura(context) {
 };
 
 function Decorator(props) {
-  var MuraConfig = React$1.useContext(MuraContext);
-  var ComponentRegistry = MuraConfig.ComponentRegistry,
-      ExternalModules = MuraConfig.ExternalModules;
+  var muraConfig = getMuraConfig();
+  var ComponentRegistry = muraConfig.ComponentRegistry;
   var label = props.label,
       instanceid = props.instanceid,
       labeltag = props.labeltag,
       children = props.children;
-  var isEditMode = true;
-
-  try {
-    var _useContext = React$1.useContext(EditContext);
-
-    isEditMode = _useContext[0];
-  } catch (e) {
-    isEditMode = true;
-  }
-
   var domObject = {
     className: 'mura-object mura-async-object'
   };
@@ -448,7 +419,6 @@ function Decorator(props) {
   var domMetaWrapper = {
     className: "mura-object-meta-wrapper"
   };
-  var isExternalModule = ExternalModules[props.object];
   var objectKey = props.object;
 
   if (typeof ComponentRegistry[objectKey] == 'undefined') {
@@ -457,7 +427,7 @@ function Decorator(props) {
 
   var isSSR = ComponentRegistry[objectKey] && (ComponentRegistry[objectKey].SSR || ComponentRegistry[objectKey].ssr);
 
-  if (isEditMode || isExternalModule || !isSSR) {
+  if ( !isSSR) {
     Object.keys(props).forEach(function (key) {
       if (!['html', 'content', 'children', 'isEditMode', 'dynamicProps', 'moduleStyleData'].find(function (restrictedkey) {
         return restrictedkey === key;
@@ -519,22 +489,8 @@ function Decorator(props) {
     });
   }
 
-  if (isExternalModule || !isSSR) {
-    if (isExternalModule && props.html) {
-      /*#__PURE__*/
-      React$1__default.createElement("div", domObject, label ? /*#__PURE__*/React$1__default.createElement(MuraMeta, {
-        label: label,
-        labeltag: labeltag,
-        dommeta: domMeta,
-        dommetawrapper: domMetaWrapper
-      }) : null, label ? /*#__PURE__*/React$1__default.createElement("div", {
-        className: "mura-flex-break"
-      }) : null, /*#__PURE__*/React$1__default.createElement("div", _extends$1({}, domContent, {
-        dangerouslySetInnerHTML: {
-          __html: props.html
-        }
-      })));
-    } else {
+  if ( !isSSR) {
+    {
       return /*#__PURE__*/React$1__default.createElement("div", domObject);
     }
   } else {
@@ -558,11 +514,14 @@ var Meta = function Meta(_ref) {
   return /*#__PURE__*/React$1__default.createElement("div", dommetawrapper, /*#__PURE__*/React$1__default.createElement("div", dommeta, /*#__PURE__*/React$1__default.createElement(LabelHeader, null, label)));
 };
 
+var EditContext = React$1.createContext();
+var MuraContext = React$1.createContext();
+
 function OutputMarkup(_ref) {
   var source = _ref.source,
       className = _ref.className;
-  var MuraConfig = React$1.useContext(MuraContext);
-  var ConnectorConfig = MuraConfig.ConnectorConfig;
+  var muraConfig = getMuraConfig();
+  var ConnectorConfig = muraConfig.ConnectorConfig;
   var connectorConfig = Object.assign({}, ConnectorConfig);
 
   if (connectorConfig.htmleditortype == 'markdown') {
@@ -646,13 +605,10 @@ var ArticleMeta = function ArticleMeta(props) {
 };
 
 var getLayout = function getLayout(layout) {
-  var MuraConfig = React$1.useContext(MuraContext);
-  var ComponentRegistry = MuraConfig.ComponentRegistry;
-  var uselayout = !layout || layout == 'default' ? "List" : layout;
+  var muraConfig = getMuraConfig();
+  var ComponentRegistry = muraConfig.ComponentRegistry;
 
-  if (typeof ComponentRegistry[uselayout] != 'undefined') {
-    return ComponentRegistry[uselayout];
-  } else {
+  {
     console.log("Layout not registered: ", layout);
     return ComponentRegistry['List'];
   }
@@ -949,8 +905,8 @@ var getSelectFields = function getSelectFields(item) {
   return fieldarray.join(',').toLowerCase();
 };
 
-function _extends$2() {
-  _extends$2 = Object.assign || function (target) {
+function _extends$1() {
+  _extends$1 = Object.assign || function (target) {
     for (var i = 1; i < arguments.length; i++) {
       var source = arguments[i];
 
@@ -964,7 +920,7 @@ function _extends$2() {
     return target;
   };
 
-  return _extends$2.apply(this, arguments);
+  return _extends$1.apply(this, arguments);
 }
 
 function _objectWithoutPropertiesLoose$1(source, excluded) {
@@ -1078,11 +1034,11 @@ var NavButton = function NavButton(props) {
 
 var NavButtonLabel = function NavButtonLabel(props) {
   if (props.label == 'Next') {
-    return /*#__PURE__*/React.createElement(Fragment, null, props.label, " ", /*#__PURE__*/React.createElement(reactFontawesome.FontAwesomeIcon, {
+    return /*#__PURE__*/React.createElement(React.Fragment, null, props.label, " ", /*#__PURE__*/React.createElement(reactFontawesome.FontAwesomeIcon, {
       icon: freeSolidSvgIcons.faChevronRight
     }));
   } else {
-    return /*#__PURE__*/React.createElement(Fragment, null, /*#__PURE__*/React.createElement(reactFontawesome.FontAwesomeIcon, {
+    return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(reactFontawesome.FontAwesomeIcon, {
       icon: freeSolidSvgIcons.faChevronLeft
     }), " ", props.label);
   }
@@ -1110,12 +1066,12 @@ var CollectionLayout = function CollectionLayout(_ref) {
     style: {
       'listStyle': 'none'
     }
-  }, /*#__PURE__*/React.createElement(CurrentItems, _extends$2({
+  }, /*#__PURE__*/React.createElement(CurrentItems, _extends$1({
     collection: collection,
     itemsTo: itemsTo,
     pos: pos,
     link: link
-  }, props))), /*#__PURE__*/React.createElement(CollectionNav, _extends$2({
+  }, props))), /*#__PURE__*/React.createElement(CollectionNav, _extends$1({
     collection: collection,
     itemsTo: itemsTo,
     setItemsTo: setItemsTo,
@@ -1489,7 +1445,7 @@ function transitionEnd(element, handler, duration, padding) {
  */
 var b="function"===typeof Symbol&&Symbol.for,c=b?Symbol.for("react.element"):60103,d=b?Symbol.for("react.portal"):60106,e=b?Symbol.for("react.fragment"):60107,f=b?Symbol.for("react.strict_mode"):60108,g=b?Symbol.for("react.profiler"):60114,h=b?Symbol.for("react.provider"):60109,k=b?Symbol.for("react.context"):60110,l=b?Symbol.for("react.async_mode"):60111,m=b?Symbol.for("react.concurrent_mode"):60111,n=b?Symbol.for("react.forward_ref"):60112,p=b?Symbol.for("react.suspense"):60113,q=b?
 Symbol.for("react.suspense_list"):60120,r=b?Symbol.for("react.memo"):60115,t=b?Symbol.for("react.lazy"):60116,v=b?Symbol.for("react.block"):60121,w=b?Symbol.for("react.fundamental"):60117,x=b?Symbol.for("react.responder"):60118,y=b?Symbol.for("react.scope"):60119;
-function z(a){if("object"===typeof a&&null!==a){var u=a.$$typeof;switch(u){case c:switch(a=a.type,a){case l:case m:case e:case g:case f:case p:return a;default:switch(a=a&&a.$$typeof,a){case k:case n:case t:case r:case h:return a;default:return u}}case d:return u}}}function A(a){return z(a)===m}var AsyncMode=l;var ConcurrentMode=m;var ContextConsumer=k;var ContextProvider=h;var Element$1=c;var ForwardRef=n;var Fragment$1=e;var Lazy=t;var Memo=r;var Portal=d;
+function z(a){if("object"===typeof a&&null!==a){var u=a.$$typeof;switch(u){case c:switch(a=a.type,a){case l:case m:case e:case g:case f:case p:return a;default:switch(a=a&&a.$$typeof,a){case k:case n:case t:case r:case h:return a;default:return u}}case d:return u}}}function A(a){return z(a)===m}var AsyncMode=l;var ConcurrentMode=m;var ContextConsumer=k;var ContextProvider=h;var Element$1=c;var ForwardRef=n;var Fragment=e;var Lazy=t;var Memo=r;var Portal=d;
 var Profiler=g;var StrictMode=f;var Suspense=p;var isAsyncMode=function(a){return A(a)||z(a)===l};var isConcurrentMode=A;var isContextConsumer=function(a){return z(a)===k};var isContextProvider=function(a){return z(a)===h};var isElement=function(a){return "object"===typeof a&&null!==a&&a.$$typeof===c};var isForwardRef=function(a){return z(a)===n};var isFragment=function(a){return z(a)===e};var isLazy=function(a){return z(a)===t};
 var isMemo=function(a){return z(a)===r};var isPortal=function(a){return z(a)===d};var isProfiler=function(a){return z(a)===g};var isStrictMode=function(a){return z(a)===f};var isSuspense=function(a){return z(a)===p};
 var isValidElementType=function(a){return "string"===typeof a||"function"===typeof a||a===e||a===m||a===g||a===f||a===p||a===q||"object"===typeof a&&null!==a&&(a.$$typeof===t||a.$$typeof===r||a.$$typeof===h||a.$$typeof===k||a.$$typeof===n||a.$$typeof===w||a.$$typeof===x||a.$$typeof===y||a.$$typeof===v)};var typeOf=z;
@@ -1501,7 +1457,7 @@ var reactIs_production_min = {
 	ContextProvider: ContextProvider,
 	Element: Element$1,
 	ForwardRef: ForwardRef,
-	Fragment: Fragment$1,
+	Fragment: Fragment,
 	Lazy: Lazy,
 	Memo: Memo,
 	Portal: Portal,
@@ -30073,9 +30029,9 @@ var CollectionLayoutAccordian = function CollectionLayoutAccordian(_ref) {
       pos = _useState[0],
       setPos = _useState[1];
 
-  return /*#__PURE__*/React$1__default.createElement(Fragment, null, /*#__PURE__*/React$1__default.createElement(Accordion, {
+  return /*#__PURE__*/React$1__default.createElement(React$1__default.Fragment, null, /*#__PURE__*/React$1__default.createElement(Accordion, {
     className: "collectionLayoutAccordion " + props.accordionpadding + "-spacing " + props.collapseindicators + " " + props.collapseindicatorslocation + "-indicator"
-  }, /*#__PURE__*/React$1__default.createElement(CurrentItems$1, _extends$2({
+  }, /*#__PURE__*/React$1__default.createElement(CurrentItems$1, _extends$1({
     collection: collection,
     pos: pos,
     link: link
@@ -30083,7 +30039,7 @@ var CollectionLayoutAccordian = function CollectionLayoutAccordian(_ref) {
     className: "row"
   }, /*#__PURE__*/React$1__default.createElement("div", {
     className: "col-12"
-  }, /*#__PURE__*/React$1__default.createElement(CollectionNav, _extends$2({
+  }, /*#__PURE__*/React$1__default.createElement(CollectionNav, _extends$1({
     collection: collection,
     pos: pos,
     setPos: setPos,
@@ -30222,9 +30178,9 @@ var AlternatingBoxes = function AlternatingBoxes(_ref) {
       pos = _useState[0],
       setPos = _useState[1];
 
-  return /*#__PURE__*/React$1__default.createElement(Fragment, null, /*#__PURE__*/React$1__default.createElement("div", {
+  return /*#__PURE__*/React$1__default.createElement(React$1__default.Fragment, null, /*#__PURE__*/React$1__default.createElement("div", {
     className: "collectionLayoutAlternatingBoxes"
-  }, /*#__PURE__*/React$1__default.createElement(CurrentItems$2, _extends$2({
+  }, /*#__PURE__*/React$1__default.createElement(CurrentItems$2, _extends$1({
     collection: collection,
     pos: pos,
     link: link
@@ -30232,7 +30188,7 @@ var AlternatingBoxes = function AlternatingBoxes(_ref) {
     className: "row"
   }, /*#__PURE__*/React$1__default.createElement("div", {
     className: "col-12"
-  }, /*#__PURE__*/React$1__default.createElement(CollectionNav, _extends$2({
+  }, /*#__PURE__*/React$1__default.createElement(CollectionNav, _extends$1({
     collection: collection,
     pos: pos,
     setPos: setPos,
@@ -30356,9 +30312,9 @@ var AlternatingRows = function AlternatingRows(_ref) {
       pos = _useState[0],
       setPos = _useState[1];
 
-  return /*#__PURE__*/React$1__default.createElement(Fragment, null, /*#__PURE__*/React$1__default.createElement("div", {
+  return /*#__PURE__*/React$1__default.createElement(React$1__default.Fragment, null, /*#__PURE__*/React$1__default.createElement("div", {
     className: "collectionLayoutAlternatingBoxes"
-  }, /*#__PURE__*/React$1__default.createElement(CurrentItems$3, _extends$2({
+  }, /*#__PURE__*/React$1__default.createElement(CurrentItems$3, _extends$1({
     collection: collection,
     pos: pos,
     link: link
@@ -30366,7 +30322,7 @@ var AlternatingRows = function AlternatingRows(_ref) {
     className: "row"
   }, /*#__PURE__*/React$1__default.createElement("div", {
     className: "col-12"
-  }, /*#__PURE__*/React$1__default.createElement(CollectionNav, _extends$2({
+  }, /*#__PURE__*/React$1__default.createElement(CollectionNav, _extends$1({
     collection: collection,
     pos: pos,
     setPos: setPos,
@@ -30524,9 +30480,9 @@ var Cards = function Cards(_ref) {
     return /*#__PURE__*/React$1__default.createElement(CheckForItems, null);
   }
 
-  return /*#__PURE__*/React$1__default.createElement(Fragment, null, /*#__PURE__*/React$1__default.createElement("div", {
+  return /*#__PURE__*/React$1__default.createElement(React$1__default.Fragment, null, /*#__PURE__*/React$1__default.createElement("div", {
     className: "row collectionLayoutCards row-cols-1 row-cols-sm-" + props.rowcolssm + " row-cols-md-" + props.rowcolsmd + " row-cols-lg-" + props.rowcolslg + " row-cols-xl-" + props.rowcolsxl
-  }, /*#__PURE__*/React$1__default.createElement(CurrentItems$4, _extends$2({
+  }, /*#__PURE__*/React$1__default.createElement(CurrentItems$4, _extends$1({
     collection: collection,
     pos: pos,
     link: link
@@ -30534,7 +30490,7 @@ var Cards = function Cards(_ref) {
     className: "row"
   }, /*#__PURE__*/React$1__default.createElement("div", {
     className: "col-12"
-  }, /*#__PURE__*/React$1__default.createElement(CollectionNav, _extends$2({
+  }, /*#__PURE__*/React$1__default.createElement(CollectionNav, _extends$1({
     collection: collection,
     pos: pos,
     setPos: setPos,
@@ -30614,7 +30570,7 @@ var CurrentItems$4 = function CurrentItems(props) {
       ctatext: "Read More",
       link: Link,
       key: item.get('contentid')
-    }), catAssignments && /*#__PURE__*/React$1__default.createElement(Fragment, null, /*#__PURE__*/React$1__default.createElement("hr", null), /*#__PURE__*/React$1__default.createElement(Card.Text, {
+    }), catAssignments && /*#__PURE__*/React$1__default.createElement(React$1__default.Fragment, null, /*#__PURE__*/React$1__default.createElement("hr", null), /*#__PURE__*/React$1__default.createElement(Card.Text, {
       key: "categories"
     }, /*#__PURE__*/React$1__default.createElement(ItemCategories, {
       categories: catAssignments
@@ -30639,7 +30595,7 @@ var List = function List(_ref) {
       pos = _useState[0],
       setPos = _useState[1];
 
-  return /*#__PURE__*/React$1__default.createElement(Fragment, null, /*#__PURE__*/React$1__default.createElement(CurrentItems$5, _extends$2({
+  return /*#__PURE__*/React$1__default.createElement(React$1__default.Fragment, null, /*#__PURE__*/React$1__default.createElement(CurrentItems$5, _extends$1({
     collection: collection,
     pos: pos,
     link: link
@@ -30647,7 +30603,7 @@ var List = function List(_ref) {
     className: "row"
   }, /*#__PURE__*/React$1__default.createElement("div", {
     className: "col-12"
-  }, /*#__PURE__*/React$1__default.createElement(CollectionNav, _extends$2({
+  }, /*#__PURE__*/React$1__default.createElement(CollectionNav, _extends$1({
     collection: collection,
     pos: pos,
     setPos: setPos,
@@ -30713,7 +30669,7 @@ var ListImage = function ListImage(props) {
     }));
   }
 
-  return /*#__PURE__*/React$1__default.createElement(Fragment, null);
+  return /*#__PURE__*/React$1__default.createElement(React$1__default.Fragment, null);
 };
 
 var ListMeta = function ListMeta(props) {
@@ -30812,9 +30768,9 @@ var Masonry = function Masonry(_ref) {
       pos = _useState[0],
       setPos = _useState[1];
 
-  return /*#__PURE__*/React$1__default.createElement(Fragment, null, /*#__PURE__*/React$1__default.createElement("div", {
+  return /*#__PURE__*/React$1__default.createElement(React$1__default.Fragment, null, /*#__PURE__*/React$1__default.createElement("div", {
     className: "collectionLayoutMasonry card-columns"
-  }, /*#__PURE__*/React$1__default.createElement(CurrentItems$6, _extends$2({
+  }, /*#__PURE__*/React$1__default.createElement(CurrentItems$6, _extends$1({
     collection: collection,
     pos: pos,
     link: link
@@ -30822,7 +30778,7 @@ var Masonry = function Masonry(_ref) {
     className: "row"
   }, /*#__PURE__*/React$1__default.createElement("div", {
     className: "col-12"
-  }, /*#__PURE__*/React$1__default.createElement(CollectionNav, _extends$2({
+  }, /*#__PURE__*/React$1__default.createElement(CollectionNav, _extends$1({
     collection: collection,
     pos: pos,
     setPos: setPos,
@@ -30958,7 +30914,7 @@ var SlickSlider = function SlickSlider(_ref) {
   }
 
   var slides = collection.map(function (item) {
-    return /*#__PURE__*/React$1__default.createElement(SliderItem, _extends$2({
+    return /*#__PURE__*/React$1__default.createElement(SliderItem, _extends$1({
       sliderimage: item.get('images')[props.imagesize],
       imagesize: props.imagesize,
       item: item,
@@ -31196,7 +31152,7 @@ var CTAButton = function CTAButton(_ref) {
     btnclass = btnclass + " btn-block";
   }
 
-  return /*#__PURE__*/React$1__default.createElement(Fragment, null, /*#__PURE__*/React$1__default.createElement(Link, {
+  return /*#__PURE__*/React$1__default.createElement(React$1__default.Fragment, null, /*#__PURE__*/React$1__default.createElement(Link, {
     href: buttonlink || 'https://www.murasoftware.com',
     passHref: true
   }, /*#__PURE__*/React$1__default.createElement("a", {
@@ -32400,7 +32356,7 @@ function MatrixSelector(props) {
         isMounted = false;
       };
     }, []);
-    return /*#__PURE__*/React$1__default.createElement(Fragment, null, /*#__PURE__*/React$1__default.createElement("h3", null, "Matrix Selector"), updateSuccess && showingAlert && /*#__PURE__*/React$1__default.createElement(Alert, {
+    return /*#__PURE__*/React$1__default.createElement(React$1__default.Fragment, null, /*#__PURE__*/React$1__default.createElement("h3", null, "Matrix Selector"), updateSuccess && showingAlert && /*#__PURE__*/React$1__default.createElement(Alert, {
       variant: "success"
     }, /*#__PURE__*/React$1__default.createElement("h4", null, "Thanks!"), /*#__PURE__*/React$1__default.createElement("p", null, "We\u2019re tailoring our content for you\u2026")), !updateSuccess && !showingAlert && /*#__PURE__*/React$1__default.createElement(FormImpl, {
       inline: true,
@@ -32409,7 +32365,7 @@ function MatrixSelector(props) {
       "data-autowire": "false"
     }, /*#__PURE__*/React$1__default.createElement("div", {
       className: "select-wrap"
-    }, personaIds.length > 1 && /*#__PURE__*/React$1__default.createElement(Fragment, null, /*#__PURE__*/React$1__default.createElement(FormImpl.Label, {
+    }, personaIds.length > 1 && /*#__PURE__*/React$1__default.createElement(React$1__default.Fragment, null, /*#__PURE__*/React$1__default.createElement(FormImpl.Label, {
       className: "mr-2"
     }, personaQ), /*#__PURE__*/React$1__default.createElement(FormImpl.Control, {
       as: "select",
@@ -32426,7 +32382,7 @@ function MatrixSelector(props) {
         value: personaId.personaid,
         key: personaId.personaid
       }, personaId.selfidq);
-    }))), stageIds.length > 1 && /*#__PURE__*/React$1__default.createElement(Fragment, null, /*#__PURE__*/React$1__default.createElement(FormImpl.Label, {
+    }))), stageIds.length > 1 && /*#__PURE__*/React$1__default.createElement(React$1__default.Fragment, null, /*#__PURE__*/React$1__default.createElement(FormImpl.Label, {
       className: "mr-2"
     }, stageQ), /*#__PURE__*/React$1__default.createElement(FormImpl.Control, {
       as: "select",
@@ -36304,18 +36260,18 @@ var Homelink = function Homelink(props) {
       href: "/",
       className: "nav-link",
       type: "navitem",
-      menutitle: /*#__PURE__*/React$1__default.createElement(Fragment, null, /*#__PURE__*/React$1__default.createElement("span", {
+      menutitle: /*#__PURE__*/React$1__default.createElement(React$1__default.Fragment, null, /*#__PURE__*/React$1__default.createElement("span", {
         dangerouslySetInnerHTML: createIcon()
       }), " ", homeTitle)
     }, _React$createElement["type"] = "navlink", _React$createElement)));
   }
 
-  return /*#__PURE__*/React$1__default.createElement(Fragment, null);
+  return /*#__PURE__*/React$1__default.createElement(React$1__default.Fragment, null);
 };
 
 var LangOptions = function LangOptions(props) {
   if (props.translations.items.length) {
-    return /*#__PURE__*/React$1__default.createElement(Fragment, null, /*#__PURE__*/React$1__default.createElement(NavDropdown, {
+    return /*#__PURE__*/React$1__default.createElement(React$1__default.Fragment, null, /*#__PURE__*/React$1__default.createElement(NavDropdown, {
       key: "lang-options",
       title: "Other Languages",
       id: "lang-options",
@@ -36340,7 +36296,7 @@ var NavLinkDropdown = function NavLinkDropdown(props) {
   }
 
   if (props.kids.items.length) {
-    return /*#__PURE__*/React$1__default.createElement(Fragment, null, /*#__PURE__*/React$1__default.createElement(NavDropdown, {
+    return /*#__PURE__*/React$1__default.createElement(React$1__default.Fragment, null, /*#__PURE__*/React$1__default.createElement(NavDropdown, {
       key: props.contentid,
       title: /*#__PURE__*/React$1__default.createElement("div", {
         style: {
@@ -36373,7 +36329,7 @@ var NavLinkDropdown = function NavLinkDropdown(props) {
     key: props.contentid,
     href: "/" + props.filename,
     type: "navlink",
-    menutitle: /*#__PURE__*/React$1__default.createElement(Fragment, null, /*#__PURE__*/React$1__default.createElement("span", {
+    menutitle: /*#__PURE__*/React$1__default.createElement(React$1__default.Fragment, null, /*#__PURE__*/React$1__default.createElement("span", {
       dangerouslySetInnerHTML: createIcon()
     }), " ", props.menutitle, " ")
   }));
@@ -36494,7 +36450,7 @@ function ResourceHub(props) {
 
     if (collection) {
       console.log('dynamic');
-      return /*#__PURE__*/React$1__default.createElement("div", null, /*#__PURE__*/React$1__default.createElement(RenderFilterForm, _extends$2({
+      return /*#__PURE__*/React$1__default.createElement("div", null, /*#__PURE__*/React$1__default.createElement(RenderFilterForm, _extends$1({
         updateFilter: updateFilter
       }, props, {
         curSubtype: curSubtype,
@@ -36537,7 +36493,7 @@ function ResourceHub(props) {
         isMounted = false;
       };
     }, [filterUpdated]);
-    return /*#__PURE__*/React$1__default.createElement("div", null, /*#__PURE__*/React$1__default.createElement(RenderFilterForm, _extends$2({
+    return /*#__PURE__*/React$1__default.createElement("div", null, /*#__PURE__*/React$1__default.createElement(RenderFilterForm, _extends$1({
       updateFilter: updateFilter
     }, props, {
       curSubtype: curSubtype,
@@ -36720,7 +36676,7 @@ var RenderFilterForm = function RenderFilterForm(props) {
       value: subtype,
       key: index
     }, subtype);
-  }))), categoriesArray && categoriesArray.length > 0 && /*#__PURE__*/React$1__default.createElement(Fragment, null, categoriesArray.map(function (category, index) {
+  }))), categoriesArray && categoriesArray.length > 0 && /*#__PURE__*/React$1__default.createElement(React$1__default.Fragment, null, categoriesArray.map(function (category, index) {
     return /*#__PURE__*/React$1__default.createElement(CategorySelect, {
       categoryid: category.categoryid,
       filterlabel: category.name,
@@ -37043,7 +36999,7 @@ function PrivacyTools(props) {
       isMounted = false;
     };
   }, [showingAlert]);
-  return /*#__PURE__*/React$1__default.createElement(Fragment, null, /*#__PURE__*/React$1__default.createElement("h3", null, "Privacy Settings"), updateSuccess == 1 && showingAlert && /*#__PURE__*/React$1__default.createElement(Alert, {
+  return /*#__PURE__*/React$1__default.createElement(React$1__default.Fragment, null, /*#__PURE__*/React$1__default.createElement("h3", null, "Privacy Settings"), updateSuccess == 1 && showingAlert && /*#__PURE__*/React$1__default.createElement(Alert, {
     variant: "success"
   }, "Your preference has been saved."), /*#__PURE__*/React$1__default.createElement(FormImpl, {
     onSubmit: handleSubmit,

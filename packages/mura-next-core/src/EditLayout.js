@@ -1,12 +1,9 @@
-import React,{ useContext, useEffect } from "react";
-import {  EditContext  } from "./GlobalContext";
+import React from "react";
+import {  setIsEditMode  } from "@murasoftware/next-core";
 
 const EditLayout = ({children}) => {
-    const [, setIsEditMode]  = useContext(EditContext);
-
-    useEffect(()=>{
-        setIsEditMode(true);
-    }, [setIsEditMode])
+  
+    setIsEditMode(true);
 
     return (
         <div>

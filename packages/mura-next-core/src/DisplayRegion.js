@@ -1,11 +1,11 @@
 import React, { useContext } from 'react';
-import { getComponent } from './Connector';
+import { getIsEditMode, getComponent } from './Connector';
 import MuraDecorator from './Decorator';
 import {  EditContext  } from './GlobalContext';
 
-const DisplayRegionSection = ({ children, region, section, iseditmode }) => {
+const DisplayRegionSection = ({ children, region, section, isEditMode }) => {
   let out = null;
-  if (typeof region.name !== 'undefined' && iseditmode) {
+  if (typeof region.name !== 'undefined' && isEditMode) {
     if (section === 'inherited' && region.inherited.items.length) {
       out = (
         <div className="mura-region-inherited">
@@ -44,14 +44,14 @@ const DisplayRegionSection = ({ children, region, section, iseditmode }) => {
 };
 
 const DisplayRegion = ({ region, moduleStyleData,content }) => {
-  const [isEditMode] = useContext(EditContext);
+  const isEditMode = getIsEditMode();
   let inherited = '';
 // Mura inheritance, where modules are inherited from parent content
   if (region.inherited && region.inherited.items.length) {
     inherited = (
       <DisplayRegionSection
         region={region}
-        iseditmode={isEditMode}
+        isEditMode={isEditMode}
         section="inherited"
       >
         {region.inherited.items.map(item => {
@@ -70,7 +70,7 @@ const DisplayRegion = ({ region, moduleStyleData,content }) => {
       {inherited}
       <DisplayRegionSection
         region={region}
-        iseditmode={isEditMode}
+        isEditMode={isEditMode}
         content={content}
         section="local"
       >

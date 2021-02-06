@@ -1,19 +1,32 @@
 /* eslint-disable */
-import React, { useContext } from 'react';
+import React from 'react';
 import Mura from 'mura.js';
-import {  MuraContext  } from './GlobalContext';
 
 require('mura.js/src/core/stylemap-static');
 
-var connectorConfig, ComponentRegistry, ConnectorConfig, ExternalModules;
+var muraConfig, connectorConfig, ComponentRegistry, ConnectorConfig, ExternalModules;
+var isEditMode=false;
 
 export const MuraJSRefPlaceholder = '"undefined"!=typeof window&&function(u){u.queuedMuraCmds=[],u.queuedMuraPreInitCmds=[],"function"!=typeof u.Mura&&(u.Mura=u.mura=u.Mura=function(e){u.queuedMuraCmds.push(e)},u.Mura.preInit=function(e){u.queuedMuraPreInitCmds.push(e)})}(window);';
 
-export const initConnector = (MuraConfig) => {
-  ComponentRegistry = MuraConfig.ComponentRegistry;
-  ConnectorConfig = MuraConfig.ConnectorConfig;
-  ExternalModules = MuraConfig.ExternalModules;
+export const setIsEditMode = (value) => {
+  isEditMode=value;
+}
+
+export const getIsEditMode = () => {
+  return isEditMode;
+}
+
+export const initConnector = (config) => {
+  muraConfig = config;
+  ComponentRegistry = config.ComponentRegistry;
+  ConnectorConfig = config.ConnectorConfig;
+  ExternalModules = config.ExternalModules;
   connectorConfig=Object.assign({},ConnectorConfig);
+}
+
+export const getMuraConfig = () => {
+  return muraConfig;
 }
 
 export const useAsync=function(asyncFn, onSuccess) {

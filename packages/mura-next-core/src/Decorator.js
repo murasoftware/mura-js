@@ -1,18 +1,13 @@
 import React, { useContext } from 'react';
 import Mura from 'mura.js';
-import {  EditContext, MuraContext  } from './GlobalContext';
+import { getIsEditMode, getMuraConfig } from '@murasoftware/next-core';
 
 function Decorator(props) {
-  const MuraConfig =useContext(MuraContext);
-  const { ComponentRegistry, ExternalModules } = MuraConfig;
+  const muraConfig =getMuraConfig();
+  const { ComponentRegistry, ExternalModules } = muraConfig;
   const { label, instanceid, labeltag, children } = props;
-  let isEditMode = true;
+  let isEditMode = getIsEditMode();
 
-  try {
-    [isEditMode] = useContext(EditContext);
-  } catch (e) {
-    isEditMode = true;
-  }
   //console.log("MuraDecorator -> isEditMode", isEditMode);
 
   const domObject = {
