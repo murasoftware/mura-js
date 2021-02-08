@@ -17,7 +17,7 @@ export const getIsEditMode = () => {
   return isEditMode;
 }
 
-export const initConnector = (config) => {
+export const setMuraConfig = (config) => {
   muraConfig = config;
   ComponentRegistry = config.ComponentRegistry;
   ConnectorConfig = config.ConnectorConfig;
