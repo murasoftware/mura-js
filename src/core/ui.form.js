@@ -823,6 +823,7 @@ Mura.UI.Form=Mura.UI.extend(
 		delete self.data.isNew;
 
 		var frm=Mura(self.context.formEl).find('form');
+
 		frm.find('.mura-form-submit').html(self.rb.formbuttonsubmitwaitlabel);
 		frm.trigger('formSubmit');
 
@@ -993,6 +994,10 @@ Mura.UI.Form=Mura.UI.extend(
 
 		frm.find('.mura-form-submit').html(self.rb.formbuttonsubmitlabel);
 		frm.find('.mura-response-error').remove();
+		frm.find('[aria-invalid]').forEach(function(){
+			this.removeAttribute('aria-invalid');
+			this.removeAttribute('aria-describedby');
+		});	
 
 		//console.log(errors);
 
@@ -1014,7 +1019,10 @@ Mura.UI.Form=Mura.UI.extend(
 		*/
 		
 		var fieldKeys=Object.keys(self.fields);
-
+		/*
+	]	<input type="text" name=“Email " id=“Email" aria-required="true" aria-invalid="true" aria-describedby=“email_error">
+		<div class="error " id=“email_error" role="alert" style="display: inline;"> Enter valid email ID</div>
+		*/
 		for(var e in errors) {
 		
 			var fieldKey=fieldKeys.find(function(key){
@@ -1033,9 +1041,10 @@ Mura.UI.Form=Mura.UI.extend(
 				//error.label = field.label;
 				
 				error.message = errors[e];
-				error.selector='#field-' + e
-				error.field = '';
+				error.selector='#field-' + field.name
+				error.field = 'field-' + field.name;
 				error.label = '';
+				error.id= 'e' + Mura.createUUID();
 
 				if(field.cssid){
 					error.selector= '#' + field.cssid;
@@ -1046,8 +1055,9 @@ Mura.UI.Form=Mura.UI.extend(
 				var error = {};
 				error.message = errors[e];
 				error.selector='#field-' + e
-				error.field = '';
+				error.field = 'field-' + e;
 				error.label = '';
+				error.id= 'e' + Mura.createUUID();
 				//errorData[e] = error;
 			}
 
@@ -1055,13 +1065,25 @@ Mura.UI.Form=Mura.UI.extend(
 
 			if(this.inlineerrors){
 				var field=Mura(this.context.formEl).find(error.selector);
-
+				var errorTarget=field;
+				var check;
 				if(!field.length){
 					field=Mura('label[for="'+ e + '"]');
+					check=field.parent().find('input');
+					if(check.length){
+						field=check;
+					}
+					errorTarget=field;
+					check=field.parent().find('label');
+					if(check.length){
+						errorTarget=check;
+					}
 				}
 
 				if(field.length){
-					field.node.insertAdjacentHTML('afterend',Mura.templates['error'](error));
+					field.attr('aria-invalid',true);
+					field.attr('aria-describedby',error.id);
+					errorTarget.node.insertAdjacentHTML('afterend',Mura.templates['error'](error));
 				} else {
 					frmErrors.append(Mura.templates['error'](error));
 				}

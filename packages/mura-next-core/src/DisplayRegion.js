@@ -1,7 +1,6 @@
 import React, { useContext } from 'react';
 import { getIsEditMode, getComponent } from './Connector';
-import MuraDecorator from './Decorator';
-import {  EditContext  } from './GlobalContext';
+import Decorator from './Decorator';
 
 const DisplayRegionSection = ({ children, region, section, isEditMode }) => {
   let out = null;
@@ -59,7 +58,7 @@ const DisplayRegion = ({ region, moduleStyleData,content }) => {
           obj.key = obj.instanceid;
           obj.moduleStyleData = moduleStyleData;
           obj.content = content;
-          return <MuraDecorator {...obj}>{getComponent(obj)}</MuraDecorator>;
+          return <Decorator {...obj}>{getComponent(obj)}</Decorator>;
         })}
       </DisplayRegionSection>
     );
@@ -79,7 +78,7 @@ const DisplayRegion = ({ region, moduleStyleData,content }) => {
           obj.key = obj.instanceid;
           obj.moduleStyleData = moduleStyleData;
           obj.content = content;
-          return <MuraDecorator {...obj}>{getComponent(obj)}</MuraDecorator>;
+          return <Decorator {...obj}>{getComponent(obj)}</Decorator>;
         })}
       </DisplayRegionSection>
     </div>

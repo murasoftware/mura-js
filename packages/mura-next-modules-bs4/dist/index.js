@@ -4,7 +4,7 @@ var React$1 = require('react');
 var React$1__default = _interopDefault(React$1);
 var Head = _interopDefault(require('next/head'));
 var ReactMarkdown = _interopDefault(require('react-markdown'));
-require('mura.js/src/core/stylemap-static');
+var nextCore = require('@murasoftware/next-core');
 var Mura$1 = _interopDefault(require('mura.js'));
 var Link = _interopDefault(require('next/link'));
 var reactFontawesome = require('@fortawesome/react-fontawesome');
@@ -298,229 +298,10 @@ function ItemTags(props) {
   return tagList;
 }
 
-const _iteratorSymbol = /*#__PURE__*/ typeof Symbol !== "undefined" ? (Symbol.iterator || (Symbol.iterator = Symbol("Symbol.iterator"))) : "@@iterator";
-
-const _asyncIteratorSymbol = /*#__PURE__*/ typeof Symbol !== "undefined" ? (Symbol.asyncIterator || (Symbol.asyncIterator = Symbol("Symbol.asyncIterator"))) : "@@asyncIterator";
-
-
-
-var muraConfig, connectorConfig, ComponentRegistry, ConnectorConfig;
-var getMuraConfig = function getMuraConfig() {
-  return muraConfig;
-};
-var getHref = function getHref(filename) {
-  var path = filename.split('/').filter(function (item) {
-    return item.length;
-  });
-
-  {
-    return '/' + path.join('/');
-  }
-};
-var getComponent = function getComponent(item) {
-  getMura();
-  var objectkey = item.object;
-
-  if (typeof ComponentRegistry[objectkey] == 'undefined') {
-    objectkey = Mura$1.firstToUpperCase(item.object);
-  }
-
-  return /*#__PURE__*/React$1__default.createElement("p", {
-    key: item.instanceid
-  }, "DisplayRegion: ", item.objectname);
-};
-var getMura = function getMura(context) {
-  var startingsiteid = Mura$1.siteid;
-
-  if (typeof context == 'string' && ConnectorConfig.siteid.find(function (item) {
-    return item === context;
-  })) {
-    connectorConfig.siteid = context;
-  } else {
-    var ishomepage = context && !(context.params && context.params.page) || typeof location != 'undefined' && (location.pathname == "/" || location.pathname == ConnectorConfig.editroute + "/");
-
-    if (Array.isArray(ConnectorConfig.siteid)) {
-      if (ishomepage) {
-        connectorConfig.siteid = ConnectorConfig.siteid[0];
-      } else {
-        var page = [];
-
-        if (context && context.params && context.params.page) {
-          page = [].concat(context.params.page);
-          page = page.filter(function (item) {
-            return item.length;
-          });
-        } else if (typeof location != 'undefined') {
-          page = location.pathname.split("/");
-          page = page.filter(function (item) {
-            return item.length;
-          });
-
-          if (page.length && ConnectorConfig.editroute && page[0] === ConnectorConfig.editroute.split("/")[1]) {
-            page.shift();
-          }
-        }
-
-        if (page.length) {
-          if (ConnectorConfig.siteid.find(function (item) {
-            return item === page[0];
-          })) {
-            connectorConfig.siteid = page[0];
-            connectorConfig.siteidinurls = true;
-          } else {
-            connectorConfig.siteid = ConnectorConfig.siteid[0];
-          }
-        }
-      }
-    }
-  }
-
-  var clearMuraAPICache = function clearMuraAPICache() {
-    delete connectorConfig.apiEndpoint;
-    delete connectorConfig.apiendpoint;
-    delete Mura$1.apiEndpoint;
-    delete Mura$1.apiendpoint;
-  };
-
-  if (context && context.res) {
-    Object.assign(connectorConfig, {
-      response: context.res,
-      request: context.req
-    });
-    clearMuraAPICache();
-    console.log('initing', connectorConfig.siteid);
-    Mura$1.init(connectorConfig);
-  } else if (startingsiteid != connectorConfig.siteid) {
-    console.log('changing siteid', startingsiteid, connectorConfig.siteid);
-    clearMuraAPICache();
-    Mura$1.init(connectorConfig);
-  }
-
-  Mura$1.holdReady(true);
-  return Mura$1;
-};
-
-function Decorator(props) {
-  var muraConfig = getMuraConfig();
-  var ComponentRegistry = muraConfig.ComponentRegistry;
-  var label = props.label,
-      instanceid = props.instanceid,
-      labeltag = props.labeltag,
-      children = props.children;
-  var domObject = {
-    className: 'mura-object mura-async-object'
-  };
-  var domContent = {
-    className: 'mura-object-content'
-  };
-  var domMeta = {
-    className: "mura-object-meta"
-  };
-  var domMetaWrapper = {
-    className: "mura-object-meta-wrapper"
-  };
-  var objectKey = props.object;
-
-  if (typeof ComponentRegistry[objectKey] == 'undefined') {
-    objectKey = Mura$1.firstToUpperCase(props.object);
-  }
-
-  var isSSR = ComponentRegistry[objectKey] && (ComponentRegistry[objectKey].SSR || ComponentRegistry[objectKey].ssr);
-
-  if ( !isSSR) {
-    Object.keys(props).forEach(function (key) {
-      if (!['html', 'content', 'children', 'isEditMode', 'dynamicProps', 'moduleStyleData'].find(function (restrictedkey) {
-        return restrictedkey === key;
-      })) {
-        if (typeof props[key] === 'object') {
-          domObject["data-" + key] = JSON.stringify(props[key]);
-        } else if (typeof props[key] !== 'undefined' && !(typeof props[key] === 'string' && props[key] === '')) {
-          domObject["data-" + key] = props[key];
-        }
-      }
-
-      if (key === 'class') {
-        domObject.className += " " + props[key];
-      } else if (key === 'cssclass') {
-        domObject.className += " " + props[key];
-      } else if (key === 'cssid') {
-        domObject.id += " " + props[key];
-      } else if (key === 'contentcssclass') {
-        domContent.className += " " + props[key];
-      } else if (key === 'contentcssid') {
-        domContent.id += " " + props[key];
-      } else if (key === 'metacssclass') {
-        domMeta.className += " " + props[key];
-      } else if (key === 'metacssid') {
-        domMeta.id += " " + props[key];
-      }
-    });
-
-    if (domObject.className.split(' ').find(function ($class) {
-      return $class === 'container';
-    })) {
-      domMetaWrapper.className += ' container';
-    }
-  } else {
-    domObject['data-instanceid'] = instanceid;
-    domObject['data-inited'] = true;
-    domObject.className = "mura-object-" + props.object;
-
-    if (typeof props.moduleStyleData != 'undefined' && typeof props.moduleStyleData[instanceid] != 'undefined') {
-      domObject.className += " " + props.moduleStyleData[instanceid].targets.object["class"];
-      domObject.id = props.moduleStyleData[props.instanceid].targets.object.id;
-      domContent.className = props.moduleStyleData[props.instanceid].targets.content["class"];
-      domContent.id = props.moduleStyleData[props.instanceid].targets.content.id;
-      domMetaWrapper.className = props.moduleStyleData[props.instanceid].targets.metawrapper["class"];
-      domMeta.className = props.moduleStyleData[props.instanceid].targets.meta["class"];
-      domMeta.id = props.moduleStyleData[props.instanceid].targets.meta.id;
-    } else {
-      domObject.id = '';
-      domContent.id = '';
-      domMetaWrapper.className = '';
-      domMeta.className = '';
-      domMeta.id = ';';
-    }
-
-    ['objectspacing', 'contentspacing', 'metaspacing'].forEach(function (key) {
-      if (typeof props[key] != 'undefined' && props[key] && props[key] != 'custom') {
-        domObject['data-' + key] = props[key];
-      }
-    });
-  }
-
-  if ( !isSSR) {
-    {
-      return /*#__PURE__*/React$1__default.createElement("div", domObject);
-    }
-  } else {
-    return /*#__PURE__*/React$1__default.createElement("div", domObject, label ? /*#__PURE__*/React$1__default.createElement(Meta, {
-      label: label,
-      labeltag: labeltag,
-      dommeta: domMeta,
-      dommetawrapper: domMetaWrapper
-    }) : null, label ? /*#__PURE__*/React$1__default.createElement("div", {
-      className: "mura-flex-break"
-    }) : null, /*#__PURE__*/React$1__default.createElement("div", domContent, children));
-  }
-}
-
-var Meta = function Meta(_ref) {
-  var label = _ref.label,
-      labeltag = _ref.labeltag,
-      dommeta = _ref.dommeta,
-      dommetawrapper = _ref.dommetawrapper;
-  var LabelHeader = labeltag ? "" + labeltag : 'h2';
-  return /*#__PURE__*/React$1__default.createElement("div", dommetawrapper, /*#__PURE__*/React$1__default.createElement("div", dommeta, /*#__PURE__*/React$1__default.createElement(LabelHeader, null, label)));
-};
-
-var EditContext = React$1.createContext();
-var MuraContext = React$1.createContext();
-
 function OutputMarkup(_ref) {
   var source = _ref.source,
       className = _ref.className;
-  var muraConfig = getMuraConfig();
+  var muraConfig = nextCore.getMuraConfig();
   var ConnectorConfig = muraConfig.ConnectorConfig;
   var connectorConfig = Object.assign({}, ConnectorConfig);
 
@@ -605,10 +386,13 @@ var ArticleMeta = function ArticleMeta(props) {
 };
 
 var getLayout = function getLayout(layout) {
-  var muraConfig = getMuraConfig();
+  var muraConfig = nextCore.getMuraConfig();
   var ComponentRegistry = muraConfig.ComponentRegistry;
+  var uselayout = !layout || layout == 'default' ? "List" : layout;
 
-  {
+  if (typeof ComponentRegistry[uselayout] != 'undefined') {
+    return ComponentRegistry[uselayout];
+  } else {
     console.log("Layout not registered: ", layout);
     return ComponentRegistry['List'];
   }
@@ -667,7 +451,7 @@ var RouterlessLink = function RouterlessLink(_ref) {
       children = _ref.children,
       className = _ref.className;
   return /*#__PURE__*/React$1__default.createElement("a", {
-    href: getHref(href),
+    href: nextCore.getHref(href),
     className: className
   }, children);
 };
@@ -676,7 +460,7 @@ var RouterLink = function RouterLink(_ref2) {
       children = _ref2.children,
       className = _ref2.className;
   return /*#__PURE__*/React$1__default.createElement(Link, {
-    href: getHref(href)
+    href: nextCore.getHref(href)
   }, /*#__PURE__*/React$1__default.createElement("a", {
     className: className
   }, children));
@@ -31127,7 +30911,7 @@ var Container = function Container(props) {
     obj.moduleStyleData = props.moduleStyleData;
     obj.content = content;
     obj.inited = true;
-    return /*#__PURE__*/React$1__default.createElement(Decorator, obj, " ", getComponent(obj), " ");
+    return /*#__PURE__*/React$1__default.createElement(nextCore.Decorator, obj, " ", nextCore.getComponent(obj), " ");
   });
 };
 
@@ -36178,17 +35962,17 @@ var RouterlessLink$1 = function RouterlessLink(_ref2) {
   switch (type) {
     case "navdropdownitem":
       return /*#__PURE__*/React$1__default.createElement(NavDropdown.Item, {
-        href: getHref(href)
+        href: nextCore.getHref(href)
       }, menutitle);
 
     case "navlink":
       return /*#__PURE__*/React$1__default.createElement(Nav.Link, {
-        href: getHref(href)
+        href: nextCore.getHref(href)
       }, menutitle);
 
     case "navbarbrand":
       return /*#__PURE__*/React$1__default.createElement(Navbar.Brand, {
-        href: getHref(href)
+        href: nextCore.getHref(href)
       }, /*#__PURE__*/React$1__default.createElement("img", {
         src: navlogo,
         loading: "lazy"
@@ -36197,7 +35981,7 @@ var RouterlessLink$1 = function RouterlessLink(_ref2) {
     default:
       return /*#__PURE__*/React$1__default.createElement("a", {
         className: className,
-        href: getHref(href)
+        href: nextCore.getHref(href)
       }, menutitle);
   }
 };
@@ -36212,19 +35996,19 @@ var RouterLink$1 = function RouterLink(_ref3) {
   switch (type) {
     case "navdropdownitem":
       return /*#__PURE__*/React$1__default.createElement(Link, {
-        href: getHref(href),
+        href: nextCore.getHref(href),
         passHref: true
       }, /*#__PURE__*/React$1__default.createElement(NavDropdown.Item, null, menutitle));
 
     case "navlink":
       return /*#__PURE__*/React$1__default.createElement(Link, {
-        href: getHref(href),
+        href: nextCore.getHref(href),
         passHref: true
       }, /*#__PURE__*/React$1__default.createElement(Nav.Link, null, menutitle));
 
     case "navbarbrand":
       return /*#__PURE__*/React$1__default.createElement(Link, {
-        href: getHref(href),
+        href: nextCore.getHref(href),
         passHref: true
       }, /*#__PURE__*/React$1__default.createElement(Navbar.Brand, null, /*#__PURE__*/React$1__default.createElement("img", {
         src: navlogo,
@@ -36233,7 +36017,7 @@ var RouterLink$1 = function RouterLink(_ref3) {
 
     default:
       return /*#__PURE__*/React$1__default.createElement(Link, {
-        href: getHref(href)
+        href: nextCore.getHref(href)
       }, /*#__PURE__*/React$1__default.createElement("a", {
         className: className
       }, menutitle));

@@ -1,5 +1,5 @@
 import React from "react";
-import {  setIsEditMode  } from "@murasoftware/next-core";
+import {  setIsEditMode  } from "./Connector";
 
 const EditLayout = ({children}) => {
   

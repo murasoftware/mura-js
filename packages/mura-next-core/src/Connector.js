@@ -50,7 +50,7 @@ export const getHref = (filename) => {
 }
 
 export const getComponent = item => {
-  getMura();
+  const Mura = getMura();
 
   let objectkey = item.object;
   
@@ -60,7 +60,7 @@ export const getComponent = item => {
 
   if (typeof ComponentRegistry[objectkey] != 'undefined') {
     const ComponentVariable = ComponentRegistry[objectkey].component;
-    return <ComponentVariable key={item.instanceid} {...item} />;
+    return <ComponentVariable mura={Mura} key={item.instanceid} {...item} />;
   }
 
   return <p key={item.instanceid}>DisplayRegion: {item.objectname}</p>;

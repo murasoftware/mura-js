@@ -3,7 +3,6 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 var React = require('react');
 var React__default = _interopDefault(React);
 var Mura = _interopDefault(require('mura.js'));
-var nextCore = require('@murasoftware/next-core');
 
 function _extends() {
   _extends = Object.assign || function (target) {
@@ -345,7 +344,7 @@ var setIsEditMode = function setIsEditMode(value) {
 var getIsEditMode = function getIsEditMode() {
   return isEditMode;
 };
-var initConnector = function initConnector(config) {
+var setMuraConfig = function setMuraConfig(config) {
   muraConfig = config;
   ComponentRegistry = config.ComponentRegistry;
   ConnectorConfig = config.ConnectorConfig;
@@ -378,7 +377,7 @@ var getHref = function getHref(filename) {
   }
 };
 var getComponent = function getComponent(item) {
-  getMura();
+  var Mura = getMura();
   var objectkey = item.object;
 
   if (typeof ComponentRegistry[objectkey] == 'undefined') {
@@ -388,6 +387,7 @@ var getComponent = function getComponent(item) {
   if (typeof ComponentRegistry[objectkey] != 'undefined') {
     var ComponentVariable = ComponentRegistry[objectkey].component;
     return /*#__PURE__*/React__default.createElement(ComponentVariable, _extends({
+      mura: Mura,
       key: item.instanceid
     }, item));
   }
@@ -596,14 +596,14 @@ var getMuraProps = function getMuraProps(context, isEditMode, params) {
 };
 
 function Decorator(props) {
-  var muraConfig = nextCore.getMuraConfig();
+  var muraConfig = getMuraConfig();
   var ComponentRegistry = muraConfig.ComponentRegistry,
       ExternalModules = muraConfig.ExternalModules;
   var label = props.label,
       instanceid = props.instanceid,
       labeltag = props.labeltag,
       children = props.children;
-  var isEditMode = nextCore.getIsEditMode();
+  var isEditMode = getIsEditMode();
   var domObject = {
     className: 'mura-object mura-async-object'
   };
@@ -627,7 +627,7 @@ function Decorator(props) {
 
   if (isEditMode || isExternalModule || !isSSR) {
     Object.keys(props).forEach(function (key) {
-      if (!['html', 'content', 'children', 'isEditMode', 'dynamicProps', 'moduleStyleData'].find(function (restrictedkey) {
+      if (!['html', 'content', 'children', 'isEditMode', 'dynamicProps', 'moduleStyleData', 'mura'].find(function (restrictedkey) {
         return restrictedkey === key;
       })) {
         if (typeof props[key] === 'object') {
@@ -851,7 +851,7 @@ function ExternalAssets(props) {
 
 var EditLayout = function EditLayout(_ref) {
   var children = _ref.children;
-  nextCore.setIsEditMode(true);
+  setIsEditMode(true);
   return /*#__PURE__*/React__default.createElement("div", null, children, /*#__PURE__*/React__default.createElement("div", {
     id: "htmlqueues"
   }));
@@ -984,7 +984,7 @@ exports.getMuraPaths = getMuraPaths;
 exports.getMuraProps = getMuraProps;
 exports.getRootPath = getRootPath;
 exports.getSiteName = getSiteName;
-exports.initConnector = initConnector;
 exports.setIsEditMode = setIsEditMode;
+exports.setMuraConfig = setMuraConfig;
 exports.useAsync = useAsync;
 //# sourceMappingURL=index.js.map
