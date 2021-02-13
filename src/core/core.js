@@ -2168,7 +2168,8 @@ function filterUnwantedParams(params){
 
 	//Strip out unwanted attributes
 	var unwanted=['iconclass','objectname','inited','params','stylesupport','cssstyles','metacssstyles','contentcssstyles',
-		'cssclass','cssid','metacssclass','metacssid','contentcssclass','contentcssid','transient','draggable'];
+		'cssclass','cssid','metacssclass','metacssid','contentcssclass','contentcssid','transient','draggable','objectspacing','metaspacing',
+		'contentspacing'];
 
 	for(var c=0; c<unwanted.length;c++){
 		delete params[unwanted[c]];
@@ -3045,15 +3046,13 @@ function applyModuleCustomCSS(stylesupport,sheet, id){
 function recordModuleStyles(params){
 	params.instanceid=params.instanceid || createUUID();
 	params.stylesupport=params.stylesupport || {};
-
+	
 	var sheet=getStyleSheet('mura-styles-' + params.instanceid);
 
 	if(sheet.recorded){
 		return sheet;
 	}
-	
-	sheet.recorded=true;
-	//console.log(params.instanceid,params.stylesupport)
+
 	var styleTargets=getModuleStyleTargets(params.instanceid,false);
 
 	applyModuleStyles(params.stylesupport,styleTargets.object,sheet);
@@ -3090,6 +3089,24 @@ function recordModuleStyles(params){
 	if(typeof params.contentcssid != 'undefined'
 		&& params.contentcssid != ''){
 		sheet.targets.content.id = params.contentcssid;
+	}
+	
+	if(typeof params.objectspacing != 'undefined'
+		&& params.objectspacing != ''
+		&& params.objectspacing != 'custom'){
+		sheet.targets.object.class += ' ' + params.objectspacing;
+	}
+
+	if(typeof params.metaspacing != 'undefined'
+		&& params.metaspacing != '' 
+		&& params.metaspacing != 'custom'){
+		sheet.targets.meta.class += ' ' + params.metaspacing;
+	}
+
+	if(typeof params.contentspacing != 'undefined'
+		&& params.contentspacing != ''
+		&& params.contentspacing != 'custom'){
+		sheet.targets.content.class += ' ' + params.contentspacing;
 	}
 	
 	if(sheet.targets.content.class.split(' ').find($class => $class === 'container')){

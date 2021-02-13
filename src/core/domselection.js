@@ -1294,7 +1294,7 @@ Mura.DOMSelection = Mura.Core.extend(
 					meta.removeAttr('style');
 
 					if(!windowResponse){
-						applyMetaClassesAndId(obj);
+						applyMetaClassesAndId(obj,meta,metaWrapper);
 						Mura.applyModuleStyles(styleSupport,styleTargets.meta,sheet,obj);
 					}
 				
@@ -1337,14 +1337,28 @@ Mura.DOMSelection = Mura.Core.extend(
 						}
 					}
 				}
+
+				if (obj.data('objectspacing')) {
+					var classes = obj.data('objectspacing');
+					if (typeof classes != 'array') {
+						var classes = classes.split(' ');
+					}
+					for (var c = 0; c < classes.length; c++) {
+						if (c != 'custom' && !obj.hasClass(classes[c])) {
+							obj.addClass(classes[c]);
+						}
+					}
+				}
+
 				if(obj.data('cssid')){
 					obj.attr('id',obj.data('cssid'));
 				} else {
 					obj.removeAttr('id');
 				}
+
 			}
 
-			function applyMetaClassesAndId(obj){
+			function applyMetaClassesAndId(obj,meta,metawrapper){
 				if(obj.data('metacssid')){
 					meta.attr('id',obj.data('metacssid'));
 				} else {
@@ -1356,6 +1370,18 @@ Mura.DOMSelection = Mura.Core.extend(
 							meta.addClass(c);
 						}
 					})
+				}
+
+				if (obj.data('metaspacing')) {
+					var classes = obj.data('metaspacing');
+					if (typeof classes != 'array') {
+						var classes = classes.split(' ');
+					}
+					for (var c = 0; c < classes.length; c++) {
+						if (c != 'custom' && !meta.hasClass(classes[c])) {
+							meta.addClass(classes[c]);
+						}
+					}
 				}
 
 				if(obj.is('.mura-object-label-left, .mura-object-label-right')){
@@ -1380,7 +1406,19 @@ Mura.DOMSelection = Mura.Core.extend(
 						}
 					})
 				}
-					
+				
+				if (obj.data('contentspacing')) {
+					var classes = obj.data('contentspacing');
+					if (typeof classes != 'array') {
+						var classes = classes.split(' ');
+					}
+					for (var c = 0; c < classes.length; c++) {
+						if (c != 'custom' && !content.hasClass(classes[c])) {
+							content.addClass(classes[c]);
+						}
+					}
+				}
+
 				if(content.hasClass('container')){
 					metaWrapper.addClass('container');
 				} else {
