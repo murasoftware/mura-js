@@ -1,12 +1,13 @@
 import React,{useState,useEffect} from 'react';
-import Mura from 'mura.js';
 import Form from 'react-bootstrap/Form';
-import {getLayout,RouterlessLink,RouterLink} from './Collection';
+import { getMura } from '@murasoftware/next-core';
+import { getLayout, RouterlessLink, RouterLink } from './Collection';
 /*
   TODO: scrollpages -- not sure if this is even working at all in collection in NextJS, should test
 */
 
 function ResourceHub(props) {
+  const Mura = getMura();
   // return('This is the resource hub');
   const objectparams = Object.assign({}, props);
   const DynamicCollectionLayout = getLayout(objectparams.layout).component;
@@ -187,6 +188,8 @@ export const getDynamicProps = async props => {
 }
 
 const getCollection = async (props,filterProps) => {
+  const Mura = getMura();
+
   if(typeof props.content.getAll != 'undefined'){
       props.content=props.content.getAll();
   }

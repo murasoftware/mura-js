@@ -1,9 +1,9 @@
 import React from 'react';
-import Mura from 'mura.js';
-import { getIsEditMode, getMuraConfig } from './Connector';
+import { getMura ,getIsEditMode, getMuraConfig } from './Connector';
 
 function Decorator(props) {
-  const muraConfig =getMuraConfig();
+  const Mura= getMura();
+  const muraConfig = getMuraConfig();
   const { ComponentRegistry, ExternalModules } = muraConfig;
   const { label, instanceid, labeltag, children } = props;
   let isEditMode = getIsEditMode();
@@ -40,7 +40,7 @@ function Decorator(props) {
   if (isEditMode || isExternalModule || !isSSR) {
     Object.keys(props).forEach(key => {
       if (
-        !['html', 'content', 'children', 'isEditMode', 'dynamicProps', 'moduleStyleData','mura'].find(
+        !['html', 'content', 'children', 'isEditMode', 'dynamicProps', 'moduleStyleData'].find(
           restrictedkey => restrictedkey === key,
         )
       ) {

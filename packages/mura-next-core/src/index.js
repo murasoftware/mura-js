@@ -13,7 +13,7 @@ export {
     getRootPath, 
     getMuraPaths, 
     getSiteName, 
-    getComponent, 
+    getComponent,
     getMura, 
     getHref, 
     useAsync,

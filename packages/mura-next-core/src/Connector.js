@@ -50,7 +50,7 @@ export const getHref = (filename) => {
 }
 
 export const getComponent = item => {
-  const Mura = getMura();
+  getMura();
 
   let objectkey = item.object;
   
@@ -60,7 +60,7 @@ export const getComponent = item => {
 
   if (typeof ComponentRegistry[objectkey] != 'undefined') {
     const ComponentVariable = ComponentRegistry[objectkey].component;
-    return <ComponentVariable mura={Mura} key={item.instanceid} {...item} />;
+    return <ComponentVariable key={item.instanceid} {...item} />;
   }
 
   return <p key={item.instanceid}>DisplayRegion: {item.objectname}</p>;
@@ -112,7 +112,7 @@ export const getMuraExternalModules = function(){
 
 export const getMura = function(context){
   const startingsiteid=Mura.siteid;
-
+  
   if(typeof context == 'string'
     && ConnectorConfig.siteid.find((item)=>{
       return (item===context)
@@ -165,7 +165,7 @@ export const getMura = function(context){
         } 
       }
     }
-
+   
   }
 
   const clearMuraAPICache = function(){
@@ -190,7 +190,7 @@ export const getMura = function(context){
     clearMuraAPICache();
     Mura.init(connectorConfig);
   }
-
+ 
   Mura.holdReady(true);
 
   return Mura;
@@ -205,7 +205,7 @@ export const getSiteName = () => {
 };
 
 export const getMuraProps = async (context,isEditMode,params) => {
-  const Mura=getMura(context);
+  getMura(context);
   
   Mura.renderMode='dynamic';
 
@@ -267,6 +267,7 @@ export const getMuraProps = async (context,isEditMode,params) => {
 };
 
 async function renderContent(context,isEditMode,params) {
+
   let query = {};
 
   if (context.browser) {
@@ -416,7 +417,7 @@ async function getModuleProps(item,moduleStyleData,isEditMode,content) {
   }
 
   const styleData = Mura.recordModuleStyles(item);
- 
+
   return {
     isEditMode:isEditMode,
     cssRules: styleData.cssRules,

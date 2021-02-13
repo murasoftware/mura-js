@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
-import Mura from 'mura.js';
 import MuraStyles from './Styles';
 import MuraExternalAssets from './ExternalAssets';
-import {getMura} from './Connector';
+import { getMura } from './Connector';
 
 
 const MainLayout = props => {
+  const Mura= getMura();
   const { content, moduleStyleData, children } = props;
 
   Mura.moduleStyleData = moduleStyleData;

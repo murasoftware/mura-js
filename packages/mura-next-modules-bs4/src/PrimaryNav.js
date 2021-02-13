@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import Mura from 'mura.js';
 import Navbar from 'react-bootstrap/Navbar'
 import Nav from 'react-bootstrap/Nav'
 import NavDropdown from 'react-bootstrap/NavDropdown'
-import {getHref} from '@murasoftware/next-core';
+import { getMura, getHref } from '@murasoftware/next-core';
 
 function PrimaryNav(props) {
   const objectparams = Object.assign({}, props);
@@ -71,7 +70,8 @@ const Render = ({ items, link, ...props }) => {
 };
 
 export const getDynamicProps = async props => {
- 
+  const Mura = getMura();
+  
   console.log("requesting primary nav data",props.instanceid,Date.now(),Mura.siteid);
  
   const collection=await Mura.getFeed('content')
@@ -155,6 +155,7 @@ const RouterLink = ({href,className,type,menutitle,navlogo})=>{
 const Homelink = (props) => {
   const Link=props.link;
   const homeTitle = 'Home';
+  const Mura = getMura();
 
   function createIcon() { 
     return {__html: props.navicon};

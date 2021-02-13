@@ -1,7 +1,6 @@
-import React,{useState,useEffect,useContext} from 'react';
-import Mura from 'mura.js';
+import React,{ useState,useEffect } from 'react';
 import Link from "next/link";
-import {getMuraConfig, getHref} from '@murasoftware/next-core';
+import { getMura, getMuraConfig, getHref } from '@murasoftware/next-core';
 
 export const getLayout=(layout) => {
   const muraConfig =getMuraConfig();
@@ -26,6 +25,7 @@ function getDefaultQueryPropsFromLayout(layout,item){
 }
 
 function Collection(props) {
+  const Mura = getMura();
   const objectparams = Object.assign({}, props);
   const DynamicCollectionLayout = getLayout(objectparams.layout).component;
 
@@ -74,6 +74,7 @@ export const RouterLink = ({href,children,className})=>{
 }
 
 export const getDynamicProps = async (item) => {
+  const Mura = getMura();
   const data = {};
   let cdata = {};
   let {content} = item;
@@ -87,11 +88,12 @@ export const getDynamicProps = async (item) => {
     else {
       cdata = content;
     }
-  
+
     feed.andProp('parentid').isEQ(cdata.contentid);
     feed.fields(getSelectFields(item));
     feed.expand(getExpandFields(item));
-
+    feed.sort(cdata.sortby,cdata.sortdirection);
+    
     const query = await feed.getQuery();
     data.collection = query.getAll();
   }
@@ -240,6 +242,9 @@ const getSelectFields = (item) => {
       hasDate=true;
       return false;
     } else if(field==='image'){
+      hasImage=true;
+      return false;
+    } else if(field==='images'){
       hasImage=true;
       return false;
     } else if(field==='fileid'){
