@@ -4,20 +4,20 @@ import Mura from 'mura.js';
 
 require('mura.js/src/core/stylemap-static');
 
-var muraConfig, connectorConfig, ComponentRegistry, ConnectorConfig, ExternalModules;
-var isEditMode=false;
+let muraConfig, connectorConfig, ComponentRegistry, ConnectorConfig, ExternalModules;
+let isEditMode=false;
 
 export const MuraJSRefPlaceholder = '"undefined"!=typeof window&&function(u){u.queuedMuraCmds=[],u.queuedMuraPreInitCmds=[],"function"!=typeof u.Mura&&(u.Mura=u.mura=u.Mura=function(e){u.queuedMuraCmds.push(e)},u.Mura.preInit=function(e){u.queuedMuraPreInitCmds.push(e)})}(window);';
 
-export const setIsEditMode = (value) => {
+export const setIsEditMode = function (value) {
   isEditMode=value;
 }
 
-export const getIsEditMode = () => {
+export const getIsEditMode = function() {
   return isEditMode;
 }
 
-export const setMuraConfig = (config) => {
+export const setMuraConfig = function(config) {
   muraConfig = config;
   ComponentRegistry = config.ComponentRegistry;
   ConnectorConfig = config.ConnectorConfig;
@@ -25,11 +25,11 @@ export const setMuraConfig = (config) => {
   connectorConfig=Object.assign({},ConnectorConfig);
 }
 
-export const getMuraConfig = () => {
+export const getMuraConfig = function() {
   return muraConfig;
 }
 
-export const useAsync=function(asyncFn, onSuccess) {
+export const useAsync =  function(asyncFn, onSuccess) {
   useEffect(() => {
     let isMounted = true;
     asyncFn().then(data => {
@@ -39,7 +39,7 @@ export const useAsync=function(asyncFn, onSuccess) {
   }, [asyncFn, onSuccess]);
 }
 
-export const getHref = (filename) => {
+export const getHref = function(filename) {
   let path=filename.split('/').filter(item => item.length);
   
   if(connectorConfig.siteidinurls){
@@ -49,7 +49,7 @@ export const getHref = (filename) => {
   }
 }
 
-export const getComponent = item => {
+export const getComponent = function(item) {
   getMura();
 
   let objectkey = item.object;
@@ -106,7 +106,7 @@ export const getMuraPaths = async function() {
   return paths;
 };
 
-export const getMuraExternalModules = function(){
+export const getMuraExternalModules = function() {
   return ExternalModules;
 }
 

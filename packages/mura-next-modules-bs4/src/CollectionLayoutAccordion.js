@@ -1,5 +1,4 @@
-import { useState } from "react";
-import React from 'react';
+import React, { useState } from "react";
 import OutputMarkup from "./OutputMarkup";
 import CollectionNav from './CollectionNav';
 import ItemDate from './ItemDate';

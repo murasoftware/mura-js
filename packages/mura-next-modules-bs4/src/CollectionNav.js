@@ -1,5 +1,5 @@
 import Mura from 'mura.js';
-import {useEffect} from "react";
+import React, {useEffect} from "react";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons'

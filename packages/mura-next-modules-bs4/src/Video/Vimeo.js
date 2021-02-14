@@ -1,3 +1,5 @@
+import React from 'react';
+
 function Vimeo(props) {
 	const { instanceid, videoid } = props;
 	// 56282283

@@ -1,4 +1,4 @@
-import react from 'react';
+import React from 'react';
 
 export const ItemImage = function ({image,className,alt}){
     const itemImage = image;

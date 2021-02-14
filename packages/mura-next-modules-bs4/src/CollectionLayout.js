@@ -1,4 +1,4 @@
-import { useEffect,useState } from "react";
+import React,{ useEffect,useState } from "react";
 import OutputMarkup from "./OutputMarkup";
 import CollectionNav from './CollectionNav';
 

@@ -1,13 +1,13 @@
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
-var React$1 = require('react');
-var React$1__default = _interopDefault(React$1);
+var React = require('react');
+var React__default = _interopDefault(React);
 var Head = _interopDefault(require('next/head'));
 var Badge = _interopDefault(require('react-bootstrap/Badge'));
 var ReactMarkdown = _interopDefault(require('react-markdown'));
-require('mura.js/src/core/stylemap-static');
-var Mura$1 = _interopDefault(require('mura.js'));
+var nextCore = require('@murasoftware/next-core');
 var Link = _interopDefault(require('next/link'));
+var Mura$1 = _interopDefault(require('mura.js'));
 var reactFontawesome = require('@fortawesome/react-fontawesome');
 var freeSolidSvgIcons = require('@fortawesome/free-solid-svg-icons');
 var Accordion = _interopDefault(require('react-bootstrap/Accordion'));
@@ -24,10 +24,10 @@ var NavDropdown = _interopDefault(require('react-bootstrap/NavDropdown'));
 function Youtube(props) {
   var instanceid = props.instanceid,
       videoid = props.videoid;
-  return /*#__PURE__*/React$1__default.createElement("div", {
+  return /*#__PURE__*/React__default.createElement("div", {
     className: "youtubeWrapper",
     id: "player-" + instanceid
-  }, /*#__PURE__*/React$1__default.createElement("iframe", {
+  }, /*#__PURE__*/React__default.createElement("iframe", {
     title: "Youtube Player",
     src: "//www.youtube.com/embed/" + videoid + "?rel=0&autoplay=0&vq=hd1080&controls=1",
     frameBorder: "0",
@@ -38,10 +38,10 @@ function Youtube(props) {
 function Vimeo(props) {
   var instanceid = props.instanceid,
       videoid = props.videoid;
-  return /*#__PURE__*/React.createElement("div", {
+  return /*#__PURE__*/React__default.createElement("div", {
     className: "vimeoWrapper",
     id: "player-" + instanceid
-  }, /*#__PURE__*/React.createElement("iframe", {
+  }, /*#__PURE__*/React__default.createElement("iframe", {
     src: "https://player.vimeo.com/video/" + videoid,
     width: "960",
     height: "540",
@@ -54,20 +54,20 @@ function Vimeo(props) {
 function Wistia(props) {
   var instanceid = props.instanceid,
       videoid = props.videoid;
-  return /*#__PURE__*/React.createElement("div", {
+  return /*#__PURE__*/React__default.createElement("div", {
     className: "wistiaWrapper",
     id: "player-" + instanceid
-  }, /*#__PURE__*/React.createElement(Head, null, /*#__PURE__*/React.createElement("script", {
+  }, /*#__PURE__*/React__default.createElement(Head, null, /*#__PURE__*/React__default.createElement("script", {
     src: "https://fast.wistia.net/assets/external/E-v1.js"
-  }), /*#__PURE__*/React.createElement("script", {
+  }), /*#__PURE__*/React__default.createElement("script", {
     src: "https://fast.wistia.com/embed/medias/" + videoid + ".jsonp"
-  })), /*#__PURE__*/React.createElement("div", {
+  })), /*#__PURE__*/React__default.createElement("div", {
     className: "wistia_responsive_padding",
     style: {
       padding: '56.25% 0 0 0',
       position: 'relative'
     }
-  }, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React__default.createElement("div", {
     className: "wistia_responsive_wrapper",
     style: {
       height: '100%',
@@ -76,7 +76,7 @@ function Wistia(props) {
       top: 0,
       width: '100%'
     }
-  }, /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React__default.createElement("div", {
     className: "wistia_embed wistia_async_" + videoid,
     seo: "false",
     videofoam: "true",
@@ -97,16 +97,16 @@ var ModalVideo = function ModalVideo(_ref) {
 
   switch (modalcta) {
     case "button":
-      return /*#__PURE__*/React.createElement("button", {
+      return /*#__PURE__*/React__default.createElement("button", {
         type: "button",
         onclick: "openVidyardLightbox('#esapiEncode('html',objectparams.videoid)#'); return false;",
         className: "btn btn-" + buttonclass
-      }, showbuttonplayicon ? /*#__PURE__*/React.createElement("i", {
+      }, showbuttonplayicon ? /*#__PURE__*/React__default.createElement("i", {
         className: "fas fa-play fa-" + buttonplayiconsize + " align-middle"
-      }) : null, buttonctatext, /*#__PURE__*/React.createElement(Head, null));
+      }) : null, buttonctatext, /*#__PURE__*/React__default.createElement(Head, null));
 
     default:
-      return /*#__PURE__*/React.createElement("div", null, "Nah");
+      return /*#__PURE__*/React__default.createElement("div", null, "Nah");
   }
 };
 
@@ -124,12 +124,12 @@ function Video(props) {
       videoplatform = props.videoplatform;
 
   if (!videoplatform.length) {
-    return /*#__PURE__*/React.createElement("div", null, "Video platform missing.");
+    return /*#__PURE__*/React__default.createElement("div", null, "Video platform missing.");
   } else if (!videoid) {
-    return /*#__PURE__*/React.createElement("div", null, "Video id missing.");
+    return /*#__PURE__*/React__default.createElement("div", null, "Video id missing.");
   } else {
     if (displaytype === 'modal') {
-      return /*#__PURE__*/React.createElement(ModalVideo, {
+      return /*#__PURE__*/React__default.createElement(ModalVideo, {
         props: props
       }, getVideoPlayer(props));
     } else {
@@ -163,10 +163,10 @@ var ItemCredits = function ItemCredits(props) {
 
   for (var i = 0; i < Credits.length; i++) {
     credit = Credits[i];
-    creditsList.push( /*#__PURE__*/React$1__default.createElement("div", {
+    creditsList.push( /*#__PURE__*/React__default.createElement("div", {
       className: "mura-item-meta__credits pb-2",
       key: credit
-    }, "By: ", /*#__PURE__*/React$1__default.createElement("strong", null, credit)));
+    }, "By: ", /*#__PURE__*/React__default.createElement("strong", null, credit)));
   }
 
   return creditsList;
@@ -179,7 +179,7 @@ function ItemTags(props) {
 
   for (var i = 0; i < Tags.length; i++) {
     tag = Tags[i];
-    tagList.push( /*#__PURE__*/React$1__default.createElement(Badge, {
+    tagList.push( /*#__PURE__*/React__default.createElement(Badge, {
       variant: "primary mr-2",
       key: tag
     }, tag));
@@ -188,240 +188,21 @@ function ItemTags(props) {
   return tagList;
 }
 
-const _iteratorSymbol = /*#__PURE__*/ typeof Symbol !== "undefined" ? (Symbol.iterator || (Symbol.iterator = Symbol("Symbol.iterator"))) : "@@iterator";
-
-const _asyncIteratorSymbol = /*#__PURE__*/ typeof Symbol !== "undefined" ? (Symbol.asyncIterator || (Symbol.asyncIterator = Symbol("Symbol.asyncIterator"))) : "@@asyncIterator";
-
-
-
-var muraConfig, connectorConfig, ComponentRegistry, ConnectorConfig;
-var getMuraConfig = function getMuraConfig() {
-  return muraConfig;
-};
-var getHref = function getHref(filename) {
-  var path = filename.split('/').filter(function (item) {
-    return item.length;
-  });
-
-  {
-    return '/' + path.join('/');
-  }
-};
-var getComponent = function getComponent(item) {
-  getMura();
-  var objectkey = item.object;
-
-  if (typeof ComponentRegistry[objectkey] == 'undefined') {
-    objectkey = Mura$1.firstToUpperCase(item.object);
-  }
-
-  return /*#__PURE__*/React$1__default.createElement("p", {
-    key: item.instanceid
-  }, "DisplayRegion: ", item.objectname);
-};
-var getMura = function getMura(context) {
-  var startingsiteid = Mura$1.siteid;
-
-  if (typeof context == 'string' && ConnectorConfig.siteid.find(function (item) {
-    return item === context;
-  })) {
-    connectorConfig.siteid = context;
-  } else {
-    var ishomepage = context && !(context.params && context.params.page) || typeof location != 'undefined' && (location.pathname == "/" || location.pathname == ConnectorConfig.editroute + "/");
-
-    if (Array.isArray(ConnectorConfig.siteid)) {
-      if (ishomepage) {
-        connectorConfig.siteid = ConnectorConfig.siteid[0];
-      } else {
-        var page = [];
-
-        if (context && context.params && context.params.page) {
-          page = [].concat(context.params.page);
-          page = page.filter(function (item) {
-            return item.length;
-          });
-        } else if (typeof location != 'undefined') {
-          page = location.pathname.split("/");
-          page = page.filter(function (item) {
-            return item.length;
-          });
-
-          if (page.length && ConnectorConfig.editroute && page[0] === ConnectorConfig.editroute.split("/")[1]) {
-            page.shift();
-          }
-        }
-
-        if (page.length) {
-          if (ConnectorConfig.siteid.find(function (item) {
-            return item === page[0];
-          })) {
-            connectorConfig.siteid = page[0];
-            connectorConfig.siteidinurls = true;
-          } else {
-            connectorConfig.siteid = ConnectorConfig.siteid[0];
-          }
-        }
-      }
-    }
-  }
-
-  var clearMuraAPICache = function clearMuraAPICache() {
-    delete connectorConfig.apiEndpoint;
-    delete connectorConfig.apiendpoint;
-    delete Mura$1.apiEndpoint;
-    delete Mura$1.apiendpoint;
-  };
-
-  if (context && context.res) {
-    Object.assign(connectorConfig, {
-      response: context.res,
-      request: context.req
-    });
-    clearMuraAPICache();
-    console.log('initing', connectorConfig.siteid);
-    Mura$1.init(connectorConfig);
-  } else if (startingsiteid != connectorConfig.siteid) {
-    console.log('changing siteid', startingsiteid, connectorConfig.siteid);
-    clearMuraAPICache();
-    Mura$1.init(connectorConfig);
-  }
-
-  Mura$1.holdReady(true);
-  return Mura$1;
-};
-
-function Decorator(props) {
-  var muraConfig = getMuraConfig();
-  var ComponentRegistry = muraConfig.ComponentRegistry;
-  var label = props.label,
-      instanceid = props.instanceid,
-      labeltag = props.labeltag,
-      children = props.children;
-  var domObject = {
-    className: 'mura-object mura-async-object'
-  };
-  var domContent = {
-    className: 'mura-object-content'
-  };
-  var domMeta = {
-    className: "mura-object-meta"
-  };
-  var domMetaWrapper = {
-    className: "mura-object-meta-wrapper"
-  };
-  var objectKey = props.object;
-
-  if (typeof ComponentRegistry[objectKey] == 'undefined') {
-    objectKey = Mura$1.firstToUpperCase(props.object);
-  }
-
-  var isSSR = ComponentRegistry[objectKey] && (ComponentRegistry[objectKey].SSR || ComponentRegistry[objectKey].ssr);
-
-  if ( !isSSR) {
-    Object.keys(props).forEach(function (key) {
-      if (!['html', 'content', 'children', 'isEditMode', 'dynamicProps', 'moduleStyleData'].find(function (restrictedkey) {
-        return restrictedkey === key;
-      })) {
-        if (typeof props[key] === 'object') {
-          domObject["data-" + key] = JSON.stringify(props[key]);
-        } else if (typeof props[key] !== 'undefined' && !(typeof props[key] === 'string' && props[key] === '')) {
-          domObject["data-" + key] = props[key];
-        }
-      }
-
-      if (key === 'class') {
-        domObject.className += " " + props[key];
-      } else if (key === 'cssclass') {
-        domObject.className += " " + props[key];
-      } else if (key === 'cssid') {
-        domObject.id += " " + props[key];
-      } else if (key === 'contentcssclass') {
-        domContent.className += " " + props[key];
-      } else if (key === 'contentcssid') {
-        domContent.id += " " + props[key];
-      } else if (key === 'metacssclass') {
-        domMeta.className += " " + props[key];
-      } else if (key === 'metacssid') {
-        domMeta.id += " " + props[key];
-      }
-    });
-
-    if (domObject.className.split(' ').find(function ($class) {
-      return $class === 'container';
-    })) {
-      domMetaWrapper.className += ' container';
-    }
-  } else {
-    domObject['data-instanceid'] = instanceid;
-    domObject['data-inited'] = true;
-    domObject.className = "mura-object-" + props.object;
-
-    if (typeof props.moduleStyleData != 'undefined' && typeof props.moduleStyleData[instanceid] != 'undefined') {
-      domObject.className += " " + props.moduleStyleData[instanceid].targets.object["class"];
-      domObject.id = props.moduleStyleData[props.instanceid].targets.object.id;
-      domContent.className = props.moduleStyleData[props.instanceid].targets.content["class"];
-      domContent.id = props.moduleStyleData[props.instanceid].targets.content.id;
-      domMetaWrapper.className = props.moduleStyleData[props.instanceid].targets.metawrapper["class"];
-      domMeta.className = props.moduleStyleData[props.instanceid].targets.meta["class"];
-      domMeta.id = props.moduleStyleData[props.instanceid].targets.meta.id;
-    } else {
-      domObject.id = '';
-      domContent.id = '';
-      domMetaWrapper.className = '';
-      domMeta.className = '';
-      domMeta.id = ';';
-    }
-
-    ['objectspacing', 'contentspacing', 'metaspacing'].forEach(function (key) {
-      if (typeof props[key] != 'undefined' && props[key] && props[key] != 'custom') {
-        domObject['data-' + key] = props[key];
-      }
-    });
-  }
-
-  if ( !isSSR) {
-    {
-      return /*#__PURE__*/React$1__default.createElement("div", domObject);
-    }
-  } else {
-    return /*#__PURE__*/React$1__default.createElement("div", domObject, label ? /*#__PURE__*/React$1__default.createElement(Meta, {
-      label: label,
-      labeltag: labeltag,
-      dommeta: domMeta,
-      dommetawrapper: domMetaWrapper
-    }) : null, label ? /*#__PURE__*/React$1__default.createElement("div", {
-      className: "mura-flex-break"
-    }) : null, /*#__PURE__*/React$1__default.createElement("div", domContent, children));
-  }
-}
-
-var Meta = function Meta(_ref) {
-  var label = _ref.label,
-      labeltag = _ref.labeltag,
-      dommeta = _ref.dommeta,
-      dommetawrapper = _ref.dommetawrapper;
-  var LabelHeader = labeltag ? "" + labeltag : 'h2';
-  return /*#__PURE__*/React$1__default.createElement("div", dommetawrapper, /*#__PURE__*/React$1__default.createElement("div", dommeta, /*#__PURE__*/React$1__default.createElement(LabelHeader, null, label)));
-};
-
-var EditContext = React$1.createContext();
-var MuraContext = React$1.createContext();
-
 function OutputMarkup(_ref) {
   var source = _ref.source,
       className = _ref.className;
-  var muraConfig = getMuraConfig();
+  var muraConfig = nextCore.getMuraConfig();
   var ConnectorConfig = muraConfig.ConnectorConfig;
   var connectorConfig = Object.assign({}, ConnectorConfig);
 
   if (connectorConfig.htmleditortype == 'markdown') {
-    return /*#__PURE__*/React.createElement(ReactMarkdown, {
+    return /*#__PURE__*/React__default.createElement(ReactMarkdown, {
       source: source,
       className: className
     });
   }
 
-  return /*#__PURE__*/React.createElement("div", {
+  return /*#__PURE__*/React__default.createElement("div", {
     dangerouslySetInnerHTML: {
       __html: source
     },
@@ -433,19 +214,19 @@ var ArticleMeta = function ArticleMeta(props) {
   var fields = props.fields ? props.fields : 'Date,Credits,Tags';
   var fieldlist = fields ? fields.toLowerCase().split(",") : [];
   var item = props.content;
-  return /*#__PURE__*/React$1__default.createElement("div", {
+  return /*#__PURE__*/React__default.createElement("div", {
     className: "pb-4"
   }, fieldlist.map(function (field) {
     var _React$createElement, _React$createElement2;
 
     switch (field) {
       case "title":
-        return /*#__PURE__*/React$1__default.createElement("h1", (_React$createElement = {
+        return /*#__PURE__*/React__default.createElement("h1", (_React$createElement = {
           key: "title"
         }, _React$createElement["key"] = field, _React$createElement), item.title);
 
       case "summary":
-        return /*#__PURE__*/React$1__default.createElement(OutputMarkup, {
+        return /*#__PURE__*/React__default.createElement(OutputMarkup, {
           source: item.summary,
           className: "lead",
           key: field
@@ -453,10 +234,10 @@ var ArticleMeta = function ArticleMeta(props) {
 
       case "date":
       case "releasedate":
-        return /*#__PURE__*/React$1__default.createElement("div", (_React$createElement2 = {
+        return /*#__PURE__*/React__default.createElement("div", (_React$createElement2 = {
           className: "mura-item-meta__date",
           key: "date"
-        }, _React$createElement2["key"] = field, _React$createElement2), /*#__PURE__*/React$1__default.createElement("span", null, "Published on: "), " ", /*#__PURE__*/React$1__default.createElement(ItemDate, {
+        }, _React$createElement2["key"] = field, _React$createElement2), /*#__PURE__*/React__default.createElement("span", null, "Published on: "), " ", /*#__PURE__*/React__default.createElement(ItemDate, {
           releasedate: item.releasedate,
           lastupdate: item.lastupdate
         }));
@@ -465,7 +246,7 @@ var ArticleMeta = function ArticleMeta(props) {
         if (item.credits) {
           var _React$createElement3;
 
-          return /*#__PURE__*/React$1__default.createElement(ItemCredits, (_React$createElement3 = {
+          return /*#__PURE__*/React__default.createElement(ItemCredits, (_React$createElement3 = {
             credits: item.credits,
             key: "credits"
           }, _React$createElement3["key"] = field, _React$createElement3));
@@ -475,17 +256,17 @@ var ArticleMeta = function ArticleMeta(props) {
         if (item.tags) {
           var _React$createElement4;
 
-          return /*#__PURE__*/React$1__default.createElement("div", (_React$createElement4 = {
+          return /*#__PURE__*/React__default.createElement("div", (_React$createElement4 = {
             className: "mura-item-meta__tags",
             key: "tags"
-          }, _React$createElement4["key"] = field, _React$createElement4), /*#__PURE__*/React$1__default.createElement("span", null, "Tags: "), /*#__PURE__*/React$1__default.createElement(ItemTags, {
+          }, _React$createElement4["key"] = field, _React$createElement4), /*#__PURE__*/React__default.createElement("span", null, "Tags: "), /*#__PURE__*/React__default.createElement(ItemTags, {
             tags: item.tags,
             key: "tags"
           }));
         }
 
       default:
-        return /*#__PURE__*/React$1__default.createElement("div", {
+        return /*#__PURE__*/React__default.createElement("div", {
           className: "mura-item-meta__" + field,
           key: field,
           "data-value": props.content[field]
@@ -495,10 +276,13 @@ var ArticleMeta = function ArticleMeta(props) {
 };
 
 var getLayout = function getLayout(layout) {
-  var muraConfig = getMuraConfig();
+  var muraConfig = nextCore.getMuraConfig();
   var ComponentRegistry = muraConfig.ComponentRegistry;
+  var uselayout = !layout || layout == 'default' ? "List" : layout;
 
-  {
+  if (typeof ComponentRegistry[uselayout] != 'undefined') {
+    return ComponentRegistry[uselayout];
+  } else {
     console.log("Layout not registered: ", layout);
     return ComponentRegistry['List'];
   }
@@ -517,35 +301,35 @@ function getDefaultQueryPropsFromLayout(layout, item) {
 }
 
 function Collection(props) {
-  var Mura = getMura();
+  var Mura = nextCore.getMura();
   var objectparams = Object.assign({}, props);
   var DynamicCollectionLayout = getLayout(objectparams.layout).component;
   objectparams.fields = objectparams.fields || getDefaultQueryPropsFromLayout(DynamicCollectionLayout, objectparams).fields || 'Image,Date,Title,Summary,Credits,Tags';
 
   if (!objectparams.dynamicProps) {
-    var _useState = React$1.useState(false),
+    var _useState = React.useState(false),
         collection = _useState[0],
         setCollection = _useState[1];
 
-    React$1.useEffect(function () {
+    React.useEffect(function () {
       getDynamicProps(objectparams).then(function (dynamicProps) {
         setCollection(new Mura.EntityCollection(dynamicProps.collection, Mura._requestcontext));
       });
     }, []);
 
     if (collection) {
-      return /*#__PURE__*/React$1__default.createElement(DynamicCollectionLayout, {
+      return /*#__PURE__*/React__default.createElement(DynamicCollectionLayout, {
         collection: collection,
         props: objectparams,
         link: RouterlessLink
       });
     } else {
-      return /*#__PURE__*/React$1__default.createElement("div", null);
+      return /*#__PURE__*/React__default.createElement("div", null);
     }
   } else {
     var _collection = new Mura.EntityCollection(objectparams.dynamicProps.collection, Mura._requestcontext);
 
-    return /*#__PURE__*/React$1__default.createElement(DynamicCollectionLayout, {
+    return /*#__PURE__*/React__default.createElement(DynamicCollectionLayout, {
       collection: _collection,
       props: props,
       link: RouterLink
@@ -557,8 +341,8 @@ var RouterlessLink = function RouterlessLink(_ref) {
   var href = _ref.href,
       children = _ref.children,
       className = _ref.className;
-  return /*#__PURE__*/React$1__default.createElement("a", {
-    href: getHref(href),
+  return /*#__PURE__*/React__default.createElement("a", {
+    href: nextCore.getHref(href),
     className: className
   }, children);
 };
@@ -566,16 +350,16 @@ var RouterLink = function RouterLink(_ref2) {
   var href = _ref2.href,
       children = _ref2.children,
       className = _ref2.className;
-  return /*#__PURE__*/React$1__default.createElement(Link, {
-    href: getHref(href)
-  }, /*#__PURE__*/React$1__default.createElement("a", {
+  return /*#__PURE__*/React__default.createElement(Link, {
+    href: nextCore.getHref(href)
+  }, /*#__PURE__*/React__default.createElement("a", {
     className: className
   }, children));
 };
 var getDynamicProps = function getDynamicProps(item) {
   try {
     var _exit2 = false;
-    var Mura = getMura();
+    var Mura = nextCore.getMura();
     var data = {};
     var cdata = {};
     var content = item.content;
@@ -847,7 +631,7 @@ var CollectionNav = function CollectionNav(props) {
   var maxItems = props.maxitems;
 
   if (scrollpages) {
-    React$1.useEffect(function () {
+    React.useEffect(function () {
       if (!Mura$1.isInNode()) {
         var isEndVisible = function isEndVisible() {
           var end = Mura$1("div.mura-collection-end[data-instanceid=\"" + instanceid + "\"]");
@@ -864,7 +648,7 @@ var CollectionNav = function CollectionNav(props) {
         isEndVisible();
       }
     }, []);
-    return /*#__PURE__*/React.createElement("div", {
+    return /*#__PURE__*/React__default.createElement("div", {
       className: "mura-collection-end",
       "data-instanceid": instanceid
     });
@@ -881,7 +665,7 @@ var CollectionNav = function CollectionNav(props) {
   }
 
   if (pos > 0) {
-    nav.push( /*#__PURE__*/React.createElement(NavButton, {
+    nav.push( /*#__PURE__*/React__default.createElement(NavButton, {
       key: "prev",
       pos: pos,
       val: prev,
@@ -891,7 +675,7 @@ var CollectionNav = function CollectionNav(props) {
   }
 
   if (next < itemsToMax) {
-    nav.push( /*#__PURE__*/React.createElement(NavButton, {
+    nav.push( /*#__PURE__*/React__default.createElement(NavButton, {
       key: "next",
       pos: pos,
       val: next,
@@ -901,7 +685,7 @@ var CollectionNav = function CollectionNav(props) {
   }
 
   if (nav.length) {
-    return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", null, "Displaying items ", pos + 1, "-", itemsOf, " of ", itemsToMax), /*#__PURE__*/React.createElement("ul", {
+    return /*#__PURE__*/React__default.createElement("div", null, /*#__PURE__*/React__default.createElement("p", null, "Displaying items ", pos + 1, "-", itemsOf, " of ", itemsToMax), /*#__PURE__*/React__default.createElement("ul", {
       className: "pagination"
     }, nav));
   } else {
@@ -917,24 +701,24 @@ var NavButton = function NavButton(props) {
     onItemClick(val);
   };
 
-  return /*#__PURE__*/React.createElement("li", {
+  return /*#__PURE__*/React__default.createElement("li", {
     className: "page-item"
-  }, /*#__PURE__*/React.createElement("a", {
+  }, /*#__PURE__*/React__default.createElement("a", {
     onClick: _onClick,
     className: "page-link",
     "aria-label": props.label
-  }, /*#__PURE__*/React.createElement(NavButtonLabel, {
+  }, /*#__PURE__*/React__default.createElement(NavButtonLabel, {
     label: props.label
   })));
 };
 
 var NavButtonLabel = function NavButtonLabel(props) {
   if (props.label == 'Next') {
-    return /*#__PURE__*/React.createElement(React.Fragment, null, props.label, " ", /*#__PURE__*/React.createElement(reactFontawesome.FontAwesomeIcon, {
+    return /*#__PURE__*/React__default.createElement(React__default.Fragment, null, props.label, " ", /*#__PURE__*/React__default.createElement(reactFontawesome.FontAwesomeIcon, {
       icon: freeSolidSvgIcons.faChevronRight
     }));
   } else {
-    return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(reactFontawesome.FontAwesomeIcon, {
+    return /*#__PURE__*/React__default.createElement(React__default.Fragment, null, /*#__PURE__*/React__default.createElement(reactFontawesome.FontAwesomeIcon, {
       icon: freeSolidSvgIcons.faChevronLeft
     }), " ", props.label);
   }
@@ -947,27 +731,27 @@ var CollectionLayout = function CollectionLayout(_ref) {
   var nextn = props.nextn;
   var items = collection.get('items');
 
-  var _useState = React$1.useState(0),
+  var _useState = React.useState(0),
       pos = _useState[0],
       setPos = _useState[1];
 
-  var _useState2 = React$1.useState(pos + nextn > items.length ? items.length : pos + nextn),
+  var _useState2 = React.useState(pos + nextn > items.length ? items.length : pos + nextn),
       itemsTo = _useState2[0],
       setItemsTo = _useState2[1];
 
-  React$1.useEffect(function () {
+  React.useEffect(function () {
     setItemsTo(pos + nextn > items.length ? items.length : pos + nextn);
   }, [pos]);
-  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("ul", {
+  return /*#__PURE__*/React__default.createElement("div", null, /*#__PURE__*/React__default.createElement("ul", {
     style: {
       'listStyle': 'none'
     }
-  }, /*#__PURE__*/React.createElement(CurrentItems, _extends({
+  }, /*#__PURE__*/React__default.createElement(CurrentItems, _extends({
     collection: collection,
     itemsTo: itemsTo,
     pos: pos,
     link: link
-  }, props))), /*#__PURE__*/React.createElement(CollectionNav, _extends({
+  }, props))), /*#__PURE__*/React__default.createElement(CollectionNav, _extends({
     collection: collection,
     itemsTo: itemsTo,
     setItemsTo: setItemsTo,
@@ -989,11 +773,11 @@ var CurrentItems = function CurrentItems(props) {
 
   for (var i = pos; i < itemsTo; i++) {
     item = items[i];
-    itemsList.push( /*#__PURE__*/React.createElement("li", {
+    itemsList.push( /*#__PURE__*/React__default.createElement("li", {
       key: item.get('contentid')
-    }, /*#__PURE__*/React.createElement("h1", null, /*#__PURE__*/React.createElement(Link, {
+    }, /*#__PURE__*/React__default.createElement("h1", null, /*#__PURE__*/React__default.createElement(Link, {
       href: "/" + item.get('filename')
-    }, item.get('title'))), /*#__PURE__*/React.createElement(OutputMarkup, {
+    }, item.get('title'))), /*#__PURE__*/React__default.createElement(OutputMarkup, {
       source: item.get('summary')
     })));
   }
@@ -1009,11 +793,11 @@ var getQueryProps = function getQueryProps() {
 
 var CollectionReadMoreBtn = function CollectionReadMoreBtn(props) {
   var Link = props.link;
-  return /*#__PURE__*/React.createElement(Link, {
+  return /*#__PURE__*/React__default.createElement(Link, {
     href: props.href,
     passHref: true,
     className: "stretched-link btn btn-primary"
-  }, props.ctatext, "  ", /*#__PURE__*/React.createElement(reactFontawesome.FontAwesomeIcon, {
+  }, props.ctatext, "  ", /*#__PURE__*/React__default.createElement(reactFontawesome.FontAwesomeIcon, {
     icon: freeSolidSvgIcons.faChevronRight
   }));
 };
@@ -1025,7 +809,7 @@ var ItemImage = function ItemImage(_ref) {
   var itemImage = image;
 
   if (typeof itemImage != 'undefined') {
-    return /*#__PURE__*/React.createElement("img", {
+    return /*#__PURE__*/React__default.createElement("img", {
       src: itemImage,
       alt: alt,
       className: className
@@ -1040,21 +824,21 @@ var CollectionLayoutAccordian = function CollectionLayoutAccordian(_ref) {
       collection = _ref.collection,
       link = _ref.link;
 
-  var _useState = React$1.useState(0),
+  var _useState = React.useState(0),
       pos = _useState[0],
       setPos = _useState[1];
 
-  return /*#__PURE__*/React$1__default.createElement(React$1__default.Fragment, null, /*#__PURE__*/React$1__default.createElement(Accordion, {
+  return /*#__PURE__*/React__default.createElement(React__default.Fragment, null, /*#__PURE__*/React__default.createElement(Accordion, {
     className: "collectionLayoutAccordion " + props.accordionpadding + "-spacing " + props.collapseindicators + " " + props.collapseindicatorslocation + "-indicator"
-  }, /*#__PURE__*/React$1__default.createElement(CurrentItems$1, _extends({
+  }, /*#__PURE__*/React__default.createElement(CurrentItems$1, _extends({
     collection: collection,
     pos: pos,
     link: link
-  }, props))), /*#__PURE__*/React$1__default.createElement("div", {
+  }, props))), /*#__PURE__*/React__default.createElement("div", {
     className: "row"
-  }, /*#__PURE__*/React$1__default.createElement("div", {
+  }, /*#__PURE__*/React__default.createElement("div", {
     className: "col-12"
-  }, /*#__PURE__*/React$1__default.createElement(CollectionNav, _extends({
+  }, /*#__PURE__*/React__default.createElement(CollectionNav, _extends({
     collection: collection,
     pos: pos,
     setPos: setPos,
@@ -1080,7 +864,7 @@ var CurrentItems$1 = function CurrentItems(props) {
     itemsTo = maxItems;
   }
 
-  var _useState2 = React$1.useState('0'),
+  var _useState2 = React.useState('0'),
       activeId = _useState2[0],
       setActiveId = _useState2[1];
 
@@ -1094,9 +878,9 @@ var CurrentItems$1 = function CurrentItems(props) {
 
   var _loop = function _loop(i) {
     item = items[i];
-    itemsList.push( /*#__PURE__*/React$1__default.createElement(Card, {
+    itemsList.push( /*#__PURE__*/React__default.createElement(Card, {
       key: item.get('contentid')
-    }, /*#__PURE__*/React$1__default.createElement(Accordion.Toggle, {
+    }, /*#__PURE__*/React__default.createElement(Accordion.Toggle, {
       as: Card.Header,
       variant: "link",
       eventKey: item.get('contentid'),
@@ -1105,12 +889,12 @@ var CurrentItems$1 = function CurrentItems(props) {
         return toggleActive(i);
       },
       role: "button"
-    }, item.get('title')), /*#__PURE__*/React$1__default.createElement(Accordion.Collapse, {
+    }, item.get('title')), /*#__PURE__*/React__default.createElement(Accordion.Collapse, {
       eventKey: item.get('contentid')
-    }, /*#__PURE__*/React$1__default.createElement(Card.Body, null, fieldlist.map(function (field) {
+    }, /*#__PURE__*/React__default.createElement(Card.Body, null, fieldlist.map(function (field) {
       switch (field) {
         case "image":
-          return /*#__PURE__*/React$1__default.createElement(ItemImage, {
+          return /*#__PURE__*/React__default.createElement(ItemImage, {
             image: item.get('images')[props.imagesize],
             className: "img-fluid",
             alt: item.get('title'),
@@ -1119,22 +903,22 @@ var CurrentItems$1 = function CurrentItems(props) {
 
         case "date":
         case "releasedate":
-          return /*#__PURE__*/React$1__default.createElement("div", {
+          return /*#__PURE__*/React__default.createElement("div", {
             className: "mura-item-meta__date",
             key: field
-          }, /*#__PURE__*/React$1__default.createElement(ItemDate, {
+          }, /*#__PURE__*/React__default.createElement(ItemDate, {
             releasedate: item.get('releasedate'),
             lastupdate: item.get('lastupdate')
           }));
 
         case "summary":
-          return /*#__PURE__*/React$1__default.createElement(OutputMarkup, {
+          return /*#__PURE__*/React__default.createElement(OutputMarkup, {
             source: item.get('summary'),
             key: field
           });
 
         case "readmore":
-          return /*#__PURE__*/React$1__default.createElement(CollectionReadMoreBtn, {
+          return /*#__PURE__*/React__default.createElement(CollectionReadMoreBtn, {
             href: "/" + item.get('filename'),
             ctatext: "Read More",
             link: Link,
@@ -1143,9 +927,9 @@ var CurrentItems$1 = function CurrentItems(props) {
 
         case "credits":
           if (item.get('credits').length) {
-            return /*#__PURE__*/React$1__default.createElement("div", {
+            return /*#__PURE__*/React__default.createElement("div", {
               className: "mura-item-meta__credits"
-            }, /*#__PURE__*/React$1__default.createElement(ItemCredits, {
+            }, /*#__PURE__*/React__default.createElement(ItemCredits, {
               credits: item.get('credits'),
               key: "credits"
             }));
@@ -1154,15 +938,15 @@ var CurrentItems$1 = function CurrentItems(props) {
           return null;
 
         case "tags":
-          return /*#__PURE__*/React$1__default.createElement("div", {
+          return /*#__PURE__*/React__default.createElement("div", {
             className: "mura-item-meta__tags pb-2",
             key: "tags"
-          }, /*#__PURE__*/React$1__default.createElement(ItemTags, {
+          }, /*#__PURE__*/React__default.createElement(ItemTags, {
             tags: item.get('tags')
           }));
 
         default:
-          return /*#__PURE__*/React$1__default.createElement("div", {
+          return /*#__PURE__*/React__default.createElement("div", {
             className: "mura-item-meta__" + field,
             key: field,
             "data-value": item.get(field)
@@ -1189,21 +973,21 @@ var AlternatingBoxes = function AlternatingBoxes(_ref) {
       collection = _ref.collection,
       link = _ref.link;
 
-  var _useState = React$1.useState(0),
+  var _useState = React.useState(0),
       pos = _useState[0],
       setPos = _useState[1];
 
-  return /*#__PURE__*/React$1__default.createElement(React$1__default.Fragment, null, /*#__PURE__*/React$1__default.createElement("div", {
+  return /*#__PURE__*/React__default.createElement(React__default.Fragment, null, /*#__PURE__*/React__default.createElement("div", {
     className: "collectionLayoutAlternatingBoxes"
-  }, /*#__PURE__*/React$1__default.createElement(CurrentItems$2, _extends({
+  }, /*#__PURE__*/React__default.createElement(CurrentItems$2, _extends({
     collection: collection,
     pos: pos,
     link: link
-  }, props))), /*#__PURE__*/React$1__default.createElement("div", {
+  }, props))), /*#__PURE__*/React__default.createElement("div", {
     className: "row"
-  }, /*#__PURE__*/React$1__default.createElement("div", {
+  }, /*#__PURE__*/React__default.createElement("div", {
     className: "col-12"
-  }, /*#__PURE__*/React$1__default.createElement(CollectionNav, _extends({
+  }, /*#__PURE__*/React__default.createElement(CollectionNav, _extends({
     collection: collection,
     pos: pos,
     setPos: setPos,
@@ -1231,48 +1015,48 @@ var CurrentItems$2 = function CurrentItems(props) {
 
   for (var i = pos; i < itemsTo; i++) {
     item = items[i];
-    itemsList.push( /*#__PURE__*/React$1__default.createElement(Card, {
+    itemsList.push( /*#__PURE__*/React__default.createElement(Card, {
       className: "border-0",
       key: item.get('contentid')
-    }, /*#__PURE__*/React$1__default.createElement("div", {
+    }, /*#__PURE__*/React__default.createElement("div", {
       className: "row no-gutters align-items-stretch"
-    }, /*#__PURE__*/React$1__default.createElement("div", {
+    }, /*#__PURE__*/React__default.createElement("div", {
       className: "col-12 col-md-6 " + (i % 2 == 0 ? "card-img-left" : "card-img-right  order-md-2")
-    }, /*#__PURE__*/React$1__default.createElement(Card.Img, {
+    }, /*#__PURE__*/React__default.createElement(Card.Img, {
       variant: "top",
       src: item.get('images')[props.imagesize],
       className: "rounded-0"
-    })), /*#__PURE__*/React$1__default.createElement("div", {
+    })), /*#__PURE__*/React__default.createElement("div", {
       className: "col-12 col-md-6 p-0"
-    }, /*#__PURE__*/React$1__default.createElement(Card.Body, {
+    }, /*#__PURE__*/React__default.createElement(Card.Body, {
       className: "spacing-normal h-100"
-    }, /*#__PURE__*/React$1__default.createElement("div", {
+    }, /*#__PURE__*/React__default.createElement("div", {
       className: "mura-item-meta"
     }, fieldlist.map(function (field) {
       switch (field) {
         case "title":
-          return /*#__PURE__*/React$1__default.createElement(Card.Title, {
+          return /*#__PURE__*/React__default.createElement(Card.Title, {
             key: field
           }, item.get('title'));
 
         case "date":
         case "releasedate":
-          return /*#__PURE__*/React$1__default.createElement("div", {
+          return /*#__PURE__*/React__default.createElement("div", {
             className: "mura-item-meta__date",
             key: "date"
-          }, /*#__PURE__*/React$1__default.createElement(ItemDate, {
+          }, /*#__PURE__*/React__default.createElement(ItemDate, {
             releasedate: item.get('releasedate'),
             lastupdate: item.get('lastupdate')
           }));
 
         case "summary":
-          return /*#__PURE__*/React$1__default.createElement(OutputMarkup, {
+          return /*#__PURE__*/React__default.createElement(OutputMarkup, {
             source: item.get('summary'),
             key: field
           });
 
         case "readmore":
-          return /*#__PURE__*/React$1__default.createElement(CollectionReadMoreBtn, {
+          return /*#__PURE__*/React__default.createElement(CollectionReadMoreBtn, {
             href: "/" + item.get('filename'),
             ctatext: "Read More",
             link: Link,
@@ -1281,9 +1065,9 @@ var CurrentItems$2 = function CurrentItems(props) {
 
         case "credits":
           if (item.get('credits').length) {
-            return /*#__PURE__*/React$1__default.createElement("div", {
+            return /*#__PURE__*/React__default.createElement("div", {
               className: "mura-item-meta__credits"
-            }, /*#__PURE__*/React$1__default.createElement(ItemCredits, {
+            }, /*#__PURE__*/React__default.createElement(ItemCredits, {
               credits: item.get('credits'),
               key: "credits"
             }));
@@ -1292,15 +1076,15 @@ var CurrentItems$2 = function CurrentItems(props) {
           return null;
 
         case "tags":
-          return /*#__PURE__*/React$1__default.createElement("div", {
+          return /*#__PURE__*/React__default.createElement("div", {
             className: "mura-item-meta__tags pb-2",
             key: "tags"
-          }, /*#__PURE__*/React$1__default.createElement(ItemTags, {
+          }, /*#__PURE__*/React__default.createElement(ItemTags, {
             tags: item.get('tags')
           }));
 
         default:
-          return /*#__PURE__*/React$1__default.createElement("div", {
+          return /*#__PURE__*/React__default.createElement("div", {
             className: "mura-item-meta__" + field,
             key: field,
             "data-value": item.get(field)
@@ -1323,21 +1107,21 @@ var AlternatingRows = function AlternatingRows(_ref) {
       collection = _ref.collection,
       link = _ref.link;
 
-  var _useState = React$1.useState(0),
+  var _useState = React.useState(0),
       pos = _useState[0],
       setPos = _useState[1];
 
-  return /*#__PURE__*/React$1__default.createElement(React$1__default.Fragment, null, /*#__PURE__*/React$1__default.createElement("div", {
+  return /*#__PURE__*/React__default.createElement(React__default.Fragment, null, /*#__PURE__*/React__default.createElement("div", {
     className: "collectionLayoutAlternatingBoxes"
-  }, /*#__PURE__*/React$1__default.createElement(CurrentItems$3, _extends({
+  }, /*#__PURE__*/React__default.createElement(CurrentItems$3, _extends({
     collection: collection,
     pos: pos,
     link: link
-  }, props))), /*#__PURE__*/React$1__default.createElement("div", {
+  }, props))), /*#__PURE__*/React__default.createElement("div", {
     className: "row"
-  }, /*#__PURE__*/React$1__default.createElement("div", {
+  }, /*#__PURE__*/React__default.createElement("div", {
     className: "col-12"
-  }, /*#__PURE__*/React$1__default.createElement(CollectionNav, _extends({
+  }, /*#__PURE__*/React__default.createElement(CollectionNav, _extends({
     collection: collection,
     pos: pos,
     setPos: setPos,
@@ -1365,49 +1149,49 @@ var CurrentItems$3 = function CurrentItems(props) {
 
   for (var i = pos; i < itemsTo; i++) {
     item = items[i];
-    itemsList.push( /*#__PURE__*/React$1__default.createElement("div", {
+    itemsList.push( /*#__PURE__*/React__default.createElement("div", {
       className: "mb-4",
       key: item.get('contentid')
-    }, /*#__PURE__*/React$1__default.createElement(Card, {
+    }, /*#__PURE__*/React__default.createElement(Card, {
       className: "mb-3 h-100 shadow"
-    }, /*#__PURE__*/React$1__default.createElement("div", {
+    }, /*#__PURE__*/React__default.createElement("div", {
       className: "row no-gutters align-items-stretch"
-    }, /*#__PURE__*/React$1__default.createElement("div", {
+    }, /*#__PURE__*/React__default.createElement("div", {
       className: "col-12 col-md-6 " + (i % 2 == 0 ? "card-img-left" : "card-img-right  order-md-2")
-    }, /*#__PURE__*/React$1__default.createElement(Card.Img, {
+    }, /*#__PURE__*/React__default.createElement(Card.Img, {
       variant: "top",
       src: item.get('images')[props.imagesize]
-    })), /*#__PURE__*/React$1__default.createElement("div", {
+    })), /*#__PURE__*/React__default.createElement("div", {
       className: "col-12 col-md-6 p-0"
-    }, /*#__PURE__*/React$1__default.createElement(Card.Body, {
+    }, /*#__PURE__*/React__default.createElement(Card.Body, {
       className: "spacing-normal h-100"
-    }, /*#__PURE__*/React$1__default.createElement("div", {
+    }, /*#__PURE__*/React__default.createElement("div", {
       className: "mura-item-meta"
     }, fieldlist.map(function (field) {
       switch (field) {
         case "title":
-          return /*#__PURE__*/React$1__default.createElement(Card.Title, {
+          return /*#__PURE__*/React__default.createElement(Card.Title, {
             key: field
           }, item.get('title'));
 
         case "date":
         case "releasedate":
-          return /*#__PURE__*/React$1__default.createElement("div", {
+          return /*#__PURE__*/React__default.createElement("div", {
             className: "mura-item-meta__date",
             key: "date"
-          }, /*#__PURE__*/React$1__default.createElement(ItemDate, {
+          }, /*#__PURE__*/React__default.createElement(ItemDate, {
             releasedate: item.get('releasedate'),
             lastupdate: item.get('lastupdate')
           }));
 
         case "summary":
-          return /*#__PURE__*/React$1__default.createElement(OutputMarkup, {
+          return /*#__PURE__*/React__default.createElement(OutputMarkup, {
             source: item.get('summary'),
             key: field
           });
 
         case "readmore":
-          return /*#__PURE__*/React$1__default.createElement(CollectionReadMoreBtn, {
+          return /*#__PURE__*/React__default.createElement(CollectionReadMoreBtn, {
             href: "/" + item.get('filename'),
             ctatext: "Read More",
             link: Link,
@@ -1416,9 +1200,9 @@ var CurrentItems$3 = function CurrentItems(props) {
 
         case "credits":
           if (item.get('credits').length) {
-            return /*#__PURE__*/React$1__default.createElement("div", {
+            return /*#__PURE__*/React__default.createElement("div", {
               className: "mura-item-meta__credits"
-            }, /*#__PURE__*/React$1__default.createElement(ItemCredits, {
+            }, /*#__PURE__*/React__default.createElement(ItemCredits, {
               credits: item.get('credits'),
               key: "credits"
             }));
@@ -1427,15 +1211,15 @@ var CurrentItems$3 = function CurrentItems(props) {
           return null;
 
         case "tags":
-          return /*#__PURE__*/React$1__default.createElement("div", {
+          return /*#__PURE__*/React__default.createElement("div", {
             className: "mura-item-meta__tags pb-2",
             key: "tags"
-          }, /*#__PURE__*/React$1__default.createElement(ItemTags, {
+          }, /*#__PURE__*/React__default.createElement(ItemTags, {
             tags: item.get('tags')
           }));
 
         default:
-          return /*#__PURE__*/React$1__default.createElement("div", {
+          return /*#__PURE__*/React__default.createElement("div", {
             className: "mura-item-meta__" + field,
             key: field,
             "data-value": item.get(field)
@@ -1465,7 +1249,7 @@ var ItemCategories = function ItemCategories(props) {
     for (var i = 0; i < catsTo; i++) {
       cat = cats[i];
       hasnext = i + 1 < catsTo;
-      catsList.push( /*#__PURE__*/React.createElement("span", {
+      catsList.push( /*#__PURE__*/React__default.createElement("span", {
         key: cat.categoryid
       }, cat.categoryname, hasnext && ", "));
     }
@@ -1473,11 +1257,11 @@ var ItemCategories = function ItemCategories(props) {
     return catsList;
   }
 
-  return /*#__PURE__*/React.createElement("span", null, "No Categories");
+  return /*#__PURE__*/React__default.createElement("span", null, "No Categories");
 };
 
 function CheckForItems() {
-  return /*#__PURE__*/React$1__default.createElement("div", {
+  return /*#__PURE__*/React__default.createElement("div", {
     className: "alert alert-warning"
   }, "No results to display.");
 }
@@ -1487,25 +1271,25 @@ var Cards = function Cards(_ref) {
       collection = _ref.collection,
       link = _ref.link;
 
-  var _useState = React$1.useState(0),
+  var _useState = React.useState(0),
       pos = _useState[0],
       setPos = _useState[1];
 
   if (!collection.properties.totalpages) {
-    return /*#__PURE__*/React$1__default.createElement(CheckForItems, null);
+    return /*#__PURE__*/React__default.createElement(CheckForItems, null);
   }
 
-  return /*#__PURE__*/React$1__default.createElement(React$1__default.Fragment, null, /*#__PURE__*/React$1__default.createElement("div", {
+  return /*#__PURE__*/React__default.createElement(React__default.Fragment, null, /*#__PURE__*/React__default.createElement("div", {
     className: "row collectionLayoutCards row-cols-1 row-cols-sm-" + props.rowcolssm + " row-cols-md-" + props.rowcolsmd + " row-cols-lg-" + props.rowcolslg + " row-cols-xl-" + props.rowcolsxl
-  }, /*#__PURE__*/React$1__default.createElement(CurrentItems$4, _extends({
+  }, /*#__PURE__*/React__default.createElement(CurrentItems$4, _extends({
     collection: collection,
     pos: pos,
     link: link
-  }, props))), /*#__PURE__*/React$1__default.createElement("div", {
+  }, props))), /*#__PURE__*/React__default.createElement("div", {
     className: "row"
-  }, /*#__PURE__*/React$1__default.createElement("div", {
+  }, /*#__PURE__*/React__default.createElement("div", {
     className: "col-12"
-  }, /*#__PURE__*/React$1__default.createElement(CollectionNav, _extends({
+  }, /*#__PURE__*/React__default.createElement(CollectionNav, _extends({
     collection: collection,
     pos: pos,
     setPos: setPos,
@@ -1535,59 +1319,59 @@ var CurrentItems$4 = function CurrentItems(props) {
   for (var i = pos; i < itemsTo; i++) {
     item = items[i];
     catAssignments = item.getAll().categoryassignments;
-    itemsList.push( /*#__PURE__*/React$1__default.createElement("div", {
+    itemsList.push( /*#__PURE__*/React__default.createElement("div", {
       className: "col mb-4",
       key: item.get('contentid')
-    }, /*#__PURE__*/React$1__default.createElement(Card, {
+    }, /*#__PURE__*/React__default.createElement(Card, {
       className: "mb-3 h-100 shadow"
     }, fieldlist.filter(function (field) {
       return field == 'image';
     }).map(function (filteredField) {
-      return /*#__PURE__*/React$1__default.createElement(Card.Img, {
+      return /*#__PURE__*/React__default.createElement(Card.Img, {
         variant: "top",
         src: item.get('images')[props.imagesize],
         key: item.get('fileid')
       });
-    }), /*#__PURE__*/React$1__default.createElement(Card.Body, null, /*#__PURE__*/React$1__default.createElement("div", {
+    }), /*#__PURE__*/React__default.createElement(Card.Body, null, /*#__PURE__*/React__default.createElement("div", {
       className: "mura-item-meta"
     }, fieldlist.map(function (field) {
       switch (field) {
         case "title":
-          return /*#__PURE__*/React$1__default.createElement(Card.Title, {
+          return /*#__PURE__*/React__default.createElement(Card.Title, {
             key: field
           }, item.get('title'));
 
         case "date":
         case "releasedate":
-          return /*#__PURE__*/React$1__default.createElement("div", {
+          return /*#__PURE__*/React__default.createElement("div", {
             className: "mura-item-meta__date",
             key: "date" + item.get('contentid')
-          }, /*#__PURE__*/React$1__default.createElement(ItemDate, {
+          }, /*#__PURE__*/React__default.createElement(ItemDate, {
             releasedate: item.get('releasedate'),
             lastupdate: item.get('lastupdate')
           }));
 
         case "summary":
-          return /*#__PURE__*/React$1__default.createElement(OutputMarkup, {
+          return /*#__PURE__*/React__default.createElement(OutputMarkup, {
             source: item.get('summary'),
             key: field
           });
 
         default:
-          return /*#__PURE__*/React$1__default.createElement("div", {
+          return /*#__PURE__*/React__default.createElement("div", {
             className: "mura-item-meta__" + field,
             key: field,
             "data-value": item.get(field)
           }, item.get(field));
       }
-    }))), /*#__PURE__*/React$1__default.createElement(Card.Footer, null, /*#__PURE__*/React$1__default.createElement(CollectionReadMoreBtn, {
+    }))), /*#__PURE__*/React__default.createElement(Card.Footer, null, /*#__PURE__*/React__default.createElement(CollectionReadMoreBtn, {
       href: "/" + item.get('filename'),
       ctatext: "Read More",
       link: Link,
       key: item.get('contentid')
-    }), catAssignments && /*#__PURE__*/React$1__default.createElement(React$1__default.Fragment, null, /*#__PURE__*/React$1__default.createElement("hr", null), /*#__PURE__*/React$1__default.createElement(Card.Text, {
+    }), catAssignments && /*#__PURE__*/React__default.createElement(React__default.Fragment, null, /*#__PURE__*/React__default.createElement("hr", null), /*#__PURE__*/React__default.createElement(Card.Text, {
       key: "categories"
-    }, /*#__PURE__*/React$1__default.createElement(ItemCategories, {
+    }, /*#__PURE__*/React__default.createElement(ItemCategories, {
       categories: catAssignments
     })))))));
   }
@@ -1606,19 +1390,19 @@ var List = function List(_ref) {
       collection = _ref.collection,
       link = _ref.link;
 
-  var _useState = React$1.useState(0),
+  var _useState = React.useState(0),
       pos = _useState[0],
       setPos = _useState[1];
 
-  return /*#__PURE__*/React$1__default.createElement(React$1__default.Fragment, null, /*#__PURE__*/React$1__default.createElement(CurrentItems$5, _extends({
+  return /*#__PURE__*/React__default.createElement(React__default.Fragment, null, /*#__PURE__*/React__default.createElement(CurrentItems$5, _extends({
     collection: collection,
     pos: pos,
     link: link
-  }, props)), /*#__PURE__*/React$1__default.createElement("div", {
+  }, props)), /*#__PURE__*/React__default.createElement("div", {
     className: "row"
-  }, /*#__PURE__*/React$1__default.createElement("div", {
+  }, /*#__PURE__*/React__default.createElement("div", {
     className: "col-12"
-  }, /*#__PURE__*/React$1__default.createElement(CollectionNav, _extends({
+  }, /*#__PURE__*/React__default.createElement(CollectionNav, _extends({
     collection: collection,
     pos: pos,
     setPos: setPos,
@@ -1646,14 +1430,14 @@ var CurrentItems$5 = function CurrentItems(props) {
 
   for (var i = pos; i < itemsTo; i++) {
     item = items[i];
-    itemsList.push( /*#__PURE__*/React$1__default.createElement("div", {
+    itemsList.push( /*#__PURE__*/React__default.createElement("div", {
       className: "row mb-3",
       key: item.get('contentid')
-    }, /*#__PURE__*/React$1__default.createElement(ListImage, {
+    }, /*#__PURE__*/React__default.createElement(ListImage, {
       fieldlist: fieldlist,
       item: item,
       imagesize: props.imagesize
-    }), /*#__PURE__*/React$1__default.createElement(ListMeta, {
+    }), /*#__PURE__*/React__default.createElement(ListMeta, {
       fieldlist: fieldlist,
       item: item,
       Link: Link
@@ -1674,9 +1458,9 @@ var ListImage = function ListImage(props) {
 
   if (hasImage) {
     var imagesize = props.imagesize || 'medium';
-    return /*#__PURE__*/React$1__default.createElement("div", {
+    return /*#__PURE__*/React__default.createElement("div", {
       className: "col-12 col-md-3 mb-3 pr-md-0"
-    }, /*#__PURE__*/React$1__default.createElement(ItemImage, {
+    }, /*#__PURE__*/React__default.createElement(ItemImage, {
       image: item.get('images')[imagesize],
       className: "img-fluid",
       alt: item.get('title'),
@@ -1684,7 +1468,7 @@ var ListImage = function ListImage(props) {
     }));
   }
 
-  return /*#__PURE__*/React$1__default.createElement(React$1__default.Fragment, null);
+  return /*#__PURE__*/React__default.createElement(React__default.Fragment, null);
 };
 
 var ListMeta = function ListMeta(props) {
@@ -1699,39 +1483,39 @@ var ListMeta = function ListMeta(props) {
 
   if (item.get('type') === "Link") ;
 
-  return /*#__PURE__*/React$1__default.createElement("div", {
+  return /*#__PURE__*/React__default.createElement("div", {
     className: hasImage ? 'col-12 col-md-9 py-3' : 'col-12 py-3'
-  }, /*#__PURE__*/React$1__default.createElement("div", {
+  }, /*#__PURE__*/React__default.createElement("div", {
     className: "mura-item-meta"
   }, fieldlist.map(function (field) {
     switch (field) {
       case "title":
-        return /*#__PURE__*/React$1__default.createElement("div", {
+        return /*#__PURE__*/React__default.createElement("div", {
           className: "mura-item-meta__title",
           key: item.get('field')
-        }, /*#__PURE__*/React$1__default.createElement("h3", null, item.get('title')));
+        }, /*#__PURE__*/React__default.createElement("h3", null, item.get('title')));
 
       case "date":
       case "releasedate":
-        return /*#__PURE__*/React$1__default.createElement("div", {
+        return /*#__PURE__*/React__default.createElement("div", {
           className: "mura-item-meta__date",
           key: "date"
-        }, /*#__PURE__*/React$1__default.createElement(ItemDate, {
+        }, /*#__PURE__*/React__default.createElement(ItemDate, {
           releasedate: item.get('releasedate'),
           lastupdate: item.get('lastupdate')
         }));
 
       case "summary":
-        return /*#__PURE__*/React$1__default.createElement(OutputMarkup, {
+        return /*#__PURE__*/React__default.createElement(OutputMarkup, {
           source: item.get('summary'),
           key: field
         });
 
       case "readmore":
-        return /*#__PURE__*/React$1__default.createElement("div", {
+        return /*#__PURE__*/React__default.createElement("div", {
           className: "mura-item-meta__readmore",
           key: field
-        }, /*#__PURE__*/React$1__default.createElement(CollectionReadMoreBtn, {
+        }, /*#__PURE__*/React__default.createElement(CollectionReadMoreBtn, {
           href: "/" + item.get('filename'),
           ctatext: "Read More",
           link: Link,
@@ -1740,9 +1524,9 @@ var ListMeta = function ListMeta(props) {
 
       case "credits":
         if (item.get('credits').length) {
-          return /*#__PURE__*/React$1__default.createElement("div", {
+          return /*#__PURE__*/React__default.createElement("div", {
             className: "mura-item-meta__credits"
-          }, /*#__PURE__*/React$1__default.createElement(ItemCredits, {
+          }, /*#__PURE__*/React__default.createElement(ItemCredits, {
             credits: item.get('credits'),
             key: "credits"
           }));
@@ -1751,15 +1535,15 @@ var ListMeta = function ListMeta(props) {
         return null;
 
       case "tags":
-        return /*#__PURE__*/React$1__default.createElement("div", {
+        return /*#__PURE__*/React__default.createElement("div", {
           className: "mura-item-meta__tags pb-2",
           key: "tags"
-        }, /*#__PURE__*/React$1__default.createElement(ItemTags, {
+        }, /*#__PURE__*/React__default.createElement(ItemTags, {
           tags: item.get('tags')
         }));
 
       default:
-        return /*#__PURE__*/React$1__default.createElement("div", {
+        return /*#__PURE__*/React__default.createElement("div", {
           className: "mura-item-meta__" + field,
           key: field,
           "data-value": item.get(field)
@@ -1779,21 +1563,21 @@ var Masonry = function Masonry(_ref) {
       collection = _ref.collection,
       link = _ref.link;
 
-  var _useState = React$1.useState(0),
+  var _useState = React.useState(0),
       pos = _useState[0],
       setPos = _useState[1];
 
-  return /*#__PURE__*/React$1__default.createElement(React$1__default.Fragment, null, /*#__PURE__*/React$1__default.createElement("div", {
+  return /*#__PURE__*/React__default.createElement(React__default.Fragment, null, /*#__PURE__*/React__default.createElement("div", {
     className: "collectionLayoutMasonry card-columns"
-  }, /*#__PURE__*/React$1__default.createElement(CurrentItems$6, _extends({
+  }, /*#__PURE__*/React__default.createElement(CurrentItems$6, _extends({
     collection: collection,
     pos: pos,
     link: link
-  }, props))), /*#__PURE__*/React$1__default.createElement("div", {
+  }, props))), /*#__PURE__*/React__default.createElement("div", {
     className: "row"
-  }, /*#__PURE__*/React$1__default.createElement("div", {
+  }, /*#__PURE__*/React__default.createElement("div", {
     className: "col-12"
-  }, /*#__PURE__*/React$1__default.createElement(CollectionNav, _extends({
+  }, /*#__PURE__*/React__default.createElement(CollectionNav, _extends({
     collection: collection,
     pos: pos,
     setPos: setPos,
@@ -1821,47 +1605,47 @@ var CurrentItems$6 = function CurrentItems(props) {
 
   for (var i = pos; i < itemsTo; i++) {
     item = items[i];
-    itemsList.push( /*#__PURE__*/React$1__default.createElement(Card, {
+    itemsList.push( /*#__PURE__*/React__default.createElement(Card, {
       className: "mb-3 h-100 shadow",
       key: item.get('contentid')
     }, fieldlist.filter(function (field) {
       return field == 'image';
     }).map(function (filteredField) {
-      return /*#__PURE__*/React$1__default.createElement(Card.Img, {
+      return /*#__PURE__*/React__default.createElement(Card.Img, {
         variant: "top",
         src: item.get('images')[props.imagesize],
         key: item.get('fileid')
       });
-    }), /*#__PURE__*/React$1__default.createElement(Card.Body, null, /*#__PURE__*/React$1__default.createElement("div", {
+    }), /*#__PURE__*/React__default.createElement(Card.Body, null, /*#__PURE__*/React__default.createElement("div", {
       className: "mura-item-meta"
     }, fieldlist.map(function (field) {
       switch (field) {
         case "title":
-          return /*#__PURE__*/React$1__default.createElement(Card.Title, {
+          return /*#__PURE__*/React__default.createElement(Card.Title, {
             key: field
           }, item.get('title'));
 
         case "date":
         case "releasedate":
-          return /*#__PURE__*/React$1__default.createElement("div", {
+          return /*#__PURE__*/React__default.createElement("div", {
             className: "mura-item-meta__date",
             key: "date"
-          }, /*#__PURE__*/React$1__default.createElement(ItemDate, {
+          }, /*#__PURE__*/React__default.createElement(ItemDate, {
             releasedate: item.get('releasedate'),
             lastupdate: item.get('lastupdate')
           }));
 
         case "summary":
-          return /*#__PURE__*/React$1__default.createElement(OutputMarkup, {
+          return /*#__PURE__*/React__default.createElement(OutputMarkup, {
             source: item.get('summary'),
             key: field
           });
 
         case "credits":
           if (item.get('credits').length) {
-            return /*#__PURE__*/React$1__default.createElement("div", {
+            return /*#__PURE__*/React__default.createElement("div", {
               className: "mura-item-meta__credits"
-            }, /*#__PURE__*/React$1__default.createElement(ItemCredits, {
+            }, /*#__PURE__*/React__default.createElement(ItemCredits, {
               credits: item.get('credits'),
               key: "credits"
             }));
@@ -1870,21 +1654,21 @@ var CurrentItems$6 = function CurrentItems(props) {
           return null;
 
         case "tags":
-          return /*#__PURE__*/React$1__default.createElement("div", {
+          return /*#__PURE__*/React__default.createElement("div", {
             className: "mura-item-meta__tags pb-2",
             key: "tags"
-          }, /*#__PURE__*/React$1__default.createElement(ItemTags, {
+          }, /*#__PURE__*/React__default.createElement(ItemTags, {
             tags: item.get('tags')
           }));
 
         default:
-          return /*#__PURE__*/React$1__default.createElement("div", {
+          return /*#__PURE__*/React__default.createElement("div", {
             className: "mura-item-meta__" + field,
             key: field,
             "data-value": item.get(field)
           }, item.get(field));
       }
-    }))), /*#__PURE__*/React$1__default.createElement(Card.Footer, null, /*#__PURE__*/React$1__default.createElement(CollectionReadMoreBtn, {
+    }))), /*#__PURE__*/React__default.createElement(Card.Footer, null, /*#__PURE__*/React__default.createElement(CollectionReadMoreBtn, {
       href: "/" + item.get('filename'),
       ctatext: "Read More",
       link: Link,
@@ -1909,10 +1693,10 @@ var SlickSlider = function SlickSlider(_ref) {
   function CustomNextArrow(props) {
     var className = props.className,
         onClick = props.onClick;
-    return /*#__PURE__*/React$1__default.createElement("div", {
+    return /*#__PURE__*/React__default.createElement("div", {
       className: className,
       onClick: onClick
-    }, /*#__PURE__*/React$1__default.createElement(reactFontawesome.FontAwesomeIcon, {
+    }, /*#__PURE__*/React__default.createElement(reactFontawesome.FontAwesomeIcon, {
       icon: freeSolidSvgIcons.faChevronRight
     }));
   }
@@ -1920,16 +1704,16 @@ var SlickSlider = function SlickSlider(_ref) {
   function CustomPrevArrow(props) {
     var className = props.className,
         onClick = props.onClick;
-    return /*#__PURE__*/React$1__default.createElement("div", {
+    return /*#__PURE__*/React__default.createElement("div", {
       className: className,
       onClick: onClick
-    }, /*#__PURE__*/React$1__default.createElement(reactFontawesome.FontAwesomeIcon, {
+    }, /*#__PURE__*/React__default.createElement(reactFontawesome.FontAwesomeIcon, {
       icon: freeSolidSvgIcons.faChevronLeft
     }));
   }
 
   var slides = collection.map(function (item) {
-    return /*#__PURE__*/React$1__default.createElement(SliderItem, _extends({
+    return /*#__PURE__*/React__default.createElement(SliderItem, _extends({
       sliderimage: item.get('images')[props.imagesize],
       imagesize: props.imagesize,
       item: item,
@@ -1939,9 +1723,9 @@ var SlickSlider = function SlickSlider(_ref) {
       key: item.get('contentid')
     }));
   });
-  return slides != null && slides.length > 0 && /*#__PURE__*/React$1__default.createElement("div", {
+  return slides != null && slides.length > 0 && /*#__PURE__*/React__default.createElement("div", {
     className: "collectionLayoutSlickSlider " + props.sliderlayout
-  }, /*#__PURE__*/React$1__default.createElement(Slider, {
+  }, /*#__PURE__*/React__default.createElement(Slider, {
     dots: props.dots,
     arrows: props.arrows,
     infinite: props.infinite,
@@ -1975,8 +1759,8 @@ var SlickSlider = function SlickSlider(_ref) {
         slidesToScroll: Number(props.slidestoshow)
       }
     }],
-    nextArrow: /*#__PURE__*/React$1__default.createElement(CustomNextArrow, null),
-    prevArrow: /*#__PURE__*/React$1__default.createElement(CustomPrevArrow, null),
+    nextArrow: /*#__PURE__*/React__default.createElement(CustomNextArrow, null),
+    prevArrow: /*#__PURE__*/React__default.createElement(CustomPrevArrow, null),
     key: props.objectid
   }, slides));
 };
@@ -1987,46 +1771,46 @@ var SliderItem = function SliderItem(props) {
   var fieldlist = props.fields ? props.fields.toLowerCase().split(",") : [];
 
   if (props.sliderlayout === 'banner') {
-    return /*#__PURE__*/React$1__default.createElement("div", {
+    return /*#__PURE__*/React__default.createElement("div", {
       key: item.get('contentid'),
       className: "h-100 position-relative"
-    }, /*#__PURE__*/React$1__default.createElement(Link, {
+    }, /*#__PURE__*/React__default.createElement(Link, {
       href: "/" + item.get('filename'),
       passHref: true
-    }, /*#__PURE__*/React$1__default.createElement("img", {
+    }, /*#__PURE__*/React__default.createElement("img", {
       src: props.sliderimage
-    })), /*#__PURE__*/React$1__default.createElement("div", {
+    })), /*#__PURE__*/React__default.createElement("div", {
       className: "mura-item-meta"
     }, fieldlist.map(function (field) {
       switch (field) {
         case "title":
-          return /*#__PURE__*/React$1__default.createElement("div", {
+          return /*#__PURE__*/React__default.createElement("div", {
             className: "mura-item-meta__title",
             key: field
           }, item.get('title'));
 
         case "date":
         case "releasedate":
-          return /*#__PURE__*/React$1__default.createElement("div", {
+          return /*#__PURE__*/React__default.createElement("div", {
             className: "mura-item-meta__date",
             key: item.get('releasedate')
-          }, /*#__PURE__*/React$1__default.createElement(ItemDate, {
+          }, /*#__PURE__*/React__default.createElement(ItemDate, {
             releasedate: item.get('releasedate'),
             lastupdate: item.get('lastupdate')
           }));
 
         case "summary":
-          return /*#__PURE__*/React$1__default.createElement(OutputMarkup, {
+          return /*#__PURE__*/React__default.createElement(OutputMarkup, {
             className: "mura-item-meta__summary",
             source: item.get('summary'),
             key: field
           });
 
         case "readmore":
-          return /*#__PURE__*/React$1__default.createElement("div", {
+          return /*#__PURE__*/React__default.createElement("div", {
             className: "mura-item-meta__readmore",
             key: item.get('contentid')
-          }, /*#__PURE__*/React$1__default.createElement(CollectionReadMoreBtn, {
+          }, /*#__PURE__*/React__default.createElement(CollectionReadMoreBtn, {
             href: "/" + item.get('filename'),
             ctatext: "Read More",
             link: Link,
@@ -2035,9 +1819,9 @@ var SliderItem = function SliderItem(props) {
 
         case "credits":
           if (item.get('credits').length) {
-            return /*#__PURE__*/React$1__default.createElement("div", {
+            return /*#__PURE__*/React__default.createElement("div", {
               className: "mura-item-meta__credits"
-            }, /*#__PURE__*/React$1__default.createElement(ItemCredits, {
+            }, /*#__PURE__*/React__default.createElement(ItemCredits, {
               credits: item.get('credits'),
               key: "credits"
             }));
@@ -2046,15 +1830,15 @@ var SliderItem = function SliderItem(props) {
           return null;
 
         case "tags":
-          return /*#__PURE__*/React$1__default.createElement("div", {
+          return /*#__PURE__*/React__default.createElement("div", {
             className: "mura-item-meta__tags pb-2",
             key: "tags"
-          }, /*#__PURE__*/React$1__default.createElement(ItemTags, {
+          }, /*#__PURE__*/React__default.createElement(ItemTags, {
             tags: item.get('tags')
           }));
 
         default:
-          return /*#__PURE__*/React$1__default.createElement("div", {
+          return /*#__PURE__*/React__default.createElement("div", {
             className: "mura-item-meta__" + field,
             key: field,
             "data-value": item.get(field)
@@ -2062,48 +1846,48 @@ var SliderItem = function SliderItem(props) {
       }
     })));
   } else {
-    return /*#__PURE__*/React$1__default.createElement("div", {
+    return /*#__PURE__*/React__default.createElement("div", {
       className: "mx-2 h-100",
       key: props.contentid
-    }, /*#__PURE__*/React$1__default.createElement(Card, {
+    }, /*#__PURE__*/React__default.createElement(Card, {
       className: "h-100"
     }, fieldlist.filter(function (field) {
       return field == 'image';
     }).map(function (filteredField) {
-      return /*#__PURE__*/React$1__default.createElement(Card.Img, {
+      return /*#__PURE__*/React__default.createElement(Card.Img, {
         variant: "top",
         src: item.get('images')[props.imagesize],
         key: filteredField
       });
-    }), /*#__PURE__*/React$1__default.createElement(Card.Body, {
+    }), /*#__PURE__*/React__default.createElement(Card.Body, {
       className: "spacing-normal h-100"
-    }, /*#__PURE__*/React$1__default.createElement("div", {
+    }, /*#__PURE__*/React__default.createElement("div", {
       className: "mura-item-meta"
     }, fieldlist.map(function (field) {
       switch (field) {
         case "title":
-          return /*#__PURE__*/React$1__default.createElement(Card.Title, {
+          return /*#__PURE__*/React__default.createElement(Card.Title, {
             key: field
           }, item.get('title'));
 
         case "date":
         case "releasedate":
-          return /*#__PURE__*/React$1__default.createElement("div", {
+          return /*#__PURE__*/React__default.createElement("div", {
             className: "mura-item-meta__date",
             key: "date"
-          }, /*#__PURE__*/React$1__default.createElement(ItemDate, {
+          }, /*#__PURE__*/React__default.createElement(ItemDate, {
             releasedate: item.get('releasedate'),
             lastupdate: item.get('lastupdate')
           }));
 
         case "summary":
-          return /*#__PURE__*/React$1__default.createElement(OutputMarkup, {
+          return /*#__PURE__*/React__default.createElement(OutputMarkup, {
             source: item.get('summary'),
             key: field
           });
 
         case "readmore":
-          return /*#__PURE__*/React$1__default.createElement(CollectionReadMoreBtn, {
+          return /*#__PURE__*/React__default.createElement(CollectionReadMoreBtn, {
             href: "/" + item.get('filename'),
             ctatext: "Read More",
             link: Link,
@@ -2111,7 +1895,7 @@ var SliderItem = function SliderItem(props) {
           });
 
         default:
-          return /*#__PURE__*/React$1__default.createElement("div", {
+          return /*#__PURE__*/React__default.createElement("div", {
             className: "mura-item-meta__" + field,
             key: field,
             "data-value": item.get(field)
@@ -2142,12 +1926,12 @@ var Container = function Container(props) {
     obj.moduleStyleData = props.moduleStyleData;
     obj.content = content;
     obj.inited = true;
-    return /*#__PURE__*/React$1__default.createElement(Decorator, obj, " ", getComponent(obj), " ");
+    return /*#__PURE__*/React__default.createElement(nextCore.Decorator, obj, " ", nextCore.getComponent(obj), " ");
   });
 };
 
 var Hr = function Hr(props) {
-  return /*#__PURE__*/React$1__default.createElement("hr", null);
+  return /*#__PURE__*/React__default.createElement("hr", null);
 };
 
 var CTAButton = function CTAButton(_ref) {
@@ -2167,14 +1951,14 @@ var CTAButton = function CTAButton(_ref) {
     btnclass = btnclass + " btn-block";
   }
 
-  return /*#__PURE__*/React$1__default.createElement(React$1__default.Fragment, null, /*#__PURE__*/React$1__default.createElement(Link, {
+  return /*#__PURE__*/React__default.createElement(React__default.Fragment, null, /*#__PURE__*/React__default.createElement(Link, {
     href: buttonlink || 'https://www.murasoftware.com',
     passHref: true
-  }, /*#__PURE__*/React$1__default.createElement("a", {
+  }, /*#__PURE__*/React__default.createElement("a", {
     target: buttontarget || '_self',
     className: btnclass,
     role: "button"
-  }, buttontext || 'Press Me', " ", /*#__PURE__*/React$1__default.createElement(reactFontawesome.FontAwesomeIcon, {
+  }, buttontext || 'Press Me', " ", /*#__PURE__*/React__default.createElement(reactFontawesome.FontAwesomeIcon, {
     icon: freeSolidSvgIcons.faChevronRight
   }))));
 };
@@ -2182,7 +1966,7 @@ var CTAButton = function CTAButton(_ref) {
 var Embed = function Embed(props) {
   var objectparams = Object.assign({}, props);
   objectparams.source = objectparams.source || '';
-  return /*#__PURE__*/React$1__default.createElement("div", {
+  return /*#__PURE__*/React__default.createElement("div", {
     dangerouslySetInnerHTML: {
       __html: objectparams.source
     }
@@ -2204,16 +1988,16 @@ var Image = function Image(props) {
   }
 
   if (objectparams.imagelink) {
-    return /*#__PURE__*/React$1__default.createElement("figure", null, /*#__PURE__*/React$1__default.createElement("a", {
+    return /*#__PURE__*/React__default.createElement("figure", null, /*#__PURE__*/React__default.createElement("a", {
       href: objectparams.imagelink,
       target: objectparams.imagelinktarget
-    }, /*#__PURE__*/React$1__default.createElement(Img, objectparams)), /*#__PURE__*/React$1__default.createElement(FigCaption, objectparams));
+    }, /*#__PURE__*/React__default.createElement(Img, objectparams)), /*#__PURE__*/React__default.createElement(FigCaption, objectparams));
   } else {
-    return /*#__PURE__*/React$1__default.createElement("figure", {
+    return /*#__PURE__*/React__default.createElement("figure", {
       style: {
         margin: "0px"
       }
-    }, /*#__PURE__*/React$1__default.createElement(Img, objectparams), /*#__PURE__*/React$1__default.createElement(FigCaption, objectparams));
+    }, /*#__PURE__*/React__default.createElement(Img, objectparams), /*#__PURE__*/React__default.createElement(FigCaption, objectparams));
   }
 };
 
@@ -2221,7 +2005,7 @@ var FigCaption = function FigCaption(_ref) {
   var caption = _ref.caption;
 
   if (caption && caption != '<p></p>') {
-    return /*#__PURE__*/React$1__default.createElement("figcaption", null, /*#__PURE__*/React$1__default.createElement(OutputMarkup, {
+    return /*#__PURE__*/React__default.createElement("figcaption", null, /*#__PURE__*/React__default.createElement(OutputMarkup, {
       source: caption
     }));
   } else {
@@ -2231,7 +2015,7 @@ var FigCaption = function FigCaption(_ref) {
 
 var Img = function Img(props) {
   if (props.fit) {
-    return /*#__PURE__*/React$1__default.createElement("img", {
+    return /*#__PURE__*/React__default.createElement("img", {
       src: props.src,
       alt: props.alt,
       loading: "lazy",
@@ -2243,7 +2027,7 @@ var Img = function Img(props) {
       "data-object-fit": props.fit
     });
   } else {
-    return /*#__PURE__*/React$1__default.createElement("img", {
+    return /*#__PURE__*/React__default.createElement("img", {
       src: props.src,
       alt: props.alt,
       loading: "lazy"
@@ -2252,7 +2036,7 @@ var Img = function Img(props) {
 };
 
 function Login(props) {
-  return /*#__PURE__*/React$1__default.createElement("h3", null, "Login");
+  return /*#__PURE__*/React__default.createElement("h3", null, "Login");
 }
 
 function MatrixSelector(props) {
@@ -2262,11 +2046,11 @@ function MatrixSelector(props) {
 
   var _stageIds = objectparams.dynamicProps ? objectparams.dynamicProps.stageProps : '';
 
-  var _useState = React$1.useState(_personaIds),
+  var _useState = React.useState(_personaIds),
       personaIds = _useState[0],
       setPersonaIds = _useState[1];
 
-  var _useState2 = React$1.useState(_stageIds),
+  var _useState2 = React.useState(_stageIds),
       stageIds = _useState2[0],
       setStageIds = _useState2[1];
 
@@ -2274,41 +2058,41 @@ function MatrixSelector(props) {
 
   var _stageQ = objectparams.stageq ? objectparams.stageq : 'Where are you in the process?';
 
-  var _useState3 = React$1.useState(_personaQ),
+  var _useState3 = React.useState(_personaQ),
       personaQ = _useState3[0];
 
-  var _useState4 = React$1.useState(_stageQ),
+  var _useState4 = React.useState(_stageQ),
       stageQ = _useState4[0];
 
-  var _useState5 = React$1.useState(''),
+  var _useState5 = React.useState(''),
       curSelPersona = _useState5[0],
       setCurSelPersona = _useState5[1];
 
-  var _useState6 = React$1.useState(''),
+  var _useState6 = React.useState(''),
       curSelStage = _useState6[0],
       setCurSelStage = _useState6[1];
 
-  var _useState7 = React$1.useState(false),
+  var _useState7 = React.useState(false),
       buttonEnabled = _useState7[0],
       setButtonEnabled = _useState7[1];
 
-  var _useState8 = React$1.useState(false),
+  var _useState8 = React.useState(false),
       updateSuccess = _useState8[0],
       setUpdateSuccess = _useState8[1];
 
-  var _useState9 = React$1.useState(false),
+  var _useState9 = React.useState(false),
       showingAlert = _useState9[0],
       setShowingAlert = _useState9[1];
 
-  var _useState10 = React$1.useState(false),
+  var _useState10 = React.useState(false),
       isUpdating = _useState10[0],
       setIsUpdating = _useState10[1];
 
-  var _useState11 = React$1.useState(false),
+  var _useState11 = React.useState(false),
       selPersonaValidated = _useState11[0],
       setSelPersonaValidated = _useState11[1];
 
-  var _useState12 = React$1.useState(false),
+  var _useState12 = React.useState(false),
       selStageValidated = _useState12[0],
       setSelStageValidated = _useState12[1];
 
@@ -2399,7 +2183,7 @@ function MatrixSelector(props) {
     }
   };
 
-  React$1.useEffect(function () {
+  React.useEffect(function () {
     var isMounted = true;
 
     if (isMounted) {
@@ -2412,7 +2196,7 @@ function MatrixSelector(props) {
   }, [selPersonaValidated, selStageValidated]);
 
   if (!objectparams.dynamicProps) {
-    React$1.useEffect(function () {
+    React.useEffect(function () {
       var isMounted = true;
 
       if (isMounted) {
@@ -2444,51 +2228,51 @@ function MatrixSelector(props) {
         isMounted = false;
       };
     }, []);
-    return /*#__PURE__*/React$1__default.createElement(React$1__default.Fragment, null, /*#__PURE__*/React$1__default.createElement("h3", null, "Matrix Selector"), updateSuccess && showingAlert && /*#__PURE__*/React$1__default.createElement(Alert, {
+    return /*#__PURE__*/React__default.createElement(React__default.Fragment, null, /*#__PURE__*/React__default.createElement("h3", null, "Matrix Selector"), updateSuccess && showingAlert && /*#__PURE__*/React__default.createElement(Alert, {
       variant: "success"
-    }, /*#__PURE__*/React$1__default.createElement("h4", null, "Thanks!"), /*#__PURE__*/React$1__default.createElement("p", null, "We\u2019re tailoring our content for you\u2026")), !updateSuccess && !showingAlert && /*#__PURE__*/React$1__default.createElement(Form, {
+    }, /*#__PURE__*/React__default.createElement("h4", null, "Thanks!"), /*#__PURE__*/React__default.createElement("p", null, "We\u2019re tailoring our content for you\u2026")), !updateSuccess && !showingAlert && /*#__PURE__*/React__default.createElement(Form, {
       inline: true,
       id: "mura_matrix-selector-form",
       onSubmit: handleSubmit,
       "data-autowire": "false"
-    }, /*#__PURE__*/React$1__default.createElement("div", {
+    }, /*#__PURE__*/React__default.createElement("div", {
       className: "select-wrap"
-    }, personaIds.length > 1 && /*#__PURE__*/React$1__default.createElement(React$1__default.Fragment, null, /*#__PURE__*/React$1__default.createElement(Form.Label, {
+    }, personaIds.length > 1 && /*#__PURE__*/React__default.createElement(React__default.Fragment, null, /*#__PURE__*/React__default.createElement(Form.Label, {
       className: "mr-2"
-    }, personaQ), /*#__PURE__*/React$1__default.createElement(Form.Control, {
+    }, personaQ), /*#__PURE__*/React__default.createElement(Form.Control, {
       as: "select",
       name: "persona",
       size: "sm",
       className: "mr-2",
       value: props.curSelPersona,
       onChange: updateSelectedPersona
-    }, /*#__PURE__*/React$1__default.createElement("option", {
+    }, /*#__PURE__*/React__default.createElement("option", {
       value: "",
       key: "--"
     }, "--"), personaIds.map(function (personaId) {
-      return /*#__PURE__*/React$1__default.createElement("option", {
+      return /*#__PURE__*/React__default.createElement("option", {
         value: personaId.personaid,
         key: personaId.personaid
       }, personaId.selfidq);
-    }))), stageIds.length > 1 && /*#__PURE__*/React$1__default.createElement(React$1__default.Fragment, null, /*#__PURE__*/React$1__default.createElement(Form.Label, {
+    }))), stageIds.length > 1 && /*#__PURE__*/React__default.createElement(React__default.Fragment, null, /*#__PURE__*/React__default.createElement(Form.Label, {
       className: "mr-2"
-    }, stageQ), /*#__PURE__*/React$1__default.createElement(Form.Control, {
+    }, stageQ), /*#__PURE__*/React__default.createElement(Form.Control, {
       as: "select",
       name: "stage",
       size: "sm",
       value: props.curSelStage,
       onChange: updateSelectedStage
-    }, /*#__PURE__*/React$1__default.createElement("option", {
+    }, /*#__PURE__*/React__default.createElement("option", {
       value: "",
       key: "--"
     }, "--"), stageIds.map(function (stageId) {
-      return /*#__PURE__*/React$1__default.createElement("option", {
+      return /*#__PURE__*/React__default.createElement("option", {
         value: stageId.stageid,
         key: stageId.stageid
       }, stageId.selfidq);
-    })))), /*#__PURE__*/React$1__default.createElement("div", {
+    })))), /*#__PURE__*/React__default.createElement("div", {
       className: "w-100 mt-3"
-    }, /*#__PURE__*/React$1__default.createElement(Button, {
+    }, /*#__PURE__*/React__default.createElement(Button, {
       variant: "primary",
       type: "submit",
       disabled: !buttonEnabled
@@ -2531,27 +2315,27 @@ function PrimaryNav(props) {
   var objectparams = Object.assign({}, props);
 
   if (!objectparams.dynamicProps) {
-    var _useState = React$1.useState(''),
+    var _useState = React.useState(''),
         items = _useState[0],
         setItems = _useState[1];
 
-    React$1.useEffect(function () {
+    React.useEffect(function () {
       getDynamicProps$2(objectparams).then(function (dynamicProps) {
         setItems(dynamicProps.items);
       });
     }, []);
 
     if (items) {
-      return /*#__PURE__*/React$1__default.createElement(Render, {
+      return /*#__PURE__*/React__default.createElement(Render, {
         items: items,
         link: RouterlessLink$1,
         props: props
       });
     } else {
-      return /*#__PURE__*/React$1__default.createElement("div", null);
+      return /*#__PURE__*/React__default.createElement("div", null);
     }
   } else {
-    return /*#__PURE__*/React$1__default.createElement(Render, {
+    return /*#__PURE__*/React__default.createElement(Render, {
       items: objectparams.dynamicProps.items,
       link: RouterLink$1,
       props: props
@@ -2566,31 +2350,31 @@ var Render = function Render(_ref) {
 
   var Link = link;
   var homeNavIcon = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" focusable="false" width="1em" height="1em" style="-ms-transform: rotate(360deg); -webkit-transform: rotate(360deg); transform: rotate(360deg);" preserveAspectRatio="xMidYMid meet" viewBox="0 0 20 20"><path d="M16 8.5l1.53 1.53l-1.06 1.06L10 4.62l-6.47 6.47l-1.06-1.06L10 2.5l4 4v-2h2v4zm-6-2.46l6 5.99V18H4v-5.97zM12 17v-5H8v5h4z" fill="#626262"/></svg>';
-  return /*#__PURE__*/React$1__default.createElement(Navbar, {
+  return /*#__PURE__*/React__default.createElement(Navbar, {
     bg: "white",
     variant: "light",
     expand: "lg",
     className: "navbar-static-top py-0",
     collapseOnSelect: true
-  }, /*#__PURE__*/React$1__default.createElement("div", {
+  }, /*#__PURE__*/React__default.createElement("div", {
     className: "container-xl"
-  }, /*#__PURE__*/React$1__default.createElement(Link, {
+  }, /*#__PURE__*/React__default.createElement(Link, {
     href: '/',
     className: "navbar-brand",
     type: "navbarbrand",
     navlogo: props.props.navlogo
-  }), /*#__PURE__*/React$1__default.createElement(Navbar.Toggle, {
+  }), /*#__PURE__*/React__default.createElement(Navbar.Toggle, {
     "aria-controls": "primary-nav"
-  }), /*#__PURE__*/React$1__default.createElement(Navbar.Collapse, {
+  }), /*#__PURE__*/React__default.createElement(Navbar.Collapse, {
     id: "primary-nav"
-  }, /*#__PURE__*/React$1__default.createElement(Nav, {
+  }, /*#__PURE__*/React__default.createElement(Nav, {
     className: "ml-auto"
-  }, /*#__PURE__*/React$1__default.createElement(Homelink, {
+  }, /*#__PURE__*/React__default.createElement(Homelink, {
     displayhome: props.props.displayhome,
     link: Link,
     navicon: homeNavIcon
   }), items.map(function (item) {
-    return /*#__PURE__*/React$1__default.createElement(NavLinkDropdown, {
+    return /*#__PURE__*/React__default.createElement(NavLinkDropdown, {
       key: item.contentid,
       contentid: item.contentid,
       filename: item.filename,
@@ -2599,14 +2383,14 @@ var Render = function Render(_ref) {
       link: Link,
       navicon: item.navicon
     });
-  }), props.props.content && props.props.content.translations && /*#__PURE__*/React$1__default.createElement(LangOptions, {
+  }), props.props.content && props.props.content.translations && /*#__PURE__*/React__default.createElement(LangOptions, {
     translations: props.props.content.translations
   })))));
 };
 
 var getDynamicProps$2 = function getDynamicProps(props) {
   try {
-    var Mura = getMura();
+    var Mura = nextCore.getMura();
     console.log("requesting primary nav data", props.instanceid, Date.now(), Mura.siteid);
     return Promise.resolve(Mura.getFeed('content').where().prop('parentid').isEQ(Mura.homeid).sort('orderno').expand("kids").fields('navicon,menutitle,url,filename').getQuery()).then(function (collection) {
       console.log("receiving primary nav data", props.instanceid, Date.now(), Mura.siteid);
@@ -2628,27 +2412,27 @@ var RouterlessLink$1 = function RouterlessLink(_ref2) {
 
   switch (type) {
     case "navdropdownitem":
-      return /*#__PURE__*/React$1__default.createElement(NavDropdown.Item, {
-        href: getHref(href)
+      return /*#__PURE__*/React__default.createElement(NavDropdown.Item, {
+        href: nextCore.getHref(href)
       }, menutitle);
 
     case "navlink":
-      return /*#__PURE__*/React$1__default.createElement(Nav.Link, {
-        href: getHref(href)
+      return /*#__PURE__*/React__default.createElement(Nav.Link, {
+        href: nextCore.getHref(href)
       }, menutitle);
 
     case "navbarbrand":
-      return /*#__PURE__*/React$1__default.createElement(Navbar.Brand, {
-        href: getHref(href)
-      }, /*#__PURE__*/React$1__default.createElement("img", {
+      return /*#__PURE__*/React__default.createElement(Navbar.Brand, {
+        href: nextCore.getHref(href)
+      }, /*#__PURE__*/React__default.createElement("img", {
         src: navlogo,
         loading: "lazy"
       }));
 
     default:
-      return /*#__PURE__*/React$1__default.createElement("a", {
+      return /*#__PURE__*/React__default.createElement("a", {
         className: className,
-        href: getHref(href)
+        href: nextCore.getHref(href)
       }, menutitle);
   }
 };
@@ -2662,30 +2446,30 @@ var RouterLink$1 = function RouterLink(_ref3) {
 
   switch (type) {
     case "navdropdownitem":
-      return /*#__PURE__*/React$1__default.createElement(Link, {
-        href: getHref(href),
+      return /*#__PURE__*/React__default.createElement(Link, {
+        href: nextCore.getHref(href),
         passHref: true
-      }, /*#__PURE__*/React$1__default.createElement(NavDropdown.Item, null, menutitle));
+      }, /*#__PURE__*/React__default.createElement(NavDropdown.Item, null, menutitle));
 
     case "navlink":
-      return /*#__PURE__*/React$1__default.createElement(Link, {
-        href: getHref(href),
+      return /*#__PURE__*/React__default.createElement(Link, {
+        href: nextCore.getHref(href),
         passHref: true
-      }, /*#__PURE__*/React$1__default.createElement(Nav.Link, null, menutitle));
+      }, /*#__PURE__*/React__default.createElement(Nav.Link, null, menutitle));
 
     case "navbarbrand":
-      return /*#__PURE__*/React$1__default.createElement(Link, {
-        href: getHref(href),
+      return /*#__PURE__*/React__default.createElement(Link, {
+        href: nextCore.getHref(href),
         passHref: true
-      }, /*#__PURE__*/React$1__default.createElement(Navbar.Brand, null, /*#__PURE__*/React$1__default.createElement("img", {
+      }, /*#__PURE__*/React__default.createElement(Navbar.Brand, null, /*#__PURE__*/React__default.createElement("img", {
         src: navlogo,
         loading: "lazy"
       })));
 
     default:
-      return /*#__PURE__*/React$1__default.createElement(Link, {
-        href: getHref(href)
-      }, /*#__PURE__*/React$1__default.createElement("a", {
+      return /*#__PURE__*/React__default.createElement(Link, {
+        href: nextCore.getHref(href)
+      }, /*#__PURE__*/React__default.createElement("a", {
         className: className
       }, menutitle));
   }
@@ -2694,7 +2478,7 @@ var RouterLink$1 = function RouterLink(_ref3) {
 var Homelink = function Homelink(props) {
   var Link = props.link;
   var homeTitle = 'Home';
-  var Mura = getMura();
+  var Mura = nextCore.getMura();
 
   function createIcon() {
     return {
@@ -2705,32 +2489,32 @@ var Homelink = function Homelink(props) {
   if (props.displayhome) {
     var _React$createElement;
 
-    return /*#__PURE__*/React$1__default.createElement("li", {
+    return /*#__PURE__*/React__default.createElement("li", {
       className: "nav-item"
-    }, /*#__PURE__*/React$1__default.createElement(Link, (_React$createElement = {
+    }, /*#__PURE__*/React__default.createElement(Link, (_React$createElement = {
       key: Mura.homeid,
       href: "/",
       className: "nav-link",
       type: "navitem",
-      menutitle: /*#__PURE__*/React$1__default.createElement(React$1__default.Fragment, null, /*#__PURE__*/React$1__default.createElement("span", {
+      menutitle: /*#__PURE__*/React__default.createElement(React__default.Fragment, null, /*#__PURE__*/React__default.createElement("span", {
         dangerouslySetInnerHTML: createIcon()
       }), " ", homeTitle)
     }, _React$createElement["type"] = "navlink", _React$createElement)));
   }
 
-  return /*#__PURE__*/React$1__default.createElement(React$1__default.Fragment, null);
+  return /*#__PURE__*/React__default.createElement(React__default.Fragment, null);
 };
 
 var LangOptions = function LangOptions(props) {
   if (props.translations.items.length) {
-    return /*#__PURE__*/React$1__default.createElement(React$1__default.Fragment, null, /*#__PURE__*/React$1__default.createElement(NavDropdown, {
+    return /*#__PURE__*/React__default.createElement(React__default.Fragment, null, /*#__PURE__*/React__default.createElement(NavDropdown, {
       key: "lang-options",
       title: "Other Languages",
       id: "lang-options",
       href: "",
       renderMenuOnMount: true
     }, props.translations.items.map(function (translation) {
-      return /*#__PURE__*/React$1__default.createElement(NavDropdown.Item, {
+      return /*#__PURE__*/React__default.createElement(NavDropdown.Item, {
         key: "lang-option-" + translation.siteid,
         href: translation.url
       }, translation.label);
@@ -2748,25 +2532,25 @@ var NavLinkDropdown = function NavLinkDropdown(props) {
   }
 
   if (props.kids.items.length) {
-    return /*#__PURE__*/React$1__default.createElement(React$1__default.Fragment, null, /*#__PURE__*/React$1__default.createElement(NavDropdown, {
+    return /*#__PURE__*/React__default.createElement(React__default.Fragment, null, /*#__PURE__*/React__default.createElement(NavDropdown, {
       key: props.contentid,
-      title: /*#__PURE__*/React$1__default.createElement("div", {
+      title: /*#__PURE__*/React__default.createElement("div", {
         style: {
           display: "inline-block"
         }
-      }, /*#__PURE__*/React$1__default.createElement("span", {
+      }, /*#__PURE__*/React__default.createElement("span", {
         dangerouslySetInnerHTML: createIcon()
       }), " ", props.menutitle, " "),
       id: "dropdown-" + props.contentid,
       href: "/" + props.filename,
       renderMenuOnMount: true
-    }, /*#__PURE__*/React$1__default.createElement(Link, {
+    }, /*#__PURE__*/React__default.createElement(Link, {
       key: props.contentid,
       href: "/" + props.filename,
       type: "navdropdownitem",
       menutitle: props.menutitle
     }), props.kids.items.map(function (child) {
-      return /*#__PURE__*/React$1__default.createElement(Link, {
+      return /*#__PURE__*/React__default.createElement(Link, {
         key: child.contentid,
         href: "/" + child.filename,
         type: "navdropdownitem",
@@ -2775,20 +2559,20 @@ var NavLinkDropdown = function NavLinkDropdown(props) {
     })));
   }
 
-  return /*#__PURE__*/React$1__default.createElement("li", {
+  return /*#__PURE__*/React__default.createElement("li", {
     className: "nav-item"
-  }, /*#__PURE__*/React$1__default.createElement(Link, {
+  }, /*#__PURE__*/React__default.createElement(Link, {
     key: props.contentid,
     href: "/" + props.filename,
     type: "navlink",
-    menutitle: /*#__PURE__*/React$1__default.createElement(React$1__default.Fragment, null, /*#__PURE__*/React$1__default.createElement("span", {
+    menutitle: /*#__PURE__*/React__default.createElement(React__default.Fragment, null, /*#__PURE__*/React__default.createElement("span", {
       dangerouslySetInnerHTML: createIcon()
     }), " ", props.menutitle, " ")
   }));
 };
 
 function ResourceHub(props) {
-  var Mura = getMura();
+  var Mura = nextCore.getMura();
   var objectparams = Object.assign({}, props);
   var DynamicCollectionLayout = getLayout(objectparams.layout).component;
   var _collection = false;
@@ -2797,7 +2581,7 @@ function ResourceHub(props) {
     _collection = new Mura.EntityCollection(objectparams.dynamicProps.collection, Mura._requestcontext);
   }
 
-  var _useState = React$1.useState(_collection),
+  var _useState = React.useState(_collection),
       collection = _useState[0],
       setCollection = _useState[1];
 
@@ -2811,31 +2595,31 @@ function ResourceHub(props) {
 
   var _hasMXP = objectparams.dynamicProps ? objectparams.dynamicProps.filterprops.hasmxp : false;
 
-  var _useState2 = React$1.useState(_curSubtype),
+  var _useState2 = React.useState(_curSubtype),
       curSubtype = _useState2[0],
       setCurSubtype = _useState2[1];
 
-  var _useState3 = React$1.useState(_curCategoriesArray),
+  var _useState3 = React.useState(_curCategoriesArray),
       curCategoriesArray = _useState3[0],
       setCurCategoriesArray = _useState3[1];
 
-  var _useState4 = React$1.useState(_curCategoryIds),
+  var _useState4 = React.useState(_curCategoryIds),
       curCategoryIds = _useState4[0],
       setCurCategoryIds = _useState4[1];
 
-  var _useState5 = React$1.useState(_curPersonaId),
+  var _useState5 = React.useState(_curPersonaId),
       curPersonaId = _useState5[0],
       setCurPersonaId = _useState5[1];
 
-  var _useState6 = React$1.useState(_hasMXP),
+  var _useState6 = React.useState(_hasMXP),
       hasMXP = _useState6[0],
       setHasMXP = _useState6[1];
 
-  var _useState7 = React$1.useState(false),
+  var _useState7 = React.useState(false),
       newFilter = _useState7[0],
       setNewFilter = _useState7[1];
 
-  var _useState8 = React$1.useState(new Date().toString()),
+  var _useState8 = React.useState(new Date().toString()),
       filterUpdated = _useState8[0],
       setFilterUpdated = _useState8[1];
 
@@ -2875,7 +2659,7 @@ function ResourceHub(props) {
   };
 
   if (!objectparams.dynamicProps) {
-    React$1.useEffect(function () {
+    React.useEffect(function () {
       var isMounted = true;
 
       if (isMounted) {
@@ -2903,7 +2687,7 @@ function ResourceHub(props) {
 
     if (collection) {
       console.log('dynamic');
-      return /*#__PURE__*/React$1__default.createElement("div", null, /*#__PURE__*/React$1__default.createElement(RenderFilterForm, _extends({
+      return /*#__PURE__*/React__default.createElement("div", null, /*#__PURE__*/React__default.createElement(RenderFilterForm, _extends({
         updateFilter: updateFilter
       }, props, {
         curSubtype: curSubtype,
@@ -2911,18 +2695,18 @@ function ResourceHub(props) {
         curPersonaId: curPersonaId,
         curCategoriesArray: curCategoriesArray,
         hasMXP: hasMXP
-      })), /*#__PURE__*/React$1__default.createElement(DynamicCollectionLayout, {
+      })), /*#__PURE__*/React__default.createElement(DynamicCollectionLayout, {
         collection: collection,
         props: props,
         link: RouterlessLink
       }));
     } else {
       console.log('empty');
-      return /*#__PURE__*/React$1__default.createElement("div", null);
+      return /*#__PURE__*/React__default.createElement("div", null);
     }
   } else {
     console.log('ssr');
-    React$1.useEffect(function () {
+    React.useEffect(function () {
       var isMounted = true;
 
       if (isMounted) {
@@ -2946,7 +2730,7 @@ function ResourceHub(props) {
         isMounted = false;
       };
     }, [filterUpdated]);
-    return /*#__PURE__*/React$1__default.createElement("div", null, /*#__PURE__*/React$1__default.createElement(RenderFilterForm, _extends({
+    return /*#__PURE__*/React__default.createElement("div", null, /*#__PURE__*/React__default.createElement(RenderFilterForm, _extends({
       updateFilter: updateFilter
     }, props, {
       curSubtype: curSubtype,
@@ -2954,7 +2738,7 @@ function ResourceHub(props) {
       curPersonaId: curPersonaId,
       curCategoriesArray: curCategoriesArray,
       hasMXP: hasMXP
-    })), /*#__PURE__*/React$1__default.createElement(DynamicCollectionLayout, {
+    })), /*#__PURE__*/React__default.createElement(DynamicCollectionLayout, {
       collection: collection,
       props: props,
       link: RouterLink
@@ -3007,7 +2791,7 @@ var getDynamicProps$3 = function getDynamicProps(props) {
 
 var getCollection = function getCollection(props, filterProps) {
   try {
-    var _Mura = getMura();
+    var _Mura = nextCore.getMura();
 
     if (typeof props.content.getAll != 'undefined') {
       props.content = props.content.getAll();
@@ -3079,18 +2863,18 @@ var getFilterProps = function getFilterProps(subtype, categoryid, personaid, sel
 var RenderFilterForm = function RenderFilterForm(props) {
   var objectparams = Object.assign({}, props);
 
-  var _useState9 = React$1.useState(false),
+  var _useState9 = React.useState(false),
       categoriesArray = _useState9[0],
       setCategoriesArray = _useState9[1];
 
-  var _useState10 = React$1.useState(false),
+  var _useState10 = React.useState(false),
       personasArray = _useState10[0],
       setPersonasArray = _useState10[1];
 
   var subtypesArray = objectparams.subtypes ? objectparams.subtypes.split(',') : [];
   var categoryIds = objectparams.categoryids ? objectparams.categoryids.split(',') : [];
   var personaIds = objectparams.personaids ? objectparams.personaids.split(',') : [];
-  React$1.useEffect(function () {
+  React.useEffect(function () {
     var isMounted = true;
 
     if (isMounted && personaIds.length) {
@@ -3113,28 +2897,28 @@ var RenderFilterForm = function RenderFilterForm(props) {
       isMounted = false;
     };
   }, []);
-  return /*#__PURE__*/React$1__default.createElement(Form, {
+  return /*#__PURE__*/React__default.createElement(Form, {
     className: "row row-cols-1 row-cols-sm-2 row-cols-lg-3",
     id: "resource-filter-form"
-  }, subtypesArray.length > 0 && /*#__PURE__*/React$1__default.createElement(Form.Group, {
+  }, subtypesArray.length > 0 && /*#__PURE__*/React__default.createElement(Form.Group, {
     controlId: "selectSubtypes",
     className: "col type"
-  }, /*#__PURE__*/React$1__default.createElement(Form.Label, null, "Content Types:"), /*#__PURE__*/React$1__default.createElement(Form.Control, {
+  }, /*#__PURE__*/React__default.createElement(Form.Label, null, "Content Types:"), /*#__PURE__*/React__default.createElement(Form.Control, {
     as: "select",
     name: "subtype",
     custom: true,
     onChange: props.updateFilter,
     value: props.curSubtype
-  }, /*#__PURE__*/React$1__default.createElement("option", {
+  }, /*#__PURE__*/React__default.createElement("option", {
     value: "*",
     key: "All Subtypes"
   }, "All"), subtypesArray.map(function (subtype, index) {
-    return /*#__PURE__*/React$1__default.createElement("option", {
+    return /*#__PURE__*/React__default.createElement("option", {
       value: subtype,
       key: index
     }, subtype);
-  }))), categoriesArray && categoriesArray.length > 0 && /*#__PURE__*/React$1__default.createElement(React$1__default.Fragment, null, categoriesArray.map(function (category, index) {
-    return /*#__PURE__*/React$1__default.createElement(CategorySelect, {
+  }))), categoriesArray && categoriesArray.length > 0 && /*#__PURE__*/React__default.createElement(React__default.Fragment, null, categoriesArray.map(function (category, index) {
+    return /*#__PURE__*/React__default.createElement(CategorySelect, {
       categoryid: category.categoryid,
       filterlabel: category.name,
       updateFilter: props.updateFilter,
@@ -3142,20 +2926,20 @@ var RenderFilterForm = function RenderFilterForm(props) {
       key: category.categoryid,
       curCategoriesArray: props.curCategoriesArray
     });
-  })), props.hasMXP && personasArray.length > 0 && /*#__PURE__*/React$1__default.createElement(Form.Group, {
+  })), props.hasMXP && personasArray.length > 0 && /*#__PURE__*/React__default.createElement(Form.Group, {
     controlId: "selectPersonas",
     className: "col topic"
-  }, /*#__PURE__*/React$1__default.createElement(Form.Label, null, "Audience:"), /*#__PURE__*/React$1__default.createElement(Form.Control, {
+  }, /*#__PURE__*/React__default.createElement(Form.Label, null, "Audience:"), /*#__PURE__*/React__default.createElement(Form.Control, {
     as: "select",
     name: "personaid",
     custom: true,
     onChange: props.updateFilter,
     value: props.curPersonaId
-  }, /*#__PURE__*/React$1__default.createElement("option", {
+  }, /*#__PURE__*/React__default.createElement("option", {
     value: "*",
     key: "All Personas"
   }, "All"), personasArray.map(function (option) {
-    return /*#__PURE__*/React$1__default.createElement("option", {
+    return /*#__PURE__*/React__default.createElement("option", {
       value: option.personaid,
       key: option.personaid
     }, option.name);
@@ -3163,12 +2947,12 @@ var RenderFilterForm = function RenderFilterForm(props) {
 };
 
 var CategorySelect = function CategorySelect(props) {
-  var _useState11 = React$1.useState([]),
+  var _useState11 = React.useState([]),
       categoryKids = _useState11[0],
       setCategoryKids = _useState11[1];
 
   var curSelectValue = '*';
-  React$1.useEffect(function () {
+  React.useEffect(function () {
     var isMounted = true;
     getCategoryKidsInfo(props.categoryid).then(function (data) {
       if (isMounted) {
@@ -3187,20 +2971,20 @@ var CategorySelect = function CategorySelect(props) {
     }
   }
 
-  return /*#__PURE__*/React$1__default.createElement(Form.Group, {
+  return /*#__PURE__*/React__default.createElement(Form.Group, {
     controlId: "selectCategories" + props.filterlabel,
     className: "col topic"
-  }, /*#__PURE__*/React$1__default.createElement(Form.Label, null, props.filterlabel, ":"), /*#__PURE__*/React$1__default.createElement(Form.Control, {
+  }, /*#__PURE__*/React__default.createElement(Form.Label, null, props.filterlabel, ":"), /*#__PURE__*/React__default.createElement(Form.Control, {
     as: "select",
     name: "categoryid" + props.filterlabel,
     custom: true,
     onChange: props.updateFilter,
     value: curSelectValue
-  }, /*#__PURE__*/React$1__default.createElement("option", {
+  }, /*#__PURE__*/React__default.createElement("option", {
     value: "*",
     key: "All Categories"
   }, "All"), categoryKids.map(function (category, index) {
-    return /*#__PURE__*/React$1__default.createElement("option", {
+    return /*#__PURE__*/React__default.createElement("option", {
       value: category.categoryid,
       key: index
     }, category.name);
@@ -3271,22 +3055,22 @@ function Text(props) {
   var objectparams = Object.assign({}, props);
 
   if (!objectparams.dynamicProps && (objectparams.sourcetype === 'component' || objectparams.sourcetype === 'boundattribute')) {
-    var _useState = React$1.useState(''),
+    var _useState = React.useState(''),
         source = _useState[0],
         setSource = _useState[1];
 
-    React$1.useEffect(function () {
+    React.useEffect(function () {
       getDynamicProps$4(objectparams).then(function (dynamicProps) {
         setSource(dynamicProps.source);
       });
     }, []);
 
     if (source) {
-      return /*#__PURE__*/React$1__default.createElement(OutputMarkup, {
+      return /*#__PURE__*/React__default.createElement(OutputMarkup, {
         source: source
       });
     } else {
-      return /*#__PURE__*/React$1__default.createElement("div", null);
+      return /*#__PURE__*/React__default.createElement("div", null);
     }
   } else {
     var _source = '';
@@ -3298,11 +3082,11 @@ function Text(props) {
     }
 
     if (_source && _source !== 'unconfigured') {
-      return /*#__PURE__*/React$1__default.createElement(OutputMarkup, {
+      return /*#__PURE__*/React__default.createElement(OutputMarkup, {
         source: _source
       });
     } else {
-      return /*#__PURE__*/React$1__default.createElement("div", null);
+      return /*#__PURE__*/React__default.createElement("div", null);
     }
   }
 }
@@ -3356,27 +3140,27 @@ var getDynamicProps$4 = function getDynamicProps(props) {
 };
 
 function PrivacyTools(props) {
-  var _useState = React$1.useState(0),
+  var _useState = React.useState(0),
       optIn = _useState[0],
       setOptIn = _useState[1];
 
-  var _useState2 = React$1.useState(0),
+  var _useState2 = React.useState(0),
       optOut = _useState2[0],
       setOptOut = _useState2[1];
 
-  var _useState3 = React$1.useState(1),
+  var _useState3 = React.useState(1),
       mxpAnon = _useState3[0],
       setMxpAnon = _useState3[1];
 
-  var _useState4 = React$1.useState(0),
+  var _useState4 = React.useState(0),
       updateSuccess = _useState4[0],
       setUpdateSuccess = _useState4[1];
 
-  var _useState5 = React$1.useState(false),
+  var _useState5 = React.useState(false),
       showingAlert = _useState5[0],
       setShowingAlert = _useState5[1];
 
-  React$1.useEffect(function () {
+  React.useEffect(function () {
     var isMounted = true;
 
     if (isMounted) {
@@ -3424,7 +3208,7 @@ function PrivacyTools(props) {
     }
   };
 
-  React$1.useEffect(function () {
+  React.useEffect(function () {
     var isMounted = true;
 
     if (isMounted) {
@@ -3441,7 +3225,7 @@ function PrivacyTools(props) {
       isMounted = false;
     };
   }, [mxpAnon]);
-  React$1.useEffect(function () {
+  React.useEffect(function () {
     var isMounted = true;
 
     if (isMounted) {
@@ -3456,14 +3240,14 @@ function PrivacyTools(props) {
       isMounted = false;
     };
   }, [showingAlert]);
-  return /*#__PURE__*/React$1__default.createElement(React$1__default.Fragment, null, /*#__PURE__*/React$1__default.createElement("h3", null, "Privacy Settings"), updateSuccess == 1 && showingAlert && /*#__PURE__*/React$1__default.createElement(Alert, {
+  return /*#__PURE__*/React__default.createElement(React__default.Fragment, null, /*#__PURE__*/React__default.createElement("h3", null, "Privacy Settings"), updateSuccess == 1 && showingAlert && /*#__PURE__*/React__default.createElement(Alert, {
     variant: "success"
-  }, "Your preference has been saved."), /*#__PURE__*/React$1__default.createElement(Form, {
+  }, "Your preference has been saved."), /*#__PURE__*/React__default.createElement(Form, {
     onSubmit: handleSubmit,
     "data-autowire": "false"
-  }, /*#__PURE__*/React$1__default.createElement(Form.Group, {
+  }, /*#__PURE__*/React__default.createElement(Form.Group, {
     controlId: "radio_mxp_anon"
-  }, /*#__PURE__*/React$1__default.createElement(Form.Check, {
+  }, /*#__PURE__*/React__default.createElement(Form.Check, {
     type: "radio",
     id: "mxp_anon1",
     name: "mxp_anon",
@@ -3471,7 +3255,7 @@ function PrivacyTools(props) {
     checked: mxpAnon == 0,
     onChange: mxpAnonChanged,
     label: "For a better experience, allow this site to store some identifying information"
-  }), /*#__PURE__*/React$1__default.createElement(Form.Check, {
+  }), /*#__PURE__*/React__default.createElement(Form.Check, {
     type: "radio",
     id: "mxp_anon2",
     name: "mxp_anon",
@@ -3479,7 +3263,7 @@ function PrivacyTools(props) {
     checked: mxpAnon == 1,
     onChange: mxpAnonChanged,
     label: "Do not allow this site to store some identifying information"
-  })), /*#__PURE__*/React$1__default.createElement(Button, {
+  })), /*#__PURE__*/React__default.createElement(Button, {
     variant: "primary",
     type: "submit"
   }, "Submit")));

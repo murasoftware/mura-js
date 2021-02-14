@@ -2,7 +2,7 @@ import React,{ useState,useEffect } from 'react';
 import Link from "next/link";
 import { getMura, getMuraConfig, getHref } from '@murasoftware/next-core';
 
-export const getLayout=(layout) => {
+export const getLayout=function(layout) {
   const muraConfig =getMuraConfig();
   const { ComponentRegistry } = muraConfig;
   const uselayout = (!layout || layout == 'default') ? "List" : layout;
@@ -57,7 +57,7 @@ function Collection(props) {
   }
 }
 
-export const RouterlessLink = ({href,children,className})=>{
+export const RouterlessLink = function({href,children,className}) {
   return (
     <a href={getHref(href)} className={className}>
       {children}
@@ -65,7 +65,7 @@ export const RouterlessLink = ({href,children,className})=>{
   );
 }
 
-export const RouterLink = ({href,children,className})=>{
+export const RouterLink = function({href,children,className}) {
   return (
     <Link href={getHref(href)}>
       <a className={className}>{children}</a>
@@ -73,7 +73,7 @@ export const RouterLink = ({href,children,className})=>{
   );
 }
 
-export const getDynamicProps = async (item) => {
+export const getDynamicProps = async function(item){
   const Mura = getMura();
   const data = {};
   let cdata = {};
@@ -182,7 +182,7 @@ export const getDynamicProps = async (item) => {
   return data;
 };
 
-const getExpandFields = (item) => {
+const getExpandFields = function(item) {
 
   const data = getLayout(item.layout).getQueryProps();
 
@@ -194,7 +194,7 @@ const getExpandFields = (item) => {
 
 }
 
-const getImageSizes = (item) => {
+const getImageSizes = function(item) {
 
   const data = getLayout(item.layout).getQueryProps();
 
@@ -206,7 +206,7 @@ const getImageSizes = (item) => {
 
 }
 
-const getSelectFields = (item) => {
+const getSelectFields = function(item) {
 
   const data = getLayout(item.layout).getQueryProps(item);
 

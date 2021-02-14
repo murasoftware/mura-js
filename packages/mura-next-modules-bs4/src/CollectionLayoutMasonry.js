@@ -1,5 +1,4 @@
-import { useState } from "react";
-import React from 'react';
+import React, { useState } from "react";
 import Card from 'react-bootstrap/Card';
 import OutputMarkup from "./OutputMarkup";
 import CollectionNav from './CollectionNav';

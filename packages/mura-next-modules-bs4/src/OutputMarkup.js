@@ -1,3 +1,4 @@
+import React from 'react';
 import ReactMarkdown from "react-markdown";
 import { getMuraConfig  } from '@murasoftware/next-core';
 
