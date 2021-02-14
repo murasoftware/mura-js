@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { getIsEditMode, getComponent } from './Connector';
 import Decorator from './Decorator';
 
