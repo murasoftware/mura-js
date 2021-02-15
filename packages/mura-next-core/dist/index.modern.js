@@ -920,6 +920,7 @@ function contentDidChange(_content) {
       }
     } else {
       console.log('Redirecting', content.get('redirect'));
+      location.href = content.get('redirect');
     }
 
     return;
