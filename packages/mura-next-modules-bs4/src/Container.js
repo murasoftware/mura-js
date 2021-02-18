@@ -11,7 +11,16 @@ export const Container = function(props) {
   // console.log('Container -> props', props);
   if (!items) return '';
 
-  return (items.map(item => {
+  let $items=items;
+
+  if(!Array.isArray($items)){
+    try{
+      $items=JSON.parse($items);
+    } catch(e){
+      $items=[];
+    }
+  }
+  return ($items.map(item => {
           const obj=Object.assign({},item);
           if(Mura.cloning){
             obj.instanceid=Mura.createUUID();

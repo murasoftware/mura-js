@@ -1912,7 +1912,17 @@ var Container = function Container(props) {
   var items = props.items,
       content = props.content;
   if (!items) return '';
-  return items.map(function (item) {
+  var $items = items;
+
+  if (!Array.isArray($items)) {
+    try {
+      $items = JSON.parse($items);
+    } catch (e) {
+      $items = [];
+    }
+  }
+
+  return $items.map(function (item) {
     var obj = Object.assign({}, item);
 
     if (Mura$2.cloning) {
