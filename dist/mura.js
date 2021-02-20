@@ -21300,10 +21300,13 @@ Mura.UI.Form = Mura.UI.extend(
     var errorsSel = Mura(this.context.formEl).find('.mura-response-error');
 
     if (errorsSel.length) {
-      errorsSel = errorsSel.first().node;
+      var error = errorsSel.first();
+      var check = Mura('[aria-describedby="' + error.attr('id') + '"]');
 
-      if (!Mura.isScrolledIntoView(errorsSel) && typeof errorsSel.scrollIntoView != 'undefined') {
-        errorsSel.scrollIntoView(true);
+      if (check.length) {
+        check.focus();
+      } else {
+        error.focus();
       }
     }
   },
