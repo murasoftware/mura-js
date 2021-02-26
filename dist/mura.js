@@ -505,7 +505,7 @@ function getFeed(entityname, siteid) {
 /**
  * getCurrentUser - Return Mura.Entity for current user
  *
- * @param	{object} params Load parameters, fields:listoffields
+ * @param	{object} params Load parameters, fields:list of fields
  * @return {Promise}
  * @memberof {class} Mura
  */
@@ -513,6 +513,18 @@ function getFeed(entityname, siteid) {
 
 function getCurrentUser(params) {
   return Mura._requestcontext.getCurrentUser(params);
+}
+/**
+ * findText - Return Mura.Collection for content with text
+ *
+ * @param	{object} params Load parameters
+ * @return {Promise}
+ * @memberof {class} Mura
+ */
+
+
+function findText(text, params) {
+  return Mura._requestcontext.findText(text, params);
 }
 /**
  * findQuery - Returns Mura.EntityCollection with properties that match params
@@ -4088,6 +4100,7 @@ var Mura = extend(function (selector, context) {
   getBreakpoint: getBreakpoint,
   getAPIEndpoint: getAPIEndpoint,
   parseStringAsTemplate: parseStringAsTemplate,
+  findText: findText,
   deInit: deInit,
   inAdmin: false,
   lmv: 2,
@@ -15212,6 +15225,39 @@ Mura.RequestContext = Mura.Core.extend(
           } else if (typeof reject == 'function') {
             reject(resp);
           }
+        }
+      });
+    });
+  },
+
+  /**
+   * findText - Returns content associated with text
+   *
+   * @param	{type} text 
+   * @param	{type} params Object
+   * @return {Promise}
+   */
+  findText: function findText(text, params) {
+    var query = [];
+    var self = this;
+    params = params || {};
+    params.text = params.text || '';
+    params.siteid = params.siteid || Mura.siteid;
+    params.method = "findtext";
+    return new Promise(function (resolve, reject) {
+      self.request({
+        type: 'get',
+        url: Mura.getAPIEndpoint(),
+        data: params,
+        success: function success(resp) {
+          var collection = new Mura.EntityCollection(resp.data, self);
+
+          if (typeof resolve == 'function') {
+            resolve(collection);
+          }
+        },
+        error: function error(resp) {
+          console.log(resp);
         }
       });
     });
