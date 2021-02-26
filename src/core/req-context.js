@@ -117,6 +117,39 @@ Mura.RequestContext=Mura.Core.extend(
 	},
 
 	/**
+	 * findText - Returns content associated with text
+	 *
+	 * @param	{type} text 
+	 * @param	{type} params Object
+	 * @return {Promise}
+	 */
+	findText(text, params) {
+		var query = [];
+		var self=this;
+		params = params || {};
+		params.text = params.text || '';
+		params.siteid = params.siteid || Mura.siteid;
+		params.method = "findtext";
+		
+		return new Promise(function(resolve, reject) {
+			self.request({
+				type: 'get',
+				url: Mura.getAPIEndpoint(),
+				data: params,
+				success(resp) {
+					var collection = new Mura.EntityCollection(resp.data,self)
+					if (typeof resolve == 'function') {
+						resolve(collection);
+					}
+				},
+				error(resp){
+					console.log(resp);
+				}
+			});
+		});
+	},
+
+	/**
 	 * getEntity - Returns Mura.Entity instance
 	 *
 	 * @param	{string} entityname Entity Name

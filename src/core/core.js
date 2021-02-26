@@ -270,12 +270,23 @@ function getFeed(entityname,siteid) {
 /**
  * getCurrentUser - Return Mura.Entity for current user
  *
- * @param	{object} params Load parameters, fields:listoffields
+ * @param	{object} params Load parameters, fields:list of fields
  * @return {Promise}
  * @memberof {class} Mura
  */
 function getCurrentUser(params) {
 	return Mura._requestcontext.getCurrentUser(params);
+}
+
+/**
+ * findText - Return Mura.Collection for content with text
+ *
+ * @param	{object} params Load parameters
+ * @return {Promise}
+ * @memberof {class} Mura
+ */
+function findText(text,params) {
+	return Mura._requestcontext.findText(text,params);
 }
 
 /**
@@ -4024,6 +4035,7 @@ const Mura=extend(
 		getBreakpoint:getBreakpoint,
 		getAPIEndpoint:getAPIEndpoint,
 		parseStringAsTemplate:parseStringAsTemplate,
+		findText:findText,
 		deInit:deInit,
 		inAdmin:false,
 		lmv:2,
