@@ -245,6 +245,7 @@ export const getMuraProps = async (context,isEditMode,params) => {
   delete Mura.response;
   delete Mura.request;
   delete Mura.renderMode;
+  delete Mura.currentUser
 
   const props = {
     content: content,

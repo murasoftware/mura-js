@@ -29,24 +29,6 @@ function logout(siteid) {
 	return Mura._requestcontext.logout(siteid);
 }
 
-function escapeHTML(str) {
-	if(typeof document != 'undefined'){
-		var div = document.createElement('div');
-		div.appendChild(document.createTextNode(str));
-		return div.innerHTML;
-	} else {
-		return Mura._escapeHTML(str);
-	}
-};
-
-// UNSAFE with unsafe strings; only use on previously-escaped ones!
-function unescapeHTML(escapedStr) {
-		var div = document.createElement('div');
-		div.innerHTML = escapedStr;
-		var child = div.childNodes[0];
-		return child ? child.nodeValue : '';
-};
-
 /**
  * trackEvent - This is for Mura Experience Platform. It has no use with Mura standard
  *
@@ -256,7 +238,6 @@ function openGate(contentid) {
 	return Mura._requestcontext.openGate(contentid);
 }
 
-
 /**
  * getEntity - Returns Mura.Entity instance
  *
@@ -334,10 +315,6 @@ function evalScripts(el) {
 	}
 }
 
-function nodeName(el, name) {
-	return el.nodeName && el.nodeName.toUpperCase() === name.toUpperCase();
-}
-
 function evalScript(el) {
 	if (el.src) {
 		Mura.loader().load(el.src);
@@ -358,6 +335,10 @@ function evalScript(el) {
 			el.parentNode.removeChild(el);
 		}
 	}
+}
+
+function nodeName(el, name) {
+	return el.nodeName && el.nodeName.toUpperCase() === name.toUpperCase();
 }
 
 function changeElementType(el, to) {
@@ -683,11 +664,56 @@ function select(selector) {
 	return new Mura.DOMSelection(parseSelection(selector),selector);
 }
 
+function escapeHTML(str) {
+	if(typeof document != 'undefined'){
+		var div = document.createElement('div');
+		div.appendChild(document.createTextNode(str));
+		return div.innerHTML;
+	} else {
+		return Mura._escapeHTML(str);
+	}
+};
+
+// UNSAFE with unsafe strings; only use on previously-escaped ones!
+function unescapeHTML(escapedStr) {
+	var div = document.createElement('div');
+	div.innerHTML = escapedStr;
+	var child = div.childNodes[0];
+	return child ? child.nodeValue : '';
+};
+
 function parseHTML(str) {
 	var tmp = document.implementation.createHTMLDocument();
 	tmp.body.innerHTML = str;
 	return tmp.body.children;
 };
+
+function parseStringAsTemplate(stringValue){
+    const errors={};
+    let parsedString=stringValue;
+    let doLoop=true;
+
+    do {
+        const finder=/(\${)(.+?)(})/.exec(parsedString)
+        if(finder){
+            let template;
+            try {
+                template=eval('`${' + finder[2] + '}`');
+            } catch(e){
+                console.log('error parsing string template: ' + '${' + finder[2] + '}',e);
+                template='[error]' + finder[2] + '[/error]';
+            }
+            parsedString=parsedString.replace(finder[0],template);
+        } else {
+            doLoop=false;
+        }
+    } while (doLoop)
+
+    parsedString=parsedString.replace('[error]','${');
+    parsedString=parsedString.replace('[/error]','}');
+
+    return parsedString;
+}
 
 function getData(el) {
 	var data = {};
@@ -3519,11 +3545,42 @@ function getAPIEndpoint(){
 	} 
 	return Mura.apiEndpoint;
 }
-	
+
+function deInit(){
+	//This all needs to be moved to a state object
+	delete Mura._request;
+	delete Mura.response;
+	delete Mura.request;
+	delete Mura.requestHeaders;
+	delete Mura.displayObjectInstances
+	delete Mura.renderMode;
+	delete Mura.currentUser;
+	Mura.trackingMetadata={};
+	delete Mura.trackingVars;
+	delete Mura.apiEndpoint;
+	delete Mura.apiendpoint;
+	delete Mura._fetch;
+	delete Mura._formData;
+	delete Mura._escapeHTML;
+	delete Mura.perm;
+	delete Mura.formdata;
+	delete Mura.windowResponsiveModules;
+	delete Mura.windowResizeID;
+	delete Mura.Content;
+	delete Mura.content;
+
+	return Mura;	
+}
+
 //Mura.init()
 function init(config) {
 
 	var existingEndpoint='';
+
+	if( Mura.siteid && config.siteid && Mura.siteid != config.siteid){
+		delete Mura.apiEndpoint;
+		delete Mura.apiendpoint;
+	}
 
 	if(typeof Mura.apiEndpoint != 'undefined' && Mura.apiEndpoint){
 		existingEndpoint=Mura.apiEndpoint;
@@ -3539,6 +3596,8 @@ function init(config) {
 	if(existingEndpoint){
 		config.apiEndpoint=existingEndpoint;
 		delete config.apiendpoint;
+	} else {
+		existingEndpoint
 	}
 
 	if (config.rootpath) {
@@ -3964,6 +4023,8 @@ const Mura=extend(
 		getModuleStyleTargets:getModuleStyleTargets,
 		getBreakpoint:getBreakpoint,
 		getAPIEndpoint:getAPIEndpoint,
+		parseStringAsTemplate:parseStringAsTemplate,
+		deInit:deInit,
 		inAdmin:false,
 		lmv:2,
 		homeid: '00000000000000000000000000000000001',

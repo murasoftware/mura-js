@@ -1,20 +1,18 @@
 import React from 'react';
 import ReactMarkdown from "react-markdown";
-import { getMuraConfig  } from '@murasoftware/next-core';
+import { getMura, getMuraConfig  } from '@murasoftware/next-core';
 
 function OutputMarkup({source,className}){
-    const muraConfig = getMuraConfig();
-    const { ConnectorConfig } = muraConfig;
-    let connectorConfig=Object.assign({},ConnectorConfig);
+    const parsedSource=getMura().parseStringAsTemplate(source);
 
-    if(connectorConfig.htmleditortype == 'markdown'){
+    if(getMuraConfig().ConnectorConfig.htmleditortype == 'markdown'){
         return(
-            <ReactMarkdown source={source} className={className} />
+            <ReactMarkdown source={parsedSource} className={className} />
         )
     }
 
     return(
-        <div dangerouslySetInnerHTML={{__html:source}} className={className} />
+        <div dangerouslySetInnerHTML={{__html:parsedSource}} className={className} />
     )
     
 }
