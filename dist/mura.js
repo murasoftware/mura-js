@@ -943,11 +943,10 @@ function parseHTML(str) {
 
 ;
 
-function parseStringAsTemplate(stringValue, context) {
+function parseStringAsTemplate(stringValue) {
   var errors = {};
   var parsedString = stringValue;
   var doLoop = true;
-  context = context || this;
 
   do {
     var finder = /(\${)(.+?)(})/.exec(parsedString);
@@ -956,7 +955,7 @@ function parseStringAsTemplate(stringValue, context) {
       var template = void 0;
 
       try {
-        template = eval.call(context, '`${' + finder[2] + '}`');
+        template = eval('`${' + finder[2] + '}`');
       } catch (e) {
         console.log('error parsing string template: ' + '${' + finder[2] + '}', e);
         template = '[error]' + finder[2] + '[/error]';
