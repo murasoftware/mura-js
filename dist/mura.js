@@ -15241,7 +15241,7 @@ Mura.RequestContext = Mura.Core.extend(
     var query = [];
     var self = this;
     params = params || {};
-    params.text = params.text || '';
+    params.text = text || params.text || '';
     params.siteid = params.siteid || Mura.siteid;
     params.method = "findtext";
     return new Promise(function (resolve, reject) {

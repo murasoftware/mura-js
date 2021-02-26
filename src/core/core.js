@@ -699,17 +699,19 @@ function parseHTML(str) {
 	return tmp.body.children;
 };
 
-function parseStringAsTemplate(stringValue){
+function parseStringAsTemplate(stringValue,context){
     const errors={};
     let parsedString=stringValue;
     let doLoop=true;
+
+	context=context || this;
 
     do {
         const finder=/(\${)(.+?)(})/.exec(parsedString)
         if(finder){
             let template;
             try {
-                template=eval('`${' + finder[2] + '}`');
+                template=eval.call(context,'`${' + finder[2] + '}`');
             } catch(e){
                 console.log('error parsing string template: ' + '${' + finder[2] + '}',e);
                 template='[error]' + finder[2] + '[/error]';
