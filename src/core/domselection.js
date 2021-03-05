@@ -658,10 +658,14 @@ Mura.DOMSelection = Mura.Core.extend(
 	 */
 	append(el) {
 		this.each(function() {
-			if (typeof el == 'string') {
-				this.insertAdjacentHTML('beforeend', el);
-			} else {
-				this.appendChild(el);
+			try {
+				if (typeof el == 'string') {
+					this.insertAdjacentHTML('beforeend', el);
+				} else {
+					this.appendChild(el);
+				}
+			} catch(e){
+				console.log(e);
 			}
 		});
 		return this;
@@ -945,10 +949,14 @@ Mura.DOMSelection = Mura.Core.extend(
 	 */
 	prepend(el) {
 		this.each(function() {
-			if (typeof el == 'string') {
-				this.insertAdjacentHTML('afterbegin', el);
-			} else {
-				this.insertBefore(el, this.firstChild);
+			try {
+				if (typeof el == 'string') {
+					this.insertAdjacentHTML('afterbegin', el);
+				} else {
+					this.insertBefore(el, this.firstChild);
+				}
+			} catch(e){
+				console.log(e);
 			}
 		});
 		return this;
@@ -962,10 +970,14 @@ Mura.DOMSelection = Mura.Core.extend(
 	 */
 	before(el) {
 		this.each(function() {
-			if (typeof el == 'string') {
-				this.insertAdjacentHTML('beforebegin', el);
-			} else {
-				this.parentNode.insertBefore(el,this);
+			try {
+				if (typeof el == 'string') {
+					this.insertAdjacentHTML('beforebegin', el);
+				} else {
+					this.parentNode.insertBefore(el,this);
+				}
+			} catch(e){
+				console.log(e);
 			}
 		});
 		return this;
@@ -979,15 +991,19 @@ Mura.DOMSelection = Mura.Core.extend(
 	 */
 	after(el) {
 		this.each(function() {
-			if (typeof el == 'string') {
-				this.insertAdjacentHTML('afterend', el);
-			} else {
-				if(this.nextSibling){
-					this.parentNode.insertBefore(el, this.nextSibling);
+			try {
+				if (typeof el == 'string') {
+					this.insertAdjacentHTML('afterend', el);
 				} else {
-					this.parentNode.appendChild(el);
+					if(this.nextSibling){
+						this.parentNode.insertBefore(el, this.nextSibling);
+					} else {
+						this.parentNode.appendChild(el);
+					}
+					
 				}
-				
+			} catch(e){
+				console.log(e);
 			}
 		});
 		return this;

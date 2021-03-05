@@ -2654,17 +2654,22 @@ function processDisplayObject(el, queue, rerender, resolveFn, usePreloaderMarkup
 
 				obj.calculateDisplayObjectStyles();
 
+				var template=obj.data('clienttemplate') || obj.data('object');
+				var properNameCheck = firstToUpperCase(template);
+
+				if (typeof Mura.Module[properNameCheck] != 'undefined') {
+					template = properNameCheck;
+				}
+
+				if(typeof Mura.Module[template] != 'undefined'){
+					obj.data('render','client')
+				}
+
 				if(!rerender && obj.data('render')=='client' && obj.children('.mura-object-content').length){
 					
 					var context=filterUnwantedParams(obj.data());
 					if(typeof context.instanceid != 'undefined' && typeof Mura.hydrationData[context.instanceid] != 'undefined'){
 						Mura.extend(context,Mura.hydrationData[context.instanceid]);
-					}
-					var template=obj.data('clienttemplate') || obj.data('object');
-					var properNameCheck = firstToUpperCase(template);
-
-					if (typeof Mura.DisplayObject[properNameCheck] != 'undefined') {
-						template = properNameCheck;
 					}
 
 					if(typeof Mura.DisplayObject[template] != 'undefined'){

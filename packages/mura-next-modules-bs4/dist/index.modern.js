@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Badge from 'react-bootstrap/Badge';
 import ReactMarkdown from 'react-markdown';
-import { getMuraConfig, getMura, getHref, Decorator, getComponent } from '@murasoftware/next-core';
+import { getMura, getMuraConfig, getHref, Decorator, getComponent } from '@murasoftware/next-core';
 import Link from 'next/link';
 import Mura$1 from 'mura.js';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -188,20 +188,18 @@ function ItemTags(props) {
 function OutputMarkup(_ref) {
   var source = _ref.source,
       className = _ref.className;
-  var muraConfig = getMuraConfig();
-  var ConnectorConfig = muraConfig.ConnectorConfig;
-  var connectorConfig = Object.assign({}, ConnectorConfig);
+  var parsedSource = getMura().parseStringAsTemplate(source);
 
-  if (connectorConfig.htmleditortype == 'markdown') {
+  if (getMuraConfig().ConnectorConfig.htmleditortype == 'markdown') {
     return /*#__PURE__*/React.createElement(ReactMarkdown, {
-      source: source,
+      source: parsedSource,
       className: className
     });
   }
 
   return /*#__PURE__*/React.createElement("div", {
     dangerouslySetInnerHTML: {
-      __html: source
+      __html: parsedSource
     },
     className: className
   });

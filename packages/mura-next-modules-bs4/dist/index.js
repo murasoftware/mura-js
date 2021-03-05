@@ -191,20 +191,18 @@ function ItemTags(props) {
 function OutputMarkup(_ref) {
   var source = _ref.source,
       className = _ref.className;
-  var muraConfig = nextCore.getMuraConfig();
-  var ConnectorConfig = muraConfig.ConnectorConfig;
-  var connectorConfig = Object.assign({}, ConnectorConfig);
+  var parsedSource = nextCore.getMura().parseStringAsTemplate(source);
 
-  if (connectorConfig.htmleditortype == 'markdown') {
+  if (nextCore.getMuraConfig().ConnectorConfig.htmleditortype == 'markdown') {
     return /*#__PURE__*/React__default.createElement(ReactMarkdown, {
-      source: source,
+      source: parsedSource,
       className: className
     });
   }
 
   return /*#__PURE__*/React__default.createElement("div", {
     dangerouslySetInnerHTML: {
-      __html: source
+      __html: parsedSource
     },
     className: className
   });

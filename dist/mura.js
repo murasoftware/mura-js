@@ -2792,19 +2792,22 @@ function processDisplayObject(el, queue, rerender, resolveFn, usePreloaderMarkup
     if (rendered && !obj.data('async')) {
       return new Promise(function (resolve, reject) {
         obj.calculateDisplayObjectStyles();
+        var template = obj.data('clienttemplate') || obj.data('object');
+        var properNameCheck = firstToUpperCase(template);
+
+        if (typeof Mura.Module[properNameCheck] != 'undefined') {
+          template = properNameCheck;
+        }
+
+        if (typeof Mura.Module[template] != 'undefined') {
+          obj.data('render', 'client');
+        }
 
         if (!rerender && obj.data('render') == 'client' && obj.children('.mura-object-content').length) {
           var context = filterUnwantedParams(obj.data());
 
           if (typeof context.instanceid != 'undefined' && typeof Mura.hydrationData[context.instanceid] != 'undefined') {
             Mura.extend(context, Mura.hydrationData[context.instanceid]);
-          }
-
-          var template = obj.data('clienttemplate') || obj.data('object');
-          var properNameCheck = firstToUpperCase(template);
-
-          if (typeof Mura.DisplayObject[properNameCheck] != 'undefined') {
-            template = properNameCheck;
           }
 
           if (typeof Mura.DisplayObject[template] != 'undefined') {
@@ -18819,10 +18822,14 @@ Mura.DOMSelection = Mura.Core.extend(
    */
   append: function append(el) {
     this.each(function () {
-      if (typeof el == 'string') {
-        this.insertAdjacentHTML('beforeend', el);
-      } else {
-        this.appendChild(el);
+      try {
+        if (typeof el == 'string') {
+          this.insertAdjacentHTML('beforeend', el);
+        } else {
+          this.appendChild(el);
+        }
+      } catch (e) {
+        console.log(e);
       }
     });
     return this;
@@ -19139,10 +19146,14 @@ Mura.DOMSelection = Mura.Core.extend(
    */
   prepend: function prepend(el) {
     this.each(function () {
-      if (typeof el == 'string') {
-        this.insertAdjacentHTML('afterbegin', el);
-      } else {
-        this.insertBefore(el, this.firstChild);
+      try {
+        if (typeof el == 'string') {
+          this.insertAdjacentHTML('afterbegin', el);
+        } else {
+          this.insertBefore(el, this.firstChild);
+        }
+      } catch (e) {
+        console.log(e);
       }
     });
     return this;
@@ -19156,10 +19167,14 @@ Mura.DOMSelection = Mura.Core.extend(
    */
   before: function before(el) {
     this.each(function () {
-      if (typeof el == 'string') {
-        this.insertAdjacentHTML('beforebegin', el);
-      } else {
-        this.parentNode.insertBefore(el, this);
+      try {
+        if (typeof el == 'string') {
+          this.insertAdjacentHTML('beforebegin', el);
+        } else {
+          this.parentNode.insertBefore(el, this);
+        }
+      } catch (e) {
+        console.log(e);
       }
     });
     return this;
@@ -19173,14 +19188,18 @@ Mura.DOMSelection = Mura.Core.extend(
    */
   after: function after(el) {
     this.each(function () {
-      if (typeof el == 'string') {
-        this.insertAdjacentHTML('afterend', el);
-      } else {
-        if (this.nextSibling) {
-          this.parentNode.insertBefore(el, this.nextSibling);
+      try {
+        if (typeof el == 'string') {
+          this.insertAdjacentHTML('afterend', el);
         } else {
-          this.parentNode.appendChild(el);
+          if (this.nextSibling) {
+            this.parentNode.insertBefore(el, this.nextSibling);
+          } else {
+            this.parentNode.appendChild(el);
+          }
         }
+      } catch (e) {
+        console.log(e);
       }
     });
     return this;
