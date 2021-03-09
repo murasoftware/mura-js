@@ -1,4 +1,4 @@
-import React, { createContext, useEffect as useEffect$1 } from 'react';
+import React, { useEffect, createContext } from 'react';
 import Mura$1 from 'mura.js';
 
 function _extends() {
@@ -533,6 +533,7 @@ var getMuraProps = function getMuraProps(context, isEditMode, params) {
           delete Mura$1.response;
           delete Mura$1.request;
           delete Mura$1.renderMode;
+          delete Mura$1.currentUser;
           var props = {
             content: content,
             moduleStyleData: moduleStyleData,
@@ -883,7 +884,7 @@ var MainLayout = function MainLayout(props) {
       moduleStyleData = props.moduleStyleData,
       children = props.children;
   Mura.moduleStyleData = moduleStyleData;
-  useEffect$1(function () {
+  useEffect(function () {
     contentDidChange(content);
   });
   return /*#__PURE__*/React.createElement("div", null, children, /*#__PURE__*/React.createElement(ExternalAssets, props), /*#__PURE__*/React.createElement(Styles, props));

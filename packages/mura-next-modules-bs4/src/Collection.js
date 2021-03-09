@@ -30,29 +30,24 @@ function Collection(props) {
   const DynamicCollectionLayout = getLayout(objectparams.layout).component;
 
   objectparams.fields=objectparams.fields || getDefaultQueryPropsFromLayout(DynamicCollectionLayout,objectparams).fields || 'Image,Date,Title,Summary,Credits,Tags';
+  objectparams.dynamicProps=objectparams.dynamicProps ||  {};
 
-  if(!objectparams.dynamicProps){
-    const [collection,setCollection]=useState(false);
+  const _collection=objectparams.dynamicProps.collection ? new Mura.EntityCollection(objectparams.dynamicProps.collection,Mura._requestcontext) : false;
+  const [collection,setCollection]=useState(_collection);
+
+  if(!collection){
     useEffect(() => {
-      getDynamicProps(objectparams).then((dynamicProps)=>{
-        setCollection(new Mura.EntityCollection(dynamicProps.collection,Mura._requestcontext));
+      getDynamicProps(objectparams).then((_dynamicProps)=>{
+        setCollection(new Mura.EntityCollection(_dynamicProps.collection,Mura._requestcontext));
       });   
-
     }, []);
-    if(collection) {
-      return (
-        <DynamicCollectionLayout collection={collection} props={objectparams} link={RouterlessLink}/>
-      )
-    }
-    else {
-      return (
-       <div></div>
-      )
-    }
+
+    return (
+      <div></div>
+    )
   } else {
-    const collection=new Mura.EntityCollection(objectparams.dynamicProps.collection,Mura._requestcontext);
-      return (
-        <DynamicCollectionLayout collection={collection} props={props} link={RouterLink}/>
+    return (
+        <DynamicCollectionLayout setCollection={setCollection} collection={collection} props={props} link={RouterLink}/>
       )
   }
 }
@@ -75,6 +70,19 @@ export const RouterLink = function({href,children,className}) {
 
 export const getDynamicProps = async function(item){
   const Mura = getMura();
+  const getItemsPerPage = function(item){
+    if(Mura.renderMode !='static'){
+      if(typeof item.nextn != 'undefined'){
+       return item.nextn
+      } else if(typeof item.itemsperpage != 'undefined'){
+       return item.itemsperpage;
+      } else {
+        return 0;
+      }
+    } else {
+      return 0;
+    }
+  }
   const data = {};
   let cdata = {};
   let {content} = item;
@@ -92,6 +100,7 @@ export const getDynamicProps = async function(item){
     feed.andProp('parentid').isEQ(cdata.contentid);
     feed.fields(getSelectFields(item));
     feed.expand(getExpandFields(item));
+    feed.itemsPerPage(getItemsPerPage(item))
     feed.sort(cdata.sortby,cdata.sortdirection);
     
     const query = await feed.getQuery();
@@ -119,7 +128,7 @@ export const getDynamicProps = async function(item){
         .where()
         .fields(getSelectFields(item))
         .expand(getExpandFields(item))
-        .itemsPerPage(0)
+        .itemsPerPage(getItemsPerPage(item))
         .maxItems(item.maxitems)
         .findMany(item.items)
         .getQuery();
@@ -141,7 +150,7 @@ export const getDynamicProps = async function(item){
           fields:getSelectFields(item),
           expand:getExpandFields(item),
           imagesizes:getImageSizes(item),
-          itemsPerPage:0,
+          itemsPerPage:getItemsPerPage(item),
           maxitems:item.maxitems
         }
       );
@@ -164,13 +173,11 @@ export const getDynamicProps = async function(item){
     if(item.source) {
       feed.andProp('feedid').isEQ(item.source);
     }
-    
     feed.fields(getSelectFields(item));
     feed.expand(getExpandFields(item));
     feed.imageSizes(getImageSizes(item));
-    
     feed.maxItems(item.maxitems);
-    feed.itemsPerPage(0);
+    feed.itemsPerPage(getItemsPerPage(item));
 
     //Add stuff like maxitems, nextn
       

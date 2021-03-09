@@ -1,5 +1,5 @@
 /* eslint-disable */
-import React from 'react';
+import React, {useEffect} from 'react';
 import Mura from 'mura.js';
 
 require('mura.js/src/core/stylemap-static');
@@ -29,7 +29,7 @@ export const getMuraConfig = function() {
   return muraConfig;
 }
 
-export const useAsync =  function(asyncFn, onSuccess) {
+export const useAsync =  (asyncFn, onSuccess) => {
   useEffect(() => {
     let isMounted = true;
     asyncFn().then(data => {

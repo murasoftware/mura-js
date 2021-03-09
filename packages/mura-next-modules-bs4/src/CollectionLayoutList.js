@@ -6,12 +6,13 @@ import CollectionReadMoreBtn from './CollectionReadMoreBtn';
 import ItemCredits from './ItemCredits';
 import ItemTags from './ItemTags';
 import ItemImage from './ItemImage';
+import { getMura } from '@murasoftware/next-core';
 
 /*
   The link component throws an error when rerending after being 
   reconfigured in edit mode. Hence CollectionLink
 */
-const List = ({props,collection,link}) => {
+const List = ({props,collection,setCollection,link}) => {
   const [pos, setPos] = useState(0);
   return (
     <>
@@ -19,7 +20,7 @@ const List = ({props,collection,link}) => {
       
       <div className="row">
         <div className="col-12">
-        <CollectionNav collection={collection} pos={pos} setPos={setPos} link={link} {...props} />
+        <CollectionNav setCollection={setCollection} collection={collection} pos={pos} setPos={setPos} link={link} {...props} />
         </div>
       </div>
     </>
@@ -27,7 +28,7 @@ const List = ({props,collection,link}) => {
 }
 
 const CurrentItems = (props) => {
-  const {collection,nextn,link,pos,fields} = props;
+  const {collection,nextn,link,pos,fields,scrollpages} = props;
   let itemsList = [];
   let item = '';
   const Link = link;
@@ -37,8 +38,12 @@ const CurrentItems = (props) => {
   const maxItems = props.maxitems;
   // console.log('fieldlist: ' + fieldlist);
 
-  if (maxItems < items.length && pos+nextn > maxItems){
-    itemsTo = maxItems;
+  if(getMura().renderMode != 'static' && scrollpages){
+    itemsTo=items.length;
+  } else {
+    if (maxItems < items.length && pos+nextn > maxItems){
+      itemsTo = maxItems;
+    }
   }
   
   for(let i = pos;i < itemsTo;i++) {

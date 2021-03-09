@@ -72,7 +72,7 @@ const Render = ({ items, link, ...props }) => {
 export const getDynamicProps = async props => {
   const Mura = getMura();
   
-  console.log("requesting primary nav data",props.instanceid,Date.now(),Mura.siteid);
+  //console.log("requesting primary nav data",props.instanceid,Date.now(),Mura.siteid);
  
   const collection=await Mura.getFeed('content')
     .where()
@@ -83,7 +83,7 @@ export const getDynamicProps = async props => {
     .fields('navicon,menutitle,url,filename')
     .getQuery();
   
-    console.log("receiving primary nav data",props.instanceid,Date.now(),Mura.siteid);
+    //console.log("receiving primary nav data",props.instanceid,Date.now(),Mura.siteid);
   return {
     items:collection.getAll().items
   };

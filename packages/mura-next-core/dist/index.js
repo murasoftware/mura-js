@@ -355,7 +355,7 @@ var getMuraConfig = function getMuraConfig() {
   return muraConfig;
 };
 var useAsync = function useAsync(asyncFn, onSuccess) {
-  useEffect(function () {
+  React.useEffect(function () {
     var isMounted = true;
     asyncFn().then(function (data) {
       if (isMounted) onSuccess(data);
@@ -536,6 +536,7 @@ var getMuraProps = function getMuraProps(context, isEditMode, params) {
           delete Mura$1.response;
           delete Mura$1.request;
           delete Mura$1.renderMode;
+          delete Mura$1.currentUser;
           var props = {
             content: content,
             moduleStyleData: moduleStyleData,

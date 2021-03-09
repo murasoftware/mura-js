@@ -300,32 +300,25 @@ function Collection(props) {
   var objectparams = Object.assign({}, props);
   var DynamicCollectionLayout = getLayout(objectparams.layout).component;
   objectparams.fields = objectparams.fields || getDefaultQueryPropsFromLayout(DynamicCollectionLayout, objectparams).fields || 'Image,Date,Title,Summary,Credits,Tags';
+  objectparams.dynamicProps = objectparams.dynamicProps || {};
 
-  if (!objectparams.dynamicProps) {
-    var _useState = useState(false),
-        collection = _useState[0],
-        setCollection = _useState[1];
+  var _collection = objectparams.dynamicProps.collection ? new Mura.EntityCollection(objectparams.dynamicProps.collection, Mura._requestcontext) : false;
 
+  var _useState = useState(_collection),
+      collection = _useState[0],
+      setCollection = _useState[1];
+
+  if (!collection) {
     useEffect(function () {
-      getDynamicProps(objectparams).then(function (dynamicProps) {
-        setCollection(new Mura.EntityCollection(dynamicProps.collection, Mura._requestcontext));
+      getDynamicProps(objectparams).then(function (_dynamicProps) {
+        setCollection(new Mura.EntityCollection(_dynamicProps.collection, Mura._requestcontext));
       });
     }, []);
-
-    if (collection) {
-      return /*#__PURE__*/React.createElement(DynamicCollectionLayout, {
-        collection: collection,
-        props: objectparams,
-        link: RouterlessLink
-      });
-    } else {
-      return /*#__PURE__*/React.createElement("div", null);
-    }
+    return /*#__PURE__*/React.createElement("div", null);
   } else {
-    var _collection = new Mura.EntityCollection(objectparams.dynamicProps.collection, Mura._requestcontext);
-
     return /*#__PURE__*/React.createElement(DynamicCollectionLayout, {
-      collection: _collection,
+      setCollection: setCollection,
+      collection: collection,
       props: props,
       link: RouterLink
     });
@@ -355,6 +348,21 @@ var getDynamicProps = function getDynamicProps(item) {
   try {
     var _exit2 = false;
     var Mura = getMura();
+
+    var getItemsPerPage = function getItemsPerPage(item) {
+      if (Mura.renderMode != 'static') {
+        if (typeof item.nextn != 'undefined') {
+          return item.nextn;
+        } else if (typeof item.itemsperpage != 'undefined') {
+          return item.itemsperpage;
+        } else {
+          return 0;
+        }
+      } else {
+        return 0;
+      }
+    };
+
     var data = {};
     var cdata = {};
     var content = item.content;
@@ -372,6 +380,7 @@ var getDynamicProps = function getDynamicProps(item) {
         feed.andProp('parentid').isEQ(cdata.contentid);
         feed.fields(getSelectFields(item));
         feed.expand(getExpandFields(item));
+        feed.itemsPerPage(getItemsPerPage(item));
         feed.sort(cdata.sortby, cdata.sortdirection);
         return Promise.resolve(feed.getQuery()).then(function (query) {
           data.collection = query.getAll();
@@ -402,7 +411,7 @@ var getDynamicProps = function getDynamicProps(item) {
 
               var _temp9 = function () {
                 if (item.items.length) {
-                  return Promise.resolve(Mura.getFeed('content').where().fields(getSelectFields(item)).expand(getExpandFields(item)).itemsPerPage(0).maxItems(item.maxitems).findMany(item.items).getQuery()).then(function (related) {
+                  return Promise.resolve(Mura.getFeed('content').where().fields(getSelectFields(item)).expand(getExpandFields(item)).itemsPerPage(getItemsPerPage(item)).maxItems(item.maxitems).findMany(item.items).getQuery()).then(function (related) {
                     data.collection = related.getAll();
                   });
                 } else {
@@ -423,7 +432,7 @@ var getDynamicProps = function getDynamicProps(item) {
                 fields: getSelectFields(item),
                 expand: getExpandFields(item),
                 imagesizes: getImageSizes(item),
-                itemsPerPage: 0,
+                itemsPerPage: getItemsPerPage(item),
                 maxitems: item.maxitems
               })).then(function (related) {
                 data.collection = related.getAll();
@@ -449,7 +458,7 @@ var getDynamicProps = function getDynamicProps(item) {
 
               _feed.maxItems(item.maxitems);
 
-              _feed.itemsPerPage(0);
+              _feed.itemsPerPage(getItemsPerPage(item));
 
               return Promise.resolve(_feed.getQuery()).then(function (query) {
                 data.collection = query.getAll();
@@ -613,8 +622,13 @@ function _objectWithoutPropertiesLoose(source, excluded) {
   return target;
 }
 
+function _readOnlyError(name) {
+  throw new TypeError("\"" + name + "\" is read-only");
+}
+
 var CollectionNav = function CollectionNav(props) {
   var collection = props.collection,
+      setCollection = props.setCollection,
       pos = props.pos,
       nextn = props.nextn,
       setPos = props.setPos,
@@ -624,10 +638,19 @@ var CollectionNav = function CollectionNav(props) {
       setItemsTo = props.setItemsTo;
   var items = collection.get('items');
   var maxItems = props.maxitems;
+  var next = pos + nextn;
+  var prev = pos > 0 ? pos - nextn > 0 ? pos - nextn : 0 : 0;
+  var itemsOf = pos + nextn > items.length ? items.length : pos + nextn;
+  var itemsToMax = items.length >= maxItems ? maxItems : items.length;
+  var nav = [];
 
-  if (scrollpages) {
-    useEffect(function () {
-      if (!Mura$1.isInNode()) {
+  if (maxItems < items.length && pos + nextn > maxItems) {
+    itemsToMax = maxItems;
+  }
+
+  if (Mura$1.renderMode == 'static') {
+    if (scrollpages) {
+      if (Mura$1.isInNode()) {
         var isEndVisible = function isEndVisible() {
           var end = Mura$1("div.mura-collection-end[data-instanceid=\"" + instanceid + "\"]");
 
@@ -640,43 +663,107 @@ var CollectionNav = function CollectionNav(props) {
           }
         };
 
-        isEndVisible();
+        Mura$1(isEndVisible);
       }
-    }, []);
-    return /*#__PURE__*/React.createElement("div", {
-      className: "mura-collection-end",
-      "data-instanceid": instanceid
-    });
-  }
 
-  var next = pos + nextn;
-  var prev = pos > 0 ? pos - nextn > 0 ? pos - nextn : 0 : 0;
-  var itemsOf = pos + nextn > items.length ? items.length : pos + nextn;
-  var itemsToMax = items.length >= maxItems ? maxItems : items.length;
-  var nav = [];
+      return /*#__PURE__*/React.createElement("div", {
+        className: "mura-collection-end",
+        "data-instanceid": instanceid
+      });
+    }
 
-  if (maxItems < items.length && pos + nextn > maxItems) {
-    itemsToMax = maxItems;
-  }
+    if (pos > 0) {
+      nav.push( /*#__PURE__*/React.createElement(NavButton, {
+        key: "prev",
+        pos: pos,
+        val: prev,
+        onItemClick: setPos,
+        label: "Prev"
+      }));
+    }
 
-  if (pos > 0) {
-    nav.push( /*#__PURE__*/React.createElement(NavButton, {
-      key: "prev",
-      pos: pos,
-      val: prev,
-      onItemClick: setPos,
-      label: "Prev"
-    }));
-  }
+    if (next < itemsToMax) {
+      nav.push( /*#__PURE__*/React.createElement(NavButton, {
+        key: "next",
+        pos: pos,
+        val: next,
+        onItemClick: setPos,
+        label: "Next"
+      }));
+    }
+  } else {
+    if (scrollpages) {
+      var _useState = useState(0),
+          endindex = _useState[0],
+          setEndindex = _useState[1];
 
-  if (next < itemsToMax) {
-    nav.push( /*#__PURE__*/React.createElement(NavButton, {
-      key: "next",
-      pos: pos,
-      val: next,
-      onItemClick: setPos,
-      label: "Next"
-    }));
+      var _isEndVisible = function _isEndVisible() {
+        var end = Mura$1("div.mura-collection-end[data-instanceid=\"" + instanceid + "\"]");
+
+        if (collection.has('next')) {
+          if (Mura$1.isScrolledIntoView(end.node) && endindex != collection.get('endindex')) {
+            setEndindex(collection.get('endindex'));
+          } else {
+            setTimeout(_isEndVisible, 50);
+          }
+        }
+      };
+
+      useEffect(function () {
+        var isMounted = true;
+
+        if (isMounted) {
+          collection.get('next').then(function (_collection) {
+            var incoming = _collection.getAll();
+
+            collection.getAll().items.reverse().forEach(function (item) {
+              incoming.items.unshift(item);
+            });
+            setCollection(new Mura$1.EntityCollection(incoming, Mura$1._requestcontext));
+            setTimeout(_isEndVisible, 50);
+          });
+        }
+
+        return function () {
+          isMounted = false;
+        };
+      }, [endindex]);
+
+      if (!Mura$1.isInNode()) {
+        Mura$1(_isEndVisible);
+      }
+
+      return /*#__PURE__*/React.createElement("div", {
+        className: "mura-collection-end",
+        "data-instanceid": instanceid
+      });
+    } else {
+      var goToPage = function goToPage(page) {
+        collection.get(page).then(function (_collection) {
+          setCollection({
+            collection: _collection.getAll()
+          });
+        });
+      };
+
+      if (collection.has('previous')) {
+        nav.push( /*#__PURE__*/React.createElement(NavButton, {
+          key: "prev",
+          val: "previous",
+          onItemClick: goToPage,
+          label: "Prev"
+        }));
+      }
+
+      if (collection.has('next')) {
+        nav.push( /*#__PURE__*/React.createElement(NavButton, {
+          key: "next",
+          val: "next",
+          onItemClick: goToPage,
+          label: "Next"
+        }));
+      }
+    }
   }
 
   if (nav.length) {
@@ -722,6 +809,7 @@ var NavButtonLabel = function NavButtonLabel(props) {
 var CollectionLayout = function CollectionLayout(_ref) {
   var props = _ref.props,
       collection = _ref.collection,
+      setCollection = _ref.setCollection,
       link = _ref.link;
   var nextn = props.nextn;
   var items = collection.get('items');
@@ -747,6 +835,7 @@ var CollectionLayout = function CollectionLayout(_ref) {
     pos: pos,
     link: link
   }, props))), /*#__PURE__*/React.createElement(CollectionNav, _extends({
+    setCollection: setCollection,
     collection: collection,
     itemsTo: itemsTo,
     setItemsTo: setItemsTo,
@@ -760,11 +849,20 @@ var CurrentItems = function CurrentItems(props) {
   var collection = props.collection,
       link = props.link,
       pos = props.pos,
-      itemsTo = props.itemsTo;
+      itemsTo = props.itemsTo,
+      scrollpages = props.scrollpages;
   var itemsList = [];
   var item = '';
   var Link = link;
   var items = collection.get('items');
+
+  if (getMura().renderMode != 'static' && scrollpages) {
+    itemsTo = (_readOnlyError("itemsTo"), items.length);
+  } else {
+    if (maxItems < items.length && pos + nextn > maxItems) {
+      itemsTo = (_readOnlyError("itemsTo"), maxItems);
+    }
+  }
 
   for (var i = pos; i < itemsTo; i++) {
     item = items[i];
@@ -803,7 +901,7 @@ var ItemImage = function ItemImage(_ref) {
       alt = _ref.alt;
   var itemImage = image;
 
-  if (typeof itemImage != 'undefined') {
+  if (typeof itemImage != 'undefined' && itemImage) {
     return /*#__PURE__*/React.createElement("img", {
       src: itemImage,
       alt: alt,
@@ -817,6 +915,7 @@ var ItemImage = function ItemImage(_ref) {
 var CollectionLayoutAccordian = function CollectionLayoutAccordian(_ref) {
   var props = _ref.props,
       collection = _ref.collection,
+      setCollection = _ref.setCollection,
       link = _ref.link;
 
   var _useState = useState(0),
@@ -834,6 +933,7 @@ var CollectionLayoutAccordian = function CollectionLayoutAccordian(_ref) {
   }, /*#__PURE__*/React.createElement("div", {
     className: "col-12"
   }, /*#__PURE__*/React.createElement(CollectionNav, _extends({
+    setCollection: setCollection,
     collection: collection,
     pos: pos,
     setPos: setPos,
@@ -846,7 +946,8 @@ var CurrentItems$1 = function CurrentItems(props) {
       nextn = props.nextn,
       link = props.link,
       pos = props.pos,
-      fields = props.fields;
+      fields = props.fields,
+      scrollpages = props.scrollpages;
   var itemsList = [];
   var item = '';
   var Link = link;
@@ -855,8 +956,12 @@ var CurrentItems$1 = function CurrentItems(props) {
   var fieldlist = fields ? fields.toLowerCase().split(",") : [];
   var maxItems = props.maxitems;
 
-  if (maxItems < items.length && pos + nextn > maxItems) {
-    itemsTo = maxItems;
+  if (getMura().renderMode != 'static' && scrollpages) {
+    itemsTo = items.length;
+  } else {
+    if (maxItems < items.length && pos + nextn > maxItems) {
+      itemsTo = maxItems;
+    }
   }
 
   var _useState2 = useState('0'),
@@ -966,6 +1071,7 @@ var getQueryProps$1 = function getQueryProps() {
 var AlternatingBoxes = function AlternatingBoxes(_ref) {
   var props = _ref.props,
       collection = _ref.collection,
+      setCollection = _ref.setCollection,
       link = _ref.link;
 
   var _useState = useState(0),
@@ -983,6 +1089,7 @@ var AlternatingBoxes = function AlternatingBoxes(_ref) {
   }, /*#__PURE__*/React.createElement("div", {
     className: "col-12"
   }, /*#__PURE__*/React.createElement(CollectionNav, _extends({
+    setCollection: setCollection,
     collection: collection,
     pos: pos,
     setPos: setPos,
@@ -995,7 +1102,8 @@ var CurrentItems$2 = function CurrentItems(props) {
       nextn = props.nextn,
       link = props.link,
       pos = props.pos,
-      fields = props.fields;
+      fields = props.fields,
+      scrollpages = props.scrollpages;
   var itemsList = [];
   var item = '';
   var Link = link;
@@ -1004,8 +1112,12 @@ var CurrentItems$2 = function CurrentItems(props) {
   var fieldlist = fields ? fields.toLowerCase().split(",") : [];
   var maxItems = props.maxitems;
 
-  if (maxItems < items.length && pos + nextn > maxItems) {
-    itemsTo = maxItems;
+  if (getMura().renderMode != 'static' && scrollpages) {
+    itemsTo = items.length;
+  } else {
+    if (maxItems < items.length && pos + nextn > maxItems) {
+      itemsTo = maxItems;
+    }
   }
 
   for (var i = pos; i < itemsTo; i++) {
@@ -1100,6 +1212,7 @@ var getQueryProps$2 = function getQueryProps() {
 var AlternatingRows = function AlternatingRows(_ref) {
   var props = _ref.props,
       collection = _ref.collection,
+      setCollection = _ref.setCollection,
       link = _ref.link;
 
   var _useState = useState(0),
@@ -1117,6 +1230,7 @@ var AlternatingRows = function AlternatingRows(_ref) {
   }, /*#__PURE__*/React.createElement("div", {
     className: "col-12"
   }, /*#__PURE__*/React.createElement(CollectionNav, _extends({
+    setCollection: setCollection,
     collection: collection,
     pos: pos,
     setPos: setPos,
@@ -1129,7 +1243,8 @@ var CurrentItems$3 = function CurrentItems(props) {
       nextn = props.nextn,
       link = props.link,
       pos = props.pos,
-      fields = props.fields;
+      fields = props.fields,
+      scrollpages = props.scrollpages;
   var itemsList = [];
   var item = '';
   var Link = link;
@@ -1138,8 +1253,12 @@ var CurrentItems$3 = function CurrentItems(props) {
   var fieldlist = fields ? fields.toLowerCase().split(",") : [];
   var maxItems = props.maxitems;
 
-  if (maxItems < items.length && pos + nextn > maxItems) {
-    itemsTo = maxItems;
+  if (getMura().renderMode != 'static' && scrollpages) {
+    itemsTo = items.length;
+  } else {
+    if (maxItems < items.length && pos + nextn > maxItems) {
+      itemsTo = maxItems;
+    }
   }
 
   for (var i = pos; i < itemsTo; i++) {
@@ -1264,6 +1383,7 @@ function CheckForItems() {
 var Cards = function Cards(_ref) {
   var props = _ref.props,
       collection = _ref.collection,
+      setCollection = _ref.setCollection,
       link = _ref.link;
 
   var _useState = useState(0),
@@ -1285,6 +1405,7 @@ var Cards = function Cards(_ref) {
   }, /*#__PURE__*/React.createElement("div", {
     className: "col-12"
   }, /*#__PURE__*/React.createElement(CollectionNav, _extends({
+    setCollection: setCollection,
     collection: collection,
     pos: pos,
     setPos: setPos,
@@ -1297,7 +1418,8 @@ var CurrentItems$4 = function CurrentItems(props) {
       nextn = props.nextn,
       link = props.link,
       pos = props.pos,
-      fields = props.fields;
+      fields = props.fields,
+      scrollpages = props.scrollpages;
   var itemsList = [];
   var item = '';
   var Link = link;
@@ -1307,8 +1429,12 @@ var CurrentItems$4 = function CurrentItems(props) {
   var maxItems = props.maxitems;
   var catAssignments = [];
 
-  if (maxItems < items.length && pos + nextn > maxItems) {
-    itemsTo = maxItems;
+  if (getMura().renderMode != 'static' && scrollpages) {
+    itemsTo = items.length;
+  } else {
+    if (maxItems < items.length && pos + nextn > maxItems) {
+      itemsTo = maxItems;
+    }
   }
 
   for (var i = pos; i < itemsTo; i++) {
@@ -1383,6 +1509,7 @@ var getQueryProps$4 = function getQueryProps() {
 var List = function List(_ref) {
   var props = _ref.props,
       collection = _ref.collection,
+      setCollection = _ref.setCollection,
       link = _ref.link;
 
   var _useState = useState(0),
@@ -1398,6 +1525,7 @@ var List = function List(_ref) {
   }, /*#__PURE__*/React.createElement("div", {
     className: "col-12"
   }, /*#__PURE__*/React.createElement(CollectionNav, _extends({
+    setCollection: setCollection,
     collection: collection,
     pos: pos,
     setPos: setPos,
@@ -1410,7 +1538,8 @@ var CurrentItems$5 = function CurrentItems(props) {
       nextn = props.nextn,
       link = props.link,
       pos = props.pos,
-      fields = props.fields;
+      fields = props.fields,
+      scrollpages = props.scrollpages;
   var itemsList = [];
   var item = '';
   var Link = link;
@@ -1419,8 +1548,12 @@ var CurrentItems$5 = function CurrentItems(props) {
   var fieldlist = fields ? fields.toLowerCase().split(",") : [];
   var maxItems = props.maxitems;
 
-  if (maxItems < items.length && pos + nextn > maxItems) {
-    itemsTo = maxItems;
+  if (getMura().renderMode != 'static' && scrollpages) {
+    itemsTo = items.length;
+  } else {
+    if (maxItems < items.length && pos + nextn > maxItems) {
+      itemsTo = maxItems;
+    }
   }
 
   for (var i = pos; i < itemsTo; i++) {
@@ -1556,6 +1689,7 @@ var getQueryProps$5 = function getQueryProps(item) {
 var Masonry = function Masonry(_ref) {
   var props = _ref.props,
       collection = _ref.collection,
+      setCollection = _ref.setCollection,
       link = _ref.link;
 
   var _useState = useState(0),
@@ -1573,6 +1707,7 @@ var Masonry = function Masonry(_ref) {
   }, /*#__PURE__*/React.createElement("div", {
     className: "col-12"
   }, /*#__PURE__*/React.createElement(CollectionNav, _extends({
+    setCollection: setCollection,
     collection: collection,
     pos: pos,
     setPos: setPos,
@@ -1585,7 +1720,8 @@ var CurrentItems$6 = function CurrentItems(props) {
       nextn = props.nextn,
       link = props.link,
       pos = props.pos,
-      fields = props.fields;
+      fields = props.fields,
+      scrollpages = props.scrollpages;
   var itemsList = [];
   var item = '';
   var Link = link;
@@ -1594,8 +1730,12 @@ var CurrentItems$6 = function CurrentItems(props) {
   var fieldlist = fields ? fields.toLowerCase().split(",") : [];
   var maxItems = props.maxitems;
 
-  if (maxItems < items.length && pos + nextn > maxItems) {
-    itemsTo = maxItems;
+  if (getMura().renderMode != 'static' && scrollpages) {
+    itemsTo = items.length;
+  } else {
+    if (maxItems < items.length && pos + nextn > maxItems) {
+      itemsTo = maxItems;
+    }
   }
 
   for (var i = pos; i < itemsTo; i++) {
@@ -1971,10 +2111,16 @@ var CTAButton = function CTAButton(_ref) {
 var Embed = function Embed(props) {
   var objectparams = Object.assign({}, props);
   objectparams.source = objectparams.source || '';
+  var containerid = 'source-contianer-' + objectparams.instanceid;
+
+  if (!Mura$1.isInNode()) {
+    useEffect(function () {
+      Mura$1('#' + containerid).html(objectparams.source);
+    }, []);
+  }
+
   return /*#__PURE__*/React.createElement("div", {
-    dangerouslySetInnerHTML: {
-      __html: objectparams.source
-    }
+    id: containerid
   });
 };
 
@@ -2325,7 +2471,7 @@ function PrimaryNav(props) {
         setItems = _useState[1];
 
     useEffect(function () {
-      getDynamicProps$2(objectparams).then(function (dynamicProps) {
+      getDynamicProps$2().then(function (dynamicProps) {
         setItems(dynamicProps.items);
       });
     }, []);
@@ -2396,9 +2542,7 @@ var Render = function Render(_ref) {
 var getDynamicProps$2 = function getDynamicProps(props) {
   try {
     var Mura = getMura();
-    console.log("requesting primary nav data", props.instanceid, Date.now(), Mura.siteid);
     return Promise.resolve(Mura.getFeed('content').where().prop('parentid').isEQ(Mura.homeid).sort('orderno').expand("kids").fields('navicon,menutitle,url,filename').getQuery()).then(function (collection) {
-      console.log("receiving primary nav data", props.instanceid, Date.now(), Mura.siteid);
       return {
         items: collection.getAll().items
       };
@@ -2701,6 +2845,7 @@ function ResourceHub(props) {
         curCategoriesArray: curCategoriesArray,
         hasMXP: hasMXP
       })), /*#__PURE__*/React.createElement(DynamicCollectionLayout, {
+        setCollection: setCollection,
         collection: collection,
         props: props,
         link: RouterlessLink

@@ -6,11 +6,12 @@ import ItemDate from './ItemDate';
 import CollectionReadMoreBtn from './CollectionReadMoreBtn';
 import ItemCategories from './ItemCategories';
 import NoItemsMessage from './NoItemsMessage';
+import { getMura } from '@murasoftware/next-core';
 /*
   The link component throws an error when rerending after being 
   reconfigured in edit mode. Hence CollectionLink
 */
-const Cards = ({props,collection,link}) => {
+const Cards = ({props,collection,setCollection,link}) => {
   const [pos, setPos] = useState(0);
   if (!collection.properties.totalpages){
     return(
@@ -25,7 +26,7 @@ const Cards = ({props,collection,link}) => {
       </div>
       <div className="row">
         <div className="col-12">
-        <CollectionNav collection={collection} pos={pos} setPos={setPos} link={link} {...props} />
+        <CollectionNav setCollection={setCollection} collection={collection} pos={pos} setPos={setPos} link={link} {...props} />
         </div>
       </div>
     </>
@@ -33,7 +34,7 @@ const Cards = ({props,collection,link}) => {
 }
 
 const CurrentItems = (props) => {
-  const {collection,nextn,link,pos,fields} = props;
+  const {collection,nextn,link,pos,fields,scrollpages} = props;
   let itemsList = [];
   let item = '';
   const Link = link;
@@ -44,9 +45,14 @@ const CurrentItems = (props) => {
   // console.log('fieldlist: ' + fieldlist);
   let catAssignments = [];
 
-  if (maxItems < items.length && pos+nextn > maxItems){
-    itemsTo = maxItems;
+  if(getMura().renderMode != 'static' && scrollpages){
+    itemsTo=items.length;
+  } else {
+    if (maxItems < items.length && pos+nextn > maxItems){
+      itemsTo = maxItems;
+    }
   }
+
   for(let i = pos;i < itemsTo;i++) {
     item = items[i];
     //categoryassignments require the feed to be expanded to include them

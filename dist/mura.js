@@ -2799,8 +2799,7 @@ function processDisplayObject(el, queue, rerender, resolveFn, usePreloaderMarkup
           template = properNameCheck;
         }
 
-        if (typeof Mura.Module[template] != 'undefined') {
-          obj.data('render', 'client');
+        if (typeof Mura.Module[template] != 'undefined') {//obj.data('render','client')
         }
 
         if (!rerender && obj.data('render') == 'client' && obj.children('.mura-object-content').length) {

@@ -1,8 +1,9 @@
 import React,{ useEffect,useState } from "react";
 import OutputMarkup from "./OutputMarkup";
 import CollectionNav from './CollectionNav';
+import { getMura } from '@murasoftware/next-core';
 
-const CollectionLayout = ({props,collection,link}) => {
+const CollectionLayout = ({props,collection,setCollection,link}) => {
   const {nextn} = props;
   const items = collection.get('items');
   const [pos, setPos] = useState(0);
@@ -17,17 +18,25 @@ const CollectionLayout = ({props,collection,link}) => {
       <ul style={{'listStyle': 'none'}}>
         <CurrentItems collection={collection}  itemsTo={itemsTo} pos={pos} link={link} {...props} />
       </ul>
-      <CollectionNav collection={collection}  itemsTo={itemsTo}  setItemsTo={setItemsTo} pos={pos} setPos={setPos} link={link} {...props} />   
+      <CollectionNav setCollection={setCollection} collection={collection}  itemsTo={itemsTo}  setItemsTo={setItemsTo} pos={pos} setPos={setPos} link={link} {...props} />   
     </div>
   )
 }
 
 const CurrentItems = (props) => {
-  const {collection,link,pos,itemsTo} = props;
+  const {collection,link,pos,itemsTo,scrollpages} = props;
   let itemsList = [];
   let item = '';
   const Link = link;
   const items = collection.get('items');
+
+  if(getMura().renderMode != 'static' && scrollpages){
+    itemsTo=items.length;
+  } else {
+    if (maxItems < items.length && pos+nextn > maxItems){
+      itemsTo = maxItems;
+    }
+  }
 
   for(let i = pos;i < itemsTo;i++) {
     item = items[i];

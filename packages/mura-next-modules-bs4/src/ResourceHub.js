@@ -4,7 +4,8 @@ import { getMura } from '@murasoftware/next-core';
 import { getLayout, RouterlessLink, RouterLink } from './Collection';
 /*
   TODO: scrollpages -- not sure if this is even working at all in collection in NextJS, should test
-*/
+  Needs to be tested
+  */
 
 function ResourceHub(props) {
   const Mura = getMura();
@@ -16,6 +17,7 @@ function ResourceHub(props) {
   if(objectparams.dynamicProps){
     _collection=new Mura.EntityCollection(objectparams.dynamicProps.collection,Mura._requestcontext);
   }
+  
   const [collection,setCollection]=useState(_collection);
   
   //console.log(objectparams.dynamicProps);
@@ -100,7 +102,7 @@ function ResourceHub(props) {
             hasMXP={hasMXP}
           />
 
-          <DynamicCollectionLayout collection={collection} props={props} link={RouterlessLink}/>
+          <DynamicCollectionLayout setCollection={setCollection} collection={collection} props={props} link={RouterlessLink}/>
 
         </div>
       )
