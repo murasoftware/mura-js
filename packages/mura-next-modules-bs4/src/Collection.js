@@ -33,19 +33,35 @@ function Collection(props) {
   objectparams.dynamicProps=objectparams.dynamicProps ||  {};
 
   const _collection=objectparams.dynamicProps.collection ? new Mura.EntityCollection(objectparams.dynamicProps.collection,Mura._requestcontext) : false;
-  const [collection,setCollection]=useState(_collection);
 
-  if(!collection){
+  if(!_collection){
+    const [collection,setCollection]=useState(_collection);
+
     useEffect(() => {
-      getDynamicProps(objectparams).then((_dynamicProps)=>{
-        setCollection(new Mura.EntityCollection(_dynamicProps.collection,Mura._requestcontext));
-      });   
+      let isMounted = true;
+      if(isMounted){
+        getDynamicProps(objectparams).then((_dynamicProps)=>{
+          if(isMounted){
+            setCollection(new Mura.EntityCollection(_dynamicProps.collection,Mura._requestcontext));
+          }
+        });   
+      }
+      return () => { isMounted = false };
     }, []);
 
-    return (
-      <div></div>
-    )
+    if(collection) {
+      return (
+        <DynamicCollectionLayout setCollection={setCollection} collection={collection} props={objectparams} link={RouterlessLink}/>
+      )
+    }
+    else {
+      return (
+       <div></div>
+      )
+    }
   } else {
+    const [collection,setCollection]=useState(_collection);
+
     return (
         <DynamicCollectionLayout setCollection={setCollection} collection={collection} props={props} link={RouterLink}/>
       )

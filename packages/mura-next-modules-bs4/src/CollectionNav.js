@@ -6,22 +6,21 @@ import { faChevronRight, faLaptopHouse } from '@fortawesome/free-solid-svg-icons
 import { faChevronLeft } from '@fortawesome/free-solid-svg-icons'
 
 const CollectionNav = (props) => {
-	
-	const {collection,setCollection,pos,nextn,setPos,scrollpages,instanceid,itemsTo,setItemsTo} = props;
-	const items = collection.get('items');
-	const maxItems = props.maxitems;
-	const next = pos+nextn;
-	const prev = pos > 0 ? pos-nextn > 0 ? pos-nextn : 0 : 0;
-	let itemsOf = pos+nextn > items.length ? items.length : pos+nextn;
-	let itemsToMax = items.length >= maxItems ? maxItems : items.length
 	let nav = [];
-	
+	const {collection,setCollection,pos,nextn,setPos,scrollpages,instanceid,itemsTo,setItemsTo} = props;
 
-	if (maxItems < items.length && pos+nextn > maxItems){
-		itemsToMax = maxItems;
-	}
 
 	if(Mura.renderMode == 'static'){
+		const items = collection.get('items');
+		const maxItems = props.maxitems;
+		const next = pos+nextn;
+		const prev = pos > 0 ? pos-nextn > 0 ? pos-nextn : 0 : 0;
+		let itemsOf = pos+nextn > items.length ? items.length : pos+nextn;
+		let itemsToMax = items.length >= maxItems ? maxItems : items.length
+		
+		if (maxItems < items.length && pos+nextn > maxItems){
+			itemsToMax = maxItems;
+		}
 
 		if(scrollpages){
 			if(Mura.isInNode()){
@@ -56,6 +55,19 @@ const CollectionNav = (props) => {
 			)
 		}
 		
+		if(nav.length){
+			return (
+			<div>
+				<p>Displaying items {pos+1}-{itemsOf} of {itemsToMax}</p>
+				<ul className="pagination">
+					{nav}
+				</ul>
+			</div>
+			);
+		} else {
+			return '';
+		}
+
 	} else {
 
 		if(scrollpages){	
@@ -100,7 +112,15 @@ const CollectionNav = (props) => {
 		} else {
 
 			const goToPage = function(page){
-				collection.get(page).then(function(_collection){setCollection({collection:_collection.getAll()})});
+				let isMounted = true;
+				if(isMounted){
+					collection.get(page).then(function(_collection){
+						if(isMounted){
+							setCollection(_collection);
+						}
+					});
+				}
+				return () => { isMounted = false };
 			}
 
 			if(collection.has('previous')) {
@@ -114,21 +134,23 @@ const CollectionNav = (props) => {
 				<NavButton key="next" val="next" onItemClick={goToPage} label="Next"/>
 				)
 			}
+
+		}
+
+		if(nav.length){
+			return (
+			<div>
+				<p>Displaying items {collection.get('startindex')}-{collection.get('endindex')} of {collection.get('totalitems')}</p>
+				<ul className="pagination">
+					{nav}
+				</ul>
+			</div>
+			);
+		} else {
+			return '';
 		}
 	}
 
-	if(nav.length){
-		return (
-		<div>
-			<p>Displaying items {pos+1}-{itemsOf} of {itemsToMax}</p>
-			<ul className="pagination">
-				{nav}
-			</ul>
-		</div>
-		);
-	} else {
-		return '';
-	}
   }
   
   const NavButton = props => {

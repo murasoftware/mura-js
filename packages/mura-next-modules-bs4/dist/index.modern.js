@@ -304,21 +304,45 @@ function Collection(props) {
 
   var _collection = objectparams.dynamicProps.collection ? new Mura.EntityCollection(objectparams.dynamicProps.collection, Mura._requestcontext) : false;
 
-  var _useState = useState(_collection),
-      collection = _useState[0],
-      setCollection = _useState[1];
+  if (!_collection) {
+    var _useState = useState(_collection),
+        collection = _useState[0],
+        setCollection = _useState[1];
 
-  if (!collection) {
     useEffect(function () {
-      getDynamicProps(objectparams).then(function (_dynamicProps) {
-        setCollection(new Mura.EntityCollection(_dynamicProps.collection, Mura._requestcontext));
-      });
+      var isMounted = true;
+
+      if (isMounted) {
+        getDynamicProps(objectparams).then(function (_dynamicProps) {
+          if (isMounted) {
+            setCollection(new Mura.EntityCollection(_dynamicProps.collection, Mura._requestcontext));
+          }
+        });
+      }
+
+      return function () {
+        isMounted = false;
+      };
     }, []);
-    return /*#__PURE__*/React.createElement("div", null);
+
+    if (collection) {
+      return /*#__PURE__*/React.createElement(DynamicCollectionLayout, {
+        setCollection: setCollection,
+        collection: collection,
+        props: objectparams,
+        link: RouterlessLink
+      });
+    } else {
+      return /*#__PURE__*/React.createElement("div", null);
+    }
   } else {
+    var _useState2 = useState(_collection),
+        _collection2 = _useState2[0],
+        _setCollection = _useState2[1];
+
     return /*#__PURE__*/React.createElement(DynamicCollectionLayout, {
-      setCollection: setCollection,
-      collection: collection,
+      setCollection: _setCollection,
+      collection: _collection2,
       props: props,
       link: RouterLink
     });
@@ -627,6 +651,7 @@ function _readOnlyError(name) {
 }
 
 var CollectionNav = function CollectionNav(props) {
+  var nav = [];
   var collection = props.collection,
       setCollection = props.setCollection,
       pos = props.pos,
@@ -636,19 +661,19 @@ var CollectionNav = function CollectionNav(props) {
       instanceid = props.instanceid,
       itemsTo = props.itemsTo,
       setItemsTo = props.setItemsTo;
-  var items = collection.get('items');
-  var maxItems = props.maxitems;
-  var next = pos + nextn;
-  var prev = pos > 0 ? pos - nextn > 0 ? pos - nextn : 0 : 0;
-  var itemsOf = pos + nextn > items.length ? items.length : pos + nextn;
-  var itemsToMax = items.length >= maxItems ? maxItems : items.length;
-  var nav = [];
-
-  if (maxItems < items.length && pos + nextn > maxItems) {
-    itemsToMax = maxItems;
-  }
 
   if (Mura$1.renderMode == 'static') {
+    var items = collection.get('items');
+    var maxItems = props.maxitems;
+    var next = pos + nextn;
+    var prev = pos > 0 ? pos - nextn > 0 ? pos - nextn : 0 : 0;
+    var itemsOf = pos + nextn > items.length ? items.length : pos + nextn;
+    var itemsToMax = items.length >= maxItems ? maxItems : items.length;
+
+    if (maxItems < items.length && pos + nextn > maxItems) {
+      itemsToMax = maxItems;
+    }
+
     if (scrollpages) {
       if (Mura$1.isInNode()) {
         var isEndVisible = function isEndVisible() {
@@ -690,6 +715,14 @@ var CollectionNav = function CollectionNav(props) {
         onItemClick: setPos,
         label: "Next"
       }));
+    }
+
+    if (nav.length) {
+      return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", null, "Displaying items ", pos + 1, "-", itemsOf, " of ", itemsToMax), /*#__PURE__*/React.createElement("ul", {
+        className: "pagination"
+      }, nav));
+    } else {
+      return '';
     }
   } else {
     if (scrollpages) {
@@ -739,11 +772,19 @@ var CollectionNav = function CollectionNav(props) {
       });
     } else {
       var goToPage = function goToPage(page) {
-        collection.get(page).then(function (_collection) {
-          setCollection({
-            collection: _collection.getAll()
+        var isMounted = true;
+
+        if (isMounted) {
+          collection.get(page).then(function (_collection) {
+            if (isMounted) {
+              setCollection(_collection);
+            }
           });
-        });
+        }
+
+        return function () {
+          isMounted = false;
+        };
       };
 
       if (collection.has('previous')) {
@@ -764,14 +805,14 @@ var CollectionNav = function CollectionNav(props) {
         }));
       }
     }
-  }
 
-  if (nav.length) {
-    return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", null, "Displaying items ", pos + 1, "-", itemsOf, " of ", itemsToMax), /*#__PURE__*/React.createElement("ul", {
-      className: "pagination"
-    }, nav));
-  } else {
-    return '';
+    if (nav.length) {
+      return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", null, "Displaying items ", collection.get('startindex'), "-", collection.get('endindex'), " of ", collection.get('totalitems')), /*#__PURE__*/React.createElement("ul", {
+        className: "pagination"
+      }, nav));
+    } else {
+      return '';
+    }
   }
 };
 
