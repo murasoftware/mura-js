@@ -198,30 +198,44 @@ const getCollection = async (props,filterProps) => {
 
   const excludeIDList=props.content.contentid;
 
+  const getItemsPerPage = function(item){
+    if(Mura.renderMode !='static'){
+      if(typeof item.nextn != 'undefined'){
+       return item.nextn
+      } else if(typeof item.itemsperpage != 'undefined'){
+       return item.itemsperpage;
+      } else {
+        return 0;
+      }
+    } else {
+      return 0;
+    }
+  }
+
   const feed = Mura.getFeed('content');
 
-      feed.prop('type').isIn('Page,Link,File');
-      feed.andProp('path').containsValue(props.content.contentid);
-      feed.andProp('contentid').isNotIn(excludeIDList);
-      feed.expand('categoryassignments');
+    feed.prop('type').isIn('Page,Link,File');
+    feed.andProp('path').containsValue(props.content.contentid);
+    feed.andProp('contentid').isNotIn(excludeIDList);
+    feed.expand('categoryassignments');
 
-      if(filterProps.subtype.length){
-        feed.andProp('subtype').isEQ(filterProps.subtype);
-      }
-      if(filterProps.categoryid.length){
-        feed.andProp('categoryid').isIn(filterProps.categoryid);
-        feed.useCategoryIntersect(true);
-      }
-      feed.maxItems(props.maxitems);
-      feed.itemsPerPage(0);
+    if(filterProps.subtype.length){
+      feed.andProp('subtype').isEQ(filterProps.subtype);
+    }
+    if(filterProps.categoryid.length){
+      feed.andProp('categoryid').isIn(filterProps.categoryid);
+      feed.useCategoryIntersect(true);
+    }
+    feed.maxItems(props.maxitems);
+    feed.itemsPerPage(getItemsPerPage());
 
-      let collection;
+    let collection;
 
-      if(filterProps.personaid.length){
-        collection = await feed.getQuery({sortBy:"mxpRelevance"});
-      } else {
-        collection = await feed.sort('releasedate','desc').getQuery();
-      }
+    if(filterProps.personaid.length){
+      collection = await feed.getQuery({sortBy:"mxpRelevance"});
+    } else {
+      collection = await feed.sort('releasedate','desc').getQuery();
+    }
   return collection;
 }
 

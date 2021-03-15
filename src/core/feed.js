@@ -77,6 +77,42 @@ Mura.Feed = Mura.Core.extend(
 		},
 
 		/**
+		 * cacheKey - Set unique key in cache
+		 *
+		 * @param  {string} cacheKey Unique key in cache
+		 * @return {Mura.Feed}              Self
+		 */
+		 cacheKey(cacheKey) {
+			this.queryString += '&cacheKey=' + encodeURIComponent(
+				cacheKey);
+			return this;
+		},
+
+		/**
+		 * cachedWithin - Sets maximum number of seconds to remain in cache
+		 *
+		 * @param  {number} cachedWithin Maximum number of seconds to remain in cache
+		 * @return {Mura.Feed}              Self
+		 */
+		 cachedWithin(cachedWithin) {
+			this.queryString += '&cachedWithin=' + encodeURIComponent(
+				cachedWithin);
+			return this;
+		},
+
+		/**
+		 * purgeCache - Sets whether to purge any existing cached values
+		 *
+		 * @param  {boolean} purgeCache Whether to purge any existing cached values
+		 * @return {Mura.Feed}              Self
+		 */
+		 purgeCache(purgeCache) {
+			this.queryString += '&purgeCache=' + encodeURIComponent(
+				purgeCache);
+			return this;
+		},
+
+		/**
 		 * contentPoolID - Sets items per page
 		 *
 		 * @param  {string} feedID Items per page
