@@ -45,34 +45,36 @@ Mura.Request=Mura.Core.extend(
 			}
 
 			try{
-				if(params.type.toLowerCase() === 'get' 
-					&& !(typeof params.url === 'string' && params.url.toLowerCase().indexOf('purgecache') > -1)
-					&& typeof params.data.purgeCache === 'undefined' 
-					&& typeof params.data.purgecache === 'undefined'){
-					var refererParams={};
+				if(!(params.data instanceof FormData)){
+					if(params.type.toLowerCase() === 'get' 
+						&& !(typeof params.url === 'string' && params.url.toLowerCase().indexOf('purgecache') > -1)
+						&& typeof params.data.purgeCache === 'undefined' 
+						&& typeof params.data.purgecache === 'undefined'){
+						var refererParams={};
 
-					if(typeof XMLHttpRequest != 'undefined' 
-						&& typeof location != 'undefined' 
-						&& location.search
-					){
-						refererParams=Mura.getQueryStringParams(location.search);
-					} else if( typeof this.requestObject != 'undefined' 
-						&& typeof this.requestObject.url === 'string' 
-						&&  this.requestObject.url
-					) {
-						var qa=this.requestObject.url.split("?");
-						if(qa.length){
-							var qs=qa[qa.length-1] || '';
-							qs=qs.toString();
-							refererParams=Mura.getQueryStringParams(qs);
+						if(typeof XMLHttpRequest != 'undefined' 
+							&& typeof location != 'undefined' 
+							&& location.search
+						){
+							refererParams=Mura.getQueryStringParams(location.search);
+						} else if( typeof this.requestObject != 'undefined' 
+							&& typeof this.requestObject.url === 'string' 
+							&&  this.requestObject.url
+						) {
+							var qa=this.requestObject.url.split("?");
+							if(qa.length){
+								var qs=qa[qa.length-1] || '';
+								qs=qs.toString();
+								refererParams=Mura.getQueryStringParams(qs);
+							}
 						}
+						if(typeof refererParams.purgeCache != 'undefined'){
+							params.data.purgeCache=refererParams.purgeCache;
+						} else if(typeof refererParams.purgecache != 'undefined'){
+							params.data.purgecache=refererParams.purgecache;
+						}
+						
 					}
-					if(typeof refererParams.purgeCache != 'undefined'){
-						params.data.purgeCache=refererParams.purgeCache;
-					} else if(typeof refererParams.purgecache != 'undefined'){
-						params.data.purgecache=refererParams.purgecache;
-					}
-					
 				}
 			} catch(e){
 				console.log(e)
@@ -353,8 +355,9 @@ Mura.Request=Mura.Core.extend(
 				}
 				query = query.join('&');
 				
+				
 				Mura._fetch(
-					params.url + query,
+					params.url + "&" + query,
 					{
 						method:"GET",
 						headers: params.headers
