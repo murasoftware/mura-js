@@ -2303,8 +2303,14 @@ function resetAsyncObject(el, empty) {
     obj.removeAttr('data-inited');
     obj.removeAttr('data-startrow');
     obj.removeAttr('data-pagenum');
+    obj.removeAttr('data-pageidx');
     obj.removeAttr('data-nextnid');
+    obj.removeAttr('data-purgecache');
     obj.removeAttr('data-origininstanceid');
+
+    if (obj.hasAttr('data-cachedwithin') && !obj.attr('data-cachedwithin')) {
+      obj.removeAttr('data-cachedwithin');
+    }
   }
 
   if (self.data('transient')) {
@@ -3049,11 +3055,14 @@ function extendClass(baseClass, subClass) {
 
 
 function getQueryStringParams(queryString) {
-  if (typeof location == 'undefined') {
-    return {};
+  if (typeof queryString === 'undefined') {
+    if (typeof location != 'undefined') {
+      queryString = location.search;
+    } else {
+      return {};
+    }
   }
 
-  queryString = queryString || location.search;
   var params = {};
 
   var e,
@@ -14479,6 +14488,33 @@ Mura.Request = Mura.Core.extend(
     if (!('headers' in params)) {
       params.headers = {};
     }
+
+    try {
+      if (params.type.toLowerCase() === 'get' && params.url.toLowerCase().indexOf('purgecache') === -1 && typeof params.data.purgeCache === 'undefined' && typeof params.data.purgecache === 'undefined') {
+        var refererParams = {};
+
+        if (typeof XMLHttpRequest != 'undefined' && typeof location != 'undefined' && location.search) {
+          refererParams = Mura.getQueryStringParams(location.search);
+        } else if (this.requestObject != 'undefined' && this.requestObject.url) {
+          var qa = this.requestObject.url.split("?");
+
+          if (qa.length) {
+            var qs = qa[qa.length - 1] || '';
+            qs = qs.toString();
+            refererParams = Mura.getQueryStringParams(qs);
+          }
+        }
+
+        if (typeof refererParams.purgeCache != 'undefined') {
+          params.data.purgeCache = refererParams.purgeCache;
+        } else if (typeof refererParams.purgecache != 'undefined') {
+          params.data.purgecache = refererParams.purgecache;
+        }
+      }
+    } catch (e) {
+      console.log(e);
+    } //console.log(params);
+
 
     if (typeof XMLHttpRequest === 'undefined') {
       this.nodeRequest(params);

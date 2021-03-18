@@ -2156,8 +2156,15 @@ function resetAsyncObject(el,empty) {
 		obj.removeAttr('data-inited');
 		obj.removeAttr('data-startrow');
 		obj.removeAttr('data-pagenum');
+		obj.removeAttr('data-pageidx');
 		obj.removeAttr('data-nextnid');
+		obj.removeAttr('data-purgecache');
 		obj.removeAttr('data-origininstanceid');
+
+		if(obj.hasAttr('data-cachedwithin') && !obj.attr('data-cachedwithin')){
+			obj.removeAttr('data-cachedwithin');
+		}
+
 	}
 	
 	if(self.data('transient')){
@@ -2933,12 +2940,14 @@ function extendClass(baseClass, subClass) {
  * @memberof {class} Mura
  */
 function getQueryStringParams(queryString) {
-
-	if(typeof location == 'undefined'){
-		return {};
-	}
-
-	queryString = queryString || location.search;
+	if(typeof queryString === 'undefined'){
+		if(typeof location != 'undefined'){
+			queryString=location.search;
+		} else {
+			return {}
+		}
+	} 
+	
 	var params = {};
 	var e,
 		a = /\+/g, // Regex for replacing addition symbol with a space
