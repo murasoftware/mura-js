@@ -45,7 +45,7 @@ Mura.Request=Mura.Core.extend(
 			}
 
 			try{
-				if(!(params.data instanceof FormData)){
+				if(!Mura.formdata || !(params.data instanceof FormData)){
 					if(params.type.toLowerCase() === 'get' 
 						&& !(typeof params.url === 'string' && params.url.toLowerCase().indexOf('purgecache') > -1)
 						&& typeof params.data.purgeCache === 'undefined' 
