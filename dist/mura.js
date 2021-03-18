@@ -14490,12 +14490,12 @@ Mura.Request = Mura.Core.extend(
     }
 
     try {
-      if (params.type.toLowerCase() === 'get' && params.url.toLowerCase().indexOf('purgecache') === -1 && typeof params.data.purgeCache === 'undefined' && typeof params.data.purgecache === 'undefined') {
+      if (params.type.toLowerCase() === 'get' && !(typeof params.url === 'string' && params.url.toLowerCase().indexOf('purgecache') > -1) && typeof params.data.purgeCache === 'undefined' && typeof params.data.purgecache === 'undefined') {
         var refererParams = {};
 
         if (typeof XMLHttpRequest != 'undefined' && typeof location != 'undefined' && location.search) {
           refererParams = Mura.getQueryStringParams(location.search);
-        } else if (this.requestObject != 'undefined' && this.requestObject.url) {
+        } else if (typeof this.requestObject != 'undefined' && typeof this.requestObject.url === 'string' && this.requestObject.url) {
           var qa = this.requestObject.url.split("?");
 
           if (qa.length) {

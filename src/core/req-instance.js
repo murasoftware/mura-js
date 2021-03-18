@@ -46,13 +46,20 @@ Mura.Request=Mura.Core.extend(
 
 			try{
 				if(params.type.toLowerCase() === 'get' 
-					&& params.url.toLowerCase().indexOf('purgecache') === -1 
+					&& !(typeof params.url === 'string' && params.url.toLowerCase().indexOf('purgecache') > -1)
 					&& typeof params.data.purgeCache === 'undefined' 
 					&& typeof params.data.purgecache === 'undefined'){
 					var refererParams={};
-					if(typeof XMLHttpRequest != 'undefined' && typeof location != 'undefined' &&  location.search){
+
+					if(typeof XMLHttpRequest != 'undefined' 
+						&& typeof location != 'undefined' 
+						&& location.search
+					){
 						refererParams=Mura.getQueryStringParams(location.search);
-					} else if( this.requestObject != 'undefined' && this.requestObject.url) {
+					} else if( typeof this.requestObject != 'undefined' 
+						&& typeof this.requestObject.url === 'string' 
+						&&  this.requestObject.url
+					) {
 						var qa=this.requestObject.url.split("?");
 						if(qa.length){
 							var qs=qa[qa.length-1] || '';
@@ -60,11 +67,12 @@ Mura.Request=Mura.Core.extend(
 							refererParams=Mura.getQueryStringParams(qs);
 						}
 					}
-					if(typeof refererParams.purgeCache !='undefined'){
+					if(typeof refererParams.purgeCache != 'undefined'){
 						params.data.purgeCache=refererParams.purgeCache;
-					} else if(typeof refererParams.purgecache !='undefined'){
+					} else if(typeof refererParams.purgecache != 'undefined'){
 						params.data.purgecache=refererParams.purgecache;
 					}
+					
 				}
 			} catch(e){
 				console.log(e)
