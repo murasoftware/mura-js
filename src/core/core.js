@@ -2516,31 +2516,33 @@ function wireUpObject(obj, response, attempt) {
 			});
 		});
 		
-		obj.find('form').each(function() {
-			var form = Mura(this);
-			if(form.closest('.mura-object').data('instanceid')==obj.data('instanceid')) {		
-				if(form.data('async') 
-					|| !(
-							form.hasData('async') && !form.data('async')
-						)
-						&& !(form.hasData('autowire') && !form.data('autowire')) 
-						&& !form.attr('action') 
-						&& !form.attr('onsubmit') 
-						&& !form.attr('onSubmit')
-				) {
-					form.on('submit', function(e) {
-						e.preventDefault();
-						validateForm(this,
-							function(frm) {
-								submitForm(frm,obj);
-							}
-						);
+		if(obj.data('render').toLowerCase() == 'server'){
+			obj.find('form').each(function() {
+				var form = Mura(this);
+				if(form.closest('.mura-object').data('instanceid')==obj.data('instanceid')) {		
+					if(form.data('async') 
+						|| !(
+								form.hasData('async') && !form.data('async')
+							)
+							&& !(form.hasData('autowire') && !form.data('autowire')) 
+							&& !form.attr('action') 
+							&& !form.attr('onsubmit') 
+							&& !form.attr('onSubmit')
+					) {
+						form.on('submit', function(e) {
+							e.preventDefault();
+							validateForm(this,
+								function(frm) {
+									submitForm(frm,obj);
+								}
+							);
 
-						return false;
-					});
+							return false;
+						});
+					}
 				}
-			}
-		});
+			});
+		}
 	}
 	obj.trigger('asyncObjectRendered');
 
@@ -2691,32 +2693,34 @@ function processDisplayObject(el, queue, rerender, resolveFn, usePreloaderMarkup
 					obj.data('inited',true);
 				}
 
-				obj.find('form').each(function() {
-					var form = Mura(this);
-					if(form.closest('.mura-object').data('instanceid')==obj.data('instanceid')) {
-						if(form.data('async')
-							|| !(
-									form.hasData('async') && !form.data('async')
-								)
-							&& !(form.hasData('autowire')
-							&& !form.data('autowire'))
-							&& !form.attr('action')
-							&& !form.attr('onsubmit')
-							&& !form.attr('onSubmit')
-					) {
-						form.on('submit', function(e) {
-							e.preventDefault();
-							validateForm(this,
-								function(frm) {
-									submitForm(frm,obj);
-								}
-							);
+				if(obj.data('render').toLowerCase() == 'server'){
+					obj.find('form').each(function() {
+						var form = Mura(this);
+						if(form.closest('.mura-object').data('instanceid')==obj.data('instanceid')) {
+							if(form.data('async')
+								|| !(
+										form.hasData('async') && !form.data('async')
+									)
+								&& !(form.hasData('autowire')
+								&& !form.data('autowire'))
+								&& !form.attr('action')
+								&& !form.attr('onsubmit')
+								&& !form.attr('onSubmit')
+						) {
+							form.on('submit', function(e) {
+								e.preventDefault();
+								validateForm(this,
+									function(frm) {
+										submitForm(frm,obj);
+									}
+								);
 
-							return false;
-						});
+								return false;
+							});
+							}
 						}
-					}
-				});
+					});
+				}
 	
 				if (typeof resolve == 'function') {
 					resolve(obj);
