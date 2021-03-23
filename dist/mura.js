@@ -3650,10 +3650,10 @@ function deInit() {
   Mura.trackingMetadata = {};
   delete Mura.trackingVars;
   delete Mura.apiEndpoint;
-  delete Mura.apiendpoint;
-  delete Mura._fetch;
-  delete Mura._formData;
-  delete Mura._escapeHTML;
+  delete Mura.apiendpoint; //delete Mura._fetch;
+  //delete Mura._formData;
+  //delete Mura._escapeHTML;
+
   delete Mura.perm;
   delete Mura.formdata;
   delete Mura.windowResponsiveModules;
