@@ -3640,7 +3640,7 @@ function getAPIEndpoint() {
 
 function deInit() {
   //This all needs to be moved to a state object
-  delete Mura._request;
+  delete Mura._requestcontext;
   delete Mura.response;
   delete Mura.request;
   delete Mura.requestHeaders;

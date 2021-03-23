@@ -1,6 +1,7 @@
 /* eslint-disable */
 import React, {useEffect} from 'react';
 import Mura from 'mura.js';
+import { option } from 'grunt';
 
 require('mura.js/src/core/stylemap-static');
 
@@ -297,32 +298,41 @@ async function renderContent(context,isEditMode,params) {
   //console.log(filename,query,isEditMode)
   query=Object.assign(query,params);
 
+  const getErrorTemplate = (error)=>{
+    error=error || {};
+    error.statusCode = error.statusCode || 404;
+    error.message = error.message || 'The content that you requested can not be found';
+
+    return Mura.getEntity('Content').set({
+      title: error.statusCode,
+      menutitle: error.statusCode,
+      body: error.message,
+      contentid: Mura.createUUID(),
+      isnew: 1,
+      siteid: Mura.siteid,
+      type: 'Page',
+      subtype: 'Default',
+      contentid: Mura.createUUID(),
+      contenthistid: Mura.createUUID(),
+      filename: error.statusCode,
+      errors:[error],
+      displayregions:{
+        primarycontent:{
+          local:{
+            items:[]
+          }
+        }
+      }
+    });
+  }
+
   return await Mura.renderFilename(filename, query).then(
     async rendered => {
       return rendered;
     },
     async rendered => {
       if (!rendered) {
-        return Mura.getEntity('Content').set({
-          title: '404',
-          menutitle: '404',
-          body: 'The content that you requested can not be found',
-          contentid: Mura.createUUID(),
-          isnew: 1,
-          siteid: Mura.siteid,
-          type: 'Page',
-          subtype: 'Default',
-          contentid: Mura.createUUID(),
-          contenthistid: Mura.createUUID(),
-          filename: '404',
-          displayregions:{
-            primarycontent:{
-              local:{
-                items:[]
-              }
-            }
-          }
-        });
+        return getErrorTemplate();
       } else {
         return rendered;
       }
