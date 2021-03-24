@@ -20,11 +20,32 @@ export const Container = function(props) {
       $items=[];
     }
   }
+
+  const resetInstanceIds=(_items)=>{
+    _items.forEach((item)=>{
+      item.instanceid=Mura.createUUID();
+      if(item.object=='container' && item.items){
+        let $items=item.items;
+       if(!Array.isArray($items)){
+          try{
+            $items=JSON.parse($items);
+          } catch(e){
+            $items=[];
+          }
+        }
+        item.items=resetInstanceIds($items);
+      }
+    })
+    return _items;
+  }
+
+  if(Mura.cloning){
+    $items=$items.map(function(i){return i;});
+    resetInstanceIds($items);
+  }
+
   return ($items.map(item => {
           const obj=Object.assign({},item);
-          if(Mura.cloning){
-            obj.instanceid=Mura.createUUID();
-          }
           obj.key=obj.instanceid;
           obj.moduleStyleData=props.moduleStyleData;
           obj.content = content;

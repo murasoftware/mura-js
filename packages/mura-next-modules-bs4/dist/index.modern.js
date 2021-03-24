@@ -2101,13 +2101,37 @@ var Container = function Container(props) {
     }
   }
 
+  var resetInstanceIds = function resetInstanceIds(_items) {
+    _items.forEach(function (item) {
+      item.instanceid = Mura$2.createUUID();
+
+      if (item.object == 'container' && item.items) {
+        var _$items = item.items;
+
+        if (!Array.isArray(_$items)) {
+          try {
+            _$items = JSON.parse(_$items);
+          } catch (e) {
+            _$items = [];
+          }
+        }
+
+        item.items = resetInstanceIds(_$items);
+      }
+    });
+
+    return _items;
+  };
+
+  if (Mura$2.cloning) {
+    $items = $items.map(function (i) {
+      return i;
+    });
+    resetInstanceIds($items);
+  }
+
   return $items.map(function (item) {
     var obj = Object.assign({}, item);
-
-    if (Mura$2.cloning) {
-      obj.instanceid = Mura$2.createUUID();
-    }
-
     obj.key = obj.instanceid;
     obj.moduleStyleData = props.moduleStyleData;
     obj.content = content;
@@ -2990,6 +3014,20 @@ var getCollection = function getCollection(props, filterProps) {
 
     var excludeIDList = props.content.contentid;
 
+    var getItemsPerPage = function getItemsPerPage(item) {
+      if (_Mura.renderMode != 'static') {
+        if (typeof item.nextn != 'undefined') {
+          return item.nextn;
+        } else if (typeof item.itemsperpage != 'undefined') {
+          return item.itemsperpage;
+        } else {
+          return 0;
+        }
+      } else {
+        return 0;
+      }
+    };
+
     var feed = _Mura.getFeed('content');
 
     feed.prop('type').isIn('Page,Link,File');
@@ -3007,7 +3045,7 @@ var getCollection = function getCollection(props, filterProps) {
     }
 
     feed.maxItems(props.maxitems);
-    feed.itemsPerPage(0);
+    feed.itemsPerPage(getItemsPerPage());
     var collection;
 
     var _temp2 = function () {
