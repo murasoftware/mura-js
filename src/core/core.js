@@ -3575,8 +3575,12 @@ function getAPIEndpoint(){
 	return Mura.apiEndpoint;
 }
 
-function userStateListener(interval){
+function startUserStateListener(interval){
 	Mura.userStateListenerInterval=interval;
+}
+
+function stopUserStateListener(){
+	Mura.userStateListenerInterval=false;
 }
 
 function pollUserState(){
@@ -3870,8 +3874,10 @@ function init(config) {
 	if(!initForDataOnly){
 
 		destroyDisplayObjects();
+		stopUserStateListener()
 
 		Mura(function() {
+
 			for(var cmd in holdingPreInitQueue){
 				if(typeof holdingPreInitQueue[cmd] == 'function'){
 					holdingPreInitQueue[cmd](Mura);
@@ -3968,7 +3974,7 @@ function init(config) {
 				});
 
 				Mura(document).trigger('muraReady');
-				Mura.userStateListenerInterval=false;
+				
 				pollUserState();
 			}
 		});
@@ -4037,7 +4043,8 @@ const Mura=extend(
 		getEntity: getEntity,
 		getCurrentUser: getCurrentUser,
 		renderFilename: renderFilename,
-		userStateListener:userStateListener,
+		startUserStateListener:startUserStateListener,
+		stopUserStateListener:stopUserStateListener,
 		findQuery: findQuery,
 		getFeed: getFeed,
 		login: login,
