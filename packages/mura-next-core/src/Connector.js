@@ -1,7 +1,6 @@
 /* eslint-disable */
 import React, {useEffect} from 'react';
 import Mura from 'mura.js';
-import { option } from 'grunt';
 
 require('mura.js/src/core/stylemap-static');
 
@@ -242,11 +241,7 @@ export const getMuraProps = async (context,isEditMode,params) => {
     }
   } catch(e){console.log(e)}
 
-  delete Mura._request;
-  delete Mura.response;
-  delete Mura.request;
-  delete Mura.renderMode;
-  delete Mura.currentUser
+  Mura.deInit();
 
   const props = {
     content: content,

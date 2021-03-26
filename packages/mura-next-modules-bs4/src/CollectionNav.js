@@ -70,7 +70,10 @@ const CollectionNav = (props) => {
 
 	} else {
 
-		if(scrollpages){	
+		if(
+			((typeof scrollpages === 'boolean' || typeof scrollpages === 'number') && scrollpages)
+			|| ( typeof scrollpages === 'string' && scrollpages.toLocaleLowerCase() === 'true' )
+		){	
 
 			const [endindex,setEndindex]=useState(0);
 	

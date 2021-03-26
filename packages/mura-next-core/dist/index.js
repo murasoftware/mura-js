@@ -298,29 +298,37 @@ var renderContent = function renderContent(context, isEditMode, params) {
     }
 
     query = Object.assign(query, params);
+
+    var getErrorTemplate = function getErrorTemplate(error) {
+      var _Mura$getEntity$set;
+
+      error = error || {};
+      error.statusCode = error.statusCode || 404;
+      error.message = error.message || 'The content that you requested can not be found';
+      return Mura$1.getEntity('Content').set((_Mura$getEntity$set = {
+        title: error.statusCode,
+        menutitle: error.statusCode,
+        body: error.message,
+        contentid: Mura$1.createUUID(),
+        isnew: 1,
+        siteid: Mura$1.siteid,
+        type: 'Page',
+        subtype: 'Default'
+      }, _Mura$getEntity$set["contentid"] = Mura$1.createUUID(), _Mura$getEntity$set.contenthistid = Mura$1.createUUID(), _Mura$getEntity$set.filename = error.statusCode, _Mura$getEntity$set.errors = [error], _Mura$getEntity$set.displayregions = {
+        primarycontent: {
+          local: {
+            items: []
+          }
+        }
+      }, _Mura$getEntity$set));
+    };
+
     return Promise.resolve(Mura$1.renderFilename(filename, query).then(function (rendered) {
       return Promise.resolve(rendered);
     }, function (rendered) {
       try {
         if (!rendered) {
-          var _Mura$getEntity$set;
-
-          return Promise.resolve(Mura$1.getEntity('Content').set((_Mura$getEntity$set = {
-            title: '404',
-            menutitle: '404',
-            body: 'The content that you requested can not be found',
-            contentid: Mura$1.createUUID(),
-            isnew: 1,
-            siteid: Mura$1.siteid,
-            type: 'Page',
-            subtype: 'Default'
-          }, _Mura$getEntity$set["contentid"] = Mura$1.createUUID(), _Mura$getEntity$set.contenthistid = Mura$1.createUUID(), _Mura$getEntity$set.filename = '404', _Mura$getEntity$set.displayregions = {
-            primarycontent: {
-              local: {
-                items: []
-              }
-            }
-          }, _Mura$getEntity$set)));
+          return Promise.resolve(getErrorTemplate());
         } else {
           return Promise.resolve(rendered);
         }
@@ -532,11 +540,7 @@ var getMuraProps = function getMuraProps(context, isEditMode, params) {
       var content = muraObject.getAll();
       return Promise.resolve(getRegionProps(content, isEditMode)).then(function (moduleStyleData) {
         function _temp7() {
-          delete Mura$1._request;
-          delete Mura$1.response;
-          delete Mura$1.request;
-          delete Mura$1.renderMode;
-          delete Mura$1.currentUser;
+          Mura$1.deInit();
           var props = {
             content: content,
             moduleStyleData: moduleStyleData,

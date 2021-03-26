@@ -728,7 +728,7 @@ var CollectionNav = function CollectionNav(props) {
       return '';
     }
   } else {
-    if (scrollpages) {
+    if ((typeof scrollpages === 'boolean' || typeof scrollpages === 'number') && scrollpages || typeof scrollpages === 'string' && scrollpages.toLocaleLowerCase() === 'true') {
       var _useState = React.useState(0),
           endindex = _useState[0],
           setEndindex = _useState[1];
