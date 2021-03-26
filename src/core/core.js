@@ -3575,6 +3575,35 @@ function getAPIEndpoint(){
 	return Mura.apiEndpoint;
 }
 
+function userStateListener(interval){
+	Mura.userStateListenerInterval=interval;
+}
+
+function pollUserState(){
+	if(typeof window != 'undefined' 
+		&& typeof document != 'undefined'
+		&& (
+			Mura.userStateListenerInterval || Mura.editing
+		)
+	){
+		Mura.getEntity('user').invoke('pollState').then(
+			function(state){
+				var data=state;
+				if(typeof state == 'string'){
+					try{
+						data=JSON.parse(state);
+					} catch(e){
+						data=state;
+					}
+				}
+				Mura(document).trigger('muraUserStateMessage',data);
+			}
+		)
+	}
+	var interval=(typeof Mura.userStateListenerInterval === 'number' && Mura.userStateListenerInterval) ? Mura.userStateListenerInterval :  60000;
+	setTimeout(pollUserState,interval);
+}
+
 function deInit(){
 	//This all needs to be moved to a state object
 	delete Mura._requestcontext;
@@ -3583,6 +3612,7 @@ function deInit(){
 	delete Mura.requestHeaders;
 	delete Mura.displayObjectInstances
 	delete Mura.renderMode;
+	delete Mura.userStateListenerInterval;
 	delete Mura.currentUser;
 	Mura.trackingMetadata={};
 	delete Mura.trackingVars;
@@ -3938,6 +3968,8 @@ function init(config) {
 				});
 
 				Mura(document).trigger('muraReady');
+				Mura.userStateListenerInterval=false;
+				pollUserState();
 			}
 		});
 
@@ -4005,6 +4037,7 @@ const Mura=extend(
 		getEntity: getEntity,
 		getCurrentUser: getCurrentUser,
 		renderFilename: renderFilename,
+		userStateListener:userStateListener,
 		findQuery: findQuery,
 		getFeed: getFeed,
 		login: login,
