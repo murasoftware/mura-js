@@ -1220,6 +1220,8 @@ Mura.DOMSelection = Mura.Core.extend(
 				return getComputedStyle(this.selection[	0])[Mura.styleMap.tojs[ruleName.toLowerCase()]];
 			} catch (e) {console.log(e)}
 		}
+
+		return this;
 	},
 
 	/**

@@ -19532,6 +19532,8 @@ Mura.DOMSelection = Mura.Core.extend(
         console.log(e);
       }
     }
+
+    return this;
   },
 
   /**
