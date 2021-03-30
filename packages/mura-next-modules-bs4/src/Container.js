@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import Mura from 'mura.js/src/core/core';
 
 // eslint-disable-next-line
@@ -10,6 +10,12 @@ export const Container = function(props) {
   // console.log('Container -> items', items);
   // console.log('Container -> props', props);
   if (!items) return '';
+
+  useEffect(() => {
+    if(typeof Mura.displayObjectInstances[props.instanceid]=='undefined'){
+      Mura.displayObjectInstances[props.instanceid]= new Mura.DisplayObject.Container(props);
+    }
+  }, []);
 
   let $items=items;
 
