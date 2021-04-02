@@ -192,7 +192,7 @@ function OutputMarkup(_ref) {
 
   if (getMuraConfig().ConnectorConfig.htmleditortype == 'markdown') {
     return /*#__PURE__*/React.createElement(ReactMarkdown, {
-      source: parsedSource,
+      children: parsedSource,
       className: className
     });
   }
@@ -299,7 +299,7 @@ function Collection(props) {
   var Mura = getMura();
   var objectparams = Object.assign({}, props);
   var DynamicCollectionLayout = getLayout(objectparams.layout).component;
-  objectparams.fields = objectparams.fields || getDefaultQueryPropsFromLayout(DynamicCollectionLayout, objectparams).fields || 'Image,Date,Title,Summary,Credits,Tags';
+  objectparams.fields = getDefaultQueryPropsFromLayout(DynamicCollectionLayout, objectparams).fields || objectparams.fields || 'Image,Date,Title,Summary,Credits,Tags';
   objectparams.dynamicProps = objectparams.dynamicProps || {};
 
   var _collection = objectparams.dynamicProps.collection ? new Mura.EntityCollection(objectparams.dynamicProps.collection, Mura._requestcontext) : false;
@@ -2091,6 +2091,11 @@ var Container = function Container(props) {
   var items = props.items,
       content = props.content;
   if (!items) return '';
+  useEffect(function () {
+    if (typeof Mura$2.displayObjectInstances[props.instanceid] == 'undefined') {
+      Mura$2.displayObjectInstances[props.instanceid] = new Mura$2.DisplayObject.Container(props);
+    }
+  }, []);
   var $items = items;
 
   if (!Array.isArray($items)) {

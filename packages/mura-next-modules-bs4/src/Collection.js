@@ -29,7 +29,7 @@ function Collection(props) {
   const objectparams = Object.assign({}, props);
   const DynamicCollectionLayout = getLayout(objectparams.layout).component;
 
-  objectparams.fields=objectparams.fields || getDefaultQueryPropsFromLayout(DynamicCollectionLayout,objectparams).fields || 'Image,Date,Title,Summary,Credits,Tags';
+  objectparams.fields= getDefaultQueryPropsFromLayout(DynamicCollectionLayout,objectparams).fields || objectparams.fields || 'Image,Date,Title,Summary,Credits,Tags';
   objectparams.dynamicProps=objectparams.dynamicProps ||  {};
 
   const _collection=objectparams.dynamicProps.collection ? new Mura.EntityCollection(objectparams.dynamicProps.collection,Mura._requestcontext) : false;

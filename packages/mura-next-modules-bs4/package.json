@@ -1,6 +1,6 @@
 {
   "name": "@murasoftware/next-modules-bs4",
-  "version": "1.0.21",
+  "version": "1.0.25",
   "description": "UI Modules for Mura.js and Next.js and Bootstrap4",
   "author": "Mura Software",
   "license": "MIT",
@@ -25,7 +25,8 @@
     "react-bootstrap": "^1.4.3",
     "react-dom": "^17.0.1",
     "react-markdown": "^5.0.3",
-    "react-slick": "^0.28.0"
+    "react-slick": "^0.28.0",
+    "remark-stringify": "^9.0.1"
   },
   "devDependencies": {
     "babel-eslint": "^10.1.0",
