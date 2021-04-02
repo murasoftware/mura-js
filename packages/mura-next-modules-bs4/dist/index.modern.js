@@ -3,6 +3,7 @@ import Head from 'next/head';
 import Badge from 'react-bootstrap/Badge';
 import ReactMarkdown from 'react-markdown';
 import { getMura, getMuraConfig, getHref, Decorator, getComponent } from '@murasoftware/next-core';
+import gfm from 'remark-gfm';
 import Link from 'next/link';
 import Mura$1 from 'mura.js';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -192,6 +193,7 @@ function OutputMarkup(_ref) {
 
   if (getMuraConfig().ConnectorConfig.htmleditortype == 'markdown') {
     return /*#__PURE__*/React.createElement(ReactMarkdown, {
+      plugins: [gfm],
       children: parsedSource,
       className: className
     });
