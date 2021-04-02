@@ -1,8 +1,6 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import { getMura, getMuraConfig  } from '@murasoftware/next-core';
-//import gfm from 'remark-gfm';
-//import remarkdirective from 'remark-directive';
 
 
 function OutputMarkup({source,className}){
