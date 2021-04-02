@@ -4,7 +4,7 @@ var React = require('react');
 var React__default = _interopDefault(React);
 var Head = _interopDefault(require('next/head'));
 var Badge = _interopDefault(require('react-bootstrap/Badge'));
-var ReactMarkdown = _interopDefault(require('react-markdown'));
+var ReactMarkdown = _interopDefault(require('react-markdown/with-html'));
 var nextCore = require('@murasoftware/next-core');
 var gfm = _interopDefault(require('remark-gfm'));
 var Link = _interopDefault(require('next/link'));
@@ -197,6 +197,7 @@ function OutputMarkup(_ref) {
   if (nextCore.getMuraConfig().ConnectorConfig.htmleditortype == 'markdown') {
     return /*#__PURE__*/React__default.createElement(ReactMarkdown, {
       plugins: [gfm],
+      allowDangerousHtml: true,
       children: parsedSource,
       className: className
     });
