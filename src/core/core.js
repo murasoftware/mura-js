@@ -1969,28 +1969,6 @@ function processMarkup(scope) {
 
 			function() {
 				initShadowBox(scope.node);
-			},
-
-			function() {
-				if (typeof urlparams.muraadminpreview != 'undefined') {
-					find("a").each(function() {
-						var h = this.getAttribute('href');
-						if (typeof h ==
-							'string' && h.indexOf(
-									'muraadminpreview'
-							) == -1) {
-							h = h + (h.indexOf(
-									'?') !=
-								-1 ?
-								"&muraadminpreview&mobileformat=" +
-								Mura.mobileformat :
-								"?muraadminpreview&muraadminpreview&mobileformat=" +
-								Mura.mobileformat
-							);
-							this.setAttribute('href', h);
-						}
-					});
-				}
 			}
 		];
 
