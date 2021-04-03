@@ -209,10 +209,15 @@ function htmlDirectives() {
 }
 
 function renderDirective(elem) {
-  if (elem.children.length) {
-    return React__default.createElement(elem.node.data.hName, elem.node.data.hProperties, elem.children);
-  } else {
-    return React__default.createElement(elem.node.data.hName, elem.node.data.hProperties);
+  try {
+    if (elem.children.length) {
+      return React__default.createElement(elem.node.data.hName, elem.node.data.hProperties, elem.children);
+    } else {
+      return React__default.createElement(elem.node.data.hName, elem.node.data.hProperties);
+    }
+  } catch (e) {
+    console.error(e);
+    return '';
   }
 }
 
