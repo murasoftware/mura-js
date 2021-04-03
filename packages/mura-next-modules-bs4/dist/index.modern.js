@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Badge from 'react-bootstrap/Badge';
-import ReactMarkdown from 'react-markdown/with-html';
+import ReactMarkdown from 'react-markdown';
 import { getMura, getMuraConfig, getHref, Decorator, getComponent } from '@murasoftware/next-core';
 import gfm from 'remark-gfm';
+import directive from 'remark-directive';
+import visit from 'unist-util-visit';
+import h from 'hastscript';
 import Link from 'next/link';
 import Mura$1 from 'mura.js';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -186,6 +189,35 @@ function ItemTags(props) {
   return tagList;
 }
 
+function htmlDirectives() {
+  return transform;
+
+  function transform(tree) {
+    visit(tree, ['textDirective', 'leafDirective', 'containerDirective'], ondirective);
+  }
+
+  function ondirective(node) {
+    var data = node.data || (node.data = {});
+    var hast = h(node.name, node.attributes);
+    data.hName = hast.tagName;
+    data.hProperties = hast.properties;
+  }
+}
+
+function renderDirective(elem) {
+  if (elem.children.length) {
+    return React.createElement(elem.node.data.hName, elem.node.data.hProperties, elem.children);
+  } else {
+    return React.createElement(elem.node.data.hName, elem.node.data.hProperties);
+  }
+}
+
+var renderers = {
+  textDirective: renderDirective,
+  leafDirective: renderDirective,
+  containerDirective: renderDirective
+};
+
 function OutputMarkup(_ref) {
   var source = _ref.source,
       className = _ref.className;
@@ -193,8 +225,8 @@ function OutputMarkup(_ref) {
 
   if (getMuraConfig().ConnectorConfig.htmleditortype == 'markdown') {
     return /*#__PURE__*/React.createElement(ReactMarkdown, {
-      plugins: [gfm],
-      allowDangerousHtml: true,
+      plugins: [gfm, directive, htmlDirectives],
+      renderers: renderers,
       children: parsedSource,
       className: className
     });

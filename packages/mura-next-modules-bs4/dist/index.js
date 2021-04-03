@@ -4,9 +4,12 @@ var React = require('react');
 var React__default = _interopDefault(React);
 var Head = _interopDefault(require('next/head'));
 var Badge = _interopDefault(require('react-bootstrap/Badge'));
-var ReactMarkdown = _interopDefault(require('react-markdown/with-html'));
+var ReactMarkdown = _interopDefault(require('react-markdown'));
 var nextCore = require('@murasoftware/next-core');
 var gfm = _interopDefault(require('remark-gfm'));
+var directive = _interopDefault(require('remark-directive'));
+var visit = _interopDefault(require('unist-util-visit'));
+var h = _interopDefault(require('hastscript'));
 var Link = _interopDefault(require('next/link'));
 var Mura$1 = _interopDefault(require('mura.js'));
 var reactFontawesome = require('@fortawesome/react-fontawesome');
@@ -189,6 +192,35 @@ function ItemTags(props) {
   return tagList;
 }
 
+function htmlDirectives() {
+  return transform;
+
+  function transform(tree) {
+    visit(tree, ['textDirective', 'leafDirective', 'containerDirective'], ondirective);
+  }
+
+  function ondirective(node) {
+    var data = node.data || (node.data = {});
+    var hast = h(node.name, node.attributes);
+    data.hName = hast.tagName;
+    data.hProperties = hast.properties;
+  }
+}
+
+function renderDirective(elem) {
+  if (elem.children.length) {
+    return React__default.createElement(elem.node.data.hName, elem.node.data.hProperties, elem.children);
+  } else {
+    return React__default.createElement(elem.node.data.hName, elem.node.data.hProperties);
+  }
+}
+
+var renderers = {
+  textDirective: renderDirective,
+  leafDirective: renderDirective,
+  containerDirective: renderDirective
+};
+
 function OutputMarkup(_ref) {
   var source = _ref.source,
       className = _ref.className;
@@ -196,8 +228,8 @@ function OutputMarkup(_ref) {
 
   if (nextCore.getMuraConfig().ConnectorConfig.htmleditortype == 'markdown') {
     return /*#__PURE__*/React__default.createElement(ReactMarkdown, {
-      plugins: [gfm],
-      allowDangerousHtml: true,
+      plugins: [gfm, directive, htmlDirectives],
+      renderers: renderers,
       children: parsedSource,
       className: className
     });
