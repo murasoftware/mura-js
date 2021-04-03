@@ -7,6 +7,7 @@ var Badge = _interopDefault(require('react-bootstrap/Badge'));
 var ReactMarkdown = _interopDefault(require('react-markdown'));
 var nextCore = require('@murasoftware/next-core');
 var gfm = _interopDefault(require('remark-gfm'));
+var slug = _interopDefault(require('remark-slug'));
 var directive = _interopDefault(require('remark-directive'));
 var visit = _interopDefault(require('unist-util-visit'));
 var h = _interopDefault(require('hastscript'));
@@ -218,7 +219,10 @@ function renderDirective(elem) {
 var renderers = {
   textDirective: renderDirective,
   leafDirective: renderDirective,
-  containerDirective: renderDirective
+  containerDirective: renderDirective,
+  heading: function heading(elem) {
+    return React__default.createElement('h' + elem.level, elem.node.data.hProperties, elem.children);
+  }
 };
 
 function OutputMarkup(_ref) {
@@ -228,7 +232,7 @@ function OutputMarkup(_ref) {
 
   if (nextCore.getMuraConfig().ConnectorConfig.htmleditortype == 'markdown') {
     return /*#__PURE__*/React__default.createElement(ReactMarkdown, {
-      plugins: [gfm, directive, htmlDirectives],
+      plugins: [gfm, slug, directive, htmlDirectives],
       renderers: renderers,
       children: parsedSource,
       className: className

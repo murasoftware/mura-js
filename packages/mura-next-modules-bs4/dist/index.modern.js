@@ -4,6 +4,7 @@ import Badge from 'react-bootstrap/Badge';
 import ReactMarkdown from 'react-markdown';
 import { getMura, getMuraConfig, getHref, Decorator, getComponent } from '@murasoftware/next-core';
 import gfm from 'remark-gfm';
+import slug from 'remark-slug';
 import directive from 'remark-directive';
 import visit from 'unist-util-visit';
 import h from 'hastscript';
@@ -215,7 +216,10 @@ function renderDirective(elem) {
 var renderers = {
   textDirective: renderDirective,
   leafDirective: renderDirective,
-  containerDirective: renderDirective
+  containerDirective: renderDirective,
+  heading: function heading(elem) {
+    return React.createElement('h' + elem.level, elem.node.data.hProperties, elem.children);
+  }
 };
 
 function OutputMarkup(_ref) {
@@ -225,7 +229,7 @@ function OutputMarkup(_ref) {
 
   if (getMuraConfig().ConnectorConfig.htmleditortype == 'markdown') {
     return /*#__PURE__*/React.createElement(ReactMarkdown, {
-      plugins: [gfm, directive, htmlDirectives],
+      plugins: [gfm, slug, directive, htmlDirectives],
       renderers: renderers,
       children: parsedSource,
       className: className

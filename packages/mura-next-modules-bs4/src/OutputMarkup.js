@@ -2,9 +2,11 @@ import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import { getMura, getMuraConfig  } from '@murasoftware/next-core';
 import gfm from 'remark-gfm';
+import slug from 'remark-slug';
 import directive from 'remark-directive';
 import visit from 'unist-util-visit';
 import h from 'hastscript';
+
 
 // This plugin is just an example! You can handle directives however you please!
 function htmlDirectives() {
@@ -34,7 +36,11 @@ function renderDirective(elem){
 const renderers = {
     textDirective:renderDirective,
     leafDirective:renderDirective,
-    containerDirective:renderDirective
+    containerDirective:renderDirective,
+    heading:function (elem){
+        return React.createElement('h' + elem.level, elem.node.data.hProperties, elem.children);
+    }
+    
 }
 
 function OutputMarkup({source,className}){
@@ -42,7 +48,7 @@ function OutputMarkup({source,className}){
   
     if(getMuraConfig().ConnectorConfig.htmleditortype == 'markdown'){
         return(
-            <ReactMarkdown plugins={[gfm,directive,htmlDirectives]} renderers={renderers} children={parsedSource} className={className} />
+            <ReactMarkdown plugins={[gfm,slug,directive,htmlDirectives]} renderers={renderers} children={parsedSource} className={className} />
         )
     }
 
