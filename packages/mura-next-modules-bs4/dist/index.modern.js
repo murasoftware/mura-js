@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Badge from 'react-bootstrap/Badge';
-import ReactMarkdown from 'react-markdown';
+import ReactMarkdown from 'react-markdown/with-html';
 import { getMura, getMuraConfig, getHref, Decorator, getComponent } from '@murasoftware/next-core';
 import gfm from 'remark-gfm';
 import slug from 'remark-slug';
@@ -230,6 +230,7 @@ function OutputMarkup(_ref) {
   if (getMuraConfig().ConnectorConfig.htmleditortype == 'markdown') {
     return /*#__PURE__*/React.createElement(ReactMarkdown, {
       plugins: [gfm, slug, directive, htmlDirectives],
+      allowDangerousHtml: true,
       renderers: renderers,
       children: parsedSource,
       className: className
