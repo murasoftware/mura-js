@@ -2494,7 +2494,7 @@ function wireUpObject(obj, response, attempt) {
 			});
 		});
 		
-		if(obj.data('render').toLowerCase() == 'server'){
+		if(obj.data('render') && obj.data('render').toLowerCase() == 'server'){
 			obj.find('form').each(function() {
 				var form = Mura(this);
 				if(form.closest('.mura-object').data('instanceid')==obj.data('instanceid')) {		
@@ -2671,7 +2671,7 @@ function processDisplayObject(el, queue, rerender, resolveFn, usePreloaderMarkup
 					obj.data('inited',true);
 				}
 
-				if(obj.data('render').toLowerCase() == 'server'){
+				if(obj.data('render') && obj.data('render').toLowerCase() == 'server'){
 					obj.find('form').each(function() {
 						var form = Mura(this);
 						if(form.closest('.mura-object').data('instanceid')==obj.data('instanceid')) {
