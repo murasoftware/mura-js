@@ -35,7 +35,11 @@ function Decorator(props) {
     objectKey = Mura.firstToUpperCase(props.object);
   }
 
-  const isSSR=ComponentRegistry[objectKey] && (ComponentRegistry[objectKey].SSR || ComponentRegistry[objectKey].ssr);
+  let isSSR=ComponentRegistry[objectKey] && (ComponentRegistry[objectKey].SSR || ComponentRegistry[objectKey].ssr);
+
+  if(typeof props.ssr != "undefined" && !props.ssr || typeof props.SSR != "undefined" && !props.SSR){
+    isSSR=false;
+  }
 
   if (isEditMode || isExternalModule || !isSSR) {
     Object.keys(props).forEach(key => {

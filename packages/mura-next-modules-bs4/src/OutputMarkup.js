@@ -1,14 +1,12 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown/with-html';
-import { getMura, getMuraConfig  } from '@murasoftware/next-core';
+import { getMura, getMuraConfig, Decorator  } from '@murasoftware/next-core';
 import gfm from 'remark-gfm';
 import slug from 'remark-slug';
 import directive from 'remark-directive';
 import visit from 'unist-util-visit';
 import h from 'hastscript';
 
-
-// This plugin is just an example! You can handle directives however you please!
 function htmlDirectives() {
     return transform
   
@@ -26,14 +24,37 @@ function htmlDirectives() {
   }
 
 function renderDirective(elem){
+
+    //console.log(elem)
+
+    let tag=elem.node.data.hName;
+    let props= Object.assign({},elem.node.data.hProperties);
+    
     try{
+        switch(elem.node.data.hName.toLowerCase()){
+            case 'module':
+                tag=Decorator;
+                props['data-render']="client";
+                props.ssr=false;
+             break;
+
+            case 'content':
+
+
+                break;
+
+            case 'content':
+
+
+                break;
+        } 
         if(elem.children.length){
-            return React.createElement(elem.node.data.hName, elem.node.data.hProperties, elem.children);
+            return React.createElement(tag, props, elem.children);
         } else {
-            return React.createElement(elem.node.data.hName, elem.node.data.hProperties);
+            return React.createElement(tag, props);
         }
     } catch(e){
-        console.error(e);
+        console.error("error rendering html directive",e);
         return '';
     }
 }

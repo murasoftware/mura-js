@@ -1,7 +1,7 @@
 export const videoConfig = {
 	videoplatform:"",
 	videoid:"",
-	displaytype:"modal",//inline,modal
+	displaytype:"inline",//inline,modal
 	modalsize:'default',
 	showheader:false,
 	modaltitle:'',

@@ -100,11 +100,16 @@ var ModalVideo = function ModalVideo(_ref) {
       buttonctatext = props.buttonctatext,
       showbuttonplayicon = props.showbuttonplayicon;
 
+  var openPlayer = function openPlayer() {
+    openVidyardLightbox(props.videoid);
+    return false;
+  };
+
   switch (modalcta) {
     case "button":
       return /*#__PURE__*/React__default.createElement("button", {
         type: "button",
-        onclick: "openVidyardLightbox('#esapiEncode('html',objectparams.videoid)#'); return false;",
+        onClick: openPlayer,
         className: "btn btn-" + buttonclass
       }, showbuttonplayicon ? /*#__PURE__*/React__default.createElement("i", {
         className: "fas fa-play fa-" + buttonplayiconsize + " align-middle"
@@ -128,7 +133,7 @@ function Video(props) {
       videoid = props.videoid,
       videoplatform = props.videoplatform;
 
-  if (!videoplatform.length) {
+  if (typeof videoplatform == 'undefined' || !videoplatform.length) {
     return /*#__PURE__*/React__default.createElement("div", null, "Video platform missing.");
   } else if (!videoid) {
     return /*#__PURE__*/React__default.createElement("div", null, "Video id missing.");
@@ -209,14 +214,31 @@ function htmlDirectives() {
 }
 
 function renderDirective(elem) {
+  var tag = elem.node.data.hName;
+  var props = Object.assign({}, elem.node.data.hProperties);
+
   try {
+    switch (elem.node.data.hName.toLowerCase()) {
+      case 'module':
+        tag = nextCore.Decorator;
+        props['data-render'] = "client";
+        props.ssr = false;
+        break;
+
+      case 'content':
+        break;
+
+      case 'content':
+        break;
+    }
+
     if (elem.children.length) {
-      return React__default.createElement(elem.node.data.hName, elem.node.data.hProperties, elem.children);
+      return React__default.createElement(tag, props, elem.children);
     } else {
-      return React__default.createElement(elem.node.data.hName, elem.node.data.hProperties);
+      return React__default.createElement(tag, props);
     }
   } catch (e) {
-    console.error(e);
+    console.error("error rendering html directive", e);
     return '';
   }
 }
@@ -452,6 +474,7 @@ var getDynamicProps = function getDynamicProps(item) {
         feed.andProp('parentid').isEQ(cdata.contentid);
         feed.fields(getSelectFields(item));
         feed.expand(getExpandFields(item));
+        feed.maxItems(item.maxitems);
         feed.itemsPerPage(getItemsPerPage(item));
         feed.sort(cdata.sortby, cdata.sortdirection);
         return Promise.resolve(feed.getQuery()).then(function (query) {

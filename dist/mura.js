@@ -2496,7 +2496,7 @@ function wireUpObject(obj, response, attempt) {
       }
 
       MuraInlineEditor.setAnchorSaveChecks(obj.node);
-      obj.addClass('mura-active').hover(Mura.initDraggableObject_hoverin, Mura.initDraggableObject_hoverin);
+      obj.addClass('mura-active').hover(Mura.initDraggableObject_hoverin, Mura.initDraggableObject_hoverout);
     } else {
       //replace this with Mura.initEditableObject.call(obj.node) in future
       var initEditableObject = function initEditableObject(item) {
@@ -2541,10 +2541,10 @@ function wireUpObject(obj, response, attempt) {
             lcaseObject = lcaseObject.toLowerCase();
           }
 
-          var region = item.closest('.mura-region-local');
+          var region = item.closest('.mura-region-local, div.mura-object[data-object][data-targetattr]');
 
-          if (region && region.length) {
-            if (region.data('perm')) {
+          if (region.length) {
+            if (region.is('.mura-region-local') && region.data('perm') || region.is('div.mura-object[data-object][data-targetattr]')) {
               objectParams = item.data();
 
               if (window.MuraInlineEditor.objectHasConfigurator(item) || !window.Mura.layoutmanager && window.MuraInlineEditor.objectHasEditor(objectParams)) {

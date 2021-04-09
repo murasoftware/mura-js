@@ -116,6 +116,7 @@ export const getDynamicProps = async function(item){
     feed.andProp('parentid').isEQ(cdata.contentid);
     feed.fields(getSelectFields(item));
     feed.expand(getExpandFields(item));
+    feed.maxItems(item.maxitems);;
     feed.itemsPerPage(getItemsPerPage(item))
     feed.sort(cdata.sortby,cdata.sortdirection);
     

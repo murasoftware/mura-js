@@ -20,13 +20,14 @@ function Video(props) {
 
   const { displaytype, videoid, videoplatform } = props;
   const {modalsize} = videoConfig;
-  if(!videoplatform.length) {
+  if(typeof videoplatform=='undefined' || !videoplatform.length) {
     return <div>Video platform missing.</div>
   }
   else if(!videoid) {
     return <div>Video id missing.</div>
   }
   else {
+
     if(displaytype === 'modal') {
       return (
       <ModalVideo props={props}>

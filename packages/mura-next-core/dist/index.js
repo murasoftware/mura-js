@@ -629,6 +629,10 @@ function Decorator(props) {
 
   var isSSR = ComponentRegistry[objectKey] && (ComponentRegistry[objectKey].SSR || ComponentRegistry[objectKey].ssr);
 
+  if (typeof props.ssr != "undefined" && !props.ssr || typeof props.SSR != "undefined" && !props.SSR) {
+    isSSR = false;
+  }
+
   if (isEditMode || isExternalModule || !isSSR) {
     Object.keys(props).forEach(function (key) {
       if (!['html', 'content', 'children', 'isEditMode', 'dynamicProps', 'moduleStyleData'].find(function (restrictedkey) {

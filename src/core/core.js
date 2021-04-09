@@ -2345,7 +2345,7 @@ function wireUpObject(obj, response, attempt) {
 			obj.addClass('mura-active')
 				.hover(
 					Mura.initDraggableObject_hoverin,
-					Mura.initDraggableObject_hoverin
+					Mura.initDraggableObject_hoverout
 				);
 		} else {
 			//replace this with Mura.initEditableObject.call(obj.node) in future
@@ -2388,9 +2388,9 @@ function wireUpObject(obj, response, attempt) {
 					if(typeof lcaseObject=='string'){
 						lcaseObject=lcaseObject.toLowerCase();
 					}
-					var region=item.closest('.mura-region-local');
-					if(region && region.length ){              
-						if(region.data('perm')){                 
+					var region=item.closest('.mura-region-local, div.mura-object[data-object][data-targetattr]');
+					if(region.length){              
+						if(region.is('.mura-region-local') && region.data('perm') || region.is('div.mura-object[data-object][data-targetattr]')){                 
 							objectParams=item.data();
 							if(window.MuraInlineEditor.objectHasConfigurator(item) || (!window.Mura.layoutmanager && window.MuraInlineEditor.objectHasEditor(objectParams)) ){
 								item.children('.frontEndToolsModal').remove();
