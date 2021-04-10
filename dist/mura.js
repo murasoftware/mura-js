@@ -2756,7 +2756,7 @@ function processDisplayObject(el, queue, rerender, resolveFn, usePreloaderMarkup
       }
     }
 
-    var rendered = rerender && !obj.data('async') ? false : obj.children('.mura-object-content').length;
+    var rendered = rerender && !obj.data('async') ? false : obj.children('.mura-object-content').length && obj.children('.mura-object-content').children().length;
     queue = queue == null || rendered ? false : queue;
 
     if (document.createEvent && queue && !isScrolledIntoView(obj.node)) {

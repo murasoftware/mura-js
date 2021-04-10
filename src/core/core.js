@@ -2597,7 +2597,7 @@ function processDisplayObject(el, queue, rerender, resolveFn, usePreloaderMarkup
 			}
 		}
 
-		var rendered = (rerender && !obj.data('async')) ? false : obj.children('.mura-object-content').length
+		var rendered = (rerender && !obj.data('async')) ? false : (obj.children('.mura-object-content').length && obj.children('.mura-object-content').children().length)
 
 		queue = (queue == null || rendered) ? false : queue;
 		
@@ -2634,7 +2634,7 @@ function processDisplayObject(el, queue, rerender, resolveFn, usePreloaderMarkup
 		//if(obj.data('async')){
 		obj.addClass("mura-async-object");
 		//}
-
+		
 		if (rendered && !obj.data('async')) {
 			
 			return new Promise(function(resolve, reject) {
