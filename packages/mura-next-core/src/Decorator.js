@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { getMura ,getIsEditMode, getMuraConfig } from './Connector';
 
 function Decorator(props) {
@@ -6,6 +6,13 @@ function Decorator(props) {
   const muraConfig = getMuraConfig();
   const { ComponentRegistry, ExternalModules } = muraConfig;
   const { label, instanceid, labeltag, children } = props;
+
+  useEffect(() => {
+    Mura(function(){
+      Mura('div[data-instanceid="' + instanceid + '"]' ).processMarkup();
+    })
+  }, []);
+
   let isEditMode = getIsEditMode();
 
   //console.log("MuraDecorator -> isEditMode", isEditMode);

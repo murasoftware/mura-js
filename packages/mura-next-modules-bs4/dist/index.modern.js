@@ -2163,10 +2163,6 @@ var Container = function Container(props) {
     if (typeof Mura$2.displayObjectInstances[props.instanceid] == 'undefined') {
       Mura$2.displayObjectInstances[props.instanceid] = new Mura$2.DisplayObject.Container(props);
     }
-
-    Mura$2(function () {
-      Mura$2('div[data-instanceid="' + props.instanceid + '"]').processMarkup();
-    });
   }, []);
   var $items = items;
 

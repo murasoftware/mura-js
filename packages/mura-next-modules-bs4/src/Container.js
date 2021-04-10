@@ -15,10 +15,6 @@ export const Container = function(props) {
     if(typeof Mura.displayObjectInstances[props.instanceid]=='undefined'){
       Mura.displayObjectInstances[props.instanceid]= new Mura.DisplayObject.Container(props);
     }
-
-    Mura(function(){
-      Mura('div[data-instanceid="' + props.instanceid + '"]' ).processMarkup();
-    })
   }, []);
 
   let $items=items;
