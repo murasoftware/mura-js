@@ -29,6 +29,8 @@ import { getDynamicProps as getPrimaryNavDynamicProps, default as PrimaryNav} fr
 import { getDynamicProps as getResourceHubDynamicProps, default as ResourceHub} from "./ResourceHub";
 import { getDynamicProps as getTextDynamicProps, default as Text} from "./Text";
 import PrivacyTools from "./PrivacyTools";
+import GatedAsset from "./GatedAsset";
+import Gist from "./Gist";
 
 export {
     Video,
@@ -77,5 +79,7 @@ export {
     Text,
     PrivacyTools,
     NoItemsMessage,
-    OutputMarkup
+    OutputMarkup,
+    GatedAsset,
+    Gist
 };

@@ -702,6 +702,22 @@ function _extends() {
   return _extends.apply(this, arguments);
 }
 
+function _inheritsLoose(subClass, superClass) {
+  subClass.prototype = Object.create(superClass.prototype);
+  subClass.prototype.constructor = subClass;
+
+  _setPrototypeOf(subClass, superClass);
+}
+
+function _setPrototypeOf(o, p) {
+  _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+    o.__proto__ = p;
+    return o;
+  };
+
+  return _setPrototypeOf(o, p);
+}
+
 function _objectWithoutPropertiesLoose(source, excluded) {
   if (source == null) return {};
   var target = {};
@@ -3598,5 +3614,202 @@ var getCurrentPrivacy = function getCurrentPrivacy() {
   }
 };
 
-export { ArticleMeta, CTAButton, Collection, CollectionLayout, CollectionLayoutAccordian as CollectionLayoutAccordion, AlternatingBoxes as CollectionLayoutAlternatingBoxes, AlternatingRows as CollectionLayoutAlternatingRows, Cards as CollectionLayoutCards, List as CollectionLayoutList, Masonry as CollectionLayoutMasonry, SlickSlider as CollectionLayoutSlickSlider, CollectionNav, CollectionReadMoreBtn, Container, Embed, Hr, Image, ItemCategories, ItemCredits, ItemDate, ItemImage, ItemTags, Login, MatrixSelector, CheckForItems as NoItemsMessage, OutputMarkup, PrimaryNav, PrivacyTools, ResourceHub, RouterLink, RouterlessLink, Text, Video, getDynamicProps as getCollectionDynamicProps, getLayout as getCollectionLayout, getQueryProps$1 as getCollectionLayoutAccordionQueryProps, getQueryProps$2 as getCollectionLayoutAlternatingBoxesQueryProps, getQueryProps$3 as getCollectionLayoutAlternatingRowsQueryProps, getQueryProps$4 as getCollectionLayoutCardsQueryProps, getQueryProps$5 as getCollectionLayoutListQueryProps, getQueryProps$6 as getCollectionLayoutMasonryQueryProps, getQueryProps as getCollectionLayoutQueryProps, getQueryProps$7 as getCollectionLayoutSlickSliderQueryProps, getDynamicProps$1 as getMatrixSelectorDynamicProps, getDynamicProps$2 as getPrimaryNavDynamicProps, getDynamicProps$3 as getResourceHubDynamicProps, getDynamicProps$4 as getTextDynamicProps };
+var GatedAsset = function GatedAsset(props) {
+  var objectparams = Object.assign({}, props);
+
+  var _useState = useState(false),
+      gateIsOpen = _useState[0],
+      setGateIsOpen = _useState[1];
+
+  var _useState2 = useState(Mura$1.editing),
+      editMode = _useState2[0],
+      setEditMode = _useState2[1];
+
+  var gateparams = objectparams.gateparams || {
+    object: "container",
+    items: [],
+    'render': 'client',
+    async: false
+  };
+  var assetparams = objectparams.assetparams || {
+    object: "container",
+    items: [],
+    'render': 'client',
+    async: false
+  };
+  gateparams.ssr = false;
+  assetparams.ssr = false;
+
+  if (typeof objectparams.isgatelocked == 'undefined') {
+    objectparams.isgatelocked = true;
+  }
+
+  useEffect(function () {
+    var isMounted = true;
+    var gatedasset = Mura$1.getEntity('gatedasset');
+
+    if (isMounted) {
+      if (typeof Mura$1.displayObjectInstances[props.instanceid] == 'undefined') {
+        Mura$1.displayObjectInstances[props.instanceid] = new Mura$1.DisplayObject.GatedAsset(props);
+      }
+
+      Mura$1(document).on('muraContentEditInit', function () {
+        if (isMounted) {
+          setEditMode(true);
+        }
+      });
+      var module = Mura$1('div[data-instanceid="' + props.instanceid + '"]');
+      module.on('formSubmitSuccess', function (e) {
+        if (isMounted && !gateIsOpen) {
+          var source = e.target || e.srcElement;
+          var formObj = Mura$1(source).closest('div.mura-object[data-object="form"]');
+          gatedasset.invoke('openGate', {
+            contentid: props.content.contentid,
+            formid: formObj.data('objectid')
+          }, 'get');
+          setTimeout(function () {
+            setGateIsOpen(true);
+          }, 4000);
+        }
+      });
+
+      var handleIsGateOpen = function handleIsGateOpen(response) {
+        if (typeof response === 'boolean' && response || typeof response === 'number' && response || typeof response === 'string' && response.toLowerCase() == 'true') {
+          if (isMounted) {
+            setGateIsOpen(true);
+          }
+        }
+      };
+
+      var checkContainerForOpenGates = function checkContainerForOpenGates(params) {
+        params.items.forEach(function (item) {
+          if (item.object == 'form') {
+            gatedasset.invoke('isGateOpen', {
+              contentid: props.content.contentid,
+              formid: item.objectid
+            }, 'get').then(handleIsGateOpen, handleIsGateOpen);
+          } else if (obj.data('object') == 'container') {
+            checkContainerForOpenGates(item);
+          }
+        });
+      };
+
+      if (objectparams.isgatelocked) {
+        checkContainerForOpenGates(gateparams);
+      } else {
+        setGateIsOpen(true);
+      }
+    }
+
+    return function () {
+      isMounted = false;
+    };
+  }, []);
+  return /*#__PURE__*/React.createElement("div", null, editMode ? /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("button", {
+    className: !gateIsOpen ? 'btn btn-primary' : 'btn',
+    onClick: function onClick() {
+      setGateIsOpen(false);
+    }
+  }, "Gate"), /*#__PURE__*/React.createElement("button", {
+    className: gateIsOpen ? 'btn btn-primary' : 'btn',
+    onClick: function onClick() {
+      setGateIsOpen(true);
+    }
+  }, "Asset")) : null, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "mura-gate",
+    style: {
+      display: !gateIsOpen ? 'block' : 'none'
+    }
+  }, /*#__PURE__*/React.createElement(Decorator, _extends({}, gateparams, {
+    content: props.content
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "mura-asset",
+    style: {
+      display: gateIsOpen ? 'block' : 'none'
+    }
+  }, /*#__PURE__*/React.createElement(Decorator, _extends({}, assetparams, {
+    content: props.content
+  })))));
+};
+
+var Gist = /*#__PURE__*/function (_React$PureComponent) {
+  _inheritsLoose(Gist, _React$PureComponent);
+
+  function Gist() {
+    return _React$PureComponent.apply(this, arguments) || this;
+  }
+
+  var _proto = Gist.prototype;
+
+  _proto.componentDidMount = function componentDidMount() {
+    this._updateIframeContent();
+  };
+
+  _proto.componentDidUpdate = function componentDidUpdate(prevProps, prevState) {
+    this._updateIframeContent();
+  };
+
+  _proto._defineUrl = function _defineUrl() {
+    var _this$props = this.props,
+        id = _this$props.id,
+        file = _this$props.file;
+    var fileArg = file ? "?file=" + file : '';
+    return "https://gist.github.com/" + id + ".js" + fileArg;
+  };
+
+  _proto._updateIframeContent = function _updateIframeContent() {
+    var _this$props2 = this.props,
+        id = _this$props2.id,
+        file = _this$props2.file;
+    var iframe = this.iframeNode;
+    var doc = iframe.document;
+    if (iframe.contentDocument) doc = iframe.contentDocument;else if (iframe.contentWindow) doc = iframe.contentWindow.document;
+
+    var gistLink = this._defineUrl();
+
+    var gistScript = "<script type=\"text/javascript\" src=\"" + gistLink + "\"></script>";
+    var styles = '<style>*{font-size:12px;}</style>';
+    var elementId = file ? "gist-" + id + "-" + file : "gist-" + id;
+    var resizeScript = "onload=\"parent.document.getElementById('" + elementId + "').style.height=document.body.scrollHeight + 'px'\"";
+    var iframeHtml = "<html><head><base target=\"_parent\">" + styles + "</head><body " + resizeScript + ">" + gistScript + "</body></html>";
+    doc.open();
+    doc.writeln(iframeHtml);
+    doc.close();
+  };
+
+  _proto.render = function render() {
+    var _this = this;
+
+    var _this$props3 = this.props,
+        id = _this$props3.id,
+        file = _this$props3.file;
+    return /*#__PURE__*/React.createElement("iframe", {
+      ref: function ref(n) {
+        _this.iframeNode = n;
+      },
+      width: "100%",
+      frameBorder: 0,
+      id: file ? "gist-" + id + "-" + file : "gist-" + id
+    });
+  };
+
+  return Gist;
+}(React.PureComponent);
+
+var render = function render(props) {
+  var objectparams = Object.assign({}, props);
+  objectparams.gistid = objectparams.gistid || '';
+  objectparams.file = objectparams.file || '';
+
+  if (objectparams.gistid) {
+    return /*#__PURE__*/React.createElement(Gist, {
+      id: objectparams.gistid,
+      file: objectparams.file
+    });
+  } else {
+    return /*#__PURE__*/React.createElement("div", null);
+  }
+};
+
+export { ArticleMeta, CTAButton, Collection, CollectionLayout, CollectionLayoutAccordian as CollectionLayoutAccordion, AlternatingBoxes as CollectionLayoutAlternatingBoxes, AlternatingRows as CollectionLayoutAlternatingRows, Cards as CollectionLayoutCards, List as CollectionLayoutList, Masonry as CollectionLayoutMasonry, SlickSlider as CollectionLayoutSlickSlider, CollectionNav, CollectionReadMoreBtn, Container, Embed, GatedAsset, render as Gist, Hr, Image, ItemCategories, ItemCredits, ItemDate, ItemImage, ItemTags, Login, MatrixSelector, CheckForItems as NoItemsMessage, OutputMarkup, PrimaryNav, PrivacyTools, ResourceHub, RouterLink, RouterlessLink, Text, Video, getDynamicProps as getCollectionDynamicProps, getLayout as getCollectionLayout, getQueryProps$1 as getCollectionLayoutAccordionQueryProps, getQueryProps$2 as getCollectionLayoutAlternatingBoxesQueryProps, getQueryProps$3 as getCollectionLayoutAlternatingRowsQueryProps, getQueryProps$4 as getCollectionLayoutCardsQueryProps, getQueryProps$5 as getCollectionLayoutListQueryProps, getQueryProps$6 as getCollectionLayoutMasonryQueryProps, getQueryProps as getCollectionLayoutQueryProps, getQueryProps$7 as getCollectionLayoutSlickSliderQueryProps, getDynamicProps$1 as getMatrixSelectorDynamicProps, getDynamicProps$2 as getPrimaryNavDynamicProps, getDynamicProps$3 as getResourceHubDynamicProps, getDynamicProps$4 as getTextDynamicProps };
 //# sourceMappingURL=index.modern.js.map
