@@ -3,6 +3,7 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 var React = require('react');
 var React__default = _interopDefault(React);
 var Head = _interopDefault(require('next/head'));
+var Mura$1 = _interopDefault(require('mura.js'));
 var Badge = _interopDefault(require('react-bootstrap/Badge'));
 var ReactMarkdown = _interopDefault(require('react-markdown/with-html'));
 var nextCore = require('@murasoftware/next-core');
@@ -12,7 +13,6 @@ var directive = _interopDefault(require('remark-directive'));
 var visit = _interopDefault(require('unist-util-visit'));
 var h = _interopDefault(require('hastscript'));
 var Link = _interopDefault(require('next/link'));
-var Mura$1 = _interopDefault(require('mura.js'));
 var reactFontawesome = require('@fortawesome/react-fontawesome');
 var freeSolidSvgIcons = require('@fortawesome/free-solid-svg-icons');
 var Accordion = _interopDefault(require('react-bootstrap/Accordion'));
@@ -59,6 +59,9 @@ function Vimeo(props) {
 function Wistia(props) {
   var instanceid = props.instanceid,
       videoid = props.videoid;
+  React.useEffect(function () {
+    Mura$1.loader().loadjs('https://fast.wistia.net/assets/external/E-v1.js', 'https://fast.wistia.com/embed/medias/${videoid}.jsonp');
+  }, []);
   return /*#__PURE__*/React__default.createElement("div", {
     className: "wistiaWrapper",
     id: "player-" + instanceid

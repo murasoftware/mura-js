@@ -1,8 +1,17 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import Head from 'next/head';
+import Mura from 'mura.js';
 
 function Wistia(props) {
 	const { instanceid, videoid } = props;
+
+	useEffect(() => {
+		Mura.loader().loadjs(
+			'https://fast.wistia.net/assets/external/E-v1.js',
+			'https://fast.wistia.com/embed/medias/${videoid}.jsonp'
+		);
+	  }, []);
+
 	// j38ihh83m5
 	return (
 	  <div className="wistiaWrapper" id={`player-${instanceid}`}>
@@ -13,14 +22,16 @@ function Wistia(props) {
 		<div
 			className="wistia_responsive_padding"
 			style={{padding: '56.25% 0 0 0',position: 'relative'}}>
-		<div
-			className="wistia_responsive_wrapper"
-			style={{height:'100%',left:0,position:'absolute',top:0,width:'100%'}}>
-		<div
-			className={`wistia_embed wistia_async_${videoid}`}
-			seo='false'
-			videofoam='true'
-			style={{height:'100%',width:'100%'}}>&nbsp;</div></div></div>
+			<div
+				className="wistia_responsive_wrapper"
+				style={{height:'100%',left:0,position:'absolute',top:0,width:'100%'}}>
+				<div
+					className={`wistia_embed wistia_async_${videoid}`}
+					seo='false'
+					videofoam='true'
+					style={{height:'100%',width:'100%'}}>&nbsp;</div>
+				</div>
+			</div>
 	  </div>
 	);
 }

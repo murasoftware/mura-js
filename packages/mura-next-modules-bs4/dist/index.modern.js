@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
+import Mura$1 from 'mura.js';
 import Badge from 'react-bootstrap/Badge';
 import ReactMarkdown from 'react-markdown/with-html';
 import { getMura, getMuraConfig, Decorator, getHref, getComponent } from '@murasoftware/next-core';
@@ -9,7 +10,6 @@ import directive from 'remark-directive';
 import visit from 'unist-util-visit';
 import h from 'hastscript';
 import Link from 'next/link';
-import Mura$1 from 'mura.js';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronRight, faChevronLeft } from '@fortawesome/free-solid-svg-icons';
 import Accordion from 'react-bootstrap/Accordion';
@@ -56,6 +56,9 @@ function Vimeo(props) {
 function Wistia(props) {
   var instanceid = props.instanceid,
       videoid = props.videoid;
+  useEffect(function () {
+    Mura$1.loader().loadjs('https://fast.wistia.net/assets/external/E-v1.js', 'https://fast.wistia.com/embed/medias/${videoid}.jsonp');
+  }, []);
   return /*#__PURE__*/React.createElement("div", {
     className: "wistiaWrapper",
     id: "player-" + instanceid
