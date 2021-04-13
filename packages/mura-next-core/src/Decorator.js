@@ -7,12 +7,6 @@ function Decorator(props) {
   const { ComponentRegistry, ExternalModules } = muraConfig;
   const { label, instanceid, labeltag, children } = props;
 
-  useEffect(() => {
-    Mura(function(){
-      Mura('div[data-instanceid="' + instanceid + '"]' ).processMarkup();
-    })
-  }, []);
-
   let isEditMode = getIsEditMode();
 
   //console.log("MuraDecorator -> isEditMode", isEditMode);
@@ -118,6 +112,10 @@ function Decorator(props) {
 
   }
   
+  if(isExternalModule){
+    domObject['data-inited'] = false;
+  }
+
   if(isExternalModule || !isSSR){
     if(isExternalModule && props.html){
       <div {...domObject}>

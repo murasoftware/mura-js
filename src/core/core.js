@@ -3859,10 +3859,7 @@ function init(config) {
 			for(var cmd in holdingPreInitQueue){
 				if(typeof holdingPreInitQueue[cmd] == 'function'){
 					holdingPreInitQueue[cmd](Mura);
-				} else {
-					console.log("PreInit queue item not a function");
-					console.log(holdingPreInitQueue[cmd]);
-				}
+				} 
 			}
 
 			if(typeof window !='undefined' && typeof window.document != 'undefined'){

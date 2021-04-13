@@ -604,11 +604,6 @@ function Decorator(props) {
       instanceid = props.instanceid,
       labeltag = props.labeltag,
       children = props.children;
-  useEffect(function () {
-    Mura(function () {
-      Mura('div[data-instanceid="' + instanceid + '"]').processMarkup();
-    });
-  }, []);
   var isEditMode = getIsEditMode();
   var domObject = {
     className: 'mura-object mura-async-object'
@@ -695,6 +690,10 @@ function Decorator(props) {
         domObject['data-' + key] = props[key];
       }
     });
+  }
+
+  if (isExternalModule) {
+    domObject['data-inited'] = false;
   }
 
   if (isExternalModule || !isSSR) {

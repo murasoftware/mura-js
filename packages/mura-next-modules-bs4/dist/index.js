@@ -2160,12 +2160,28 @@ var getQueryProps$7 = function getQueryProps() {
 
 var Container = function Container(props) {
   var items = props.items,
-      content = props.content;
+      content = props.content,
+      instanceid = props.instanceid;
   if (!items) return '';
   React.useEffect(function () {
     if (typeof Mura$2.displayObjectInstances[props.instanceid] == 'undefined') {
       Mura$2.displayObjectInstances[props.instanceid] = new Mura$2.DisplayObject.Container(props);
     }
+
+    Mura$2(function () {
+      var obj = Mura$2('div[data-instanceid="' + instanceid + '"]');
+      obj.children('.mura-object-content').each(function () {
+        var modules = Mura$2(this).children('.mura-object');
+        modules.each(function () {
+          var module = Mura$2(this);
+          var content = module.children('.mura-object-content');
+
+          if (!content.length || content.length && !content.children().length) {
+            module.processDisplayObject();
+          }
+        });
+      });
+    });
   }, []);
   var $items = items;
 

@@ -6,7 +6,7 @@ import { getComponent } from '@murasoftware/next-core';
 import { Decorator } from '@murasoftware/next-core';
 
 export const Container = function(props) {
-  const { items,content } = props;
+  const { items,content,instanceid } = props;
   // console.log('Container -> items', items);
   // console.log('Container -> props', props);
   if (!items) return '';
@@ -15,6 +15,20 @@ export const Container = function(props) {
     if(typeof Mura.displayObjectInstances[props.instanceid]=='undefined'){
       Mura.displayObjectInstances[props.instanceid]= new Mura.DisplayObject.Container(props);
     }
+    
+    Mura(function(){    
+        const obj=Mura('div[data-instanceid="' + instanceid + '"]');
+        obj.children('.mura-object-content').each(function(){
+          const modules=Mura(this).children('.mura-object');
+          modules.each(function(){
+            const module=Mura(this);
+            const content=module.children('.mura-object-content');
+            if(!content.length || content.length && !content.children().length){
+              module.processDisplayObject();
+            } 
+          })
+        })
+    });
   }, []);
 
   let $items=items;
