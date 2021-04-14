@@ -2203,6 +2203,18 @@ var Container = function Container(props) {
           });
         });
       }
+
+      if (obj.data('stylesupport')) {
+        obj.calculateDisplayObjectStyles();
+      }
+
+      obj.find('.mura-object').each(function () {
+        var item = Mura$2(this);
+
+        if (item.data('stylesupport')) {
+          item.calculateDisplayObjectStyles();
+        }
+      });
     });
   }, []);
   var $items = items;

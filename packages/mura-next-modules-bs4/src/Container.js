@@ -30,6 +30,15 @@ export const Container = function(props) {
             })
           })
         }
+        if(obj.data('stylesupport')){
+          obj.calculateDisplayObjectStyles();
+        }  
+        obj.find('.mura-object').each(function(){
+          const item=Mura(this);
+          if(item.data('stylesupport')){
+            item.calculateDisplayObjectStyles();
+          }
+        });
     });
   }, []);
 
