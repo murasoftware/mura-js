@@ -19,7 +19,7 @@ export const Container = function(props) {
     Mura(function(){    
         const obj=Mura('div[data-instanceid="' + instanceid + '"]');
         if(obj.data('inited')){
-            obj.children('.mura-object-content').each(function(){
+          obj.children('.mura-object-content').each(function(){
             const modules=Mura(this).children('.mura-object');
             modules.each(function(){
                 const module=Mura(this);
@@ -28,7 +28,7 @@ export const Container = function(props) {
                 module.processDisplayObject();
                 } 
             })
-        })
+          })
         }
     });
   }, []);

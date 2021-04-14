@@ -691,8 +691,6 @@ function Decorator(props) {
     });
   }
 
-  delete domObject['data-inited'];
-
   if (isExternalModule || !isSSR) {
     if (isExternalModule && props.html) {
       /*#__PURE__*/

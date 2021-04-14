@@ -111,9 +111,7 @@ function Decorator(props) {
     });
 
   }
-  
-  delete domObject['data-inited'];
-  
+
   if(isExternalModule || !isSSR){
     if(isExternalModule && props.html){
       <div {...domObject}>

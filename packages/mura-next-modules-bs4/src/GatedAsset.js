@@ -12,7 +12,9 @@ const GatedAsset =function(props) {
 
     gateparams.ssr=false;
     assetparams.ssr=false;
-
+    gateparams.pinned=true;
+    assetparams.pinned=true;
+    
     if(typeof objectparams.isgatelocked == 'undefined'){
         objectparams.isgatelocked=true;
     }
@@ -60,20 +62,22 @@ const GatedAsset =function(props) {
             }
             
             const checkContainerForOpenGates = function(params){
-                params.items.forEach((item)=>{
-                    if(item.object=='form'){
-                        gatedasset.invoke(
-                            'isGateOpen',
-                            {contentid: props.content.contentid,formid:item.objectid}
-                            ,'get')
-                            .then(
-                                handleIsGateOpen,
-                                handleIsGateOpen
-                            )
-                    } else if(obj.data('object')=='container'){
-                        checkContainerForOpenGates(item);
-                    }
-                })
+                if(Array.isArray(params.items)){
+                    params.items.forEach((item)=>{
+                        if(item.object=='form'){
+                            gatedasset.invoke(
+                                'isGateOpen',
+                                {contentid: props.content.contentid,formid:item.objectid}
+                                ,'get')
+                                .then(
+                                    handleIsGateOpen,
+                                    handleIsGateOpen
+                                )
+                        } else if(item.object=='container'){
+                            checkContainerForOpenGates(item);
+                        }
+                    })
+                }
             }
 
             if( objectparams.isgatelocked ){

@@ -3642,6 +3642,8 @@ var GatedAsset = function GatedAsset(props) {
   };
   gateparams.ssr = false;
   assetparams.ssr = false;
+  gateparams.pinned = true;
+  assetparams.pinned = true;
 
   if (typeof objectparams.isgatelocked == 'undefined') {
     objectparams.isgatelocked = true;
@@ -3685,16 +3687,18 @@ var GatedAsset = function GatedAsset(props) {
       };
 
       var checkContainerForOpenGates = function checkContainerForOpenGates(params) {
-        params.items.forEach(function (item) {
-          if (item.object == 'form') {
-            gatedasset.invoke('isGateOpen', {
-              contentid: props.content.contentid,
-              formid: item.objectid
-            }, 'get').then(handleIsGateOpen, handleIsGateOpen);
-          } else if (obj.data('object') == 'container') {
-            checkContainerForOpenGates(item);
-          }
-        });
+        if (Array.isArray(params.items)) {
+          params.items.forEach(function (item) {
+            if (item.object == 'form') {
+              gatedasset.invoke('isGateOpen', {
+                contentid: props.content.contentid,
+                formid: item.objectid
+              }, 'get').then(handleIsGateOpen, handleIsGateOpen);
+            } else if (item.object == 'container') {
+              checkContainerForOpenGates(item);
+            }
+          });
+        }
       };
 
       if (objectparams.isgatelocked) {
