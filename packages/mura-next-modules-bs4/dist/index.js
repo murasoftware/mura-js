@@ -2189,17 +2189,20 @@ var Container = function Container(props) {
 
     Mura$2(function () {
       var obj = Mura$2('div[data-instanceid="' + instanceid + '"]');
-      obj.children('.mura-object-content').each(function () {
-        var modules = Mura$2(this).children('.mura-object');
-        modules.each(function () {
-          var module = Mura$2(this);
-          var content = module.children('.mura-object-content');
 
-          if (!content.length || content.length && !content.children().length) {
-            module.processDisplayObject();
-          }
+      if (obj.data('inited')) {
+        obj.children('.mura-object-content').each(function () {
+          var modules = Mura$2(this).children('.mura-object');
+          modules.each(function () {
+            var module = Mura$2(this);
+            var content = module.children('.mura-object-content');
+
+            if (!content.length || content.length && !content.children().length) {
+              module.processDisplayObject();
+            }
+          });
         });
-      });
+      }
     });
   }, []);
   var $items = items;

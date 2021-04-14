@@ -18,16 +18,18 @@ export const Container = function(props) {
     
     Mura(function(){    
         const obj=Mura('div[data-instanceid="' + instanceid + '"]');
-        obj.children('.mura-object-content').each(function(){
-          const modules=Mura(this).children('.mura-object');
-          modules.each(function(){
-            const module=Mura(this);
-            const content=module.children('.mura-object-content');
-            if(!content.length || content.length && !content.children().length){
-              module.processDisplayObject();
-            } 
-          })
+        if(obj.data('inited')){
+            obj.children('.mura-object-content').each(function(){
+            const modules=Mura(this).children('.mura-object');
+            modules.each(function(){
+                const module=Mura(this);
+                const content=module.children('.mura-object-content');
+                if(!content.length || content.length && !content.children().length){
+                module.processDisplayObject();
+                } 
+            })
         })
+        }
     });
   }, []);
 

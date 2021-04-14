@@ -80,7 +80,7 @@ function Decorator(props) {
     }
   } else {
     domObject['data-instanceid'] = instanceid;
-    domObject['data-inited'] = true;
+    
     domObject.className = `mura-object-${props.object}`;
 
     if(typeof props.moduleStyleData != 'undefined' && typeof props.moduleStyleData[instanceid] != 'undefined'){
@@ -112,10 +112,6 @@ function Decorator(props) {
 
   }
   
-  if(isExternalModule){
-    domObject['data-inited'] = false;
-  }
-
   if(isExternalModule || !isSSR){
     if(isExternalModule && props.html){
       <div {...domObject}>

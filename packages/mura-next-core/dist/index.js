@@ -669,7 +669,6 @@ function Decorator(props) {
     }
   } else {
     domObject['data-instanceid'] = instanceid;
-    domObject['data-inited'] = true;
     domObject.className = "mura-object-" + props.object;
 
     if (typeof props.moduleStyleData != 'undefined' && typeof props.moduleStyleData[instanceid] != 'undefined') {
@@ -693,10 +692,6 @@ function Decorator(props) {
         domObject['data-' + key] = props[key];
       }
     });
-  }
-
-  if (isExternalModule) {
-    domObject['data-inited'] = false;
   }
 
   if (isExternalModule || !isSSR) {
