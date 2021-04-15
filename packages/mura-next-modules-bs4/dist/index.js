@@ -2261,7 +2261,6 @@ var Container = function Container(props) {
     obj.key = obj.instanceid;
     obj.moduleStyleData = props.moduleStyleData;
     obj.content = content;
-    obj.inited = true;
     return /*#__PURE__*/React__default.createElement(nextCore.Decorator, obj, " ", nextCore.getComponent(obj), " ");
   });
 };

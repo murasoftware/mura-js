@@ -80,7 +80,6 @@ export const Container = function(props) {
           obj.key=obj.instanceid;
           obj.moduleStyleData=props.moduleStyleData;
           obj.content = content;
-          obj.inited = true;
           return (<Decorator {...obj}> {getComponent(obj)} </Decorator>)
       })
    
