@@ -12,33 +12,16 @@ export const Container = function(props) {
   if (!items) return '';
 
   useEffect(() => {
-    if(typeof Mura.displayObjectInstances[props.instanceid]=='undefined'){
-      Mura.displayObjectInstances[props.instanceid]= new Mura.DisplayObject.Container(props);
+    if(typeof Mura.displayObjectInstances[instanceid]=='undefined'){
+      Mura.displayObjectInstances[instanceid]= new Mura.DisplayObject.Container(props);
     }
     
     Mura(function(){    
         const obj=Mura('div[data-instanceid="' + instanceid + '"]');
-        if(obj.data('inited')){
-          obj.children('.mura-object-content').each(function(){
-            const modules=Mura(this).children('.mura-object');
-            modules.each(function(){
-                const module=Mura(this);
-                const content=module.children('.mura-object-content');
-                if(!content.length || content.length && !content.children().length){
-                module.processDisplayObject();
-                } 
-            })
-          })
-        }
-        if(obj.data('stylesupport')){
-          obj.calculateDisplayObjectStyles();
-        }  
-        obj.find('.mura-object').each(function(){
-          const item=Mura(this);
-          if(item.data('stylesupport')){
-            item.calculateDisplayObjectStyles();
-          }
-        });
+        obj
+          .children('.mura-object-content')
+          .children('.mura-object')
+          .processDisplayObject()
     });
   }, []);
 
@@ -80,6 +63,7 @@ export const Container = function(props) {
           obj.key=obj.instanceid;
           obj.moduleStyleData=props.moduleStyleData;
           obj.content = content;
+          obj.inited = true;
           return (<Decorator {...obj}> {getComponent(obj)} </Decorator>)
       })
    

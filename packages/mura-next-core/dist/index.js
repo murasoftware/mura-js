@@ -357,7 +357,9 @@ var setMuraConfig = function setMuraConfig(config) {
   ComponentRegistry = config.ComponentRegistry;
   ConnectorConfig = config.ConnectorConfig;
   ExternalModules = config.ExternalModules;
-  connectorConfig = Object.assign({}, ConnectorConfig);
+  connectorConfig = Object.assign({
+    processMarkup: false
+  }, ConnectorConfig);
 };
 var getMuraConfig = function getMuraConfig() {
   return muraConfig;
@@ -607,9 +609,27 @@ function Decorator(props) {
       instanceid = props.instanceid,
       labeltag = props.labeltag,
       children = props.children;
+  React.useEffect(function () {
+    Mura(function () {
+      var obj = Mura('div[data-instanceid="' + instanceid + '"]');
+
+      if (obj.data('stylesupport')) {
+        obj.calculateDisplayObjectStyles();
+      }
+
+      obj.find('.mura-object').each(function () {
+        var item = Mura(this);
+
+        if (item.data('stylesupport')) {
+          item.calculateDisplayObjectStyles();
+        }
+      });
+    });
+  }, []);
   var isEditMode = getIsEditMode();
   var domObject = {
-    className: 'mura-object mura-async-object'
+    className: 'mura-object mura-async-object',
+    'data-inited': true
   };
   var domContent = {
     className: 'mura-object-content'
@@ -692,6 +712,10 @@ function Decorator(props) {
         domObject['data-' + key] = props[key];
       }
     });
+  }
+
+  if (isExternalModule) {
+    domObject['data-inited'] = false;
   }
 
   if (isExternalModule || !isSSR) {
@@ -960,9 +984,12 @@ function contentDidChange(_content) {
     }
 
     Mura.init(Mura.extend({
+      processMarkup: true,
+      initialProcessMarkupSelector: '',
       queueObjects: false,
       content: content
     }));
+    Mura('div.mura-object:not([data-inited="true"]),div.mura-object[data-render="server"]').processDisplayObject();
     Mura.holdReady(false);
 
     if (!htmlQueueContainerInner.length && Mura.variations) {

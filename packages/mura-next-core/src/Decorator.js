@@ -7,16 +7,33 @@ function Decorator(props) {
   const { ComponentRegistry, ExternalModules } = muraConfig;
   const { label, instanceid, labeltag, children } = props;
 
+  useEffect(() => {
+    Mura(function(){
+      const obj=Mura('div[data-instanceid="' + instanceid + '"]');
+      if(obj.data('stylesupport')){
+        obj.calculateDisplayObjectStyles();
+      }  
+      obj.find('.mura-object').each(function(){
+        const item=Mura(this);
+        if(item.data('stylesupport')){
+          item.calculateDisplayObjectStyles();
+        }
+      });
+    })
+  }, []);
+
+ 
   let isEditMode = getIsEditMode();
 
   //console.log("MuraDecorator -> isEditMode", isEditMode);
-
+  //data-inited is only need because mura.min.css will hide the module if not
   const domObject = {
     className: 'mura-object mura-async-object',
+    'data-inited':true
   };
 
   const domContent = {
-    className: 'mura-object-content',
+    className: 'mura-object-content'
   };
 
   const domMeta={
@@ -110,6 +127,10 @@ function Decorator(props) {
       }
     });
 
+  }
+  
+  if(isExternalModule){
+    domObject['data-inited']=false;
   }
 
   if(isExternalModule || !isSSR){

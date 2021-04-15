@@ -2180,38 +2180,13 @@ var Container = function Container(props) {
       instanceid = props.instanceid;
   if (!items) return '';
   useEffect(function () {
-    if (typeof Mura$2.displayObjectInstances[props.instanceid] == 'undefined') {
-      Mura$2.displayObjectInstances[props.instanceid] = new Mura$2.DisplayObject.Container(props);
+    if (typeof Mura$2.displayObjectInstances[instanceid] == 'undefined') {
+      Mura$2.displayObjectInstances[instanceid] = new Mura$2.DisplayObject.Container(props);
     }
 
     Mura$2(function () {
       var obj = Mura$2('div[data-instanceid="' + instanceid + '"]');
-
-      if (obj.data('inited')) {
-        obj.children('.mura-object-content').each(function () {
-          var modules = Mura$2(this).children('.mura-object');
-          modules.each(function () {
-            var module = Mura$2(this);
-            var content = module.children('.mura-object-content');
-
-            if (!content.length || content.length && !content.children().length) {
-              module.processDisplayObject();
-            }
-          });
-        });
-      }
-
-      if (obj.data('stylesupport')) {
-        obj.calculateDisplayObjectStyles();
-      }
-
-      obj.find('.mura-object').each(function () {
-        var item = Mura$2(this);
-
-        if (item.data('stylesupport')) {
-          item.calculateDisplayObjectStyles();
-        }
-      });
+      obj.children('.mura-object-content').children('.mura-object').processDisplayObject();
     });
   }, []);
   var $items = items;
@@ -2258,6 +2233,7 @@ var Container = function Container(props) {
     obj.key = obj.instanceid;
     obj.moduleStyleData = props.moduleStyleData;
     obj.content = content;
+    obj.inited = true;
     return /*#__PURE__*/React.createElement(Decorator, obj, " ", getComponent(obj), " ");
   });
 };
@@ -2299,13 +2275,9 @@ var Embed = function Embed(props) {
   var objectparams = Object.assign({}, props);
   objectparams.source = objectparams.source || '';
   var containerid = 'source-contianer-' + objectparams.instanceid;
-
-  if (!Mura$1.isInNode()) {
-    useEffect(function () {
-      Mura$1('#' + containerid).html(objectparams.source);
-    }, []);
-  }
-
+  useEffect(function () {
+    Mura$1('#' + containerid).html(objectparams.source);
+  }, []);
   return /*#__PURE__*/React.createElement("div", {
     id: containerid
   });
@@ -2374,6 +2346,10 @@ var Img = function Img(props) {
 };
 
 function Login(props) {
+  useEffect(function () {
+    alert(1);
+    Mura('div.mura-object[data-instanceid="' + props.instanceid + '"]').processDisplayObject();
+  }, []);
   return /*#__PURE__*/React.createElement("h3", null, "Login");
 }
 

@@ -2728,6 +2728,10 @@ function handleResponse(obj, resp) {
 }
 
 function processDisplayObject(el, queue, rerender, resolveFn, usePreloaderMarkup) {
+  if (typeof window != 'undefined') {
+    window.muraInflightAsyncModules = {};
+  }
+
   try {
     var obj = el.node ? el : Mura(el);
 
@@ -3855,6 +3859,16 @@ function init(config) {
     config.cookieconsentenabled = false;
   }
 
+  if (typeof config.initialProcessMarkupSelector == 'undefined') {
+    if (typeof window != 'undefined' && typeof document != 'undefined') {
+      var initialProcessMarkupSelector = 'document';
+    } else {
+      var initialProcessMarkupSelector = '';
+    }
+  } else {
+    var initialProcessMarkupSelector = config.initialProcessMarkupSelector;
+  }
+
   config.formdata = typeof FormData != 'undefined' ? true : false;
   var initForDataOnly = false;
 
@@ -3921,9 +3935,6 @@ function init(config) {
       for (var cmd in holdingPreInitQueue) {
         if (typeof holdingPreInitQueue[cmd] == 'function') {
           holdingPreInitQueue[cmd](Mura);
-        } else {
-          console.log("PreInit queue item not a function");
-          console.log(holdingPreInitQueue[cmd]);
         }
       }
 
@@ -3974,8 +3985,12 @@ function init(config) {
           }
         });
 
-        if (!Mura.inAdmin) {
-          processMarkup(document);
+        if (!Mura.inAdmin && initialProcessMarkupSelector) {
+          if (initialProcessMarkupSelector == 'document') {
+            processMarkup(document);
+          } else {
+            processMarkup(initialProcessMarkupSelector);
+          }
         }
 
         Mura.markupInitted = true;

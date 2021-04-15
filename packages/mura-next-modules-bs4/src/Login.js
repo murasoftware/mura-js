@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 /* 
     This is not being used yet
 
@@ -11,6 +11,11 @@ import React from 'react';
 */
 
 function Login(props) {
+
+    useEffect(() => {
+      Mura('div.mura-object[data-instanceid="'  + props.instanceid + '"]').processDisplayObject();
+    }, []);
+
     return (
       <h3>Login</h3>
     );

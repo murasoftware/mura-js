@@ -22,7 +22,7 @@ export const setMuraConfig = function(config) {
   ComponentRegistry = config.ComponentRegistry;
   ConnectorConfig = config.ConnectorConfig;
   ExternalModules = config.ExternalModules;
-  connectorConfig=Object.assign({},ConnectorConfig);
+  connectorConfig=Object.assign({processMarkup:false},ConnectorConfig);
 }
 
 export const getMuraConfig = function() {

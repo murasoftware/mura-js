@@ -95,7 +95,14 @@ function contentDidChange(_content) {
       );
     }
 
-    Mura.init(Mura.extend({ queueObjects: false, content }));
+    /*
+      processMarkup is set to an empty string so that it doesn't actually select anything on init
+      With this framework display object know how to process themselves. Mura.js is only use to add new ones
+    */
+    Mura.init(Mura.extend({ processMarkup:true,initialProcessMarkupSelector:'',queueObjects: false, content }));
+
+    Mura('div.mura-object:not([data-inited="true"]),div.mura-object[data-render="server"]').processDisplayObject();
+
     Mura.holdReady(false);
 
     //This will happen on static route (IE not edit route)

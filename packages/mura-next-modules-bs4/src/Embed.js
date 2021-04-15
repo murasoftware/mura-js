@@ -6,11 +6,9 @@ const Embed = function(props) {
   objectparams.source=objectparams.source || '';
   const containerid='source-contianer-' + objectparams.instanceid;
 
-  if(!Mura.isInNode()){
-    useEffect(() => {
-      Mura('#'  + containerid).html(objectparams.source);
-    }, []);
-  }
+  useEffect(() => {
+    Mura('#'  + containerid).html(objectparams.source);
+  }, []);
 
   return (
     <div id={containerid}/>

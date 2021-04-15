@@ -2569,8 +2569,15 @@ function handleResponse(obj, resp) {
 	}
 }
 
+
 function processDisplayObject(el, queue, rerender, resolveFn, usePreloaderMarkup) {
+
+	if(typeof window != 'undefined' ){
+		window.muraInflightAsyncModules={};
+	}
+
 	try{
+
 		var obj = (el.node) ? el : Mura(el);
 
 		if(!obj.data('object')){
@@ -3786,11 +3793,21 @@ function init(config) {
 		config.cookieconsentenabled=false;
 	}
 
+	if(typeof config.initialProcessMarkupSelector == 'undefined'){
+		if(typeof window != 'undefined' && typeof document !='undefined'){
+			var initialProcessMarkupSelector='document';
+		} else {
+			var initialProcessMarkupSelector='';
+		}
+	} else {
+		var initialProcessMarkupSelector=config.initialProcessMarkupSelector;
+	}
+
 	config.formdata=(typeof FormData != 'undefined') ? true : false;
 
 
 	var initForDataOnly=false;
-
+	
 	if(typeof config.processMarkup != 'undefined'){
 		initForDataOnly=typeof config.processMarkup != 'function' && !config.processMarkup;
 		delete config.processMarkup;
@@ -3848,7 +3865,7 @@ function init(config) {
 			window.queuedMuraPreInitCmds=[];
 		}
 	}
-
+	
 	if(!initForDataOnly){
 
 		destroyDisplayObjects();
@@ -3912,10 +3929,13 @@ function init(config) {
 					}
 				})
 
-				if(!Mura.inAdmin){
-					processMarkup(document);
+				if(!Mura.inAdmin && initialProcessMarkupSelector){
+					if(initialProcessMarkupSelector=='document'){
+						processMarkup(document);
+					} else {
+						processMarkup(initialProcessMarkupSelector);
+					}
 				}
-
 				
 				Mura.markupInitted=true;
 
