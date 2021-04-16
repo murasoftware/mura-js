@@ -6,22 +6,6 @@ function Decorator(props) {
   const muraConfig = getMuraConfig();
   const { ComponentRegistry, ExternalModules } = muraConfig;
   const { label, instanceid, labeltag, children } = props;
-
-  useEffect(() => {
-    Mura(function(){
-      const obj=Mura('div[data-instanceid="' + instanceid + '"]');
-      if(obj.data('stylesupport')){
-        obj.calculateDisplayObjectStyles();
-      }  
-      obj.find('.mura-object').each(function(){
-        const item=Mura(this);
-        if(item.data('stylesupport')){
-          item.calculateDisplayObjectStyles();
-        }
-      });
-    })
-  }, []);
-
  
   let isEditMode = getIsEditMode();
 

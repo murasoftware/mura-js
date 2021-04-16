@@ -609,23 +609,6 @@ function Decorator(props) {
       instanceid = props.instanceid,
       labeltag = props.labeltag,
       children = props.children;
-  React.useEffect(function () {
-    Mura(function () {
-      var obj = Mura('div[data-instanceid="' + instanceid + '"]');
-
-      if (obj.data('stylesupport')) {
-        obj.calculateDisplayObjectStyles();
-      }
-
-      obj.find('.mura-object').each(function () {
-        var item = Mura(this);
-
-        if (item.data('stylesupport')) {
-          item.calculateDisplayObjectStyles();
-        }
-      });
-    });
-  }, []);
   var isEditMode = getIsEditMode();
   var domObject = {
     className: 'mura-object mura-async-object',
