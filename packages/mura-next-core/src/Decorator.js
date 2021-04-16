@@ -9,6 +9,21 @@ function Decorator(props) {
  
   let isEditMode = getIsEditMode();
 
+  useEffect(() => {
+    Mura(function(){
+      const obj=Mura('div[data-instanceid="' + instanceid + '"]');
+      if(obj.data('async')=='true' || obj.data('render')=='server'){
+        setTimeout(function(){
+            const contentCheck=obj.find('mura-object-content');
+            if(!contentCheck.length || contentCheck.children().length){
+              console.log('rebuilding stale async module')
+              obj.processDisplayObject();
+            }
+        },2000);
+      }
+    })
+  }, []);
+  
   //console.log("MuraDecorator -> isEditMode", isEditMode);
   //data-inited is only need because mura.min.css will hide the module if not
   const domObject = {

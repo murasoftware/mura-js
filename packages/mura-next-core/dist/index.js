@@ -610,6 +610,22 @@ function Decorator(props) {
       labeltag = props.labeltag,
       children = props.children;
   var isEditMode = getIsEditMode();
+  React.useEffect(function () {
+    Mura(function () {
+      var obj = Mura('div[data-instanceid="' + instanceid + '"]');
+
+      if (obj.data('async') == 'true' || obj.data('render') == 'server') {
+        setTimeout(function () {
+          var contentCheck = obj.find('mura-object-content');
+
+          if (!contentCheck.length || contentCheck.children().length) {
+            console.log('rebuilding stale async module');
+            obj.processDisplayObject();
+          }
+        }, 2000);
+      }
+    });
+  }, []);
   var domObject = {
     className: 'mura-object mura-async-object',
     'data-inited': true

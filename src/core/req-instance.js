@@ -43,7 +43,7 @@ Mura.Request=Mura.Core.extend(
 			if (!('headers' in params)) {
 				params.headers = {};
 			}
-
+			
 			try{
 				if(!Mura.formdata || !(params.data instanceof FormData)){
 					if(params.type.toLowerCase() === 'get' 
@@ -68,6 +68,7 @@ Mura.Request=Mura.Core.extend(
 								refererParams=Mura.getQueryStringParams(qs);
 							}
 						}
+
 						if(typeof refererParams.purgeCache != 'undefined'){
 							params.data.purgeCache=refererParams.purgeCache;
 						} else if(typeof refererParams.purgecache != 'undefined'){
@@ -121,6 +122,7 @@ Mura.Request=Mura.Core.extend(
 			return this.requestHeaders;
 		},
 		nodeRequest(params){
+
 			if(typeof Mura.renderMode != 'undefined'){
 				params.renderMode=Mura.renderMode;
 			}
