@@ -129,10 +129,6 @@ function Decorator(props) {
 
   }
   
-  if(isExternalModule){
-    domObject['data-inited']=false;
-  }
-
   if(isExternalModule || !isSSR){
     if(isExternalModule && props.html){
       <div {...domObject}>

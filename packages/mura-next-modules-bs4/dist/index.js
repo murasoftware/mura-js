@@ -2186,11 +2186,6 @@ var Container = function Container(props) {
     if (typeof Mura$2.displayObjectInstances[instanceid] == 'undefined') {
       Mura$2.displayObjectInstances[instanceid] = new Mura$2.DisplayObject.Container(props);
     }
-
-    Mura$2(function () {
-      var obj = Mura$2('div[data-instanceid="' + instanceid + '"]');
-      obj.children('.mura-object-content').children('.mura-object').processDisplayObject();
-    });
   }, []);
   var $items = items;
 
@@ -2236,7 +2231,6 @@ var Container = function Container(props) {
     obj.key = obj.instanceid;
     obj.moduleStyleData = props.moduleStyleData;
     obj.content = content;
-    obj.inited = true;
     return /*#__PURE__*/React__default.createElement(nextCore.Decorator, obj, " ", nextCore.getComponent(obj), " ");
   });
 };
@@ -2350,7 +2344,6 @@ var Img = function Img(props) {
 
 function Login(props) {
   React.useEffect(function () {
-    alert(1);
     Mura('div.mura-object[data-instanceid="' + props.instanceid + '"]').processDisplayObject();
   }, []);
   return /*#__PURE__*/React__default.createElement("h3", null, "Login");

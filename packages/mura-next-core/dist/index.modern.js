@@ -711,10 +711,6 @@ function Decorator(props) {
     });
   }
 
-  if (isExternalModule) {
-    domObject['data-inited'] = false;
-  }
-
   if (isExternalModule || !isSSR) {
     if (isExternalModule && props.html) {
       /*#__PURE__*/
@@ -982,11 +978,9 @@ function contentDidChange(_content) {
 
     Mura.init(Mura.extend({
       processMarkup: true,
-      initialProcessMarkupSelector: '',
       queueObjects: false,
       content: content
     }));
-    Mura('div.mura-object:not([data-inited="true"]),div.mura-object[data-render="server"]').processDisplayObject();
     Mura.holdReady(false);
 
     if (!htmlQueueContainerInner.length && Mura.variations) {

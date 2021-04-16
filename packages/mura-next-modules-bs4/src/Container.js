@@ -15,14 +15,6 @@ export const Container = function(props) {
     if(typeof Mura.displayObjectInstances[instanceid]=='undefined'){
       Mura.displayObjectInstances[instanceid]= new Mura.DisplayObject.Container(props);
     }
-    
-    Mura(function(){    
-        const obj=Mura('div[data-instanceid="' + instanceid + '"]');
-        obj
-          .children('.mura-object-content')
-          .children('.mura-object')
-          .processDisplayObject()
-    });
   }, []);
 
   let $items=items;
@@ -63,7 +55,6 @@ export const Container = function(props) {
           obj.key=obj.instanceid;
           obj.moduleStyleData=props.moduleStyleData;
           obj.content = content;
-          obj.inited = true;
           return (<Decorator {...obj}> {getComponent(obj)} </Decorator>)
       })
    

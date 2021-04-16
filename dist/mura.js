@@ -2062,11 +2062,7 @@ function processMarkup(scope) {
       if (Mura('.mura__layout-manager__display-regions').length) {
         find('.mura-region').each(function () {
           var region = Mura(this);
-          var isEditRegion = region.closest('.mura-region__item');
-
-          if (!isEditRegion.length) {
-            Mura('.mura-region__item[data-regionid="' + region.data('regionid') + '"]').remove();
-          }
+          Mura('.mura-region__item[data-regionid="' + region.data('regionid') + '"]').remove();
         });
 
         if (!Mura('.mura__layout-manager__display-regions .mura-region__item').length) {
@@ -2075,7 +2071,15 @@ function processMarkup(scope) {
       }
     }, function () {
       find('.mura-object, .mura-async-object').each(function () {
-        processDisplayObject(this, Mura.queueobjects).then(resolve);
+        if (scope == document) {
+          var obj = Mura(this);
+
+          if (!obj.parent().closest('.mura-object').length) {
+            processDisplayObject(this, Mura.queueobjects).then(resolve);
+          }
+        } else {
+          processDisplayObject(this, Mura.queueobjects).then(resolve);
+        }
       });
     }, function () {
       find(".htmlEditor").each(function (el) {
@@ -2641,11 +2645,9 @@ function wireUpObject(obj, response, attempt) {
     }
   }
 
-  obj.hide().show();
+  obj.hide().show(); //if(obj.data('object') != 'container' || obj.data('content')){
 
-  if (obj.data('object') != 'container' || obj.data('content')) {
-    processMarkup(obj.node);
-  }
+  processMarkup(obj.node); //}
 
   if (obj.data('object') != 'container') {
     obj.find('a[href="javascript:history.back();"]').each(function () {
@@ -2760,7 +2762,7 @@ function processDisplayObject(el, queue, rerender, resolveFn, usePreloaderMarkup
       }
     }
 
-    var rendered = rerender && !obj.data('async') ? false : obj.children('.mura-object-content').length && obj.children('.mura-object-content').children().length;
+    var rendered = rerender && !obj.data('async') ? false : obj.children('.mura-object-content').length;
     queue = queue == null || rendered ? false : queue;
 
     if (document.createEvent && queue && !isScrolledIntoView(obj.node)) {
