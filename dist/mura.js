@@ -2574,6 +2574,12 @@ function wireUpObject(obj, response, attempt) {
                   initEditableObject(Mura(this));
                 });
                 Mura.initDraggableObject(item.node);
+
+                if (typeof Mura.initPinnedObject == 'function') {
+                  item.find('div.mura-object[data-pinned="true"]').each(function () {
+                    Mura.initPinnedObject(this);
+                  });
+                }
               }
             }
           } else if (lcaseObject == 'form' || lcaseObject == 'component') {

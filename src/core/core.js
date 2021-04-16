@@ -2415,6 +2415,12 @@ function wireUpObject(obj, response, attempt) {
 								item.find("img").each(function(){MuraInlineEditor.checkforImageCroppers(this);});
 								item.find('.mura-object').each(function(){initEditableObject(Mura(this))});
 								Mura.initDraggableObject(item.node);
+
+								if(typeof Mura.initPinnedObject =='function'){
+									item.find('div.mura-object[data-pinned="true"]').each(function(){
+										Mura.initPinnedObject(this);
+									});
+								}
 							}
 						}
 		
