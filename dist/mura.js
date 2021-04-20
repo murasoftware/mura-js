@@ -14546,26 +14546,27 @@ Mura.Request = Mura.Core.extend(
     }
 
     try {
+      //if is in node not a FormData obj
       if (!Mura.formdata || !(params.data instanceof FormData)) {
         if (params.type.toLowerCase() === 'get' && !(typeof params.url === 'string' && params.url.toLowerCase().indexOf('purgecache') > -1) && typeof params.data.purgeCache === 'undefined' && typeof params.data.purgecache === 'undefined') {
-          var refererParams = {};
+          var sourceParams = {};
 
           if (typeof XMLHttpRequest != 'undefined' && typeof location != 'undefined' && location.search) {
-            refererParams = Mura.getQueryStringParams(location.search);
+            sourceParams = Mura.getQueryStringParams(location.search);
           } else if (typeof this.requestObject != 'undefined' && typeof this.requestObject.url === 'string' && this.requestObject.url) {
             var qa = this.requestObject.url.split("?");
 
             if (qa.length) {
               var qs = qa[qa.length - 1] || '';
               qs = qs.toString();
-              refererParams = Mura.getQueryStringParams(qs);
+              sourceParams = Mura.getQueryStringParams(qs);
             }
           }
 
-          if (typeof refererParams.purgeCache != 'undefined') {
-            params.data.purgeCache = refererParams.purgeCache;
-          } else if (typeof refererParams.purgecache != 'undefined') {
-            params.data.purgecache = refererParams.purgecache;
+          if (typeof sourceParams.purgeCache != 'undefined') {
+            params.data.purgeCache = sourceParams.purgeCache;
+          } else if (typeof sourceParams.purgecache != 'undefined') {
+            params.data.purgecache = sourceParams.purgecache;
           }
         }
       }
@@ -14624,8 +14625,6 @@ Mura.Request = Mura.Core.extend(
     var self = this;
 
     if (typeof this.requestObject != 'undefined') {
-      params.headers['User-Agent'] = 'MuraJS';
-
       if (typeof this.requestObject.headers['cookie'] != 'undefined') {
         if (debug) {
           console.log('pre cookies:');
@@ -14663,7 +14662,7 @@ Mura.Request = Mura.Core.extend(
         params.headers['X-client-id'] = this.requestObject.headers['x-client-id'];
       }
 
-      if (typeof this.requestObject.headers['x-clien-id'] != 'undefined') {
+      if (typeof this.requestObject.headers['x-client-id'] != 'undefined') {
         params.headers['X-client-id'] = this.requestObject.headers['x-client-id'];
       }
 
@@ -14689,6 +14688,22 @@ Mura.Request = Mura.Core.extend(
 
       if (typeof this.requestObject.headers['authorization'] != 'undefined') {
         params.headers['Authorization'] = this.requestObject.headers['authorization'];
+      }
+
+      if (typeof this.requestObject.headers['user-agent'] != 'undefined') {
+        params.headers['user-agent'] = this.requestObject.headers['user-agent'];
+      }
+
+      if (typeof this.requestObject.headers['User-Agent'] != 'undefined') {
+        params.headers['User-Agent'] = this.requestObject.headers['User-Agent'];
+      }
+
+      if (typeof this.requestObject.headers['Referer'] != 'undefined') {
+        params.headers['Referer'] = this.requestObject.headers['Referer'];
+      }
+
+      if (typeof this.requestObject.headers['referer'] != 'undefined') {
+        params.headers['referer'] = this.requestObject.headers['referer'];
       }
     }
 
