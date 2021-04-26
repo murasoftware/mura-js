@@ -18,7 +18,7 @@ const Image =function(props) {
 	if(!objectparams.src){
 		return '';
 	}
-TextDecoderStream.to
+
   if(objectparams.imagelink){
     return (
       <figure>

@@ -2295,8 +2295,6 @@ var Image = function Image(props) {
     return '';
   }
 
-  TextDecoderStream.to;
-
   if (objectparams.imagelink) {
     return /*#__PURE__*/React.createElement("figure", null, /*#__PURE__*/React.createElement("a", {
       href: objectparams.imagelink,
