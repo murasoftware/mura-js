@@ -2290,13 +2290,15 @@ var Image = function Image(props) {
   objectparams.fit = objectparams.fit || '';
   objectparams.imagelinktarget = objectparams.imagelinktarget || '';
 
-  if (typeof objectparams.imagelinktarget === 'string' && objectparams.imagelinktarget.toLowercase() === 'no') {
+  if (typeof objectparams.imagelinktarget === 'string' && objectparams.imagelinktarget.toLowerCase() === 'no') {
     objectparams.imagelinktarget = "";
   }
 
   if (!objectparams.src) {
     return '';
   }
+
+  TextDecoderStream.to;
 
   if (objectparams.imagelink) {
     return /*#__PURE__*/React__default.createElement("figure", null, /*#__PURE__*/React__default.createElement("a", {
