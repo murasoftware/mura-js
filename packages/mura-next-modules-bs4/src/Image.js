@@ -9,7 +9,11 @@ const Image =function(props) {
 	objectparams.caption=objectparams.caption||'';
 	objectparams.imagelink=objectparams.imagelink||'';
   objectparams.fit=objectparams.fit||'';
-  objectparams.imagelinktarget=objectparams.imagelinktarget||';'
+  objectparams.imagelinktarget=objectparams.imagelinktarget||'';
+
+  if(typeof objectparams.imagelinktarget==='string' && objectparams.imagelinktarget.toLowercase()==='no'){
+    objectparams.imagelinktarget="";
+  }
 
 	if(!objectparams.src){
 		return '';
