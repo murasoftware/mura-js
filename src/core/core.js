@@ -15,7 +15,7 @@
  */
 
 function login(username, password, siteid) {
-	return Mura._requestcontext.login(username, password, siteid);
+	return Mura.getRequestContext().login(username, password, siteid);
 }
 
 /**
@@ -26,7 +26,7 @@ function login(username, password, siteid) {
  * @memberof {class} Mura
  */
 function logout(siteid) {
-	return Mura._requestcontext.logout(siteid);
+	return Mura.getRequestContext().logout(siteid);
 }
 
 /**
@@ -201,7 +201,7 @@ function trackEvent(eventData) {
 * @memberof {class} Mura
 */
 function renderFilename(filename, params) {
-	return Mura._requestcontext.renderFilename(filename, params);
+	return Mura.getRequestContext().renderFilename(filename, params);
 }
 
 /**
@@ -212,7 +212,7 @@ function renderFilename(filename, params) {
  * @memberof {class} Mura
  */
 function declareEntity(entityConfig) {
-	return Mura._requestcontext.declareEntity(entityConfig);
+	return Mura.getRequestContext().declareEntity(entityConfig);
 }
 
 /**
@@ -224,7 +224,7 @@ function declareEntity(entityConfig) {
  */
 function undeclareEntity(entityName,deleteSchema) {
 	deleteSchema=deleteSchema || false;
-	return Mura._requestcontext.undeclareEntity(entityName,deleteSchema);
+	return Mura.getRequestContext().undeclareEntity(entityName,deleteSchema);
 }
 
 /**
@@ -235,7 +235,7 @@ function undeclareEntity(entityName,deleteSchema) {
  * @memberof {class} Mura
  */
 function openGate(contentid) {
-	return Mura._requestcontext.openGate(contentid);
+	return Mura.getRequestContext().openGate(contentid);
 }
 
 /**
@@ -248,11 +248,7 @@ function openGate(contentid) {
  */
 function getEntity(entityname, siteid) {
 	siteid=siteid || Mura.siteid;
-	if(typeof Mura._requestcontext=='undefined'){
-		return Mura.getRequestContext().getEntity(entityname, siteid);
-	} else {
-		return Mura._requestcontext.getEntity(entityname, siteid);
-	}
+	return Mura.getRequestContext().getEntity(entityname, siteid);
 }
 
 /**
@@ -264,7 +260,7 @@ function getEntity(entityname, siteid) {
  */
 function getFeed(entityname,siteid) {
 	siteid=siteid || Mura.siteid;
-	return Mura._requestcontext.getFeed(entityname,siteid);
+	return Mura.getRequestContext().getFeed(entityname,siteid);
 }
 
 /**
@@ -275,7 +271,7 @@ function getFeed(entityname,siteid) {
  * @memberof {class} Mura
  */
 function getCurrentUser(params) {
-	return Mura._requestcontext.getCurrentUser(params);
+	return Mura.getRequestContext().getCurrentUser(params);
 }
 
 /**
@@ -286,7 +282,7 @@ function getCurrentUser(params) {
  * @memberof {class} Mura
  */
 function findText(text,params) {
-	return Mura._requestcontext.findText(text,params);
+	return Mura.getRequestContext().findText(text,params);
 }
 
 /**
@@ -297,7 +293,7 @@ function findText(text,params) {
  * @memberof {class} Mura
  */
 function findQuery(params) {
-	return Mura._requestcontext.findQuery(params);
+	return Mura.getRequestContext().findQuery(params);
 }
 
 function evalScripts(el) {
@@ -515,7 +511,10 @@ function normalizeRequestHandler(eventHandler) {
  * @memberof {class} Mura
  */
 function getRequestContext(request,response) {
-	return new Mura.RequestContext(request,response);
+	if(typeof request !='undefined' || typeof Mura._requestcontext == 'undefined') {
+		Mura._requestcontext=new Mura.RequestContext(request,response);
+	}
+	return Mura._requestcontext;
 }
 
 /**
@@ -526,7 +525,7 @@ function getRequestContext(request,response) {
  * @memberof {class} Mura
  */
 function getDefaultRequestContext() {
-	return	Mura._requestcontext;
+	return	Mura.getRequestContext();
 }
 
 /**
@@ -3619,8 +3618,8 @@ function deInit(){
 	delete Mura.currentUser;
 	Mura.trackingMetadata={};
 	delete Mura.trackingVars;
-	delete Mura.apiEndpoint;
-	delete Mura.apiendpoint;
+	//delete Mura.apiEndpoint;
+	//delete Mura.apiendpoint;
 	//delete Mura._fetch;
 	//delete Mura._formData;
 	//delete Mura._escapeHTML;
@@ -3863,9 +3862,9 @@ function init(config) {
 		&& typeof Mura.request != 'undefined'
 		&& typeof Mura.response != 'undefined'){
 
-		Mura._requestcontext=Mura.getRequestContext(Mura.request,Mura.response);
+		Mura.getRequestContext(Mura.request,Mura.response);
 	} else {
-		Mura._requestcontext=Mura.getRequestContext();
+		Mura.getRequestContext();
 	}
 
 	if(typeof window !='undefined' &&typeof window.document != 'undefined'){

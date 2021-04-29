@@ -23,7 +23,7 @@ Mura.Feed = Mura.Core.extend(
 			this.queryString = entityname + '/?_cacheid=' + Math.random();
 			this.propIndex = 0;
 
-			this._requestcontext=requestcontext || Mura._requestcontext;
+			this._requestcontext=requestcontext || Mura.getRequestContext();
 
 			return this;
 		},

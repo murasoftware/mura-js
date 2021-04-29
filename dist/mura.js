@@ -248,7 +248,7 @@ module.exports = !__webpack_require__(3)(function () {
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function login(username, password, siteid) {
-  return Mura._requestcontext.login(username, password, siteid);
+  return Mura.getRequestContext().login(username, password, siteid);
 }
 /**
  * logout - Logs user out
@@ -260,7 +260,7 @@ function login(username, password, siteid) {
 
 
 function logout(siteid) {
-  return Mura._requestcontext.logout(siteid);
+  return Mura.getRequestContext().logout(siteid);
 }
 /**
  * trackEvent - This is for Mura Experience Platform. It has no use with Mura standard
@@ -431,7 +431,7 @@ function trackEvent(eventData) {
 
 
 function renderFilename(filename, params) {
-  return Mura._requestcontext.renderFilename(filename, params);
+  return Mura.getRequestContext().renderFilename(filename, params);
 }
 /**
  * declareEntity - Declare Entity with in service factory
@@ -443,7 +443,7 @@ function renderFilename(filename, params) {
 
 
 function declareEntity(entityConfig) {
-  return Mura._requestcontext.declareEntity(entityConfig);
+  return Mura.getRequestContext().declareEntity(entityConfig);
 }
 /**
  * undeclareEntity - Deletes entity class from Mura
@@ -456,7 +456,7 @@ function declareEntity(entityConfig) {
 
 function undeclareEntity(entityName, deleteSchema) {
   deleteSchema = deleteSchema || false;
-  return Mura._requestcontext.undeclareEntity(entityName, deleteSchema);
+  return Mura.getRequestContext().undeclareEntity(entityName, deleteSchema);
 }
 /**
  * openGate - Open's content gate when using MXP
@@ -468,7 +468,7 @@ function undeclareEntity(entityName, deleteSchema) {
 
 
 function openGate(contentid) {
-  return Mura._requestcontext.openGate(contentid);
+  return Mura.getRequestContext().openGate(contentid);
 }
 /**
  * getEntity - Returns Mura.Entity instance
@@ -482,12 +482,7 @@ function openGate(contentid) {
 
 function getEntity(entityname, siteid) {
   siteid = siteid || Mura.siteid;
-
-  if (typeof Mura._requestcontext == 'undefined') {
-    return Mura.getRequestContext().getEntity(entityname, siteid);
-  } else {
-    return Mura._requestcontext.getEntity(entityname, siteid);
-  }
+  return Mura.getRequestContext().getEntity(entityname, siteid);
 }
 /**
  * getFeed - Return new instance of Mura.Feed
@@ -500,7 +495,7 @@ function getEntity(entityname, siteid) {
 
 function getFeed(entityname, siteid) {
   siteid = siteid || Mura.siteid;
-  return Mura._requestcontext.getFeed(entityname, siteid);
+  return Mura.getRequestContext().getFeed(entityname, siteid);
 }
 /**
  * getCurrentUser - Return Mura.Entity for current user
@@ -512,7 +507,7 @@ function getFeed(entityname, siteid) {
 
 
 function getCurrentUser(params) {
-  return Mura._requestcontext.getCurrentUser(params);
+  return Mura.getRequestContext().getCurrentUser(params);
 }
 /**
  * findText - Return Mura.Collection for content with text
@@ -524,7 +519,7 @@ function getCurrentUser(params) {
 
 
 function findText(text, params) {
-  return Mura._requestcontext.findText(text, params);
+  return Mura.getRequestContext().findText(text, params);
 }
 /**
  * findQuery - Returns Mura.EntityCollection with properties that match params
@@ -536,7 +531,7 @@ function findText(text, params) {
 
 
 function findQuery(params) {
-  return Mura._requestcontext.findQuery(params);
+  return Mura.getRequestContext().findQuery(params);
 }
 
 function evalScripts(el) {
@@ -759,7 +754,11 @@ function normalizeRequestHandler(eventHandler) {
 
 
 function getRequestContext(request, response) {
-  return new Mura.RequestContext(request, response);
+  if (typeof request != 'undefined' || typeof Mura._requestcontext == 'undefined') {
+    Mura._requestcontext = new Mura.RequestContext(request, response);
+  }
+
+  return Mura._requestcontext;
 }
 /**
  * getDefaultRequestContext - Returns the default Mura.RequestContext;
@@ -771,7 +770,7 @@ function getRequestContext(request, response) {
 
 
 function getDefaultRequestContext() {
-  return Mura._requestcontext;
+  return Mura.getRequestContext();
 }
 /**
  * generateOAuthToken - Generate Outh toke for REST API
@@ -3679,9 +3678,9 @@ function deInit() {
   delete Mura.userStateListenerInterval;
   delete Mura.currentUser;
   Mura.trackingMetadata = {};
-  delete Mura.trackingVars;
-  delete Mura.apiEndpoint;
-  delete Mura.apiendpoint; //delete Mura._fetch;
+  delete Mura.trackingVars; //delete Mura.apiEndpoint;
+  //delete Mura.apiendpoint;
+  //delete Mura._fetch;
   //delete Mura._formData;
   //delete Mura._escapeHTML;
 
@@ -3919,9 +3918,9 @@ function init(config) {
   }
 
   if (typeof XMLHttpRequest == 'undefined' && typeof Mura.request != 'undefined' && typeof Mura.response != 'undefined') {
-    Mura._requestcontext = Mura.getRequestContext(Mura.request, Mura.response);
+    Mura.getRequestContext(Mura.request, Mura.response);
   } else {
-    Mura._requestcontext = Mura.getRequestContext();
+    Mura.getRequestContext();
   }
 
   if (typeof window != 'undefined' && typeof window.document != 'undefined') {
@@ -15991,7 +15990,7 @@ Mura.Entity = Mura.Core.extend(
       this.properties.isdeleted = false;
     }
 
-    this._requestcontext = requestcontext || Mura._requestcontext;
+    this._requestcontext = requestcontext || Mura.getRequestContext();
     this.cachePut();
     return this;
   },
@@ -17324,7 +17323,7 @@ Mura.Feed = Mura.Core.extend((_Mura$Core$extend = {
   init: function init(siteid, entityname, requestcontext) {
     this.queryString = entityname + '/?_cacheid=' + Math.random();
     this.propIndex = 0;
-    this._requestcontext = requestcontext || Mura._requestcontext;
+    this._requestcontext = requestcontext || Mura.getRequestContext();
     return this;
   },
 

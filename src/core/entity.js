@@ -34,7 +34,7 @@ Mura.Entity = Mura.Core.extend(
 			this.properties.isdeleted = false;
 		}
 
-		this._requestcontext=requestcontext || Mura._requestcontext;
+		this._requestcontext=requestcontext || Mura.getRequestContext();
 
 		this.cachePut();
 

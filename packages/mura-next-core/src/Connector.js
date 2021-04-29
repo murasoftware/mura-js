@@ -256,7 +256,9 @@ export const getMuraProps = async (context,isEditMode,params) => {
   }
 
   if(content.filename == '404'){
-    console.log('404 rendering content',context);
+    if(typeof context.params != 'undefined'){
+      console.log('404 rendering content',context.params);
+    }
     if(typeof context.res != 'undefined'){
       context.res.statusCode=404;
     }
@@ -267,7 +269,7 @@ export const getMuraProps = async (context,isEditMode,params) => {
   }
 
   const moduleStyleData = await getRegionProps(content,isEditMode);
-  
+
   const codeblocks={
     header:[],
     bodystart:[],

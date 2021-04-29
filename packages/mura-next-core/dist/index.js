@@ -542,7 +542,9 @@ var getMuraProps = function getMuraProps(context, isEditMode, params) {
 
     var _temp10 = function _temp10() {
       if (content.filename == '404') {
-        console.log('404 rendering content', context);
+        if (typeof context.params != 'undefined') {
+          console.log('404 rendering content', context.params);
+        }
 
         if (typeof context.res != 'undefined') {
           context.res.statusCode = 404;
