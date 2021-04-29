@@ -213,9 +213,61 @@ export const getMuraProps = async (context,isEditMode,params) => {
     Mura.renderMode='static';
   }
 
-  const muraObject = await renderContent(context,isEditMode,params);
-  const content = muraObject.getAll();
+  let content={
+    title: "We're sorry, an error occurred",
+    menutitle: "We're sorry, an error occurred",
+    body: "",
+    contentid: Mura.createUUID(),
+    isnew: 1,
+    siteid: Mura.siteid,
+    type: 'Page',
+    subtype: 'Default',
+    contentid: Mura.createUUID(),
+    contenthistid: Mura.createUUID(),
+    filename: "500",
+    statusCode:500,
+    errors:[],
+    displayregions:{
+      primarycontent:{
+        local:{
+          items:[]
+        }
+      }
+    }
+  };
+
+  try {
+    const muraObject = await renderContent(context,isEditMode,params);
+    if(typeof muraObject != 'undefined' 
+      && typeof muraObject.getAll != 'undefined'){
+      content = muraObject.getAll();
+    } else {
+      console.log('Error rendering content',muraObject);
+      if(typeof context.res != 'undefined'){
+        if(typeof muraObject != 'undefined' && typeof muraObject.statuscode != 'undefined'){
+          context.res.statusCode=muraObject.statuscode;
+        } else {
+          context.res.statusCode=500;
+        }
+      }
+    }
+  } catch (e){
+    console.log(e);
+  }
+
+  if(content.filename == '404'){
+    console.log('404 rendering content',context);
+    if(typeof context.res != 'undefined'){
+      context.res.statusCode=404;
+    }
+  } else if (
+    typeof content.statusCode != 'undefined'
+    && typeof context.res != 'undefined') {
+    context.res.statusCode=content.statusCode;
+  }
+
   const moduleStyleData = await getRegionProps(content,isEditMode);
+  
   const codeblocks={
     header:[],
     bodystart:[],
@@ -325,7 +377,7 @@ async function renderContent(context,isEditMode,params) {
     async rendered => {
       return rendered;
     },
-    async rendered => {
+    async error => {
       if (!rendered) {
         return getErrorTemplate();
       } else {
@@ -393,8 +445,14 @@ async function getModuleProps(item,moduleStyleData,isEditMode,content) {
     if (typeof ComponentRegistry[objectkey] != 'undefined') {
      
       if(ComponentRegistry[objectkey].SSR){
-        item.dynamicProps = await ComponentRegistry[objectkey].getDynamicProps({...item,content});
+        try {
+          item.dynamicProps = await ComponentRegistry[objectkey].getDynamicProps({...item,content});
+        } catch(e){
+          console.log('Error getting dynamicProps',e);
+          item.dynamicProps={};
+        }
       }
+
       if (item.object == 'container') {
         if (
           typeof item.items != 'undefined' &&

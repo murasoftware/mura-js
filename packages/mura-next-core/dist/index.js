@@ -149,7 +149,7 @@ function _catch(body, recover) {
 
 var getModuleProps = function getModuleProps(item, moduleStyleData, isEditMode, content) {
   try {
-    var _temp22 = function _temp22() {
+    var _temp27 = function _temp27() {
       var styleData = Mura$1.recordModuleStyles(item);
       return {
         isEditMode: isEditMode,
@@ -162,17 +162,17 @@ var getModuleProps = function getModuleProps(item, moduleStyleData, isEditMode, 
 
     getMura();
 
-    var _temp23 = _catch(function () {
+    var _temp28 = _catch(function () {
       var objectkey = item.object;
 
       if (typeof ComponentRegistry[objectkey] == 'undefined') {
         objectkey = Mura$1.firstToUpperCase(item.object);
       }
 
-      var _temp19 = function () {
+      var _temp24 = function () {
         if (typeof ComponentRegistry[objectkey] != 'undefined') {
-          var _temp24 = function _temp24() {
-            var _temp16 = function () {
+          var _temp29 = function _temp29() {
+            var _temp21 = function () {
               if (item.object == 'container') {
                 if (typeof item.items != 'undefined' && !Array.isArray(item.items)) {
                   try {
@@ -182,7 +182,7 @@ var getModuleProps = function getModuleProps(item, moduleStyleData, isEditMode, 
                   }
                 }
 
-                var _temp26 = _forIn(item.items, function (containerIdx) {
+                var _temp31 = _forIn(item.items, function (containerIdx) {
                   var containerItem = item.items[containerIdx];
                   containerItem.instanceid = containerItem.instanceid || Mura$1.createUUID();
                   return Promise.resolve(getModuleProps(containerItem, moduleStyleData, isEditMode, content)).then(function (_getModuleProps3) {
@@ -190,33 +190,40 @@ var getModuleProps = function getModuleProps(item, moduleStyleData, isEditMode, 
                   });
                 });
 
-                if (_temp26 && _temp26.then) return _temp26.then(function () {});
+                if (_temp31 && _temp31.then) return _temp31.then(function () {});
               }
             }();
 
-            if (_temp16 && _temp16.then) return _temp16.then(function () {});
+            if (_temp21 && _temp21.then) return _temp21.then(function () {});
           };
 
-          var _temp25 = function () {
+          var _temp30 = function () {
             if (ComponentRegistry[objectkey].SSR) {
-              return Promise.resolve(ComponentRegistry[objectkey].getDynamicProps(_extends({}, item, {
-                content: content
-              }))).then(function (_ComponentRegistry$ob) {
-                item.dynamicProps = _ComponentRegistry$ob;
+              var _temp32 = _catch(function () {
+                return Promise.resolve(ComponentRegistry[objectkey].getDynamicProps(_extends({}, item, {
+                  content: content
+                }))).then(function (_ComponentRegistry$ob) {
+                  item.dynamicProps = _ComponentRegistry$ob;
+                });
+              }, function (e) {
+                console.log('Error getting dynamicProps', e);
+                item.dynamicProps = {};
               });
+
+              if (_temp32 && _temp32.then) return _temp32.then(function () {});
             }
           }();
 
-          return _temp25 && _temp25.then ? _temp25.then(_temp24) : _temp24(_temp25);
+          return _temp30 && _temp30.then ? _temp30.then(_temp29) : _temp29(_temp30);
         }
       }();
 
-      if (_temp19 && _temp19.then) return _temp19.then(function () {});
+      if (_temp24 && _temp24.then) return _temp24.then(function () {});
     }, function (e) {
       console.log(e);
     });
 
-    return Promise.resolve(_temp23 && _temp23.then ? _temp23.then(_temp22) : _temp22(_temp23));
+    return Promise.resolve(_temp28 && _temp28.then ? _temp28.then(_temp27) : _temp27(_temp28));
   } catch (e) {
     return Promise.reject(e);
   }
@@ -229,9 +236,9 @@ var getRegionProps = function getRegionProps(content, isEditMode) {
     content.displayregions = content.displayregions || {};
     var regions = Object.values(content.displayregions);
 
-    var _temp13 = _forIn(regions, function (regionIdx) {
-      function _temp11() {
-        var _temp9 = _forIn(region.local.items, function (itemIdx) {
+    var _temp17 = _forIn(regions, function (regionIdx) {
+      function _temp15() {
+        var _temp13 = _forIn(region.local.items, function (itemIdx) {
           var item = region.local.items[itemIdx];
           item.instanceid = item.instanceid || Mura$1.createUUID();
           return Promise.resolve(getModuleProps(item, moduleStyleData, isEditMode, content)).then(function (_getModuleProps2) {
@@ -239,14 +246,14 @@ var getRegionProps = function getRegionProps(content, isEditMode) {
           });
         });
 
-        if (_temp9 && _temp9.then) return _temp9.then(function () {});
+        if (_temp13 && _temp13.then) return _temp13.then(function () {});
       }
 
       var region = regions[regionIdx];
 
-      var _temp10 = function () {
+      var _temp14 = function () {
         if (typeof region.inherited != 'undefined' && Array.isArray(region.inherited.items)) {
-          var _temp14 = _forIn(region.inherited.items, function (itemdIx) {
+          var _temp18 = _forIn(region.inherited.items, function (itemdIx) {
             var item = region.inherited.items[itemdIx];
             item.instanceid = item.instanceid || Mura$1.createUUID();
             return Promise.resolve(getModuleProps(item, moduleStyleData, isEditMode, content)).then(function (_getModuleProps) {
@@ -254,14 +261,14 @@ var getRegionProps = function getRegionProps(content, isEditMode) {
             });
           });
 
-          if (_temp14 && _temp14.then) return _temp14.then(function () {});
+          if (_temp18 && _temp18.then) return _temp18.then(function () {});
         }
       }();
 
-      return _temp10 && _temp10.then ? _temp10.then(_temp11) : _temp11(_temp10);
+      return _temp14 && _temp14.then ? _temp14.then(_temp15) : _temp15(_temp14);
     });
 
-    return Promise.resolve(_temp13 && _temp13.then ? _temp13.then(function () {
+    return Promise.resolve(_temp17 && _temp17.then ? _temp17.then(function () {
       return moduleStyleData;
     }) : moduleStyleData);
   } catch (e) {
@@ -325,7 +332,7 @@ var renderContent = function renderContent(context, isEditMode, params) {
 
     return Promise.resolve(Mura$1.renderFilename(filename, query).then(function (rendered) {
       return Promise.resolve(rendered);
-    }, function (rendered) {
+    }, function (error) {
       try {
         if (!rendered) {
           return Promise.resolve(getErrorTemplate());
@@ -531,15 +538,19 @@ var getSiteName = function getSiteName() {
 };
 var getMuraProps = function getMuraProps(context, isEditMode, params) {
   try {
-    getMura(context);
-    Mura$1.renderMode = 'dynamic';
+    var _content;
 
-    if (!isEditMode) {
-      Mura$1.renderMode = 'static';
-    }
+    var _temp10 = function _temp10() {
+      if (content.filename == '404') {
+        console.log('404 rendering content', context);
 
-    return Promise.resolve(renderContent(context, isEditMode, params)).then(function (muraObject) {
-      var content = muraObject.getAll();
+        if (typeof context.res != 'undefined') {
+          context.res.statusCode = 404;
+        }
+      } else if (typeof content.statusCode != 'undefined' && typeof context.res != 'undefined') {
+        context.res.statusCode = content.statusCode;
+      }
+
       return Promise.resolve(getRegionProps(content, isEditMode)).then(function (moduleStyleData) {
         function _temp7() {
           Mura$1.deInit();
@@ -594,7 +605,53 @@ var getMuraProps = function getMuraProps(context, isEditMode, params) {
 
         return _temp6 && _temp6.then ? _temp6.then(_temp7) : _temp7(_temp6);
       });
+    };
+
+    getMura(context);
+    Mura$1.renderMode = 'dynamic';
+
+    if (!isEditMode) {
+      Mura$1.renderMode = 'static';
+    }
+
+    var content = (_content = {
+      title: "We're sorry, an error occurred",
+      menutitle: "We're sorry, an error occurred",
+      body: "",
+      contentid: Mura$1.createUUID(),
+      isnew: 1,
+      siteid: Mura$1.siteid,
+      type: 'Page',
+      subtype: 'Default'
+    }, _content["contentid"] = Mura$1.createUUID(), _content.contenthistid = Mura$1.createUUID(), _content.filename = "500", _content.statusCode = 500, _content.errors = [], _content.displayregions = {
+      primarycontent: {
+        local: {
+          items: []
+        }
+      }
+    }, _content);
+
+    var _temp11 = _catch(function () {
+      return Promise.resolve(renderContent(context, isEditMode, params)).then(function (muraObject) {
+        if (typeof muraObject != 'undefined' && typeof muraObject.getAll != 'undefined') {
+          content = muraObject.getAll();
+        } else {
+          console.log('Error rendering content', muraObject);
+
+          if (typeof context.res != 'undefined') {
+            if (typeof muraObject != 'undefined' && typeof muraObject.statuscode != 'undefined') {
+              context.res.statusCode = muraObject.statuscode;
+            } else {
+              context.res.statusCode = 500;
+            }
+          }
+        }
+      });
+    }, function (e) {
+      console.log(e);
     });
+
+    return Promise.resolve(_temp11 && _temp11.then ? _temp11.then(_temp10) : _temp10(_temp11));
   } catch (e) {
     return Promise.reject(e);
   }
