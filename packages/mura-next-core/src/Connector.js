@@ -379,7 +379,7 @@ async function renderContent(context,isEditMode,params) {
     async rendered => {
       return rendered;
     },
-    async error => {
+    async rendered => {
       if (!rendered) {
         return getErrorTemplate();
       } else {

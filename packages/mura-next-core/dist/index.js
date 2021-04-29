@@ -332,7 +332,7 @@ var renderContent = function renderContent(context, isEditMode, params) {
 
     return Promise.resolve(Mura$1.renderFilename(filename, query).then(function (rendered) {
       return Promise.resolve(rendered);
-    }, function (error) {
+    }, function (rendered) {
       try {
         if (!rendered) {
           return Promise.resolve(getErrorTemplate());
