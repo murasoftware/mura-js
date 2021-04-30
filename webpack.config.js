@@ -30,7 +30,7 @@ module.exports = {
 	optimization: {
     minimize: minimize
   },
-  entry: ['babel-polyfill','./index.js'],
+  entry: ['core-js/web','./index.js'],
   devtool: 'source-map',
   output: {
     filename: outputFile,

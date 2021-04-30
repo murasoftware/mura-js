@@ -183,10 +183,10 @@ export const getMura = function(context){
       }
     );
     clearMuraAPICache();
-    console.log('initing', connectorConfig.siteid)
+    //console.log('initing', connectorConfig.siteid)
     Mura.init(connectorConfig);
   } else if (startingsiteid != connectorConfig.siteid) {
-    console.log('changing siteid',startingsiteid,connectorConfig.siteid)
+    //console.log('changing siteid',startingsiteid,connectorConfig.siteid)
     clearMuraAPICache();
     Mura.init(connectorConfig);
   }

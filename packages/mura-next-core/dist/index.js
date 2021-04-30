@@ -675,10 +675,14 @@ function Decorator(props) {
 
       if (obj.data('async') == 'true' || obj.data('render') == 'server') {
         setTimeout(function () {
-          var contentCheck = obj.find('mura-object-content');
+          var obj = Mura('div[data-instanceid="' + instanceid + '"]');
+          var contentCheck = obj.find('.mura-object-content');
 
-          if (!contentCheck.length || contentCheck.children().length) {
-            console.log('rebuilding stale async module');
+          if (!contentCheck.length) {
+            console.log('rebuilding stale async module because no mura-object-content', instanceid);
+            obj.processDisplayObject();
+          } else if (!contentCheck.children().length) {
+            console.log('rebuilding stale async module because mura-object-content is empty', instanceid);
             obj.processDisplayObject();
           }
         }, 2000);

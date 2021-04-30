@@ -2585,10 +2585,6 @@ function handleResponse(obj, resp) {
 
 function processDisplayObject(el, queue, rerender, resolveFn, usePreloaderMarkup) {
 
-	if(typeof window != 'undefined' ){
-		window.muraInflightAsyncModules={};
-	}
-
 	try{
 
 		var obj = (el.node) ? el : Mura(el);
@@ -3758,7 +3754,7 @@ function init(config) {
 	}
 
 	if (typeof config.dtexample == 'undefined') {
-		config.dtexample="11/10/2021";
+		config.dtexample="11/10/2024";
 	}
 
 	if (typeof config.dtCh != 'undefined') {
