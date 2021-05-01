@@ -206,7 +206,7 @@ var getModuleProps = function getModuleProps(item, moduleStyleData, isEditMode, 
                   item.dynamicProps = _ComponentRegistry$ob;
                 });
               }, function (e) {
-                console.log('Error getting dynamicProps', e);
+                console.error('Error getting dynamicProps', e);
                 item.dynamicProps = {};
               });
 
@@ -220,7 +220,7 @@ var getModuleProps = function getModuleProps(item, moduleStyleData, isEditMode, 
 
       if (_temp24 && _temp24.then) return _temp24.then(function () {});
     }, function (e) {
-      console.log(e);
+      console.error(e);
     });
 
     return Promise.resolve(_temp28 && _temp28.then ? _temp28.then(_temp27) : _temp27(_temp28));
@@ -305,43 +305,10 @@ var renderContent = function renderContent(context, isEditMode, params) {
     }
 
     query = Object.assign(query, params);
-
-    var getErrorTemplate = function getErrorTemplate(error) {
-      var _Mura$getEntity$set;
-
-      error = error || {};
-      error.statusCode = error.statusCode || 404;
-      error.message = error.message || 'The content that you requested can not be found';
-      return Mura$1.getEntity('Content').set((_Mura$getEntity$set = {
-        title: error.statusCode,
-        menutitle: error.statusCode,
-        body: error.message,
-        contentid: Mura$1.createUUID(),
-        isnew: 1,
-        siteid: Mura$1.siteid,
-        type: 'Page',
-        subtype: 'Default'
-      }, _Mura$getEntity$set["contentid"] = Mura$1.createUUID(), _Mura$getEntity$set.contenthistid = Mura$1.createUUID(), _Mura$getEntity$set.filename = error.statusCode, _Mura$getEntity$set.errors = [error], _Mura$getEntity$set.displayregions = {
-        primarycontent: {
-          local: {
-            items: []
-          }
-        }
-      }, _Mura$getEntity$set));
-    };
-
     return Promise.resolve(Mura$1.renderFilename(filename, query).then(function (rendered) {
       return Promise.resolve(rendered);
     }, function (rendered) {
-      try {
-        if (!rendered) {
-          return Promise.resolve(getErrorTemplate());
-        } else {
-          return Promise.resolve(rendered);
-        }
-      } catch (e) {
-        return Promise.reject(e);
-      }
+      return Promise.resolve(rendered);
     }));
   } catch (e) {
     return Promise.reject(e);
@@ -519,10 +486,8 @@ var getMura = function getMura(context) {
       request: context.req
     });
     clearMuraAPICache();
-    console.log('initing', connectorConfig.siteid);
     Mura$1.init(connectorConfig);
   } else if (startingsiteid != connectorConfig.siteid) {
-    console.log('changing siteid', startingsiteid, connectorConfig.siteid);
     clearMuraAPICache();
     Mura$1.init(connectorConfig);
   }
@@ -543,7 +508,7 @@ var getMuraProps = function getMuraProps(context, isEditMode, params) {
     var _temp10 = function _temp10() {
       if (content.filename == '404') {
         if (typeof context.params != 'undefined') {
-          console.log('404 rendering content', context.params);
+          console.error('404 rendering content', context.params);
         }
 
         if (typeof context.res != 'undefined') {
@@ -602,7 +567,7 @@ var getMuraProps = function getMuraProps(context, isEditMode, params) {
 
           if (_temp5 && _temp5.then) return _temp5.then(function () {});
         }, function (e) {
-          console.log(e);
+          console.error(e);
         });
 
         return _temp6 && _temp6.then ? _temp6.then(_temp7) : _temp7(_temp6);
@@ -638,11 +603,11 @@ var getMuraProps = function getMuraProps(context, isEditMode, params) {
         if (typeof muraObject != 'undefined' && typeof muraObject.getAll != 'undefined') {
           content = muraObject.getAll();
         } else {
-          console.log('Error rendering content', muraObject);
+          console.error('Error rendering content', muraObject);
 
           if (typeof context.res != 'undefined') {
-            if (typeof muraObject != 'undefined' && typeof muraObject.statuscode != 'undefined') {
-              context.res.statusCode = muraObject.statuscode;
+            if (typeof muraObject != 'undefined' && typeof muraObject.statusCode != 'undefined') {
+              context.res.statusCode = muraObject.statusCode;
             } else {
               context.res.statusCode = 500;
             }
@@ -650,7 +615,7 @@ var getMuraProps = function getMuraProps(context, isEditMode, params) {
         }
       });
     }, function (e) {
-      console.log(e);
+      console.error(e);
     });
 
     return Promise.resolve(_temp11 && _temp11.then ? _temp11.then(_temp10) : _temp10(_temp11));

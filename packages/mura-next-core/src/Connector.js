@@ -242,22 +242,22 @@ export const getMuraProps = async (context,isEditMode,params) => {
       && typeof muraObject.getAll != 'undefined'){
       content = muraObject.getAll();
     } else {
-      console.log('Error rendering content',muraObject);
+      console.error('Error rendering content',muraObject);
       if(typeof context.res != 'undefined'){
-        if(typeof muraObject != 'undefined' && typeof muraObject.statuscode != 'undefined'){
-          context.res.statusCode=muraObject.statuscode;
+        if(typeof muraObject != 'undefined' && typeof muraObject.statusCode != 'undefined'){
+          context.res.statusCode=muraObject.statusCode;
         } else {
           context.res.statusCode=500;
         }
       }
     }
   } catch (e){
-    console.log(e);
+    console.error(e);
   }
 
   if(content.filename == '404'){
     if(typeof context.params != 'undefined'){
-      console.log('404 rendering content',context.params);
+      console.error('404 rendering content',context.params);
     }
     if(typeof context.res != 'undefined'){
       context.res.statusCode=404;
@@ -293,7 +293,7 @@ export const getMuraProps = async (context,isEditMode,params) => {
         }
       });
     }
-  } catch(e){console.log(e)}
+  } catch(e){console.error(e)}
 
   Mura.deInit();
 
@@ -347,45 +347,13 @@ async function renderContent(context,isEditMode,params) {
   //console.log(filename,query,isEditMode)
   query=Object.assign(query,params);
 
-  const getErrorTemplate = (error)=>{
-    error=error || {};
-    error.statusCode = error.statusCode || 404;
-    error.message = error.message || 'The content that you requested can not be found';
-
-    return Mura.getEntity('Content').set({
-      title: error.statusCode,
-      menutitle: error.statusCode,
-      body: error.message,
-      contentid: Mura.createUUID(),
-      isnew: 1,
-      siteid: Mura.siteid,
-      type: 'Page',
-      subtype: 'Default',
-      contentid: Mura.createUUID(),
-      contenthistid: Mura.createUUID(),
-      filename: error.statusCode,
-      errors:[error],
-      displayregions:{
-        primarycontent:{
-          local:{
-            items:[]
-          }
-        }
-      }
-    });
-  }
-
   return await Mura.renderFilename(filename, query).then(
     async rendered => {
       return rendered;
     },
     async rendered => {
-      if (!rendered) {
-        return getErrorTemplate();
-      } else {
         return rendered;
-      }
-    },
+    }
   );
 }
 
@@ -450,7 +418,7 @@ async function getModuleProps(item,moduleStyleData,isEditMode,content) {
         try {
           item.dynamicProps = await ComponentRegistry[objectkey].getDynamicProps({...item,content});
         } catch(e){
-          console.log('Error getting dynamicProps',e);
+          console.error('Error getting dynamicProps',e);
           item.dynamicProps={};
         }
       }
@@ -479,7 +447,7 @@ async function getModuleProps(item,moduleStyleData,isEditMode,content) {
       }
     }
   } catch(e){
-    console.log(e);
+    console.error(e);
   }
 
   const styleData = Mura.recordModuleStyles(item);
