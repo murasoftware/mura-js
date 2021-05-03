@@ -30,7 +30,7 @@ module.exports = {
 	optimization: {
     minimize: minimize
   },
-  entry: ['core-js/web','./index.js'],
+  entry: ['core-js/web','regenerator-runtime/runtime','./index.js'],
   devtool: 'source-map',
   output: {
     filename: outputFile,
