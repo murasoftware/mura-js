@@ -5308,6 +5308,19 @@ Mura.DOMSelection = Mura.Core.extend(
   },
 
   /**
+   * detach - Detaches elements in selection
+   *
+   * @return {object}	Self
+   */
+  detach: function detach() {
+    var detached = [];
+    this.each(function (el) {
+      el.parentNode && detached.push(el.parentNode.removeChild(el));
+    });
+    return Mura(detached);
+  },
+
+  /**
    * addClass - Adds class to elements in selection
    *
    * @param	{string} className Name of class
