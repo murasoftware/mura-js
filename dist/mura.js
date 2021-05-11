@@ -205,6 +205,10 @@ Mura.entities.Content = Mura.Entity.extend(
       params = params || {};
       params.siteid = self.get('siteid') || Mura.siteid;
 
+      if (self.has('contenthistid') && self.get('contenthistid')) {
+        params.contenthistid = self.get('contenthistid');
+      }
+
       for (var key in params) {
         if (key != 'entityname' && key != 'filename' && key != 'siteid' && key != 'method') {
           query.push(encodeURIComponent(key) + '=' + encodeURIComponent(params[key]));
