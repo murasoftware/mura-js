@@ -11,7 +11,7 @@ import visit from 'unist-util-visit';
 import h from 'hastscript';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronRight, faChevronLeft } from '@fortawesome/free-solid-svg-icons';
+import { faChevronRight, faChevronLeft, faBolt } from '@fortawesome/free-solid-svg-icons';
 import Accordion from 'react-bootstrap/Accordion';
 import Card from 'react-bootstrap/Card';
 import Slider from 'react-slick';
@@ -2365,47 +2365,57 @@ function MatrixSelector(props) {
       stageIds = _useState2[0],
       setStageIds = _useState2[1];
 
-  var _personaQ = objectparams.personaq ? objectparams.personaq : 'Who are you?';
+  var _selfIdStart = objectparams.selfidstart ? objectparams.selfidstart : 'I want to learn about';
 
-  var _stageQ = objectparams.stageq ? objectparams.stageq : 'Where are you in the process?';
+  var _selfIdMiddle = objectparams.selfidmiddle ? objectparams.selfidmiddle : 'for my company, or about the';
 
-  var _useState3 = useState(_personaQ),
-      personaQ = _useState3[0];
+  var _selfIdEnd = objectparams.selfidend ? objectparams.selfidend : 'industry.';
 
-  var _useState4 = useState(_stageQ),
-      stageQ = _useState4[0];
+  var _displayType = objectparams.displaytype ? objectparams.displaytype : 'inline';
 
-  var _useState5 = useState(''),
-      curSelPersona = _useState5[0],
-      setCurSelPersona = _useState5[1];
+  var _useState3 = useState(_selfIdStart),
+      selfIdStart = _useState3[0];
 
-  var _useState6 = useState(''),
-      curSelStage = _useState6[0],
-      setCurSelStage = _useState6[1];
+  var _useState4 = useState(_selfIdMiddle),
+      selfIdMiddle = _useState4[0];
 
-  var _useState7 = useState(false),
-      buttonEnabled = _useState7[0],
-      setButtonEnabled = _useState7[1];
+  var _useState5 = useState(_selfIdEnd),
+      selfIdEnd = _useState5[0];
 
-  var _useState8 = useState(false),
-      updateSuccess = _useState8[0],
-      setUpdateSuccess = _useState8[1];
+  var _useState6 = useState(_displayType),
+      displayType = _useState6[0];
+
+  var _useState7 = useState(''),
+      curSelPersona = _useState7[0],
+      setCurSelPersona = _useState7[1];
+
+  var _useState8 = useState(''),
+      curSelStage = _useState8[0],
+      setCurSelStage = _useState8[1];
 
   var _useState9 = useState(false),
-      showingAlert = _useState9[0],
-      setShowingAlert = _useState9[1];
+      buttonEnabled = _useState9[0],
+      setButtonEnabled = _useState9[1];
 
   var _useState10 = useState(false),
-      isUpdating = _useState10[0],
-      setIsUpdating = _useState10[1];
+      updateSuccess = _useState10[0],
+      setUpdateSuccess = _useState10[1];
 
   var _useState11 = useState(false),
-      selPersonaValidated = _useState11[0],
-      setSelPersonaValidated = _useState11[1];
+      showingAlert = _useState11[0],
+      setShowingAlert = _useState11[1];
 
   var _useState12 = useState(false),
-      selStageValidated = _useState12[0],
-      setSelStageValidated = _useState12[1];
+      isUpdating = _useState12[0],
+      setIsUpdating = _useState12[1];
+
+  var _useState13 = useState(false),
+      selPersonaValidated = _useState13[0],
+      setSelPersonaValidated = _useState13[1];
+
+  var _useState14 = useState(false),
+      selStageValidated = _useState14[0],
+      setSelStageValidated = _useState14[1];
 
   var handleSubmit = function handleSubmit(e) {
     e.preventDefault();
@@ -2467,6 +2477,7 @@ function MatrixSelector(props) {
           setUpdateSuccess(1);
           setShowingAlert(true);
           setIsUpdating(false);
+          setSeconds(3);
         }
 
         if (exp.personaselected) {
@@ -2506,6 +2517,22 @@ function MatrixSelector(props) {
     };
   }, [selPersonaValidated, selStageValidated]);
 
+  var _useState15 = useState(0),
+      seconds = _useState15[0],
+      setSeconds = _useState15[1];
+
+  useEffect(function () {
+    if (seconds > 0) {
+      setTimeout(function () {
+        return setSeconds(seconds - 1);
+      }, 1000);
+    }
+
+    if (seconds < 1 && showingAlert) {
+      window.location = window.location.href.split("?")[0];
+    }
+  }, [seconds]);
+
   if (!objectparams.dynamicProps) {
     useEffect(function () {
       var isMounted = true;
@@ -2539,57 +2566,173 @@ function MatrixSelector(props) {
         isMounted = false;
       };
     }, []);
-    return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("h3", null, "Matrix Selector"), updateSuccess && showingAlert && /*#__PURE__*/React.createElement(Alert, {
-      variant: "success"
-    }, /*#__PURE__*/React.createElement("h4", null, "Thanks!"), /*#__PURE__*/React.createElement("p", null, "We\u2019re tailoring our content for you\u2026")), !updateSuccess && !showingAlert && /*#__PURE__*/React.createElement(Form, {
-      inline: true,
-      id: "mura_matrix-selector-form",
-      onSubmit: handleSubmit,
-      "data-autowire": "false"
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "select-wrap"
-    }, personaIds.length > 1 && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Form.Label, {
-      className: "mr-2"
-    }, personaQ), /*#__PURE__*/React.createElement(Form.Control, {
-      as: "select",
-      name: "persona",
-      size: "sm",
-      className: "mr-2",
-      value: props.curSelPersona,
-      onChange: updateSelectedPersona
-    }, /*#__PURE__*/React.createElement("option", {
-      value: "",
-      key: "--"
-    }, "--"), personaIds.map(function (personaId) {
-      return /*#__PURE__*/React.createElement("option", {
-        value: personaId.personaid,
-        key: personaId.personaid
-      }, personaId.selfidq);
-    }))), stageIds.length > 1 && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Form.Label, {
-      className: "mr-2"
-    }, stageQ), /*#__PURE__*/React.createElement(Form.Control, {
-      as: "select",
-      name: "stage",
-      size: "sm",
-      value: props.curSelStage,
-      onChange: updateSelectedStage
-    }, /*#__PURE__*/React.createElement("option", {
-      value: "",
-      key: "--"
-    }, "--"), stageIds.map(function (stageId) {
-      return /*#__PURE__*/React.createElement("option", {
-        value: stageId.stageid,
-        key: stageId.stageid
-      }, stageId.selfidq);
-    })))), /*#__PURE__*/React.createElement("div", {
-      className: "w-100 mt-3"
-    }, /*#__PURE__*/React.createElement(Button, {
-      variant: "primary",
-      type: "submit",
-      disabled: !buttonEnabled
-    }, isUpdating ? 'Updating...' : 'Submit'))));
+
+    var _React$useState = React.useState(''),
+        open = _React$useState[0],
+        setOpen = _React$useState[1];
+
+    switch (displayType) {
+      case "widget":
+        return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Alert, {
+          variant: "info matrix-selector-edit-alert"
+        }, /*#__PURE__*/React.createElement("p", {
+          className: "mb-0"
+        }, "Matrix Selector")), /*#__PURE__*/React.createElement("div", {
+          className: (open ? 'open' : '') + " mura-matrix-selector__widget " + props.widgetposition
+        }, /*#__PURE__*/React.createElement(Button, {
+          variant: "light",
+          onClick: function onClick() {
+            setOpen(!open);
+          }
+        }, /*#__PURE__*/React.createElement(FontAwesomeIcon, {
+          icon: faBolt
+        }), " Optimize Your Experience"), /*#__PURE__*/React.createElement("div", {
+          className: "mura-matrix-selector__widget__inner"
+        }, /*#__PURE__*/React.createElement(MatrixForm, _extends({
+          updateSuccess: updateSuccess,
+          showingAlert: showingAlert,
+          handleSubmit: handleSubmit,
+          selfIdStart: selfIdStart,
+          updateSelectedPersona: updateSelectedPersona,
+          personaIds: personaIds,
+          stageIds: stageIds,
+          selfIdMiddle: selfIdMiddle,
+          updateSelectedStage: updateSelectedStage,
+          selfIdEnd: selfIdEnd,
+          buttonEnabled: buttonEnabled,
+          isUpdating: isUpdating,
+          displaytype: displayType
+        }, props, {
+          seconds: seconds
+        })), /*#__PURE__*/React.createElement("div", {
+          className: "mura-matrix-selector__widget__inner__footer"
+        }, /*#__PURE__*/React.createElement(MatrixSelectorFooter, props)))));
+
+      case "eyebrow":
+        return /*#__PURE__*/React.createElement("div", {
+          className: "mura-matrix-selector__eyebrow"
+        }, /*#__PURE__*/React.createElement("div", {
+          className: "mura-matrix-selector__eyebrow__inner"
+        }, !showingAlert && /*#__PURE__*/React.createElement("div", {
+          className: "mura-matrix-selector__eyebrow__inner__heading"
+        }, /*#__PURE__*/React.createElement("h4", null, /*#__PURE__*/React.createElement(FontAwesomeIcon, {
+          icon: faBolt
+        }), " Optimize Your Experience")), /*#__PURE__*/React.createElement(MatrixForm, _extends({
+          updateSuccess: updateSuccess,
+          showingAlert: showingAlert,
+          handleSubmit: handleSubmit,
+          selfIdStart: selfIdStart,
+          updateSelectedPersona: updateSelectedPersona,
+          personaIds: personaIds,
+          stageIds: stageIds,
+          selfIdMiddle: selfIdMiddle,
+          updateSelectedStage: updateSelectedStage,
+          selfIdEnd: selfIdEnd,
+          buttonEnabled: buttonEnabled,
+          isUpdating: isUpdating,
+          displaytype: displayType
+        }, props, {
+          seconds: seconds
+        })), !showingAlert && /*#__PURE__*/React.createElement("div", {
+          className: "mura-matrix-selector__eyebrow__inner__footer"
+        }, /*#__PURE__*/React.createElement(MatrixSelectorFooter, props))));
+    }
+
+    return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(MatrixForm, _extends({
+      updateSuccess: updateSuccess,
+      showingAlert: showingAlert,
+      handleSubmit: handleSubmit,
+      selfIdStart: selfIdStart,
+      updateSelectedPersona: updateSelectedPersona,
+      personaIds: personaIds,
+      stageIds: stageIds,
+      selfIdMiddle: selfIdMiddle,
+      updateSelectedStage: updateSelectedStage,
+      selfIdEnd: selfIdEnd,
+      buttonEnabled: buttonEnabled,
+      isUpdating: isUpdating
+    }, props, {
+      seconds: seconds
+    })), !showingAlert && /*#__PURE__*/React.createElement("div", {
+      className: "mura-matrix-selector__inline__footer",
+      key: "matrix-selector-footer"
+    }, /*#__PURE__*/React.createElement(MatrixSelectorFooter, props)));
   }
 }
+
+var MatrixSelectorFooter = function MatrixSelectorFooter(props) {
+  var CustomLinks = props.customlinks ? Array.from(props.customlinks) : [];
+  console.log('props: ', props);
+
+  if (CustomLinks && CustomLinks.length) {
+    var UtilityLinks = CustomLinks.map(function (link) {
+      return /*#__PURE__*/React.createElement("li", {
+        className: "list-inline-item",
+        key: link.name
+      }, /*#__PURE__*/React.createElement("a", {
+        href: link.value
+      }, link.name));
+    });
+    return /*#__PURE__*/React.createElement("ul", {
+      className: "list-inline"
+    }, UtilityLinks);
+  }
+
+  return null;
+};
+
+var MatrixForm = function MatrixForm(props) {
+  return /*#__PURE__*/React.createElement(React.Fragment, null, props.updateSuccess && props.showingAlert && /*#__PURE__*/React.createElement("div", {
+    className: "successMessage"
+  }, /*#__PURE__*/React.createElement("h4", null, "Thanks!"), /*#__PURE__*/React.createElement("p", null, "We\u2019re tailoring our content for you in \u2026 ", props.seconds)), !props.updateSuccess && !props.showingAlert && /*#__PURE__*/React.createElement(Form, {
+    inline: true,
+    id: "mura_matrix-selector-form",
+    onSubmit: props.handleSubmit,
+    "data-autowire": "false"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "select-wrap"
+  }, props.personaIds.length > 1 && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Form.Label, {
+    className: "mr-2"
+  }, props.selfIdStart), /*#__PURE__*/React.createElement(Form.Control, {
+    as: "select",
+    name: "persona",
+    size: "sm",
+    className: "mr-2",
+    value: props.curSelPersona,
+    onChange: props.updateSelectedPersona
+  }, /*#__PURE__*/React.createElement("option", {
+    value: "",
+    key: "--"
+  }, "--"), props.personaIds.map(function (personaId) {
+    return /*#__PURE__*/React.createElement("option", {
+      value: personaId.personaid,
+      key: personaId.personaid
+    }, personaId.selfidq);
+  }))), props.stageIds.length > 1 && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Form.Label, {
+    className: "mr-2"
+  }, props.selfIdMiddle), /*#__PURE__*/React.createElement(Form.Control, {
+    as: "select",
+    name: "stage",
+    size: "sm",
+    className: "mr-2",
+    value: props.curSelStage,
+    onChange: props.updateSelectedStage
+  }, /*#__PURE__*/React.createElement("option", {
+    value: "",
+    key: "--"
+  }, "--"), props.stageIds.map(function (stageId) {
+    return /*#__PURE__*/React.createElement("option", {
+      value: stageId.stageid,
+      key: stageId.stageid
+    }, stageId.selfidq);
+  }))), /*#__PURE__*/React.createElement("p", null, props.selfIdEnd), /*#__PURE__*/React.createElement(Button, {
+    className: "ml-2",
+    variant: "link",
+    size: "sm",
+    type: "submit",
+    disabled: !props.buttonEnabled
+  }, props.isUpdating ? 'Updating...' : 'Update'))));
+};
 
 var getDynamicProps$1 = function getDynamicProps(props) {
   try {

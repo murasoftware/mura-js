@@ -1,8 +1,10 @@
-import React, {useState,useEffect} from 'react';
+import React,{useState,useEffect} from 'react';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import Mura from 'mura.js';
+import { faBolt } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 function MatrixSelector(props){
     const objectparams = Object.assign({}, props);
@@ -13,11 +15,15 @@ function MatrixSelector(props){
     const [personaIds, setPersonaIds] = useState(_personaIds);
     const [stageIds, setStageIds] = useState(_stageIds);
 
-    const _personaQ = objectparams.personaq ? objectparams.personaq : 'Who are you?';
-    const _stageQ = objectparams.stageq ? objectparams.stageq : 'Where are you in the process?';
+    const _selfIdStart = objectparams.selfidstart ? objectparams.selfidstart : 'I want to learn about';
+    const _selfIdMiddle = objectparams.selfidmiddle ? objectparams.selfidmiddle : 'for my company, or about the';
+    const _selfIdEnd = objectparams.selfidend ? objectparams.selfidend : 'industry.';
+    const _displayType = objectparams.displaytype ? objectparams.displaytype : 'inline';
 
-    const [personaQ, setPersonaQ] = useState(_personaQ);
-    const [stageQ, setStateQ] = useState(_stageQ);
+    const [selfIdStart, setSelfIdStart] = useState(_selfIdStart);
+    const [selfIdMiddle, setSelfIdMiddle] = useState(_selfIdMiddle);
+    const [selfIdEnd, setSelfIdEnd] = useState(_selfIdEnd);
+    const [displayType, setDisplayType] = useState(_displayType);
 
     const [curSelPersona, setCurSelPersona] = useState('');
     const [curSelStage, setCurSelStage] = useState('');
@@ -31,7 +37,7 @@ function MatrixSelector(props){
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        updateExperience(curSelPersona,curSelStage);        
+        updateExperience(curSelPersona,curSelStage);
         return false;
     }
 
@@ -80,7 +86,8 @@ function MatrixSelector(props){
         
         const Personaid = personaid;
         const Stageid = stageid;
-    
+        // console.log('Personaid: ', Personaid);
+        // console.log('Stageid: ', Stageid);
         const exp = await Mura
           .getEntity('matrix_selector')
           .invoke(
@@ -95,6 +102,7 @@ function MatrixSelector(props){
             setUpdateSuccess(1);
             setShowingAlert(true);
             setIsUpdating(false);
+            setSeconds(3);
         }
     
         if (exp.personaselected){
@@ -130,6 +138,16 @@ function MatrixSelector(props){
         return () => { isMounted = false };
     }, [selPersonaValidated,selStageValidated])
 
+    const [seconds, setSeconds] = useState(0);
+    useEffect(() => {
+        if (seconds > 0){
+            setTimeout(() => setSeconds(seconds -1), 1000);
+        }
+        if (seconds < 1 && showingAlert ){
+            window.location = window.location.href.split("?")[0];
+        }
+    }, [seconds]);
+
     if(!objectparams.dynamicProps){
         useEffect(() => {
             let isMounted = true;
@@ -158,55 +176,177 @@ function MatrixSelector(props){
             return () => { isMounted = false };
         }, []);
         //todo do we need to add hidden form fields if personaIds or stageIds EQ 1?
-        return(
-            <>
-            <h3>Matrix Selector</h3>
-            {updateSuccess && showingAlert &&
-                <Alert variant="success" >
-                    <h4>Thanks!</h4>
-                    <p>We&rsquo;re tailoring our content for you&hellip;</p>
-                </Alert>
-            }
-            {!updateSuccess && !showingAlert &&
-            <Form inline id="mura_matrix-selector-form" onSubmit={handleSubmit} data-autowire="false">
-                <div className="select-wrap">
-                {personaIds.length > 1 &&
+        const [open, setOpen] = React.useState('');
+
+        switch(displayType){
+            case "widget" :
+                return(
+                    <>
+                    {/* Mura.editing doesn't seem to work here */}
+                    <Alert variant="info matrix-selector-edit-alert" >
+                        <p className="mb-0">Matrix Selector</p>
+                    </Alert>
+                    <div className={`${open ? 'open' : ''} mura-matrix-selector__widget ${props.widgetposition}`}>
+                        <Button 
+                            variant="light"
+                            onClick={() => { setOpen(!open); }}>
+                            <FontAwesomeIcon icon={faBolt} /> Optimize Your Experience
+                        </Button>
+                        <div className="mura-matrix-selector__widget__inner">
+                            <MatrixForm 
+                                updateSuccess={updateSuccess}
+                                showingAlert={showingAlert}
+                                handleSubmit={handleSubmit}
+                                selfIdStart={selfIdStart}
+                                updateSelectedPersona={updateSelectedPersona}
+                                personaIds={personaIds}
+                                stageIds={stageIds}
+                                selfIdMiddle={selfIdMiddle}
+                                updateSelectedStage={updateSelectedStage}
+                                selfIdEnd={selfIdEnd}
+                                buttonEnabled={buttonEnabled}
+                                isUpdating={isUpdating}
+                                displaytype={displayType}
+                                {...props}
+                                seconds={seconds}
+                            />
+                            <div className="mura-matrix-selector__widget__inner__footer">
+                                <MatrixSelectorFooter {...props} />
+                            </div>
+                        </div>
+                    </div>
+                    </>
+                )
+                break
+            case "eyebrow" :
+                return(
+                    <div className={`mura-matrix-selector__eyebrow`}>
+                        <div className="mura-matrix-selector__eyebrow__inner">
+                            {!showingAlert &&
+                                <div className="mura-matrix-selector__eyebrow__inner__heading">
+                                    <h4><FontAwesomeIcon icon={faBolt} /> Optimize Your Experience</h4>
+                                </div>
+                            }
+                            <MatrixForm 
+                                updateSuccess={updateSuccess}
+                                showingAlert={showingAlert}
+                                handleSubmit={handleSubmit}
+                                selfIdStart={selfIdStart}
+                                updateSelectedPersona={updateSelectedPersona}
+                                personaIds={personaIds}
+                                stageIds={stageIds}
+                                selfIdMiddle={selfIdMiddle}
+                                updateSelectedStage={updateSelectedStage}
+                                selfIdEnd={selfIdEnd}
+                                buttonEnabled={buttonEnabled}
+                                isUpdating={isUpdating}
+                                displaytype={displayType}
+                                {...props}
+                                seconds={seconds}
+                            />
+                            {!showingAlert &&
+                                <div className="mura-matrix-selector__eyebrow__inner__footer">
+                                    <MatrixSelectorFooter {...props} />
+                                </div>
+                            }
+                        </div>
+                    </div>
+                )
+                break
+        }
+            return (
                 <>
-                    <Form.Label className="mr-2">{personaQ}</Form.Label>
-                    <Form.Control as="select" name="persona" size="sm" className="mr-2" value={props.curSelPersona} onChange={updateSelectedPersona}>
-                        <option value="" key="--">--</option>
-                        {personaIds.map((personaId) => (
-                        <option value={personaId.personaid} key={personaId.personaid}>{personaId.selfidq}</option>
-                        ))}
-                    </Form.Control>
-                </>
+                <MatrixForm 
+                    updateSuccess={updateSuccess}
+                    showingAlert={showingAlert}
+                    handleSubmit={handleSubmit}
+                    selfIdStart={selfIdStart}
+                    updateSelectedPersona={updateSelectedPersona}
+                    personaIds={personaIds}
+                    stageIds={stageIds}
+                    selfIdMiddle={selfIdMiddle}
+                    updateSelectedStage={updateSelectedStage}
+                    selfIdEnd={selfIdEnd}
+                    buttonEnabled={buttonEnabled}
+                    isUpdating={isUpdating}
+                    {...props}
+                    seconds={seconds}
+                />
+                {!showingAlert &&
+                    <div className="mura-matrix-selector__inline__footer" key="matrix-selector-footer">
+                        <MatrixSelectorFooter {...props} />
+                    </div>
                 }
-                {stageIds.length > 1 &&
-                <>
-                    <Form.Label className="mr-2">{stageQ}</Form.Label>
-                    <Form.Control as="select" name="stage" size="sm" value={props.curSelStage} onChange={updateSelectedStage}>
-                        <option value="" key="--">--</option>
-                        {stageIds.map((stageId) => (
-                        <option value={stageId.stageid} key={stageId.stageid}>{stageId.selfidq}</option>
-                        ))}
-                    </Form.Control>
                 </>
-                }
-                </div>
-                <div className="w-100 mt-3">
-                <Button variant="primary" type="submit" disabled={!buttonEnabled}>
-                    {isUpdating ? 'Updating...' : 'Submit'}
-                </Button>
-                </div>
-            </Form>
-            }
-            </>
-        )
+            )
     } else {
 
     }
 }
+const MatrixSelectorFooter = (props) => {
+    const CustomLinks = props.customlinks ? Array.from(props.customlinks) : [];
+    console.log('props: ', props);
+    if (CustomLinks && CustomLinks.length){
+        const UtilityLinks = CustomLinks.map((link) => 
+        <li className="list-inline-item" key={link.name}>
+            <a href={link.value}>{link.name}</a>
+        </li>
+        );
+        return (
+            <ul className="list-inline">
+                {UtilityLinks}
+            </ul>
+        )
+    }
+    return null    
+}
 
+const MatrixForm = (props) => {
+    return (
+        <>
+        {props.updateSuccess && props.showingAlert &&
+            <div className="successMessage">
+                <h4>Thanks!</h4>
+                <p>We&rsquo;re tailoring our content for you in &hellip; {props.seconds}</p>
+            </div>
+        }
+        {!props.updateSuccess && !props.showingAlert &&
+        <Form inline id="mura_matrix-selector-form" onSubmit={props.handleSubmit} data-autowire="false">
+            <div className="select-wrap">
+            {props.personaIds.length > 1 &&
+            <>
+                <Form.Label className="mr-2">{props.selfIdStart}</Form.Label>
+                <Form.Control as="select" name="persona" size="sm" className="mr-2" value={props.curSelPersona} onChange={props.updateSelectedPersona}>
+                    <option value="" key="--">--</option>
+                    {props.personaIds.map((personaId) => (
+                    <option value={personaId.personaid} key={personaId.personaid}>{personaId.selfidq}</option>
+                    ))}
+                </Form.Control>
+            </>
+            }
+            {props.stageIds.length > 1 &&
+            <>
+                <Form.Label className="mr-2">{props.selfIdMiddle}</Form.Label>
+                <Form.Control as="select" name="stage" size="sm" className="mr-2" value={props.curSelStage} onChange={props.updateSelectedStage}>
+                    <option value="" key="--">--</option>
+                    {props.stageIds.map((stageId) => (
+                    <option value={stageId.stageid} key={stageId.stageid}>{stageId.selfidq}</option>
+                    ))}
+                </Form.Control>
+            </>
+            }
+            <p>{props.selfIdEnd}</p>
+            
+            
+            <Button className="ml-2" variant="link" size="sm" type="submit" disabled={!props.buttonEnabled}>
+                {props.isUpdating ? 'Updating...' : 'Update'}
+            </Button>
+            </div>
+        </Form>
+        }
+        </>
+    )
+}
 export const getDynamicProps = async props => {
     const personaIds = await getPersonas();
     const stageIds = await getStages();
