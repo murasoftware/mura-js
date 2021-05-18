@@ -1,42 +1,77 @@
 import React,{useState,useEffect} from 'react';
 import Form from 'react-bootstrap/Form';
+import InputGroup from 'react-bootstrap/InputGroup';
+import Button from 'react-bootstrap/Button';
 import { getMura } from '@murasoftware/next-core';
-import { getLayout, RouterlessLink, RouterLink } from './Collection';
-/*
-  TODO: scrollpages -- not sure if this is even working at all in collection in NextJS, should test
-  Needs to be tested
-  */
+import { getLayout, RouterlessLink, RouterLink, getSelectFields } from './Collection';
+import { useRouter } from 'next/router';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faSearch } from '@fortawesome/free-solid-svg-icons'
 
-function ResourceHub(props) {
+function getDefaultQueryPropsFromLayout(layout,item){
+  if(layout){
+    return layout.getQueryProps ? layout.getQueryProps(item) : {fields:''};
+  } else {
+    return  {fields:''};
+  }
+}
+
+export function ResourceHub(props) {
   const Mura = getMura();
   // return('This is the resource hub');
   const objectparams = Object.assign({}, props);
   const DynamicCollectionLayout = getLayout(objectparams.layout).component;
 
+  objectparams.fields=objectparams.fields || getDefaultQueryPropsFromLayout(DynamicCollectionLayout,objectparams).fields || 'Image,Date,Title,Summary,Credits,Tags';
+
+  let tags = '';
+  let author = '';
+  if (!Mura.editing){
+    const router = useRouter();
+    tags = router.query.t;
+    author = router.query.a;
+  }  
+
   let _collection = false;
+  //SET DEFAULTS FOR CURRENT FILTER PARAMETERS
+  let _curSubtype = '*';
+  let _curCategoryIds = '*';
+  let _curPersonaId = '*';
+  let _curCategoriesArray = [];
+  let _hasMXP = false;
+
   if(objectparams.dynamicProps){
     _collection=new Mura.EntityCollection(objectparams.dynamicProps.collection,Mura._requestcontext);
+    _curSubtype = objectparams.dynamicProps.filterprops.subtype;
+    _curCategoryIds = objectparams.dynamicProps.filterprops.selectedcats.filter(sc => sc.instanceid == props.instanceid).map((item)=>item.value).join();
+    _curPersonaId = objectparams.dynamicProps.filterprops.personaid;
+    _curCategoriesArray = objectparams.dynamicProps.filterprops.selectedcats;
+    _hasMXP = objectparams.dynamicProps.filterprops.hasmxp;
   }
-  
   const [collection,setCollection]=useState(_collection);
-  
-  //console.log(objectparams.dynamicProps);
-
-  //SET DEFAULTS FOR CURRENT FILTER PARAMETERS
-  const _curSubtype = objectparams.dynamicProps ? objectparams.dynamicProps.filterprops.subtype : '*';
-  const _curCategoryIds = objectparams.dynamicProps ? objectparams.dynamicProps.filterprops.categoryid : '*';
-  const _curPersonaId = objectparams.dynamicProps ? objectparams.dynamicProps.filterprops.personaid : '*';
-  const _curCategoriesArray = objectparams.dynamicProps ? objectparams.dynamicProps.filterprops.selectedcats : [];
-  const _hasMXP = objectparams.dynamicProps ? objectparams.dynamicProps.filterprops.hasmxp : false;
+  const instanceId = objectparams.instanceid;  
 
   const [curSubtype, setCurSubtype]=useState(_curSubtype);
   const [curCategoriesArray, setCurCategoriesArray]=useState(_curCategoriesArray);
   const [curCategoryIds, setCurCategoryIds]=useState(_curCategoryIds);
   const [curPersonaId, setCurPersonaId]=useState(_curPersonaId);
+  const [curSearchText, setCurSearchText]=useState('');
   const [hasMXP, setHasMXP]=useState(_hasMXP);
+  const [showTextSearch, setShowTextSearch]=useState(objectparams.showtextsearch);//objectparams.showtextsearch
   const [newFilter, setNewFilter]=useState(false);
   const [filterUpdated, setFilterUpdated]=useState(new Date().toString());
   
+  useEffect(() => {
+    let isMounted = true;
+    return () => { isMounted = false };
+  }, []);
+
+  const handleSubmit = (e) => {
+        e.preventDefault();
+        setCurSearchText(curSearchText);
+        setNewFilter(true);
+        setFilterUpdated(new Date().toString());
+  }
   const updateFilter = (e) => {
     switch(e.target.name) {
       case 'subtype':
@@ -57,28 +92,33 @@ function ResourceHub(props) {
         break
       default:
         if (!curCategoryIds.includes(e.target.value)){
-          setCurCategoriesArray(updateCategoryIds(e.target.name,e.target.value,curCategoriesArray));
-          setCurCategoryIds(getCategoryIds(curCategoriesArray));
+          // console.log('e.target.value: ', e.target.value);
+          // console.log('curCategoryIds: ', curCategoryIds);
+          
+        }
+        // console.log('instanceId: ', instanceId);
+        setCurCategoriesArray(updateCategoryIds(e.target.name,e.target.value,curCategoriesArray,instanceId));
+          setCurCategoryIds(getCategoryIds(curCategoriesArray.filter(sc => sc.instanceid == instanceId)));
           setNewFilter(true);
           setFilterUpdated(new Date().toString());
-        }        
     }//switch    
   }
 
   if(!objectparams.dynamicProps){
-
     useEffect(() => {
       let isMounted = true;
       if (isMounted) {
+        // setInstanceId(props.instanceid);
         getFilterProps(curSubtype,curCategoryIds,curPersonaId,curCategoriesArray,newFilter).then((filterProps) => {
           if (isMounted) {
+            
             setHasMXP(filterProps.hasmxp);
             setCurSubtype(filterProps.subtype);
-            setCurCategoryIds(filterProps.categoryid);
+            setCurCategoryIds(filterProps.selectedcats.filter(sc => sc.instanceid == props.instanceid).map((item)=>item.value).join());
             setCurPersonaId(filterProps.personaid);
             setCurCategoriesArray(filterProps.selectedcats);
             if(isMounted){
-              getCollection(props,filterProps).then((collection) => {
+              getCollection(props,filterProps,curSearchText,tags,author).then((collection) => {
                 setCollection(collection);
               });
             }
@@ -89,7 +129,8 @@ function ResourceHub(props) {
     }, [filterUpdated])
 
     if(collection) {
-      console.log('dynamic');
+    //   console.log('dynamic');
+    
       return (
         <div>
           <RenderFilterForm 
@@ -100,6 +141,10 @@ function ResourceHub(props) {
             curPersonaId={curPersonaId}
             curCategoriesArray={curCategoriesArray}
             hasMXP={hasMXP}
+            handleSubmit={handleSubmit}
+            curSearchText={curSearchText}
+            setCurSearchText={setCurSearchText}
+            showTextSearch={showTextSearch}
           />
 
           <DynamicCollectionLayout setCollection={setCollection} collection={collection} props={props} link={RouterlessLink}/>
@@ -107,7 +152,7 @@ function ResourceHub(props) {
         </div>
       )
     } else {
-      console.log('empty');
+    //   console.log('empty');
       return (
         <div>{/* EMPTY COLLECTION */}</div>
       )
@@ -126,7 +171,7 @@ function ResourceHub(props) {
             setCurPersonaId(filterProps.personaid);
             setCurCategoriesArray(filterProps.selectedcats);
             
-            getCollection(props,filterProps).then((collection) => {
+            getCollection(props,filterProps,curSearchText,tags,author).then((collection) => {
               if(isMounted){
                 setCollection(collection);
               }
@@ -147,8 +192,12 @@ function ResourceHub(props) {
           curPersonaId={curPersonaId}
           curCategoriesArray={curCategoriesArray}
           hasMXP={hasMXP}
+            handleSubmit={handleSubmit}
+            curSearchText={curSearchText}
+            setCurSearchText={setCurSearchText}
+            showTextSearch={showTextSearch}
         />
-        <DynamicCollectionLayout collection={collection} props={props} link={RouterLink}/>
+        <DynamicCollectionLayout setCollection={setCollection} collection={collection} props={props} link={RouterLink}/>
       </div>
     )
 
@@ -175,7 +224,10 @@ const getCategoryIds = categories => {
 
 export const getDynamicProps = async props => {
   const filterProps = await getFilterProps('','','','',false);
+
+  
   const collection = await getCollection(props,filterProps);
+ 
   if(!Array.isArray(filterProps.selectedcats)){
     try{
       filterProps.selectedcats = JSON.parse(filterProps.selectedcats);
@@ -189,79 +241,110 @@ export const getDynamicProps = async props => {
   }
 }
 
-const getCollection = async (props,filterProps) => {
+const getCollection = async (props,filterProps,curSearchText,tags,author) => {
   const Mura = getMura();
+    
+  let filterCategories = filterProps.categoryid;
 
   if(typeof props.content.getAll != 'undefined'){
       props.content=props.content.getAll();
   }
-
-  const excludeIDList=props.content.contentid;
-
-  const getItemsPerPage = function(item){
-    if(Mura.renderMode !='static'){
-      if(typeof item.nextn != 'undefined'){
-       return item.nextn
-      } else if(typeof item.itemsperpage != 'undefined'){
-       return item.itemsperpage;
-      } else {
-        return 0;
+  if (filterProps.selectedcats.length){
+    filterCategories = filterProps.selectedcats.filter(sc => sc.instanceid == props.instanceid).map((item)=>item.value);
+    for( var i = 0; i < filterCategories.length; i++){ 
+      if ( filterCategories[i] === '*') { 
+        filterCategories.splice(i, 1); 
+        i--; 
       }
-    } else {
-      return 0;
     }
   }
 
-  const feed = Mura.getFeed('content');
+  // console.log('filterProps.selectedcats: ', filterProps.selectedcats);
+
+  let collection;
+
+  try{
+    const excludeIDList=props.content.contentid;
+    const feed = Mura.getFeed('content');
 
     feed.prop('type').isIn('Page,Link,File');
     feed.andProp('path').containsValue(props.content.contentid);
     feed.andProp('contentid').isNotIn(excludeIDList);
     feed.expand('categoryassignments');
-
+    feed.andProp('subtype').isNEQ('Author');
+    feed.andProp('subtype').isNEQ('Confirmation');
+    feed.andProp('subtype').isNEQ('Folder');
+    feed.fields(getSelectFields(props));
+    
     if(filterProps.subtype.length){
       feed.andProp('subtype').isEQ(filterProps.subtype);
     }
-    if(filterProps.categoryid.length){
-      feed.andProp('categoryid').isIn(filterProps.categoryid);
+    
+    if(filterCategories.length){
+      feed.andProp('categoryid').isIn(filterCategories);
       feed.useCategoryIntersect(true);
     }
+    
+    if(curSearchText && curSearchText.length){
+      feed.andOpenGrouping();
+      feed.orProp('title').containsValue(curSearchText);
+      feed.orProp('body').containsValue(curSearchText);
+      feed.orProp('summary').containsValue(curSearchText);
+      feed.closeGrouping();
+    }
+    
+    if(tags){
+      feed.andProp('tag').containsValue(tags);
+    }
+    
+    if(author){
+      feed.andProp('Credits').isEQ(author);
+    }
+    
     feed.maxItems(props.maxitems);
-    feed.itemsPerPage(getItemsPerPage());
 
-    let collection;
+    
+    if(Mura.renderMode !='static'){
+      
+      feed.itemsPerPage(props.nextn);
+    } else {
+      feed.itemsPerPage(0);
+    }
 
     if(filterProps.personaid.length){
       collection = await feed.getQuery({sortBy:"mxpRelevance"});
     } else {
       collection = await feed.sort('releasedate','desc').getQuery();
     }
+  } catch(e){
+    console.log('error getting colleciton ',e)
+  }
+     
   return collection;
 }
 
 const getFilterProps = async (subtype,categoryid,personaid,selectedcategories,newfilter) => {
-  const Subtype = subtype;
-  const Categoryid = categoryid;
-  const Personaid = personaid;
-  const CurSelectedCats = selectedcategories;
-  const NewFilter = newfilter;
-
-  
-  const filterProps = await Mura
-    .getEntity('resourcehub')
-    .invoke(
-      'processFilterArgs',
-      {
-        subtype:Subtype, 
-        categoryid:Categoryid, 
-        personaid:Personaid, 
-        selectedcats:CurSelectedCats, 
-        newfilter: NewFilter?1:0
-      }
+    const Mura = getMura();
+    const Subtype = subtype;
+    const Categoryid = categoryid;
+    const Personaid = personaid;
+    const CurSelectedCats = selectedcategories;
+    const NewFilter = newfilter;
+    
+    const filterProps = await Mura
+        .getEntity('resourcehub')
+        .invoke(
+        'processFilterArgs',
+        {
+            subtype:Subtype, 
+            categoryid:Categoryid, 
+            personaid:Personaid, 
+            selectedcats:CurSelectedCats, 
+            newfilter: NewFilter?1:0
+        }
     );
   
-  // console.log('filterProps: ', filterProps);
-  return filterProps;
+    return filterProps;
 }
 
 const RenderFilterForm = (props) => {
@@ -275,14 +358,14 @@ const RenderFilterForm = (props) => {
 
   useEffect(() => {
     let isMounted = true;
-    if(isMounted && personaIds.length){
+    if(isMounted && categoryIds && categoryIds.length){
       getCategoriesInfo(categoryIds).then((data)=>{
         if(isMounted && data.items.length){
           setCategoriesArray(data.items);
         }
       });
      }
-    if(isMounted && personaIds.length){
+    if(isMounted && personaIds && personaIds.length){
       getPersonasInfo(personaIds).then((data)=>{
         if(isMounted && data.items.length){
           setPersonasArray(data.items);  
@@ -291,10 +374,27 @@ const RenderFilterForm = (props) => {
     }   
     return () => { isMounted = false };
   }, []);
-  
+
   return (
-    <Form className="row row-cols-1 row-cols-sm-2 row-cols-lg-3" id="resource-filter-form">
-      {subtypesArray.length > 0 &&
+    <Form className="row row-cols-1 row-cols-sm-2 row-cols-lg-3" id="resource-filter-form" onSubmit={props.handleSubmit}>
+        {props.showTextSearch &&
+        <div className="col">
+        <Form.Label>Search:</Form.Label>
+        <InputGroup controlId="textSearch" className="text">
+            <Form.Control 
+                type="text"
+                name="s"
+                placeholder="Search"
+                value={props.curSearchText}
+                onChange={e => props.setCurSearchText(e.target.value)}
+            />
+            <InputGroup.Append>
+              <Button variant="secondary" type="submit"><FontAwesomeIcon icon={faSearch} size="lg" /></Button>
+            </InputGroup.Append>            
+        </InputGroup>
+        </div>
+        }
+      {subtypesArray && subtypesArray.length > 0 &&
       <Form.Group controlId="selectSubtypes" className="col type">
         <Form.Label>Content Types:</Form.Label>
         <Form.Control as="select" name="subtype" custom onChange={ props.updateFilter } value={props.curSubtype}>
@@ -348,12 +448,12 @@ const CategorySelect = props => {
         break
       }
   }
-
+  // console.log('curSelectValue: ', props.filterlabel, curSelectValue);
   return(
     <Form.Group controlId={`selectCategories${props.filterlabel}`} className="col topic">
       <Form.Label>{props.filterlabel}:</Form.Label>
         <Form.Control as="select" name={`categoryid${props.filterlabel}`} custom onChange={ props.updateFilter } value={curSelectValue}>
-          <option value="*" key="All Categories">All</option>
+          <option value="*" key="All Categories">All {props.filterlabel}</option>
           {categoryKids.map((category, index) => (
             <option value={category.categoryid} key={index}>{category.name}</option>
           ))}
@@ -363,41 +463,45 @@ const CategorySelect = props => {
 }
 
 const getCategoriesInfo = async (categoryIds) => {
-  const feed = Mura.getFeed('category');
-        feed.findMany(categoryIds);
+    const Mura = getMura();
+    const feed = Mura.getFeed('category');
+          feed.findMany(categoryIds);
 
-  const query = await feed.getQuery();
-  const categories = query.getAll();
-
-  return categories
+    const query = await feed.getQuery();
+    const categories = query.getAll();
+    // console.log('categories: ', categories);
+    return categories
 }
 
 const getPersonasInfo = async (personaIds) => {
-  const feed = Mura.getFeed('persona');
-        feed.findMany(personaIds);
+    const Mura = getMura();
+    const feed = Mura.getFeed('persona');
+          feed.findMany(personaIds);
 
-  const query = await feed.getQuery();
-  const personas = query.getAll();
+    const query = await feed.getQuery();
+    const personas = query.getAll();
 
   return personas
 }
 
 const getCategoryKidsInfo = async (categoryId) => {
-  const feed = Mura.getFeed('category');
-        feed.prop('parentid').isEQ(categoryId);
+    const Mura = getMura();
+    const feed = Mura.getFeed('category');
+          feed.prop('parentid').isEQ(categoryId);
 
-  const query = await feed.getQuery();
-  const categorykids = query.getAll();
-
-  return categorykids
+    const query = await feed.getQuery();
+    const categorykids = query.getAll();
+    // console.log('categorykids: ', categorykids);
+    return categorykids
 }
 
-const updateCategoryIds = (name,value,curCategoriesArray) => {
+const updateCategoryIds = (name,value,curCategoriesArray,InstanceId) => {
   let match = 0;
-
+  // console.log('InstanceId: ', InstanceId);
     for (let i = 0; i < curCategoriesArray.length; i++) {
       if (curCategoriesArray[i].name === name) {
             curCategoriesArray[i].value = value;
+            curCategoriesArray[i].instanceid = InstanceId;
           match = 1;
           break;
       }
@@ -405,7 +509,8 @@ const updateCategoryIds = (name,value,curCategoriesArray) => {
     if (!match){
         curCategoriesArray.push({ 
           name:name,
-          value:value 
+          value:value,
+          instanceid:InstanceId
         });
     }
   

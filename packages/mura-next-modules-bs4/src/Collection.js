@@ -230,7 +230,7 @@ const getImageSizes = function(item) {
 
 }
 
-const getSelectFields = function(item) {
+export const getSelectFields = function(item) {
 
   const data = getLayout(item.layout).getQueryProps(item);
 

@@ -25,6 +25,8 @@ var Alert = _interopDefault(require('react-bootstrap/Alert'));
 var Navbar = _interopDefault(require('react-bootstrap/Navbar'));
 var Nav = _interopDefault(require('react-bootstrap/Nav'));
 var NavDropdown = _interopDefault(require('react-bootstrap/NavDropdown'));
+var InputGroup = _interopDefault(require('react-bootstrap/InputGroup'));
+var router = require('next/router');
 
 function Youtube(props) {
   var instanceid = props.instanceid,
@@ -2368,47 +2370,57 @@ function MatrixSelector(props) {
       stageIds = _useState2[0],
       setStageIds = _useState2[1];
 
-  var _personaQ = objectparams.personaq ? objectparams.personaq : 'Who are you?';
+  var _selfIdStart = objectparams.selfidstart ? objectparams.selfidstart : 'I want to learn about';
 
-  var _stageQ = objectparams.stageq ? objectparams.stageq : 'Where are you in the process?';
+  var _selfIdMiddle = objectparams.selfidmiddle ? objectparams.selfidmiddle : 'for my company, or about the';
 
-  var _useState3 = React.useState(_personaQ),
-      personaQ = _useState3[0];
+  var _selfIdEnd = objectparams.selfidend ? objectparams.selfidend : 'industry.';
 
-  var _useState4 = React.useState(_stageQ),
-      stageQ = _useState4[0];
+  var _displayType = objectparams.displaytype ? objectparams.displaytype : 'inline';
 
-  var _useState5 = React.useState(''),
-      curSelPersona = _useState5[0],
-      setCurSelPersona = _useState5[1];
+  var _useState3 = React.useState(_selfIdStart),
+      selfIdStart = _useState3[0];
 
-  var _useState6 = React.useState(''),
-      curSelStage = _useState6[0],
-      setCurSelStage = _useState6[1];
+  var _useState4 = React.useState(_selfIdMiddle),
+      selfIdMiddle = _useState4[0];
 
-  var _useState7 = React.useState(false),
-      buttonEnabled = _useState7[0],
-      setButtonEnabled = _useState7[1];
+  var _useState5 = React.useState(_selfIdEnd),
+      selfIdEnd = _useState5[0];
 
-  var _useState8 = React.useState(false),
-      updateSuccess = _useState8[0],
-      setUpdateSuccess = _useState8[1];
+  var _useState6 = React.useState(_displayType),
+      displayType = _useState6[0];
+
+  var _useState7 = React.useState(''),
+      curSelPersona = _useState7[0],
+      setCurSelPersona = _useState7[1];
+
+  var _useState8 = React.useState(''),
+      curSelStage = _useState8[0],
+      setCurSelStage = _useState8[1];
 
   var _useState9 = React.useState(false),
-      showingAlert = _useState9[0],
-      setShowingAlert = _useState9[1];
+      buttonEnabled = _useState9[0],
+      setButtonEnabled = _useState9[1];
 
   var _useState10 = React.useState(false),
-      isUpdating = _useState10[0],
-      setIsUpdating = _useState10[1];
+      updateSuccess = _useState10[0],
+      setUpdateSuccess = _useState10[1];
 
   var _useState11 = React.useState(false),
-      selPersonaValidated = _useState11[0],
-      setSelPersonaValidated = _useState11[1];
+      showingAlert = _useState11[0],
+      setShowingAlert = _useState11[1];
 
   var _useState12 = React.useState(false),
-      selStageValidated = _useState12[0],
-      setSelStageValidated = _useState12[1];
+      isUpdating = _useState12[0],
+      setIsUpdating = _useState12[1];
+
+  var _useState13 = React.useState(false),
+      selPersonaValidated = _useState13[0],
+      setSelPersonaValidated = _useState13[1];
+
+  var _useState14 = React.useState(false),
+      selStageValidated = _useState14[0],
+      setSelStageValidated = _useState14[1];
 
   var handleSubmit = function handleSubmit(e) {
     e.preventDefault();
@@ -2470,6 +2482,7 @@ function MatrixSelector(props) {
           setUpdateSuccess(1);
           setShowingAlert(true);
           setIsUpdating(false);
+          setSeconds(3);
         }
 
         if (exp.personaselected) {
@@ -2509,6 +2522,22 @@ function MatrixSelector(props) {
     };
   }, [selPersonaValidated, selStageValidated]);
 
+  var _useState15 = React.useState(0),
+      seconds = _useState15[0],
+      setSeconds = _useState15[1];
+
+  React.useEffect(function () {
+    if (seconds > 0) {
+      setTimeout(function () {
+        return setSeconds(seconds - 1);
+      }, 1000);
+    }
+
+    if (seconds < 1 && showingAlert) {
+      window.location = window.location.href.split("?")[0];
+    }
+  }, [seconds]);
+
   if (!objectparams.dynamicProps) {
     React.useEffect(function () {
       var isMounted = true;
@@ -2542,57 +2571,173 @@ function MatrixSelector(props) {
         isMounted = false;
       };
     }, []);
-    return /*#__PURE__*/React__default.createElement(React__default.Fragment, null, /*#__PURE__*/React__default.createElement("h3", null, "Matrix Selector"), updateSuccess && showingAlert && /*#__PURE__*/React__default.createElement(Alert, {
-      variant: "success"
-    }, /*#__PURE__*/React__default.createElement("h4", null, "Thanks!"), /*#__PURE__*/React__default.createElement("p", null, "We\u2019re tailoring our content for you\u2026")), !updateSuccess && !showingAlert && /*#__PURE__*/React__default.createElement(Form, {
-      inline: true,
-      id: "mura_matrix-selector-form",
-      onSubmit: handleSubmit,
-      "data-autowire": "false"
-    }, /*#__PURE__*/React__default.createElement("div", {
-      className: "select-wrap"
-    }, personaIds.length > 1 && /*#__PURE__*/React__default.createElement(React__default.Fragment, null, /*#__PURE__*/React__default.createElement(Form.Label, {
-      className: "mr-2"
-    }, personaQ), /*#__PURE__*/React__default.createElement(Form.Control, {
-      as: "select",
-      name: "persona",
-      size: "sm",
-      className: "mr-2",
-      value: props.curSelPersona,
-      onChange: updateSelectedPersona
-    }, /*#__PURE__*/React__default.createElement("option", {
-      value: "",
-      key: "--"
-    }, "--"), personaIds.map(function (personaId) {
-      return /*#__PURE__*/React__default.createElement("option", {
-        value: personaId.personaid,
-        key: personaId.personaid
-      }, personaId.selfidq);
-    }))), stageIds.length > 1 && /*#__PURE__*/React__default.createElement(React__default.Fragment, null, /*#__PURE__*/React__default.createElement(Form.Label, {
-      className: "mr-2"
-    }, stageQ), /*#__PURE__*/React__default.createElement(Form.Control, {
-      as: "select",
-      name: "stage",
-      size: "sm",
-      value: props.curSelStage,
-      onChange: updateSelectedStage
-    }, /*#__PURE__*/React__default.createElement("option", {
-      value: "",
-      key: "--"
-    }, "--"), stageIds.map(function (stageId) {
-      return /*#__PURE__*/React__default.createElement("option", {
-        value: stageId.stageid,
-        key: stageId.stageid
-      }, stageId.selfidq);
-    })))), /*#__PURE__*/React__default.createElement("div", {
-      className: "w-100 mt-3"
-    }, /*#__PURE__*/React__default.createElement(Button, {
-      variant: "primary",
-      type: "submit",
-      disabled: !buttonEnabled
-    }, isUpdating ? 'Updating...' : 'Submit'))));
+
+    var _React$useState = React__default.useState(''),
+        open = _React$useState[0],
+        setOpen = _React$useState[1];
+
+    switch (displayType) {
+      case "widget":
+        return /*#__PURE__*/React__default.createElement(React__default.Fragment, null, /*#__PURE__*/React__default.createElement(Alert, {
+          variant: "info matrix-selector-edit-alert"
+        }, /*#__PURE__*/React__default.createElement("p", {
+          className: "mb-0"
+        }, "Matrix Selector")), /*#__PURE__*/React__default.createElement("div", {
+          className: (open ? 'open' : '') + " mura-matrix-selector__widget " + props.widgetposition
+        }, /*#__PURE__*/React__default.createElement(Button, {
+          variant: "light",
+          onClick: function onClick() {
+            setOpen(!open);
+          }
+        }, /*#__PURE__*/React__default.createElement(reactFontawesome.FontAwesomeIcon, {
+          icon: freeSolidSvgIcons.faBolt
+        }), " Optimize Your Experience"), /*#__PURE__*/React__default.createElement("div", {
+          className: "mura-matrix-selector__widget__inner"
+        }, /*#__PURE__*/React__default.createElement(MatrixForm, _extends({
+          updateSuccess: updateSuccess,
+          showingAlert: showingAlert,
+          handleSubmit: handleSubmit,
+          selfIdStart: selfIdStart,
+          updateSelectedPersona: updateSelectedPersona,
+          personaIds: personaIds,
+          stageIds: stageIds,
+          selfIdMiddle: selfIdMiddle,
+          updateSelectedStage: updateSelectedStage,
+          selfIdEnd: selfIdEnd,
+          buttonEnabled: buttonEnabled,
+          isUpdating: isUpdating,
+          displaytype: displayType
+        }, props, {
+          seconds: seconds
+        })), /*#__PURE__*/React__default.createElement("div", {
+          className: "mura-matrix-selector__widget__inner__footer"
+        }, /*#__PURE__*/React__default.createElement(MatrixSelectorFooter, props)))));
+
+      case "eyebrow":
+        return /*#__PURE__*/React__default.createElement("div", {
+          className: "mura-matrix-selector__eyebrow"
+        }, /*#__PURE__*/React__default.createElement("div", {
+          className: "mura-matrix-selector__eyebrow__inner"
+        }, !showingAlert && /*#__PURE__*/React__default.createElement("div", {
+          className: "mura-matrix-selector__eyebrow__inner__heading"
+        }, /*#__PURE__*/React__default.createElement("h4", null, /*#__PURE__*/React__default.createElement(reactFontawesome.FontAwesomeIcon, {
+          icon: freeSolidSvgIcons.faBolt
+        }), " Optimize Your Experience")), /*#__PURE__*/React__default.createElement(MatrixForm, _extends({
+          updateSuccess: updateSuccess,
+          showingAlert: showingAlert,
+          handleSubmit: handleSubmit,
+          selfIdStart: selfIdStart,
+          updateSelectedPersona: updateSelectedPersona,
+          personaIds: personaIds,
+          stageIds: stageIds,
+          selfIdMiddle: selfIdMiddle,
+          updateSelectedStage: updateSelectedStage,
+          selfIdEnd: selfIdEnd,
+          buttonEnabled: buttonEnabled,
+          isUpdating: isUpdating,
+          displaytype: displayType
+        }, props, {
+          seconds: seconds
+        })), !showingAlert && /*#__PURE__*/React__default.createElement("div", {
+          className: "mura-matrix-selector__eyebrow__inner__footer"
+        }, /*#__PURE__*/React__default.createElement(MatrixSelectorFooter, props))));
+    }
+
+    return /*#__PURE__*/React__default.createElement(React__default.Fragment, null, /*#__PURE__*/React__default.createElement(MatrixForm, _extends({
+      updateSuccess: updateSuccess,
+      showingAlert: showingAlert,
+      handleSubmit: handleSubmit,
+      selfIdStart: selfIdStart,
+      updateSelectedPersona: updateSelectedPersona,
+      personaIds: personaIds,
+      stageIds: stageIds,
+      selfIdMiddle: selfIdMiddle,
+      updateSelectedStage: updateSelectedStage,
+      selfIdEnd: selfIdEnd,
+      buttonEnabled: buttonEnabled,
+      isUpdating: isUpdating
+    }, props, {
+      seconds: seconds
+    })), !showingAlert && /*#__PURE__*/React__default.createElement("div", {
+      className: "mura-matrix-selector__inline__footer",
+      key: "matrix-selector-footer"
+    }, /*#__PURE__*/React__default.createElement(MatrixSelectorFooter, props)));
   }
 }
+
+var MatrixSelectorFooter = function MatrixSelectorFooter(props) {
+  var CustomLinks = props.customlinks ? Array.from(props.customlinks) : [];
+  console.log('props: ', props);
+
+  if (CustomLinks && CustomLinks.length) {
+    var UtilityLinks = CustomLinks.map(function (link) {
+      return /*#__PURE__*/React__default.createElement("li", {
+        className: "list-inline-item",
+        key: link.name
+      }, /*#__PURE__*/React__default.createElement("a", {
+        href: link.value
+      }, link.name));
+    });
+    return /*#__PURE__*/React__default.createElement("ul", {
+      className: "list-inline"
+    }, UtilityLinks);
+  }
+
+  return null;
+};
+
+var MatrixForm = function MatrixForm(props) {
+  return /*#__PURE__*/React__default.createElement(React__default.Fragment, null, props.updateSuccess && props.showingAlert && /*#__PURE__*/React__default.createElement("div", {
+    className: "successMessage"
+  }, /*#__PURE__*/React__default.createElement("h4", null, "Thanks!"), /*#__PURE__*/React__default.createElement("p", null, "We\u2019re tailoring our content for you in \u2026 ", props.seconds)), !props.updateSuccess && !props.showingAlert && /*#__PURE__*/React__default.createElement(Form, {
+    inline: true,
+    id: "mura_matrix-selector-form",
+    onSubmit: props.handleSubmit,
+    "data-autowire": "false"
+  }, /*#__PURE__*/React__default.createElement("div", {
+    className: "select-wrap"
+  }, props.personaIds.length > 1 && /*#__PURE__*/React__default.createElement(React__default.Fragment, null, /*#__PURE__*/React__default.createElement(Form.Label, {
+    className: "mr-2"
+  }, props.selfIdStart), /*#__PURE__*/React__default.createElement(Form.Control, {
+    as: "select",
+    name: "persona",
+    size: "sm",
+    className: "mr-2",
+    value: props.curSelPersona,
+    onChange: props.updateSelectedPersona
+  }, /*#__PURE__*/React__default.createElement("option", {
+    value: "",
+    key: "--"
+  }, "--"), props.personaIds.map(function (personaId) {
+    return /*#__PURE__*/React__default.createElement("option", {
+      value: personaId.personaid,
+      key: personaId.personaid
+    }, personaId.selfidq);
+  }))), props.stageIds.length > 1 && /*#__PURE__*/React__default.createElement(React__default.Fragment, null, /*#__PURE__*/React__default.createElement(Form.Label, {
+    className: "mr-2"
+  }, props.selfIdMiddle), /*#__PURE__*/React__default.createElement(Form.Control, {
+    as: "select",
+    name: "stage",
+    size: "sm",
+    className: "mr-2",
+    value: props.curSelStage,
+    onChange: props.updateSelectedStage
+  }, /*#__PURE__*/React__default.createElement("option", {
+    value: "",
+    key: "--"
+  }, "--"), props.stageIds.map(function (stageId) {
+    return /*#__PURE__*/React__default.createElement("option", {
+      value: stageId.stageid,
+      key: stageId.stageid
+    }, stageId.selfidq);
+  }))), /*#__PURE__*/React__default.createElement("p", null, props.selfIdEnd), /*#__PURE__*/React__default.createElement(Button, {
+    className: "ml-2",
+    variant: "link",
+    size: "sm",
+    type: "submit",
+    disabled: !props.buttonEnabled
+  }, props.isUpdating ? 'Updating...' : 'Update'))));
+};
 
 var getDynamicProps$1 = function getDynamicProps(props) {
   try {
@@ -2883,29 +3028,76 @@ var NavLinkDropdown = function NavLinkDropdown(props) {
   }));
 };
 
+// A type of promise-like that resolves synchronously and supports only one observer
+
+const _iteratorSymbol = /*#__PURE__*/ typeof Symbol !== "undefined" ? (Symbol.iterator || (Symbol.iterator = Symbol("Symbol.iterator"))) : "@@iterator";
+
+const _asyncIteratorSymbol = /*#__PURE__*/ typeof Symbol !== "undefined" ? (Symbol.asyncIterator || (Symbol.asyncIterator = Symbol("Symbol.asyncIterator"))) : "@@asyncIterator";
+
+// Asynchronously call a function and send errors to recovery continuation
+function _catch(body, recover) {
+	try {
+		var result = body();
+	} catch(e) {
+		return recover(e);
+	}
+	if (result && result.then) {
+		return result.then(void 0, recover);
+	}
+	return result;
+}
+
+function getDefaultQueryPropsFromLayout$1(layout, item) {
+  if (layout) {
+    return layout.getQueryProps ? layout.getQueryProps(item) : {
+      fields: ''
+    };
+  } else {
+    return {
+      fields: ''
+    };
+  }
+}
+
 function ResourceHub(props) {
   var Mura = nextCore.getMura();
   var objectparams = Object.assign({}, props);
   var DynamicCollectionLayout = getLayout(objectparams.layout).component;
+  objectparams.fields = objectparams.fields || getDefaultQueryPropsFromLayout$1(DynamicCollectionLayout, objectparams).fields || 'Image,Date,Title,Summary,Credits,Tags';
+  var tags = '';
+  var author = '';
+
+  if (!Mura.editing) {
+    var router$1 = router.useRouter();
+    tags = router$1.query.t;
+    author = router$1.query.a;
+  }
+
   var _collection = false;
+  var _curSubtype = '*';
+  var _curCategoryIds = '*';
+  var _curPersonaId = '*';
+  var _curCategoriesArray = [];
+  var _hasMXP = false;
 
   if (objectparams.dynamicProps) {
     _collection = new Mura.EntityCollection(objectparams.dynamicProps.collection, Mura._requestcontext);
+    _curSubtype = objectparams.dynamicProps.filterprops.subtype;
+    _curCategoryIds = objectparams.dynamicProps.filterprops.selectedcats.filter(function (sc) {
+      return sc.instanceid == props.instanceid;
+    }).map(function (item) {
+      return item.value;
+    }).join();
+    _curPersonaId = objectparams.dynamicProps.filterprops.personaid;
+    _curCategoriesArray = objectparams.dynamicProps.filterprops.selectedcats;
+    _hasMXP = objectparams.dynamicProps.filterprops.hasmxp;
   }
 
   var _useState = React.useState(_collection),
       collection = _useState[0],
       setCollection = _useState[1];
 
-  var _curSubtype = objectparams.dynamicProps ? objectparams.dynamicProps.filterprops.subtype : '*';
-
-  var _curCategoryIds = objectparams.dynamicProps ? objectparams.dynamicProps.filterprops.categoryid : '*';
-
-  var _curPersonaId = objectparams.dynamicProps ? objectparams.dynamicProps.filterprops.personaid : '*';
-
-  var _curCategoriesArray = objectparams.dynamicProps ? objectparams.dynamicProps.filterprops.selectedcats : [];
-
-  var _hasMXP = objectparams.dynamicProps ? objectparams.dynamicProps.filterprops.hasmxp : false;
+  var instanceId = objectparams.instanceid;
 
   var _useState2 = React.useState(_curSubtype),
       curSubtype = _useState2[0],
@@ -2923,17 +3115,36 @@ function ResourceHub(props) {
       curPersonaId = _useState5[0],
       setCurPersonaId = _useState5[1];
 
-  var _useState6 = React.useState(_hasMXP),
-      hasMXP = _useState6[0],
-      setHasMXP = _useState6[1];
+  var _useState6 = React.useState(''),
+      curSearchText = _useState6[0],
+      setCurSearchText = _useState6[1];
 
-  var _useState7 = React.useState(false),
-      newFilter = _useState7[0],
-      setNewFilter = _useState7[1];
+  var _useState7 = React.useState(_hasMXP),
+      hasMXP = _useState7[0],
+      setHasMXP = _useState7[1];
 
-  var _useState8 = React.useState(new Date().toString()),
-      filterUpdated = _useState8[0],
-      setFilterUpdated = _useState8[1];
+  var _useState8 = React.useState(objectparams.showtextsearch),
+      showTextSearch = _useState8[0];
+
+  var _useState9 = React.useState(false),
+      newFilter = _useState9[0],
+      setNewFilter = _useState9[1];
+
+  var _useState10 = React.useState(new Date().toString()),
+      filterUpdated = _useState10[0],
+      setFilterUpdated = _useState10[1];
+
+  React.useEffect(function () {
+    return function () {
+    };
+  }, []);
+
+  var handleSubmit = function handleSubmit(e) {
+    e.preventDefault();
+    setCurSearchText(curSearchText);
+    setNewFilter(true);
+    setFilterUpdated(new Date().toString());
+  };
 
   var updateFilter = function updateFilter(e) {
     switch (e.target.name) {
@@ -2960,13 +3171,14 @@ function ResourceHub(props) {
         break;
 
       default:
-        if (!curCategoryIds.includes(e.target.value)) {
-          setCurCategoriesArray(updateCategoryIds(e.target.name, e.target.value, curCategoriesArray));
-          setCurCategoryIds(getCategoryIds(curCategoriesArray));
-          setNewFilter(true);
-          setFilterUpdated(new Date().toString());
-        }
+        if (!curCategoryIds.includes(e.target.value)) ;
 
+        setCurCategoriesArray(updateCategoryIds(e.target.name, e.target.value, curCategoriesArray, instanceId));
+        setCurCategoryIds(getCategoryIds(curCategoriesArray.filter(function (sc) {
+          return sc.instanceid == instanceId;
+        })));
+        setNewFilter(true);
+        setFilterUpdated(new Date().toString());
     }
   };
 
@@ -2979,12 +3191,16 @@ function ResourceHub(props) {
           if (isMounted) {
             setHasMXP(filterProps.hasmxp);
             setCurSubtype(filterProps.subtype);
-            setCurCategoryIds(filterProps.categoryid);
+            setCurCategoryIds(filterProps.selectedcats.filter(function (sc) {
+              return sc.instanceid == props.instanceid;
+            }).map(function (item) {
+              return item.value;
+            }).join());
             setCurPersonaId(filterProps.personaid);
             setCurCategoriesArray(filterProps.selectedcats);
 
             if (isMounted) {
-              getCollection(props, filterProps).then(function (collection) {
+              getCollection(props, filterProps, curSearchText, tags, author).then(function (collection) {
                 setCollection(collection);
               });
             }
@@ -2998,7 +3214,6 @@ function ResourceHub(props) {
     }, [filterUpdated]);
 
     if (collection) {
-      console.log('dynamic');
       return /*#__PURE__*/React__default.createElement("div", null, /*#__PURE__*/React__default.createElement(RenderFilterForm, _extends({
         updateFilter: updateFilter
       }, props, {
@@ -3006,7 +3221,11 @@ function ResourceHub(props) {
         curCategoryId: curCategoryIds,
         curPersonaId: curPersonaId,
         curCategoriesArray: curCategoriesArray,
-        hasMXP: hasMXP
+        hasMXP: hasMXP,
+        handleSubmit: handleSubmit,
+        curSearchText: curSearchText,
+        setCurSearchText: setCurSearchText,
+        showTextSearch: showTextSearch
       })), /*#__PURE__*/React__default.createElement(DynamicCollectionLayout, {
         setCollection: setCollection,
         collection: collection,
@@ -3014,7 +3233,6 @@ function ResourceHub(props) {
         link: RouterlessLink
       }));
     } else {
-      console.log('empty');
       return /*#__PURE__*/React__default.createElement("div", null);
     }
   } else {
@@ -3030,7 +3248,7 @@ function ResourceHub(props) {
             setCurCategoryIds(filterProps.categoryid);
             setCurPersonaId(filterProps.personaid);
             setCurCategoriesArray(filterProps.selectedcats);
-            getCollection(props, filterProps).then(function (collection) {
+            getCollection(props, filterProps, curSearchText, tags, author).then(function (collection) {
               if (isMounted) {
                 setCollection(collection);
               }
@@ -3050,8 +3268,13 @@ function ResourceHub(props) {
       curCategoryId: curCategoryIds,
       curPersonaId: curPersonaId,
       curCategoriesArray: curCategoriesArray,
-      hasMXP: hasMXP
+      hasMXP: hasMXP,
+      handleSubmit: handleSubmit,
+      curSearchText: curSearchText,
+      setCurSearchText: setCurSearchText,
+      showTextSearch: showTextSearch
     })), /*#__PURE__*/React__default.createElement(DynamicCollectionLayout, {
+      setCollection: setCollection,
       collection: collection,
       props: props,
       link: RouterLink
@@ -3102,65 +3325,97 @@ var getDynamicProps$3 = function getDynamicProps(props) {
   }
 };
 
-var getCollection = function getCollection(props, filterProps) {
+var getCollection = function getCollection(props, filterProps, curSearchText, tags, author) {
   try {
-    var _Mura = nextCore.getMura();
+    var Mura = nextCore.getMura();
+    var filterCategories = filterProps.categoryid;
 
     if (typeof props.content.getAll != 'undefined') {
       props.content = props.content.getAll();
     }
 
-    var excludeIDList = props.content.contentid;
+    if (filterProps.selectedcats.length) {
+      filterCategories = filterProps.selectedcats.filter(function (sc) {
+        return sc.instanceid == props.instanceid;
+      }).map(function (item) {
+        return item.value;
+      });
 
-    var getItemsPerPage = function getItemsPerPage(item) {
-      if (_Mura.renderMode != 'static') {
-        if (typeof item.nextn != 'undefined') {
-          return item.nextn;
-        } else if (typeof item.itemsperpage != 'undefined') {
-          return item.itemsperpage;
-        } else {
-          return 0;
+      for (var i = 0; i < filterCategories.length; i++) {
+        if (filterCategories[i] === '*') {
+          filterCategories.splice(i, 1);
+          i--;
         }
-      } else {
-        return 0;
       }
-    };
-
-    var feed = _Mura.getFeed('content');
-
-    feed.prop('type').isIn('Page,Link,File');
-    feed.andProp('path').containsValue(props.content.contentid);
-    feed.andProp('contentid').isNotIn(excludeIDList);
-    feed.expand('categoryassignments');
-
-    if (filterProps.subtype.length) {
-      feed.andProp('subtype').isEQ(filterProps.subtype);
     }
 
-    if (filterProps.categoryid.length) {
-      feed.andProp('categoryid').isIn(filterProps.categoryid);
-      feed.useCategoryIntersect(true);
-    }
-
-    feed.maxItems(props.maxitems);
-    feed.itemsPerPage(getItemsPerPage());
     var collection;
 
-    var _temp2 = function () {
-      if (filterProps.personaid.length) {
-        return Promise.resolve(feed.getQuery({
-          sortBy: "mxpRelevance"
-        })).then(function (_feed$getQuery) {
-          collection = _feed$getQuery;
-        });
-      } else {
-        return Promise.resolve(feed.sort('releasedate', 'desc').getQuery()).then(function (_feed$sort$getQuery) {
-          collection = _feed$sort$getQuery;
-        });
-      }
-    }();
+    var _temp3 = _catch(function () {
+      var excludeIDList = props.content.contentid;
+      var feed = Mura.getFeed('content');
+      feed.prop('type').isIn('Page,Link,File');
+      feed.andProp('path').containsValue(props.content.contentid);
+      feed.andProp('contentid').isNotIn(excludeIDList);
+      feed.expand('categoryassignments');
+      feed.andProp('subtype').isNEQ('Author');
+      feed.andProp('subtype').isNEQ('Confirmation');
+      feed.andProp('subtype').isNEQ('Folder');
+      feed.fields(getSelectFields(props));
 
-    return Promise.resolve(_temp2 && _temp2.then ? _temp2.then(function () {
+      if (filterProps.subtype.length) {
+        feed.andProp('subtype').isEQ(filterProps.subtype);
+      }
+
+      if (filterCategories.length) {
+        feed.andProp('categoryid').isIn(filterCategories);
+        feed.useCategoryIntersect(true);
+      }
+
+      if (curSearchText && curSearchText.length) {
+        feed.andOpenGrouping();
+        feed.orProp('title').containsValue(curSearchText);
+        feed.orProp('body').containsValue(curSearchText);
+        feed.orProp('summary').containsValue(curSearchText);
+        feed.closeGrouping();
+      }
+
+      if (tags) {
+        feed.andProp('tag').containsValue(tags);
+      }
+
+      if (author) {
+        feed.andProp('Credits').isEQ(author);
+      }
+
+      feed.maxItems(props.maxitems);
+
+      if (Mura.renderMode != 'static') {
+        feed.itemsPerPage(props.nextn);
+      } else {
+        feed.itemsPerPage(0);
+      }
+
+      var _temp = function () {
+        if (filterProps.personaid.length) {
+          return Promise.resolve(feed.getQuery({
+            sortBy: "mxpRelevance"
+          })).then(function (_feed$getQuery) {
+            collection = _feed$getQuery;
+          });
+        } else {
+          return Promise.resolve(feed.sort('releasedate', 'desc').getQuery()).then(function (_feed$sort$getQuery) {
+            collection = _feed$sort$getQuery;
+          });
+        }
+      }();
+
+      if (_temp && _temp.then) return _temp.then(function () {});
+    }, function (e) {
+      console.log('error getting colleciton ', e);
+    });
+
+    return Promise.resolve(_temp3 && _temp3.then ? _temp3.then(function () {
       return collection;
     }) : collection);
   } catch (e) {
@@ -3170,6 +3425,7 @@ var getCollection = function getCollection(props, filterProps) {
 
 var getFilterProps = function getFilterProps(subtype, categoryid, personaid, selectedcategories, newfilter) {
   try {
+    var Mura = nextCore.getMura();
     var Subtype = subtype;
     var Categoryid = categoryid;
     var Personaid = personaid;
@@ -3190,13 +3446,13 @@ var getFilterProps = function getFilterProps(subtype, categoryid, personaid, sel
 var RenderFilterForm = function RenderFilterForm(props) {
   var objectparams = Object.assign({}, props);
 
-  var _useState9 = React.useState(false),
-      categoriesArray = _useState9[0],
-      setCategoriesArray = _useState9[1];
+  var _useState11 = React.useState(false),
+      categoriesArray = _useState11[0],
+      setCategoriesArray = _useState11[1];
 
-  var _useState10 = React.useState(false),
-      personasArray = _useState10[0],
-      setPersonasArray = _useState10[1];
+  var _useState12 = React.useState(false),
+      personasArray = _useState12[0],
+      setPersonasArray = _useState12[1];
 
   var subtypesArray = objectparams.subtypes ? objectparams.subtypes.split(',') : [];
   var categoryIds = objectparams.categoryids ? objectparams.categoryids.split(',') : [];
@@ -3204,7 +3460,7 @@ var RenderFilterForm = function RenderFilterForm(props) {
   React.useEffect(function () {
     var isMounted = true;
 
-    if (isMounted && personaIds.length) {
+    if (isMounted && categoryIds && categoryIds.length) {
       getCategoriesInfo(categoryIds).then(function (data) {
         if (isMounted && data.items.length) {
           setCategoriesArray(data.items);
@@ -3212,7 +3468,7 @@ var RenderFilterForm = function RenderFilterForm(props) {
       });
     }
 
-    if (isMounted && personaIds.length) {
+    if (isMounted && personaIds && personaIds.length) {
       getPersonasInfo(personaIds).then(function (data) {
         if (isMounted && data.items.length) {
           setPersonasArray(data.items);
@@ -3226,8 +3482,28 @@ var RenderFilterForm = function RenderFilterForm(props) {
   }, []);
   return /*#__PURE__*/React__default.createElement(Form, {
     className: "row row-cols-1 row-cols-sm-2 row-cols-lg-3",
-    id: "resource-filter-form"
-  }, subtypesArray.length > 0 && /*#__PURE__*/React__default.createElement(Form.Group, {
+    id: "resource-filter-form",
+    onSubmit: props.handleSubmit
+  }, props.showTextSearch && /*#__PURE__*/React__default.createElement("div", {
+    className: "col"
+  }, /*#__PURE__*/React__default.createElement(Form.Label, null, "Search:"), /*#__PURE__*/React__default.createElement(InputGroup, {
+    controlId: "textSearch",
+    className: "text"
+  }, /*#__PURE__*/React__default.createElement(Form.Control, {
+    type: "text",
+    name: "s",
+    placeholder: "Search",
+    value: props.curSearchText,
+    onChange: function onChange(e) {
+      return props.setCurSearchText(e.target.value);
+    }
+  }), /*#__PURE__*/React__default.createElement(InputGroup.Append, null, /*#__PURE__*/React__default.createElement(Button, {
+    variant: "secondary",
+    type: "submit"
+  }, /*#__PURE__*/React__default.createElement(reactFontawesome.FontAwesomeIcon, {
+    icon: freeSolidSvgIcons.faSearch,
+    size: "lg"
+  }))))), subtypesArray && subtypesArray.length > 0 && /*#__PURE__*/React__default.createElement(Form.Group, {
     controlId: "selectSubtypes",
     className: "col type"
   }, /*#__PURE__*/React__default.createElement(Form.Label, null, "Content Types:"), /*#__PURE__*/React__default.createElement(Form.Control, {
@@ -3274,9 +3550,9 @@ var RenderFilterForm = function RenderFilterForm(props) {
 };
 
 var CategorySelect = function CategorySelect(props) {
-  var _useState11 = React.useState([]),
-      categoryKids = _useState11[0],
-      setCategoryKids = _useState11[1];
+  var _useState13 = React.useState([]),
+      categoryKids = _useState13[0],
+      setCategoryKids = _useState13[1];
 
   var curSelectValue = '*';
   React.useEffect(function () {
@@ -3310,7 +3586,7 @@ var CategorySelect = function CategorySelect(props) {
   }, /*#__PURE__*/React__default.createElement("option", {
     value: "*",
     key: "All Categories"
-  }, "All"), categoryKids.map(function (category, index) {
+  }, "All ", props.filterlabel), categoryKids.map(function (category, index) {
     return /*#__PURE__*/React__default.createElement("option", {
       value: category.categoryid,
       key: index
@@ -3320,6 +3596,7 @@ var CategorySelect = function CategorySelect(props) {
 
 var getCategoriesInfo = function getCategoriesInfo(categoryIds) {
   try {
+    var Mura = nextCore.getMura();
     var feed = Mura.getFeed('category');
     feed.findMany(categoryIds);
     return Promise.resolve(feed.getQuery()).then(function (query) {
@@ -3333,6 +3610,7 @@ var getCategoriesInfo = function getCategoriesInfo(categoryIds) {
 
 var getPersonasInfo = function getPersonasInfo(personaIds) {
   try {
+    var Mura = nextCore.getMura();
     var feed = Mura.getFeed('persona');
     feed.findMany(personaIds);
     return Promise.resolve(feed.getQuery()).then(function (query) {
@@ -3346,6 +3624,7 @@ var getPersonasInfo = function getPersonasInfo(personaIds) {
 
 var getCategoryKidsInfo = function getCategoryKidsInfo(categoryId) {
   try {
+    var Mura = nextCore.getMura();
     var feed = Mura.getFeed('category');
     feed.prop('parentid').isEQ(categoryId);
     return Promise.resolve(feed.getQuery()).then(function (query) {
@@ -3357,12 +3636,13 @@ var getCategoryKidsInfo = function getCategoryKidsInfo(categoryId) {
   }
 };
 
-var updateCategoryIds = function updateCategoryIds(name, value, curCategoriesArray) {
+var updateCategoryIds = function updateCategoryIds(name, value, curCategoriesArray, InstanceId) {
   var match = 0;
 
   for (var i = 0; i < curCategoriesArray.length; i++) {
     if (curCategoriesArray[i].name === name) {
       curCategoriesArray[i].value = value;
+      curCategoriesArray[i].instanceid = InstanceId;
       match = 1;
       break;
     }
@@ -3371,7 +3651,8 @@ var updateCategoryIds = function updateCategoryIds(name, value, curCategoriesArr
   if (!match) {
     curCategoriesArray.push({
       name: name,
-      value: value
+      value: value,
+      instanceid: InstanceId
     });
   }
 
