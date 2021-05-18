@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import MuraStyles from './Styles';
 import MuraExternalAssets from './ExternalAssets';
 import { getMura } from './Connector';
+import Mura from 'mura.js';
 
 
 const MainLayout = props => {
@@ -69,11 +70,7 @@ function contentDidChange(_content) {
   }
 
   //Remove pre-existing container
-  const remoteFooter=Mura('#mura-remote-footer');
-
-  if(remoteFooter.length){
-      remoteFooter.remove();
-  }
+  Mura('#mura-remote-footer, .mura-cta, [data-transient="true"]').remove();
 
   if (typeof Mura.deInitLayoutManager !== 'undefined') {
     Mura.deInitLayoutManager();

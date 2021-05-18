@@ -1,5 +1,5 @@
 import React, { useEffect, createContext } from 'react';
-import Mura$1 from 'mura.js';
+import Mura from 'mura.js';
 
 function _extends() {
   _extends = Object.assign || function (target) {
@@ -147,7 +147,7 @@ function _catch(body, recover) {
 var getModuleProps = function getModuleProps(item, moduleStyleData, isEditMode, content) {
   try {
     var _temp27 = function _temp27() {
-      var styleData = Mura$1.recordModuleStyles(item);
+      var styleData = Mura.recordModuleStyles(item);
       return {
         isEditMode: isEditMode,
         cssRules: styleData.cssRules,
@@ -163,7 +163,7 @@ var getModuleProps = function getModuleProps(item, moduleStyleData, isEditMode, 
       var objectkey = item.object;
 
       if (typeof ComponentRegistry[objectkey] == 'undefined') {
-        objectkey = Mura$1.firstToUpperCase(item.object);
+        objectkey = Mura.firstToUpperCase(item.object);
       }
 
       var _temp24 = function () {
@@ -181,7 +181,7 @@ var getModuleProps = function getModuleProps(item, moduleStyleData, isEditMode, 
 
                 var _temp31 = _forIn(item.items, function (containerIdx) {
                   var containerItem = item.items[containerIdx];
-                  containerItem.instanceid = containerItem.instanceid || Mura$1.createUUID();
+                  containerItem.instanceid = containerItem.instanceid || Mura.createUUID();
                   return Promise.resolve(getModuleProps(containerItem, moduleStyleData, isEditMode, content)).then(function (_getModuleProps3) {
                     moduleStyleData[containerItem.instanceid] = _getModuleProps3;
                   });
@@ -237,7 +237,7 @@ var getRegionProps = function getRegionProps(content, isEditMode) {
       function _temp15() {
         var _temp13 = _forIn(region.local.items, function (itemIdx) {
           var item = region.local.items[itemIdx];
-          item.instanceid = item.instanceid || Mura$1.createUUID();
+          item.instanceid = item.instanceid || Mura.createUUID();
           return Promise.resolve(getModuleProps(item, moduleStyleData, isEditMode, content)).then(function (_getModuleProps2) {
             moduleStyleData[item.instanceid] = _getModuleProps2;
           });
@@ -252,7 +252,7 @@ var getRegionProps = function getRegionProps(content, isEditMode) {
         if (typeof region.inherited != 'undefined' && Array.isArray(region.inherited.items)) {
           var _temp18 = _forIn(region.inherited.items, function (itemdIx) {
             var item = region.inherited.items[itemdIx];
-            item.instanceid = item.instanceid || Mura$1.createUUID();
+            item.instanceid = item.instanceid || Mura.createUUID();
             return Promise.resolve(getModuleProps(item, moduleStyleData, isEditMode, content)).then(function (_getModuleProps) {
               moduleStyleData[item.instanceid] = _getModuleProps;
             });
@@ -278,7 +278,7 @@ var renderContent = function renderContent(context, isEditMode, params) {
     var query = {};
 
     if (context.browser) {
-      query = Mura$1.getQueryStringParams();
+      query = Mura.getQueryStringParams();
     } else if (context.query) {
       query = _extends({}, context.query);
     }
@@ -302,7 +302,7 @@ var renderContent = function renderContent(context, isEditMode, params) {
     }
 
     query = Object.assign(query, params);
-    return Promise.resolve(Mura$1.renderFilename(filename, query).then(function (rendered) {
+    return Promise.resolve(Mura.renderFilename(filename, query).then(function (rendered) {
       return Promise.resolve(rendered);
     }, function (rendered) {
       return Promise.resolve(rendered);
@@ -352,7 +352,7 @@ var getHref = function getHref(filename) {
   });
 
   if (connectorConfig.siteidinurls) {
-    return '/' + Mura$1.siteid + '/' + path.join('/');
+    return '/' + Mura.siteid + '/' + path.join('/');
   } else {
     return '/' + path.join('/');
   }
@@ -362,7 +362,7 @@ var getComponent = function getComponent(item) {
   var objectkey = item.object;
 
   if (typeof ComponentRegistry[objectkey] == 'undefined') {
-    objectkey = Mura$1.firstToUpperCase(item.object);
+    objectkey = Mura.firstToUpperCase(item.object);
   }
 
   if (typeof ComponentRegistry[objectkey] != 'undefined') {
@@ -408,7 +408,7 @@ var getMuraPaths = function getMuraPaths() {
 
     var _temp4 = _forTo(siteids, function (index) {
       getMura(siteids[index]);
-      return Promise.resolve(Mura$1.getFeed('content').maxItems(0).itemsPerPage(0).sort('orderno').getQuery({
+      return Promise.resolve(Mura.getFeed('content').maxItems(0).itemsPerPage(0).sort('orderno').getQuery({
         renderMode: 'static'
       })).then(function (items) {
         pathList = pathList.concat(items.getAll().items);
@@ -425,7 +425,7 @@ var getMuraPaths = function getMuraPaths() {
   }
 };
 var getMura = function getMura(context) {
-  var startingsiteid = Mura$1.siteid;
+  var startingsiteid = Mura.siteid;
 
   if (typeof context == 'string' && ConnectorConfig.siteid.find(function (item) {
     return item === context;
@@ -473,8 +473,8 @@ var getMura = function getMura(context) {
   var clearMuraAPICache = function clearMuraAPICache() {
     delete connectorConfig.apiEndpoint;
     delete connectorConfig.apiendpoint;
-    delete Mura$1.apiEndpoint;
-    delete Mura$1.apiendpoint;
+    delete Mura.apiEndpoint;
+    delete Mura.apiendpoint;
   };
 
   if (context && context.res) {
@@ -483,14 +483,14 @@ var getMura = function getMura(context) {
       request: context.req
     });
     clearMuraAPICache();
-    Mura$1.init(connectorConfig);
+    Mura.init(connectorConfig);
   } else if (startingsiteid != connectorConfig.siteid) {
     clearMuraAPICache();
-    Mura$1.init(connectorConfig);
+    Mura.init(connectorConfig);
   }
 
-  Mura$1.holdReady(true);
-  return Mura$1;
+  Mura.holdReady(true);
+  return Mura;
 };
 var getRootPath = function getRootPath() {
   return getMura().rootpath;
@@ -517,7 +517,7 @@ var getMuraProps = function getMuraProps(context, isEditMode, params) {
 
       return Promise.resolve(getRegionProps(content, isEditMode)).then(function (moduleStyleData) {
         function _temp7() {
-          Mura$1.deInit();
+          Mura.deInit();
           var props = {
             content: content,
             moduleStyleData: moduleStyleData,
@@ -546,7 +546,7 @@ var getMuraProps = function getMuraProps(context, isEditMode, params) {
         var _temp6 = _catch(function () {
           var _temp5 = function () {
             if (connectorConfig.codeblocks) {
-              return Promise.resolve(Mura$1.getFeed('codeblock').where().prop('active').isEQ(1).getQuery()).then(function (codeCollection) {
+              return Promise.resolve(Mura.getFeed('codeblock').where().prop('active').isEQ(1).getQuery()).then(function (codeCollection) {
                 codeCollection.forEach(function (item) {
                   var placement = item.get('placement').toLowerCase();
 
@@ -572,22 +572,22 @@ var getMuraProps = function getMuraProps(context, isEditMode, params) {
     };
 
     getMura(context);
-    Mura$1.renderMode = 'dynamic';
+    Mura.renderMode = 'dynamic';
 
     if (!isEditMode) {
-      Mura$1.renderMode = 'static';
+      Mura.renderMode = 'static';
     }
 
     var content = (_content = {
       title: "We're sorry, an error occurred",
       menutitle: "We're sorry, an error occurred",
       body: "",
-      contentid: Mura$1.createUUID(),
+      contentid: Mura.createUUID(),
       isnew: 1,
-      siteid: Mura$1.siteid,
+      siteid: Mura.siteid,
       type: 'Page',
       subtype: 'Default'
-    }, _content["contentid"] = Mura$1.createUUID(), _content.contenthistid = Mura$1.createUUID(), _content.filename = "500", _content.statusCode = 500, _content.errors = [], _content.displayregions = {
+    }, _content["contentid"] = Mura.createUUID(), _content.contenthistid = Mura.createUUID(), _content.filename = "500", _content.statusCode = 500, _content.errors = [], _content.displayregions = {
       primarycontent: {
         local: {
           items: []
@@ -981,11 +981,7 @@ function contentDidChange(_content) {
     return;
   }
 
-  var remoteFooter = Mura('#mura-remote-footer');
-
-  if (remoteFooter.length) {
-    remoteFooter.remove();
-  }
+  Mura('#mura-remote-footer, .mura-cta, [data-transient="true"]').remove();
 
   if (typeof Mura.deInitLayoutManager !== 'undefined') {
     Mura.deInitLayoutManager();
