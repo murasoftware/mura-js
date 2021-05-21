@@ -3502,7 +3502,7 @@ var RenderFilterForm = function RenderFilterForm(props) {
   }, props.showTextSearch && /*#__PURE__*/React.createElement("div", {
     className: "col"
   }, /*#__PURE__*/React.createElement(Form.Label, null, "Search:"), /*#__PURE__*/React.createElement(InputGroup, {
-    controlId: "textSearch",
+    controlid: "textSearch",
     className: "text"
   }, /*#__PURE__*/React.createElement(Form.Control, {
     type: "text",
@@ -3519,7 +3519,7 @@ var RenderFilterForm = function RenderFilterForm(props) {
     icon: faSearch,
     size: "lg"
   }))))), subtypesArray && subtypesArray.length > 0 && /*#__PURE__*/React.createElement(Form.Group, {
-    controlId: "selectSubtypes",
+    controlid: "selectSubtypes",
     className: "col type"
   }, /*#__PURE__*/React.createElement(Form.Label, null, "Content Types:"), /*#__PURE__*/React.createElement(Form.Control, {
     as: "select",
@@ -3545,7 +3545,7 @@ var RenderFilterForm = function RenderFilterForm(props) {
       curCategoriesArray: props.curCategoriesArray
     });
   })), props.hasMXP && personasArray.length > 0 && /*#__PURE__*/React.createElement(Form.Group, {
-    controlId: "selectPersonas",
+    controlid: "selectPersonas",
     className: "col topic"
   }, /*#__PURE__*/React.createElement(Form.Label, null, "Audience:"), /*#__PURE__*/React.createElement(Form.Control, {
     as: "select",
@@ -3590,7 +3590,7 @@ var CategorySelect = function CategorySelect(props) {
   }
 
   return /*#__PURE__*/React.createElement(Form.Group, {
-    controlId: "selectCategories" + props.filterlabel,
+    controlid: "selectCategories" + props.filterlabel,
     className: "col topic"
   }, /*#__PURE__*/React.createElement(Form.Label, null, props.filterlabel, ":"), /*#__PURE__*/React.createElement(Form.Control, {
     as: "select",
