@@ -96,15 +96,21 @@ const CurrentItems = (props) => {
             })
             }
           </div>
+          {
+            !fieldlist.includes('readmore') &&
+              <Link href={`/${item.get('filename')}`} className="stretched-link"></Link>
+          }
         </Card.Body>
-        <Card.Footer>
-          <CollectionReadMoreBtn
-            href={`/${item.get('filename')}`}
-            ctatext="Read More"
-            link={Link}
-            key={item.get('contentid')}
-          />
-        </Card.Footer>
+        { fieldlist.includes('readmore') &&
+          <Card.Footer>
+            <CollectionReadMoreBtn
+              href={`/${item.get('filename')}`}
+              ctatext="Read More"
+              link={Link}
+              key={item.get('contentid')}
+            />
+          </Card.Footer>
+        }
 
       </Card>
     );

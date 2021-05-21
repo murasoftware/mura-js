@@ -104,6 +104,10 @@ const CurrentItems = (props) => {
                   }        
                 })
                 }
+                {
+                  !fieldlist.includes('readmore') &&
+                    <Link href={`/${item.get('filename')}`} className="stretched-link"></Link>
+                }
               </div>
             </Card.Body>
           </div>

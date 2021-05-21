@@ -15,7 +15,7 @@ import { getMura } from '@murasoftware/next-core';
 const List = ({props,collection,setCollection,link}) => {
   const [pos, setPos] = useState(0);
   return (
-    <>
+    <div className="collectionLayoutList">
       <CurrentItems collection={collection} pos={pos} link={link} {...props} /> 
       
       <div className="row">
@@ -23,7 +23,7 @@ const List = ({props,collection,setCollection,link}) => {
         <CollectionNav setCollection={setCollection} collection={collection} pos={pos} setPos={setPos} link={link} {...props} />
         </div>
       </div>
-    </>
+    </div>
   )
 }
 
@@ -145,6 +145,10 @@ const ListMeta = (props) => {
                   return <div className={`mura-item-meta__${field}`} key={field} data-value={item.get(field)}>{item.get(field)}</div>
               }        
             })
+        }
+        {
+          !fieldlist.includes('readmore') &&
+            <Link href={`/${item.get('filename')}`} className="stretched-link"></Link>
         }
         </div>
       </div>

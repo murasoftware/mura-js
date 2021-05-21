@@ -42,7 +42,7 @@ const CurrentItems = (props) => {
   let itemsTo = pos+nextn > items.length ? items.length : pos+nextn;
   const fieldlist = fields ? fields.toLowerCase().split(",") : [];
   const maxItems = props.maxitems;
-  // console.log('fieldlist: ' + fieldlist);
+  console.log('fieldlist: ' + fieldlist);
   let catAssignments = [];
 
   if(getMura().renderMode != 'static' && scrollpages){
@@ -91,14 +91,22 @@ const CurrentItems = (props) => {
             })
             }
           </div>
+          {
+            !fieldlist.includes('readmore') &&
+              <Link href={`/${item.get('filename')}`} className="stretched-link"></Link>
+          }
         </Card.Body>
+        {(fieldlist.includes('readmore') || catAssignments) &&
         <Card.Footer>
-          <CollectionReadMoreBtn
-            href={`/${item.get('filename')}`}
-            ctatext="Read More"
-            link={Link}
-            key={item.get('contentid')}
-          />
+        {
+          fieldlist.includes('readmore') &&
+            <CollectionReadMoreBtn
+              href={`/${item.get('filename')}`}
+              ctatext="Read More"
+              link={Link}
+              key={item.get('contentid')}
+            />
+        }       
           
           {catAssignments &&
             <>
@@ -107,7 +115,7 @@ const CurrentItems = (props) => {
             </>
           }
         </Card.Footer>
-
+        }
       </Card>
     </div>
     );

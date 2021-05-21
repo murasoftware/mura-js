@@ -1330,6 +1330,9 @@ var CurrentItems$2 = function CurrentItems(props) {
             "data-value": item.get(field)
           }, item.get(field));
       }
+    }), !fieldlist.includes('readmore') && /*#__PURE__*/React__default.createElement(Link, {
+      href: "/" + item.get('filename'),
+      className: "stretched-link"
     })))))));
   }
 
@@ -1472,6 +1475,9 @@ var CurrentItems$3 = function CurrentItems(props) {
             "data-value": item.get(field)
           }, item.get(field));
       }
+    }), !fieldlist.includes('readmore') && /*#__PURE__*/React__default.createElement(Link, {
+      href: "/" + item.get('filename'),
+      className: "stretched-link"
     }))))))));
   }
 
@@ -1560,6 +1566,7 @@ var CurrentItems$4 = function CurrentItems(props) {
   var itemsTo = pos + nextn > items.length ? items.length : pos + nextn;
   var fieldlist = fields ? fields.toLowerCase().split(",") : [];
   var maxItems = props.maxitems;
+  console.log('fieldlist: ' + fieldlist);
   var catAssignments = [];
 
   if (nextCore.getMura().renderMode != 'static' && scrollpages) {
@@ -1618,7 +1625,10 @@ var CurrentItems$4 = function CurrentItems(props) {
             "data-value": item.get(field)
           }, item.get(field));
       }
-    }))), /*#__PURE__*/React__default.createElement(Card.Footer, null, /*#__PURE__*/React__default.createElement(CollectionReadMoreBtn, {
+    })), !fieldlist.includes('readmore') && /*#__PURE__*/React__default.createElement(Link, {
+      href: "/" + item.get('filename'),
+      className: "stretched-link"
+    })), (fieldlist.includes('readmore') || catAssignments) && /*#__PURE__*/React__default.createElement(Card.Footer, null, fieldlist.includes('readmore') && /*#__PURE__*/React__default.createElement(CollectionReadMoreBtn, {
       href: "/" + item.get('filename'),
       ctatext: "Read More",
       link: Link,
@@ -1649,7 +1659,9 @@ var List = function List(_ref) {
       pos = _useState[0],
       setPos = _useState[1];
 
-  return /*#__PURE__*/React__default.createElement(React__default.Fragment, null, /*#__PURE__*/React__default.createElement(CurrentItems$5, _extends({
+  return /*#__PURE__*/React__default.createElement("div", {
+    className: "collectionLayoutList"
+  }, /*#__PURE__*/React__default.createElement(CurrentItems$5, _extends({
     collection: collection,
     pos: pos,
     link: link
@@ -1810,6 +1822,9 @@ var ListMeta = function ListMeta(props) {
           "data-value": item.get(field)
         }, item.get(field));
     }
+  }), !fieldlist.includes('readmore') && /*#__PURE__*/React__default.createElement(Link, {
+    href: "/" + item.get('filename'),
+    className: "stretched-link"
   })));
 };
 
@@ -1936,7 +1951,10 @@ var CurrentItems$6 = function CurrentItems(props) {
             "data-value": item.get(field)
           }, item.get(field));
       }
-    }))), /*#__PURE__*/React__default.createElement(Card.Footer, null, /*#__PURE__*/React__default.createElement(CollectionReadMoreBtn, {
+    })), !fieldlist.includes('readmore') && /*#__PURE__*/React__default.createElement(Link, {
+      href: "/" + item.get('filename'),
+      className: "stretched-link"
+    })), fieldlist.includes('readmore') && /*#__PURE__*/React__default.createElement(Card.Footer, null, /*#__PURE__*/React__default.createElement(CollectionReadMoreBtn, {
       href: "/" + item.get('filename'),
       ctatext: "Read More",
       link: Link,
