@@ -111,7 +111,12 @@ const CurrentItems = (props) => {
           {catAssignments &&
             <>
               <hr />
-              <Card.Text key="categories"><ItemCategories categories={catAssignments} /></Card.Text>
+              <Card.Text key="categories">
+                <ItemCategories 
+                  categories={catAssignments}
+                  featuredonly="yes"
+                />
+              </Card.Text>
             </>
           }
         </Card.Footer>

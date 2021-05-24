@@ -1492,22 +1492,48 @@ var ItemCategories = function ItemCategories(props) {
   var catsList = [];
   var cat = '';
   var cats = Categories.items;
-  var catsTo = cats.length;
-  var hasnext = false;
+  var Featuredonly = 0;
+  var Parentcatname = props.parentcatname;
 
-  if (cats.length) {
-    for (var i = 0; i < catsTo; i++) {
-      cat = cats[i];
-      hasnext = i + 1 < catsTo;
-      catsList.push( /*#__PURE__*/React.createElement("span", {
-        key: cat.categoryid
-      }, cat.categoryname, hasnext && ", "));
-    }
-
-    return catsList;
+  if (props.featuredonly == "yes") {
+    Featuredonly = 1;
   }
 
-  return /*#__PURE__*/React.createElement("span", null, "No Categories");
+  console.log('Featuredonly: ', Featuredonly);
+
+  if (cats.length > 1 && Featuredonly) {
+    var filteredCats = cats.filter(function (category) {
+      return category.isfeature == 1;
+    });
+
+    if (filteredCats.length > 1) {
+      cats = filteredCats[0];
+    } else {
+      cats = filteredCats;
+    }
+  }
+
+  if (cats && cats.length) {
+    var catsTo = cats.length;
+
+    for (var i = 0; i < catsTo; i++) {
+      cat = cats[i];
+
+      if (Parentcatname) {
+        if (cat.parentname === Parentcatname) {
+          catsList.push( /*#__PURE__*/React.createElement("span", {
+            key: cat.categoryid
+          }, cat.categoryname));
+        }
+      } else {
+        catsList.push( /*#__PURE__*/React.createElement("span", {
+          key: cat.categoryid
+        }, cat.categoryname));
+      }
+    }
+  }
+
+  return catsList;
 };
 
 function CheckForItems() {
@@ -1633,7 +1659,8 @@ var CurrentItems$4 = function CurrentItems(props) {
     }), catAssignments && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("hr", null), /*#__PURE__*/React.createElement(Card.Text, {
       key: "categories"
     }, /*#__PURE__*/React.createElement(ItemCategories, {
-      categories: catAssignments
+      categories: catAssignments,
+      featuredonly: "yes"
     })))))));
   }
 
