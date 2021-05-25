@@ -154,18 +154,22 @@ var ItemDate = function ItemDate(props) {
   var date = '';
   var formatteddate = '';
 
-  if (props.releasedate) {
-    date = new Date(props.releasedate);
-  } else {
-    date = new Date(props.lastupdate);
+  if (props.releasedate != null && props.releasedate != '' || props.lastupdate != null && props.lastupdate != '') {
+    if (props.releasedate) {
+      date = new Date(props.releasedate);
+    } else {
+      date = new Date(props.lastupdate);
+    }
+
+    formatteddate = Intl.DateTimeFormat("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "2-digit"
+    }).format(date);
+    return formatteddate;
   }
 
-  formatteddate = Intl.DateTimeFormat("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "2-digit"
-  }).format(date);
-  return formatteddate;
+  return null;
 };
 
 var ItemCredits = function ItemCredits(props) {
@@ -278,19 +282,42 @@ function OutputMarkup(_ref) {
 }
 
 var ArticleMeta = function ArticleMeta(props) {
-  var fields = props.fields ? props.fields : 'Date,Credits,Tags';
+  console.log('fields ArticleMeta: ' + props.fields);
+  var fields = props.fields ? props.fields : '';
   var fieldlist = fields ? fields.toLowerCase().split(",") : [];
+  var titleclass = props.titleclass ? props.titleclass : '';
   var item = props.content;
+  var catAssignments = item.categoryassignments;
+  var FeaturedCategoryOnly = "no";
+
+  if (props.featuredcategoryonly) {
+    FeaturedCategoryOnly = "yes";
+  }
+
   return /*#__PURE__*/React.createElement("div", {
-    className: "pb-4"
+    className: "mura-article-meta"
   }, fieldlist.map(function (field) {
     var _React$createElement, _React$createElement2;
 
     switch (field) {
+      case "category":
+        return /*#__PURE__*/React.createElement("div", {
+          key: field,
+          className: "mura-item-meta__category"
+        }, /*#__PURE__*/React.createElement(ItemCategories, {
+          categories: catAssignments,
+          featuredonly: FeaturedCategoryOnly
+        }));
+
       case "title":
         return /*#__PURE__*/React.createElement("h1", (_React$createElement = {
           key: "title"
-        }, _React$createElement["key"] = field, _React$createElement), item.title);
+        }, _React$createElement["key"] = field, _React$createElement.className = titleclass, _React$createElement), item.title);
+
+      case "menutitle":
+        return /*#__PURE__*/React.createElement("p", (_React$createElement2 = {
+          key: "menutitle"
+        }, _React$createElement2["key"] = field, _React$createElement2.className = "mura-item-meta__menutitle", _React$createElement2), item.menutitle);
 
       case "summary":
         return /*#__PURE__*/React.createElement(OutputMarkup, {
@@ -301,36 +328,36 @@ var ArticleMeta = function ArticleMeta(props) {
 
       case "date":
       case "releasedate":
-        return /*#__PURE__*/React.createElement("div", (_React$createElement2 = {
+        return /*#__PURE__*/React.createElement("span", {
           className: "mura-item-meta__date",
-          key: "date"
-        }, _React$createElement2["key"] = field, _React$createElement2), /*#__PURE__*/React.createElement("span", null, "Published on: "), " ", /*#__PURE__*/React.createElement(ItemDate, {
+          key: field
+        }, /*#__PURE__*/React.createElement(ItemDate, {
           releasedate: item.releasedate,
           lastupdate: item.lastupdate
         }));
 
       case "credits":
         if (item.credits) {
-          var _React$createElement3;
-
-          return /*#__PURE__*/React.createElement(ItemCredits, (_React$createElement3 = {
+          return /*#__PURE__*/React.createElement(ItemCredits, {
             credits: item.credits,
-            key: "credits"
-          }, _React$createElement3["key"] = field, _React$createElement3));
+            key: field
+          });
         }
+
+        return null;
 
       case "tags":
         if (item.tags) {
-          var _React$createElement4;
-
-          return /*#__PURE__*/React.createElement("div", (_React$createElement4 = {
+          return /*#__PURE__*/React.createElement("div", {
             className: "mura-item-meta__tags",
-            key: "tags"
-          }, _React$createElement4["key"] = field, _React$createElement4), /*#__PURE__*/React.createElement("span", null, "Tags: "), /*#__PURE__*/React.createElement(ItemTags, {
-            tags: item.tags,
-            key: "tags"
+            key: field
+          }, /*#__PURE__*/React.createElement(ItemTags, {
+            tagshref: "/blog",
+            tags: item.tags
           }));
         }
+
+        return null;
 
       default:
         return /*#__PURE__*/React.createElement("div", {
@@ -1487,19 +1514,17 @@ var getQueryProps$3 = function getQueryProps() {
   return data;
 };
 
-var ItemCategories = function ItemCategories(props) {
+var ItemCategories$1 = function ItemCategories(props) {
   var Categories = props.categories;
   var catsList = [];
   var cat = '';
   var cats = Categories.items;
   var Featuredonly = 0;
-  var Parentcatname = props.parentcatname;
+  var hasnext = false;
 
   if (props.featuredonly == "yes") {
     Featuredonly = 1;
   }
-
-  console.log('Featuredonly: ', Featuredonly);
 
   if (cats.length > 1 && Featuredonly) {
     var filteredCats = cats.filter(function (category) {
@@ -1518,18 +1543,10 @@ var ItemCategories = function ItemCategories(props) {
 
     for (var i = 0; i < catsTo; i++) {
       cat = cats[i];
-
-      if (Parentcatname) {
-        if (cat.parentname === Parentcatname) {
-          catsList.push( /*#__PURE__*/React.createElement("span", {
-            key: cat.categoryid
-          }, cat.categoryname));
-        }
-      } else {
-        catsList.push( /*#__PURE__*/React.createElement("span", {
-          key: cat.categoryid
-        }, cat.categoryname));
-      }
+      hasnext = i + 1 < catsTo;
+      catsList.push( /*#__PURE__*/React.createElement("span", {
+        key: cat.categoryid
+      }, cat.categoryname, hasnext && ", "));
     }
   }
 
@@ -1589,7 +1606,6 @@ var CurrentItems$4 = function CurrentItems(props) {
   var itemsTo = pos + nextn > items.length ? items.length : pos + nextn;
   var fieldlist = fields ? fields.toLowerCase().split(",") : [];
   var maxItems = props.maxitems;
-  console.log('fieldlist: ' + fieldlist);
   var catAssignments = [];
 
   if (getMura().renderMode != 'static' && scrollpages) {
@@ -1651,16 +1667,16 @@ var CurrentItems$4 = function CurrentItems(props) {
     })), !fieldlist.includes('readmore') && /*#__PURE__*/React.createElement(Link, {
       href: "/" + item.get('filename'),
       className: "stretched-link"
-    })), (fieldlist.includes('readmore') || catAssignments) && /*#__PURE__*/React.createElement(Card.Footer, null, fieldlist.includes('readmore') && /*#__PURE__*/React.createElement(CollectionReadMoreBtn, {
+    })), (fieldlist.includes('readmore') || catAssignments && props.showcategories) && /*#__PURE__*/React.createElement(Card.Footer, null, fieldlist.includes('readmore') && /*#__PURE__*/React.createElement(CollectionReadMoreBtn, {
       href: "/" + item.get('filename'),
       ctatext: "Read More",
       link: Link,
       key: item.get('contentid')
-    }), catAssignments && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("hr", null), /*#__PURE__*/React.createElement(Card.Text, {
+    }), catAssignments && props.showcategories && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("hr", null), /*#__PURE__*/React.createElement(Card.Text, {
       key: "categories"
-    }, /*#__PURE__*/React.createElement(ItemCategories, {
+    }, /*#__PURE__*/React.createElement(ItemCategories$1, {
       categories: catAssignments,
-      featuredonly: "yes"
+      featuredonly: props.featuredcategoriesonly
     })))))));
   }
 
@@ -4128,5 +4144,5 @@ var render = function render(props) {
   }
 };
 
-export { ArticleMeta, CTAButton, Collection, CollectionLayout, CollectionLayoutAccordian as CollectionLayoutAccordion, AlternatingBoxes as CollectionLayoutAlternatingBoxes, AlternatingRows as CollectionLayoutAlternatingRows, Cards as CollectionLayoutCards, List as CollectionLayoutList, Masonry as CollectionLayoutMasonry, SlickSlider as CollectionLayoutSlickSlider, CollectionNav, CollectionReadMoreBtn, Container, Embed, GatedAsset, render as Gist, Hr, Image, ItemCategories, ItemCredits, ItemDate, ItemImage, ItemTags, Login, MatrixSelector, CheckForItems as NoItemsMessage, OutputMarkup, PrimaryNav, PrivacyTools, ResourceHub, RouterLink, RouterlessLink, Text, Video, getDynamicProps as getCollectionDynamicProps, getLayout as getCollectionLayout, getQueryProps$1 as getCollectionLayoutAccordionQueryProps, getQueryProps$2 as getCollectionLayoutAlternatingBoxesQueryProps, getQueryProps$3 as getCollectionLayoutAlternatingRowsQueryProps, getQueryProps$4 as getCollectionLayoutCardsQueryProps, getQueryProps$5 as getCollectionLayoutListQueryProps, getQueryProps$6 as getCollectionLayoutMasonryQueryProps, getQueryProps as getCollectionLayoutQueryProps, getQueryProps$7 as getCollectionLayoutSlickSliderQueryProps, getDynamicProps$1 as getMatrixSelectorDynamicProps, getDynamicProps$2 as getPrimaryNavDynamicProps, getDynamicProps$3 as getResourceHubDynamicProps, getDynamicProps$4 as getTextDynamicProps };
+export { ArticleMeta, CTAButton, Collection, CollectionLayout, CollectionLayoutAccordian as CollectionLayoutAccordion, AlternatingBoxes as CollectionLayoutAlternatingBoxes, AlternatingRows as CollectionLayoutAlternatingRows, Cards as CollectionLayoutCards, List as CollectionLayoutList, Masonry as CollectionLayoutMasonry, SlickSlider as CollectionLayoutSlickSlider, CollectionNav, CollectionReadMoreBtn, Container, Embed, GatedAsset, render as Gist, Hr, Image, ItemCategories$1 as ItemCategories, ItemCredits, ItemDate, ItemImage, ItemTags, Login, MatrixSelector, CheckForItems as NoItemsMessage, OutputMarkup, PrimaryNav, PrivacyTools, ResourceHub, RouterLink, RouterlessLink, Text, Video, getDynamicProps as getCollectionDynamicProps, getLayout as getCollectionLayout, getQueryProps$1 as getCollectionLayoutAccordionQueryProps, getQueryProps$2 as getCollectionLayoutAlternatingBoxesQueryProps, getQueryProps$3 as getCollectionLayoutAlternatingRowsQueryProps, getQueryProps$4 as getCollectionLayoutCardsQueryProps, getQueryProps$5 as getCollectionLayoutListQueryProps, getQueryProps$6 as getCollectionLayoutMasonryQueryProps, getQueryProps as getCollectionLayoutQueryProps, getQueryProps$7 as getCollectionLayoutSlickSliderQueryProps, getDynamicProps$1 as getMatrixSelectorDynamicProps, getDynamicProps$2 as getPrimaryNavDynamicProps, getDynamicProps$3 as getResourceHubDynamicProps, getDynamicProps$4 as getTextDynamicProps };
 //# sourceMappingURL=index.modern.js.map

@@ -6,12 +6,13 @@ export const ItemCategories = (props) => {
     let cat = '';
     let cats = Categories.items;
     let Featuredonly = 0;
+    let hasnext = false;
     const Parentcatname = props.parentcatname;
 
     if (props.featuredonly == "yes"){
         Featuredonly = 1;
     }
-    console.log('Featuredonly: ', Featuredonly);
+    // console.log('Featuredonly: ', Featuredonly);
 
     //filter for featured categories
     if(cats.length > 1 && Featuredonly){
@@ -28,20 +29,13 @@ export const ItemCategories = (props) => {
         let catsTo = cats.length;
 
         for(let i = 0;i < catsTo;i++) {
-        cat = cats[i];
-        //limit to children of specific category
-        if (Parentcatname){
-            if (cat.parentname === Parentcatname){
-                catsList.push(
-                    <span key={cat.categoryid}>{cat.categoryname}</span>
-                )
-            }
-        } else {
-            catsList.push(
-                <span key={cat.categoryid}>{cat.categoryname}</span>
-            )
-        } 
-      }
+          cat = cats[i];
+          hasnext = i+1 < catsTo;
+          
+          catsList.push(
+              <span key={cat.categoryid}>{cat.categoryname}{hasnext && `, ` }</span>
+          ) 
+        }
     }
     return catsList
 }
