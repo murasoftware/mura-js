@@ -50,13 +50,17 @@ const FigCaption = ({caption}) => {
 }
 
 const Img = (props) => {
+  let currentDate = new Date();
+  let timestamp = currentDate.getTime();
+  let imageUrl = props.src + "?timestamp=timestamp";
+
   if(props.fit){
     return (
-      <img src={props.src} alt={props.alt} loading="lazy" style={{height:"100%",width:"100%",objectFit:props.fit}} data-object-fit={props.fit} />
+      <img src={imageUrl} alt={props.alt} loading="lazy" style={{height:"100%",width:"100%",objectFit:props.fit}} data-object-fit={props.fit} />
     );
   } else {
     return (
-      <img src={props.src} alt={props.alt} loading="lazy" />
+      <img src={imageUrl} alt={props.alt} loading="lazy" />
     )
   }
  

@@ -59,9 +59,17 @@ Mura.templates['image']=function(context){
 
 	if(context.fit){
 		style=' style="height:100%;width:100%;object-fit:' + Mura.escapeHTML(context.fit) +';" data-object-fit="' + Mura.escapeHTML(context.fit) + '" ';
+	}	
+
+	if(Mura('#mura-sidebar-container').length > 0) {
+		currentDate = new Date();
+		timestamp = currentDate.getTime();
+		source = '<img src="' + Mura.escapeHTML(context.src) + '?timestamp=' + timestamp + '" alt="' + Mura.escapeHTML(context.alt) + '"' + style + ' loading="lazy"/>';
+	}
+	else {
+		source = '<img src="' + Mura.escapeHTML(context.src) + '" alt="' + Mura.escapeHTML(context.alt) + '"' + style + ' loading="lazy"/>';
 	}
 
-	source='<img src="' + Mura.escapeHTML(context.src) + '" alt="' + Mura.escapeHTML(context.alt) + '"' +  style + ' loading="lazy"/>';
 	if(context.imagelink){
 		context.imagelinktarget=context.imagelinktarget || "";
 		var targetString="";
