@@ -1,6 +1,6 @@
 {
   "name": "@murasoftware/next-core",
-  "version": "1.0.37",
+  "version": "1.0.39",
   "description": "Core utilties for Mura.js and Next.js",
   "author": "Mura Software",
   "license": "MIT",
@@ -15,7 +15,7 @@
     "build": "microbundle-crl --jsxFragment React.Fragment --no-compress --format modern,cjs"
   },
   "peerDependencies": {
-    "mura.js": "^1.0.289",
+    "mura.js": "^1.0.305",
     "react": "^17.0.1",
     "react-dom": "^17.0.1"
   },

@@ -3011,30 +3011,7 @@ function inArray(elem, array, i) {
  */
 function getStyleSheet(id) {
 	if(Mura.isInNode()){
-		return {
-			deleteRule(idx){
-				this.cssRules.splice(idx, 1);
-			},
-			insertRule(rule){
-				this.cssRules.push(rule);
-			},
-			cssRules:[],
-			id: id,
-			targets:{
-				object:{
-					class:"mura-object"
-				},
-				meta:{
-					class:"mura-object-meta"
-				},
-				metawrapper:{
-					class:"mura-object-meta-wrapper"
-				},
-				content:{
-					class:"mura-object-content"
-				}	
-			}
-		};
+		return getStyleSheetPlaceHolder(id);
 	} else {
 		var sheet=Mura('#' + id);
 		if(sheet.length){
@@ -3086,28 +3063,50 @@ function applyModuleCustomCSS(stylesupport,sheet, id){
 	}
 }
 
+
 /**
- * recordModuleStyles - ;
+ * getStyleSheetPlaceHolder - ;
+ *
+ * @return {object}	 object
+ */
+ function getStyleSheetPlaceHolder(id){
+	return {
+		deleteRule(idx){
+			this.cssRules.splice(idx, 1);
+		},
+		insertRule(rule){
+			this.cssRules.push(rule);
+		},
+		cssRules:[],
+		id: id,
+		targets: {
+			object:{
+				class:"mura-object"
+			},
+			meta:{
+				class:"mura-object-meta"
+			},
+			metawrapper:{
+				class:"mura-object-meta-wrapper"
+			},
+			content:{
+				class:"mura-object-content"
+			}	
+		}
+	};
+ }
+
+/**
+ * normalizeModuleClassesAndIds - ;
  *
  * @param	{object} params Object Containing Module Style configuration
  * @return {object}	style object
  */
-function recordModuleStyles(params){
-	params.instanceid=params.instanceid || createUUID();
-	params.stylesupport=params.stylesupport || {};
-	
-	var sheet=getStyleSheet('mura-styles-' + params.instanceid);
+ function normalizeModuleClassesAndIds(params,sheet){
 
-	if(sheet.recorded){
-		return sheet;
+	if(typeof sheet =='undefined'){
+		sheet=getStyleSheetPlaceHolder('mura-styles-' + params.instanceid);
 	}
-
-	var styleTargets=getModuleStyleTargets(params.instanceid,false);
-
-	applyModuleStyles(params.stylesupport,styleTargets.object,sheet);
-	applyModuleCustomCSS(params.stylesupport,sheet,params.instanceid);
-	applyModuleStyles(params.stylesupport,styleTargets.meta,sheet);
-	applyModuleStyles(params.stylesupport,styleTargets.content,sheet);
 
 	if(typeof params.class != 'undefined'
 		&& params.class != ''){
@@ -3161,6 +3160,58 @@ function recordModuleStyles(params){
 	if(sheet.targets.content.class.split(' ').find($class => $class === 'container')){
 		sheet.targets.metawrapper.class += ' container';
 	}
+
+	return sheet;
+}
+
+/**
+ * recordModuleClassesAndIds - ;
+ *
+ * @param	{object} params Object Containing Module Style configuration
+ * @return {object}	style object
+ */
+ function recordModuleClassesAndIds(params){
+	params.instanceid=params.instanceid || createUUID();
+	params.stylesupport=params.stylesupport || {};
+
+	var sheet=getStyleSheet('mura-styles-' + params.instanceid);
+
+	if(sheet.recorded){
+		return sheet;
+	}
+
+	normalizeModuleClassesAndIds(params,sheet);
+
+	return sheet;
+
+
+
+ }
+
+/**
+ * recordModuleStyles - ;
+ *
+ * @param	{object} params Object Containing Module Style configuration
+ * @return {object}	style object
+ */
+function recordModuleStyles(params){
+	params.instanceid=params.instanceid || createUUID();
+	params.stylesupport=params.stylesupport || {};
+
+	var sheet=getStyleSheet('mura-styles-' + params.instanceid);
+
+	if(sheet.recorded){
+		return sheet;
+	}
+
+	var styleTargets=getModuleStyleTargets(params.instanceid,false);
+
+	applyModuleStyles(params.stylesupport,styleTargets.object,sheet);
+	applyModuleCustomCSS(params.stylesupport,sheet,params.instanceid);
+	applyModuleStyles(params.stylesupport,styleTargets.meta,sheet);
+	applyModuleStyles(params.stylesupport,styleTargets.content,sheet);
+
+	normalizeModuleClassesAndIds(params,sheet);
 
 	return sheet;
 }
@@ -4090,9 +4141,11 @@ const Mura=extend(
 		firstToLowerCase:firstToLowerCase,
 		normalizeRequestHandler:normalizeRequestHandler,
 		getStyleSheet:getStyleSheet,
+		getStyleSheetPlaceHolder:getStyleSheetPlaceHolder,
 		applyModuleStyles:applyModuleStyles,
 		applyModuleCustomCSS:applyModuleCustomCSS,
 		recordModuleStyles:recordModuleStyles,
+		recordModuleClassesAndIds:recordModuleClassesAndIds,
 		getModuleStyleTargets:getModuleStyleTargets,
 		getBreakpoint:getBreakpoint,
 		getAPIEndpoint:getAPIEndpoint,

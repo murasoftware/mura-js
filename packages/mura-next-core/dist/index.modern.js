@@ -147,11 +147,18 @@ function _catch(body, recover) {
 var getModuleProps = function getModuleProps(item, moduleStyleData, isEditMode, content) {
   try {
     var _temp27 = function _temp27() {
-      var styleData = Mura.recordModuleStyles(item);
+      var styleData = {};
+
+      if (isEditMode || !Mura.isInNode()) {
+        styleData = Mura.recordModuleClassesAndIds(item);
+      } else {
+        styleData = Mura.recordModuleStyles(item);
+      }
+
       return {
         isEditMode: isEditMode,
         cssRules: styleData.cssRules,
-        targets: styleData.targets,
+        targets: Mura.recordModuleClassesAndIds(item).targets,
         id: 'mura-styles' + item.instanceid,
         stylesupport: item.stylesupport || {}
       };
@@ -689,20 +696,22 @@ function Decorator(props) {
         }
       }
 
-      if (key === 'class') {
-        domObject.className += " " + props[key];
-      } else if (key === 'cssclass') {
-        domObject.className += " " + props[key];
-      } else if (key === 'cssid') {
-        domObject.id += " " + props[key];
-      } else if (key === 'contentcssclass') {
-        domContent.className += " " + props[key];
-      } else if (key === 'contentcssid') {
-        domContent.id += " " + props[key];
-      } else if (key === 'metacssclass') {
-        domMeta.className += " " + props[key];
-      } else if (key === 'metacssid') {
-        domMeta.id += " " + props[key];
+      if (typeof props[key] != 'undefined' && props[key]) {
+        if (key === 'class') {
+          domObject.className += domObject.className ? " " + props[key] : props[key];
+        } else if (key === 'cssclass') {
+          domObject.className += domObject.className ? " " + props[key] : props[key];
+        } else if (key === 'cssid') {
+          domObject.id = props[key];
+        } else if (key === 'contentcssclass') {
+          domContent.className += domContent.className ? " " + props[key] : props[key];
+        } else if (key === 'contentcssid') {
+          domContent.id = props[key];
+        } else if (key === 'metacssclass') {
+          domMeta.className += domMeta.className ? " " + props[key] : props[key];
+        } else if (key === 'metacssid') {
+          domMeta.id = props[key];
+        }
       }
     });
 

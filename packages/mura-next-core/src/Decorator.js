@@ -78,20 +78,22 @@ function Decorator(props) {
           domObject[`data-${key}`] = props[key];
         }
       }
-      if (key === 'class') {
-        domObject.className += ` ${props[key]}`;
-      } else if (key === 'cssclass') {
-        domObject.className += ` ${props[key]}`;
-      } else if (key === 'cssid') {
-        domObject.id += ` ${props[key]}`;
-      } else if (key === 'contentcssclass') {
-        domContent.className += ` ${props[key]}`;
-      } else if (key === 'contentcssid') {
-        domContent.id += ` ${props[key]}`;
-      } else if (key === 'metacssclass') {
-        domMeta.className += ` ${props[key]}`;
-      } else if (key === 'metacssid') {
-        domMeta.id += ` ${props[key]}`;
+      if(typeof props[key] != 'undefined' && props[key]){
+        if (key === 'class') {
+          domObject.className += (domObject.className) ? ` ${props[key]}` : props[key];;
+        } else if (key === 'cssclass') {
+          domObject.className += (domObject.className) ? ` ${props[key]}` : props[key];
+        } else if (key === 'cssid') {
+          domObject.id = props[key];
+        } else if (key === 'contentcssclass') {
+          domContent.className +=  (domContent.className) ? ` ${props[key]}` : props[key];
+        } else if (key === 'contentcssid') {
+          domContent.id = props[key];
+        } else if (key === 'metacssclass') {
+          domMeta.className += (domMeta.className) ? ` ${props[key]}` : props[key];
+        } else if (key === 'metacssid') {
+          domMeta.id = props[key];
+        }
       }
     });
     
