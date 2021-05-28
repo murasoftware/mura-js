@@ -380,7 +380,7 @@ const RenderFilterForm = (props) => {
         {props.showTextSearch &&
         <div className="col">
         <Form.Label>Search:</Form.Label>
-        <InputGroup controlId="textSearch" className="text">
+        <InputGroup controlid="textSearch" className="text">
             <Form.Control 
                 type="text"
                 name="s"
@@ -395,7 +395,7 @@ const RenderFilterForm = (props) => {
         </div>
         }
       {subtypesArray && subtypesArray.length > 0 &&
-      <Form.Group controlId="selectSubtypes" className="col type">
+      <Form.Group controlid="selectSubtypes" className="col type">
         <Form.Label>Content Types:</Form.Label>
         <Form.Control as="select" name="subtype" custom onChange={ props.updateFilter } value={props.curSubtype}>
           <option value="*" key="All Subtypes">All</option>
@@ -413,7 +413,7 @@ const RenderFilterForm = (props) => {
       </>
       }
       {props.hasMXP && personasArray.length > 0 &&
-      <Form.Group controlId="selectPersonas" className="col topic">
+      <Form.Group controlid="selectPersonas" className="col topic">
       <Form.Label>Audience:</Form.Label>
         <Form.Control as="select" name="personaid" custom onChange={ props.updateFilter } value={props.curPersonaId}>
           <option value="*" key="All Personas">All</option>
@@ -450,7 +450,7 @@ const CategorySelect = props => {
   }
   // console.log('curSelectValue: ', props.filterlabel, curSelectValue);
   return(
-    <Form.Group controlId={`selectCategories${props.filterlabel}`} className="col topic">
+    <Form.Group controlid={`selectCategories${props.filterlabel}`} className="col topic">
       <Form.Label>{props.filterlabel}:</Form.Label>
         <Form.Control as="select" name={`categoryid${props.filterlabel}`} custom onChange={ props.updateFilter } value={curSelectValue}>
           <option value="*" key="All Categories">All {props.filterlabel}</option>

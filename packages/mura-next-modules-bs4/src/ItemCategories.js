@@ -1,31 +1,43 @@
 import React from "react";
 
-const ItemCategories = (props) => {
+export const ItemCategories = (props) => {
     const Categories = props.categories;
-    // console.log('category assignments ItemCategories: ', Categories);
     let catsList = [];
     let cat = '';
-    const cats = Categories.items;
-    let catsTo = cats.length;
+    let cats = Categories.items;
+    let Featuredonly = 0;
     let hasnext = false;
-  
-    // console.log('getCategories categories: ' + JSON.stringify(cats, undefined, 2));
-    
-    if (cats.length){
-        for(let i = 0;i < catsTo;i++) {
-        cat = cats[i];
-        hasnext = i+1 < catsTo;
-  
-        catsList.push(
-          <span key={cat.categoryid}>{cat.categoryname}{hasnext && `, ` }</span>
-        )
-  
-      }
-      return catsList;
+    const Parentcatname = props.parentcatname;
+
+    if (props.featuredonly == "yes"){
+        Featuredonly = 1;
     }
-    return (
-      <span>No Categories</span>
-    )
+    // console.log('Featuredonly: ', Featuredonly);
+
+    //filter for featured categories
+    if(cats.length > 1 && Featuredonly){
+        const filteredCats = cats.filter(category => category.isfeature == 1);
+        if(filteredCats.length > 1){
+            cats = filteredCats[0];
+        } else {
+            cats = filteredCats;
+        }        
+    }
+    
+
+    if (cats && cats.length){
+        let catsTo = cats.length;
+
+        for(let i = 0;i < catsTo;i++) {
+          cat = cats[i];
+          hasnext = i+1 < catsTo;
+          
+          catsList.push(
+              <span key={cat.categoryid}>{cat.categoryname}{hasnext && `, ` }</span>
+          ) 
+        }
+    }
+    return catsList
 }
 
 export default ItemCategories;

@@ -157,18 +157,22 @@ var ItemDate = function ItemDate(props) {
   var date = '';
   var formatteddate = '';
 
-  if (props.releasedate) {
-    date = new Date(props.releasedate);
-  } else {
-    date = new Date(props.lastupdate);
+  if (props.releasedate != null && props.releasedate != '' || props.lastupdate != null && props.lastupdate != '') {
+    if (props.releasedate) {
+      date = new Date(props.releasedate);
+    } else {
+      date = new Date(props.lastupdate);
+    }
+
+    formatteddate = Intl.DateTimeFormat("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "2-digit"
+    }).format(date);
+    return formatteddate;
   }
 
-  formatteddate = Intl.DateTimeFormat("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "2-digit"
-  }).format(date);
-  return formatteddate;
+  return null;
 };
 
 var ItemCredits = function ItemCredits(props) {
@@ -281,19 +285,42 @@ function OutputMarkup(_ref) {
 }
 
 var ArticleMeta = function ArticleMeta(props) {
-  var fields = props.fields ? props.fields : 'Date,Credits,Tags';
+  console.log('fields ArticleMeta: ' + props.fields);
+  var fields = props.fields ? props.fields : '';
   var fieldlist = fields ? fields.toLowerCase().split(",") : [];
+  var titleclass = props.titleclass ? props.titleclass : '';
   var item = props.content;
+  var catAssignments = item.categoryassignments;
+  var FeaturedCategoryOnly = "no";
+
+  if (props.featuredcategoryonly) {
+    FeaturedCategoryOnly = "yes";
+  }
+
   return /*#__PURE__*/React__default.createElement("div", {
-    className: "pb-4"
+    className: "mura-article-meta"
   }, fieldlist.map(function (field) {
     var _React$createElement, _React$createElement2;
 
     switch (field) {
+      case "category":
+        return /*#__PURE__*/React__default.createElement("div", {
+          key: field,
+          className: "mura-item-meta__category"
+        }, /*#__PURE__*/React__default.createElement(ItemCategories, {
+          categories: catAssignments,
+          featuredonly: FeaturedCategoryOnly
+        }));
+
       case "title":
         return /*#__PURE__*/React__default.createElement("h1", (_React$createElement = {
           key: "title"
-        }, _React$createElement["key"] = field, _React$createElement), item.title);
+        }, _React$createElement["key"] = field, _React$createElement.className = titleclass, _React$createElement), item.title);
+
+      case "menutitle":
+        return /*#__PURE__*/React__default.createElement("p", (_React$createElement2 = {
+          key: "menutitle"
+        }, _React$createElement2["key"] = field, _React$createElement2.className = "mura-item-meta__menutitle", _React$createElement2), item.menutitle);
 
       case "summary":
         return /*#__PURE__*/React__default.createElement(OutputMarkup, {
@@ -304,36 +331,36 @@ var ArticleMeta = function ArticleMeta(props) {
 
       case "date":
       case "releasedate":
-        return /*#__PURE__*/React__default.createElement("div", (_React$createElement2 = {
+        return /*#__PURE__*/React__default.createElement("span", {
           className: "mura-item-meta__date",
-          key: "date"
-        }, _React$createElement2["key"] = field, _React$createElement2), /*#__PURE__*/React__default.createElement("span", null, "Published on: "), " ", /*#__PURE__*/React__default.createElement(ItemDate, {
+          key: field
+        }, /*#__PURE__*/React__default.createElement(ItemDate, {
           releasedate: item.releasedate,
           lastupdate: item.lastupdate
         }));
 
       case "credits":
         if (item.credits) {
-          var _React$createElement3;
-
-          return /*#__PURE__*/React__default.createElement(ItemCredits, (_React$createElement3 = {
+          return /*#__PURE__*/React__default.createElement(ItemCredits, {
             credits: item.credits,
-            key: "credits"
-          }, _React$createElement3["key"] = field, _React$createElement3));
+            key: field
+          });
         }
+
+        return null;
 
       case "tags":
         if (item.tags) {
-          var _React$createElement4;
-
-          return /*#__PURE__*/React__default.createElement("div", (_React$createElement4 = {
+          return /*#__PURE__*/React__default.createElement("div", {
             className: "mura-item-meta__tags",
-            key: "tags"
-          }, _React$createElement4["key"] = field, _React$createElement4), /*#__PURE__*/React__default.createElement("span", null, "Tags: "), /*#__PURE__*/React__default.createElement(ItemTags, {
-            tags: item.tags,
-            key: "tags"
+            key: field
+          }, /*#__PURE__*/React__default.createElement(ItemTags, {
+            tagshref: "/blog",
+            tags: item.tags
           }));
         }
+
+        return null;
 
       default:
         return /*#__PURE__*/React__default.createElement("div", {
@@ -1330,6 +1357,9 @@ var CurrentItems$2 = function CurrentItems(props) {
             "data-value": item.get(field)
           }, item.get(field));
       }
+    }), !fieldlist.includes('readmore') && /*#__PURE__*/React__default.createElement(Link, {
+      href: "/" + item.get('filename'),
+      className: "stretched-link"
     })))))));
   }
 
@@ -1472,6 +1502,9 @@ var CurrentItems$3 = function CurrentItems(props) {
             "data-value": item.get(field)
           }, item.get(field));
       }
+    }), !fieldlist.includes('readmore') && /*#__PURE__*/React__default.createElement(Link, {
+      href: "/" + item.get('filename'),
+      className: "stretched-link"
     }))))))));
   }
 
@@ -1484,15 +1517,33 @@ var getQueryProps$3 = function getQueryProps() {
   return data;
 };
 
-var ItemCategories = function ItemCategories(props) {
+var ItemCategories$1 = function ItemCategories(props) {
   var Categories = props.categories;
   var catsList = [];
   var cat = '';
   var cats = Categories.items;
-  var catsTo = cats.length;
+  var Featuredonly = 0;
   var hasnext = false;
 
-  if (cats.length) {
+  if (props.featuredonly == "yes") {
+    Featuredonly = 1;
+  }
+
+  if (cats.length > 1 && Featuredonly) {
+    var filteredCats = cats.filter(function (category) {
+      return category.isfeature == 1;
+    });
+
+    if (filteredCats.length > 1) {
+      cats = filteredCats[0];
+    } else {
+      cats = filteredCats;
+    }
+  }
+
+  if (cats && cats.length) {
+    var catsTo = cats.length;
+
     for (var i = 0; i < catsTo; i++) {
       cat = cats[i];
       hasnext = i + 1 < catsTo;
@@ -1500,11 +1551,9 @@ var ItemCategories = function ItemCategories(props) {
         key: cat.categoryid
       }, cat.categoryname, hasnext && ", "));
     }
-
-    return catsList;
   }
 
-  return /*#__PURE__*/React__default.createElement("span", null, "No Categories");
+  return catsList;
 };
 
 function CheckForItems() {
@@ -1618,15 +1667,19 @@ var CurrentItems$4 = function CurrentItems(props) {
             "data-value": item.get(field)
           }, item.get(field));
       }
-    }))), /*#__PURE__*/React__default.createElement(Card.Footer, null, /*#__PURE__*/React__default.createElement(CollectionReadMoreBtn, {
+    })), !fieldlist.includes('readmore') && /*#__PURE__*/React__default.createElement(Link, {
+      href: "/" + item.get('filename'),
+      className: "stretched-link"
+    })), (fieldlist.includes('readmore') || catAssignments && props.showcategories) && /*#__PURE__*/React__default.createElement(Card.Footer, null, fieldlist.includes('readmore') && /*#__PURE__*/React__default.createElement(CollectionReadMoreBtn, {
       href: "/" + item.get('filename'),
       ctatext: "Read More",
       link: Link,
       key: item.get('contentid')
-    }), catAssignments && /*#__PURE__*/React__default.createElement(React__default.Fragment, null, /*#__PURE__*/React__default.createElement("hr", null), /*#__PURE__*/React__default.createElement(Card.Text, {
+    }), catAssignments && props.showcategories && /*#__PURE__*/React__default.createElement(React__default.Fragment, null, /*#__PURE__*/React__default.createElement("hr", null), /*#__PURE__*/React__default.createElement(Card.Text, {
       key: "categories"
-    }, /*#__PURE__*/React__default.createElement(ItemCategories, {
-      categories: catAssignments
+    }, /*#__PURE__*/React__default.createElement(ItemCategories$1, {
+      categories: catAssignments,
+      featuredonly: props.featuredcategoriesonly
     })))))));
   }
 
@@ -1649,7 +1702,9 @@ var List = function List(_ref) {
       pos = _useState[0],
       setPos = _useState[1];
 
-  return /*#__PURE__*/React__default.createElement(React__default.Fragment, null, /*#__PURE__*/React__default.createElement(CurrentItems$5, _extends({
+  return /*#__PURE__*/React__default.createElement("div", {
+    className: "collectionLayoutList"
+  }, /*#__PURE__*/React__default.createElement(CurrentItems$5, _extends({
     collection: collection,
     pos: pos,
     link: link
@@ -1810,6 +1865,9 @@ var ListMeta = function ListMeta(props) {
           "data-value": item.get(field)
         }, item.get(field));
     }
+  }), !fieldlist.includes('readmore') && /*#__PURE__*/React__default.createElement(Link, {
+    href: "/" + item.get('filename'),
+    className: "stretched-link"
   })));
 };
 
@@ -1936,7 +1994,10 @@ var CurrentItems$6 = function CurrentItems(props) {
             "data-value": item.get(field)
           }, item.get(field));
       }
-    }))), /*#__PURE__*/React__default.createElement(Card.Footer, null, /*#__PURE__*/React__default.createElement(CollectionReadMoreBtn, {
+    })), !fieldlist.includes('readmore') && /*#__PURE__*/React__default.createElement(Link, {
+      href: "/" + item.get('filename'),
+      className: "stretched-link"
+    })), fieldlist.includes('readmore') && /*#__PURE__*/React__default.createElement(Card.Footer, null, /*#__PURE__*/React__default.createElement(CollectionReadMoreBtn, {
       href: "/" + item.get('filename'),
       ctatext: "Read More",
       link: Link,
@@ -3487,7 +3548,7 @@ var RenderFilterForm = function RenderFilterForm(props) {
   }, props.showTextSearch && /*#__PURE__*/React__default.createElement("div", {
     className: "col"
   }, /*#__PURE__*/React__default.createElement(Form.Label, null, "Search:"), /*#__PURE__*/React__default.createElement(InputGroup, {
-    controlId: "textSearch",
+    controlid: "textSearch",
     className: "text"
   }, /*#__PURE__*/React__default.createElement(Form.Control, {
     type: "text",
@@ -3504,7 +3565,7 @@ var RenderFilterForm = function RenderFilterForm(props) {
     icon: freeSolidSvgIcons.faSearch,
     size: "lg"
   }))))), subtypesArray && subtypesArray.length > 0 && /*#__PURE__*/React__default.createElement(Form.Group, {
-    controlId: "selectSubtypes",
+    controlid: "selectSubtypes",
     className: "col type"
   }, /*#__PURE__*/React__default.createElement(Form.Label, null, "Content Types:"), /*#__PURE__*/React__default.createElement(Form.Control, {
     as: "select",
@@ -3530,7 +3591,7 @@ var RenderFilterForm = function RenderFilterForm(props) {
       curCategoriesArray: props.curCategoriesArray
     });
   })), props.hasMXP && personasArray.length > 0 && /*#__PURE__*/React__default.createElement(Form.Group, {
-    controlId: "selectPersonas",
+    controlid: "selectPersonas",
     className: "col topic"
   }, /*#__PURE__*/React__default.createElement(Form.Label, null, "Audience:"), /*#__PURE__*/React__default.createElement(Form.Control, {
     as: "select",
@@ -3575,7 +3636,7 @@ var CategorySelect = function CategorySelect(props) {
   }
 
   return /*#__PURE__*/React__default.createElement(Form.Group, {
-    controlId: "selectCategories" + props.filterlabel,
+    controlid: "selectCategories" + props.filterlabel,
     className: "col topic"
   }, /*#__PURE__*/React__default.createElement(Form.Label, null, props.filterlabel, ":"), /*#__PURE__*/React__default.createElement(Form.Control, {
     as: "select",
@@ -4105,7 +4166,7 @@ exports.GatedAsset = GatedAsset;
 exports.Gist = render;
 exports.Hr = Hr;
 exports.Image = Image;
-exports.ItemCategories = ItemCategories;
+exports.ItemCategories = ItemCategories$1;
 exports.ItemCredits = ItemCredits;
 exports.ItemDate = ItemDate;
 exports.ItemImage = ItemImage;

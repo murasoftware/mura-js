@@ -43,6 +43,8 @@ const CurrentItems = (props) => {
   const fieldlist = fields ? fields.toLowerCase().split(",") : [];
   const maxItems = props.maxitems;
   // console.log('fieldlist: ' + fieldlist);
+  // console.log('props.showcategories: ', props.showcategories);
+  // console.log('props.featuredcategoriesonly: ', props.featuredcategoriesonly);
   let catAssignments = [];
 
   if(getMura().renderMode != 'static' && scrollpages){
@@ -91,23 +93,36 @@ const CurrentItems = (props) => {
             })
             }
           </div>
+          {
+            !fieldlist.includes('readmore') &&
+              <Link href={`/${item.get('filename')}`} className="stretched-link"></Link>
+          }
         </Card.Body>
+        {(fieldlist.includes('readmore') || (catAssignments && props.showcategories)) &&
         <Card.Footer>
-          <CollectionReadMoreBtn
-            href={`/${item.get('filename')}`}
-            ctatext="Read More"
-            link={Link}
-            key={item.get('contentid')}
-          />
+        {
+          fieldlist.includes('readmore') &&
+            <CollectionReadMoreBtn
+              href={`/${item.get('filename')}`}
+              ctatext="Read More"
+              link={Link}
+              key={item.get('contentid')}
+            />
+        }       
           
-          {catAssignments &&
+          {catAssignments && props.showcategories &&
             <>
               <hr />
-              <Card.Text key="categories"><ItemCategories categories={catAssignments} /></Card.Text>
+              <Card.Text key="categories">
+                <ItemCategories 
+                  categories={catAssignments}
+                  featuredonly={props.featuredcategoriesonly}
+                />
+              </Card.Text>
             </>
           }
         </Card.Footer>
-
+        }
       </Card>
     </div>
     );
