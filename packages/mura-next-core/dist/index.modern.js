@@ -639,9 +639,9 @@ function Decorator(props) {
       children = props.children;
   var isEditMode = getIsEditMode();
   useEffect(function () {
+    var obj = Mura('div[data-instanceid="' + instanceid + '"]');
+    obj.calculateDisplayObjectStyles();
     Mura(function () {
-      var obj = Mura('div[data-instanceid="' + instanceid + '"]');
-
       if (obj.data('async') == 'true' || obj.data('render') == 'server') {
         setTimeout(function () {
           var obj = Mura('div[data-instanceid="' + instanceid + '"]');
