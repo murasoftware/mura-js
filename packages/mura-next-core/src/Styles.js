@@ -1,24 +1,22 @@
 import React from 'react';
+import { getIsEditMode } from './Connector';
 
 function Styles(props) {
   const { moduleStyleData } = props;
 
-  if (typeof moduleStyleData !== 'undefined') {
+  if (!getIsEditMode() && typeof moduleStyleData !== 'undefined') {
     return (
       <>
         {Object.keys(moduleStyleData).map(instanceid => {
           const rules = moduleStyleData[instanceid];
-          if(!rules.isEditMode){
+          const id=`mura-styles-${instanceid}`;
           return (
             <style
-              id={rules.id}
-              key={rules.id}
+              id={id}
+              key={id}
               dangerouslySetInnerHTML={{ __html: rules.cssRules.join('\n') }}
              />
           );
-          } else {
-            return '';
-          }
         })}
       </>
     );

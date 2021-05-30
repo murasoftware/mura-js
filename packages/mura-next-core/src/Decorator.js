@@ -10,9 +10,8 @@ function Decorator(props) {
   let isEditMode = getIsEditMode();
 
   useEffect(() => {
-    const obj=Mura('div[data-instanceid="' + instanceid + '"]');
-    obj.calculateDisplayObjectStyles();
     Mura(function(){
+      const obj=Mura('div[data-instanceid="' + instanceid + '"]');
       if(obj.data('async')=='true' || obj.data('render')=='server'){
         setTimeout(function(){
             const obj=Mura('div[data-instanceid="' + instanceid + '"]');
@@ -28,9 +27,59 @@ function Decorator(props) {
       }
     })
   }, []);
+
+  let objectStyles={};
+  let metaStyles={};
+  let contentStyles={};
+
+  if(isEditMode && typeof document != 'undefined' 
+    && typeof props.stylesupport == 'object'
+    && Object.keys(props.stylesupport).length){
   
-  //console.log("MuraDecorator -> isEditMode", isEditMode);
-  //data-inited is only need because mura.min.css will hide the module if not
+    const params=Object.assign(
+        {},{
+          stylesupport:props.stylesupport,
+          instanceid:props.instanceid
+        }
+      );
+    const sheet=Mura.getStyleSheet('mura-styles-' + params.instanceid)
+    const styleTargets=Mura.getModuleStyleTargets(params.instanceid,false);
+
+    while (sheet.cssRules.length) {
+      sheet.deleteRule(0);
+    }
+
+    Mura.applyModuleStyles(params.stylesupport,styleTargets.object,sheet);
+    Mura.applyModuleCustomCSS(params.stylesupport,sheet,params.instanceid);
+    Mura.applyModuleStyles(params.stylesupport,styleTargets.meta,sheet);
+    Mura.applyModuleStyles(params.stylesupport,styleTargets.content,sheet);
+
+  } else if(typeof document == 'undefined'){
+    const getModuleTargetStyles = (incoming)=>{
+      const styles={};
+      const invalid={
+        backgroundcolor:true,
+        backgroundimage:true
+      };
+  
+      Object.keys(incoming).forEach((key)=>{
+        if(!invalid[key]){
+          if(Mura.styleMap.tojs[key]){
+            styles[Mura.styleMap.tojs[key]]=incoming[key];
+          } else {
+            styles[key]=incoming[key];
+          }
+        }
+      })
+  
+      return styles;
+    };
+    
+    objectStyles=(props.stylesupport.objectstyles) ? getModuleTargetStyles(props.stylesupport.objectstyles) : {};
+    metaStyles=(props.stylesupport.metastyles) ? getModuleTargetStyles(props.stylesupport.metastyles) : {};
+    contentStyles=(props.stylesupport.contentstyles) ? getModuleTargetStyles(props.stylesupport.contentstyles) : {};
+  }
+
   const domObject = {
     className: 'mura-object mura-async-object',
     'data-inited':true
@@ -137,33 +186,33 @@ function Decorator(props) {
   
   if(isExternalModule || !isSSR){
     if(isExternalModule && props.html){
-      <div {...domObject}>
-        {label ? <MuraMeta label={label} labeltag={labeltag} dommeta={domMeta} dommetawrapper={domMetaWrapper}/> : null}
+      <div style={objectStyles} {...domObject}>
+        {label ? <eta styles={metaStyles} label={label} labeltag={labeltag} dommeta={domMeta} dommetawrapper={domMetaWrapper}/> : null}
         {label ? <div className="mura-flex-break" /> : null}
-        <div {...domContent} dangerouslySetInnerHTML={{__html:props.html}}></div>
+        <div style={contentStyles} {...domContent} dangerouslySetInnerHTML={{__html:props.html}}></div>
       </div>
     } else {
       return (
-        <div {...domObject}></div>
+        <div style={objectStyles} {...domObject}></div>
       );
     }
   } else {
     return (
-      <div {...domObject}>
-        {label ? <Meta label={label} labeltag={labeltag} dommeta={domMeta} dommetawrapper={domMetaWrapper}/> : null}
+      <div style={objectStyles} {...domObject}>
+        {label ? <Meta styles={metaStyles} label={label} labeltag={labeltag} dommeta={domMeta} dommetawrapper={domMetaWrapper}/> : null}
         {label ? <div className="mura-flex-break" /> : null}
-        <div {...domContent}>{children}</div>
+        <div style={contentStyles} {...domContent}>{children}</div>
       </div>
     );
   }
   
 }
 
-const Meta = ({ label, labeltag, dommeta, dommetawrapper }) => {
+const Meta = ({ label, labeltag, dommeta, dommetawrapper, styles }) => {
   const LabelHeader = labeltag ? `${labeltag}` : 'h2';
   return (
     <div {...dommetawrapper}>
-      <div {...dommeta}>
+      <div style={styles} {...dommeta}>
         <LabelHeader>{label}</LabelHeader>
       </div>
     </div>

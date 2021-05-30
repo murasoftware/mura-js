@@ -450,20 +450,14 @@ async function getModuleProps(item,moduleStyleData,isEditMode,content) {
     console.error(e);
   }
 
-  let styleData = {};
-
   if(isEditMode || !Mura.isInNode()){
-    styleData=Mura.recordModuleClassesAndIds(item);
+    return {
+      cssRules:[]
+    };
   } else {
-    styleData=Mura.recordModuleStyles(item)
+    return  {
+      cssRules: Mura.recordModuleStyles(item).cssRules,
+    };
   }
-
-  return {
-    isEditMode:isEditMode,
-    cssRules: styleData.cssRules,
-    targets: Mura.recordModuleClassesAndIds(item).targets,
-    id: 'mura-styles' + item.instanceid,
-    stylesupport: item.stylesupport || {},
-  };
    
 }

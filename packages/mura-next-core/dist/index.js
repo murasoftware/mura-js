@@ -150,21 +150,15 @@ function _catch(body, recover) {
 var getModuleProps = function getModuleProps(item, moduleStyleData, isEditMode, content) {
   try {
     var _temp27 = function _temp27() {
-      var styleData = {};
-
       if (isEditMode || !Mura.isInNode()) {
-        styleData = Mura.recordModuleClassesAndIds(item);
+        return {
+          cssRules: []
+        };
       } else {
-        styleData = Mura.recordModuleStyles(item);
+        return {
+          cssRules: Mura.recordModuleStyles(item).cssRules
+        };
       }
-
-      return {
-        isEditMode: isEditMode,
-        cssRules: styleData.cssRules,
-        targets: Mura.recordModuleClassesAndIds(item).targets,
-        id: 'mura-styles' + item.instanceid,
-        stylesupport: item.stylesupport || {}
-      };
     };
 
     getMura();
@@ -642,9 +636,9 @@ function Decorator(props) {
       children = props.children;
   var isEditMode = getIsEditMode();
   React.useEffect(function () {
-    var obj = Mura('div[data-instanceid="' + instanceid + '"]');
-    obj.calculateDisplayObjectStyles();
     Mura(function () {
+      var obj = Mura('div[data-instanceid="' + instanceid + '"]');
+
       if (obj.data('async') == 'true' || obj.data('render') == 'server') {
         setTimeout(function () {
           var obj = Mura('div[data-instanceid="' + instanceid + '"]');
@@ -661,6 +655,50 @@ function Decorator(props) {
       }
     });
   }, []);
+  var objectStyles = {};
+  var metaStyles = {};
+  var contentStyles = {};
+
+  if (isEditMode && typeof document != 'undefined' && typeof props.stylesupport == 'object' && Object.keys(props.stylesupport).length) {
+    var params = Object.assign({}, {
+      stylesupport: props.stylesupport,
+      instanceid: props.instanceid
+    });
+    var sheet = Mura.getStyleSheet('mura-styles-' + params.instanceid);
+    var styleTargets = Mura.getModuleStyleTargets(params.instanceid, false);
+
+    while (sheet.cssRules.length) {
+      sheet.deleteRule(0);
+    }
+
+    Mura.applyModuleStyles(params.stylesupport, styleTargets.object, sheet);
+    Mura.applyModuleCustomCSS(params.stylesupport, sheet, params.instanceid);
+    Mura.applyModuleStyles(params.stylesupport, styleTargets.meta, sheet);
+    Mura.applyModuleStyles(params.stylesupport, styleTargets.content, sheet);
+  } else if (typeof document == 'undefined') {
+    var getModuleTargetStyles = function getModuleTargetStyles(incoming) {
+      var styles = {};
+      var invalid = {
+        backgroundcolor: true,
+        backgroundimage: true
+      };
+      Object.keys(incoming).forEach(function (key) {
+        if (!invalid[key]) {
+          if (Mura.styleMap.tojs[key]) {
+            styles[Mura.styleMap.tojs[key]] = incoming[key];
+          } else {
+            styles[key] = incoming[key];
+          }
+        }
+      });
+      return styles;
+    };
+
+    objectStyles = props.stylesupport.objectstyles ? getModuleTargetStyles(props.stylesupport.objectstyles) : {};
+    metaStyles = props.stylesupport.metastyles ? getModuleTargetStyles(props.stylesupport.metastyles) : {};
+    contentStyles = props.stylesupport.contentstyles ? getModuleTargetStyles(props.stylesupport.contentstyles) : {};
+  }
+
   var domObject = {
     className: 'mura-object mura-async-object',
     'data-inited': true
@@ -753,30 +791,42 @@ function Decorator(props) {
   if (isExternalModule || !isSSR) {
     if (isExternalModule && props.html) {
       /*#__PURE__*/
-      React__default.createElement("div", domObject, label ? /*#__PURE__*/React__default.createElement(MuraMeta, {
+      React__default.createElement("div", _extends({
+        style: objectStyles
+      }, domObject), label ? /*#__PURE__*/React__default.createElement("eta", {
+        styles: metaStyles,
         label: label,
         labeltag: labeltag,
         dommeta: domMeta,
         dommetawrapper: domMetaWrapper
       }) : null, label ? /*#__PURE__*/React__default.createElement("div", {
         className: "mura-flex-break"
-      }) : null, /*#__PURE__*/React__default.createElement("div", _extends({}, domContent, {
+      }) : null, /*#__PURE__*/React__default.createElement("div", _extends({
+        style: contentStyles
+      }, domContent, {
         dangerouslySetInnerHTML: {
           __html: props.html
         }
       })));
     } else {
-      return /*#__PURE__*/React__default.createElement("div", domObject);
+      return /*#__PURE__*/React__default.createElement("div", _extends({
+        style: objectStyles
+      }, domObject));
     }
   } else {
-    return /*#__PURE__*/React__default.createElement("div", domObject, label ? /*#__PURE__*/React__default.createElement(Meta, {
+    return /*#__PURE__*/React__default.createElement("div", _extends({
+      style: objectStyles
+    }, domObject), label ? /*#__PURE__*/React__default.createElement(Meta, {
+      styles: metaStyles,
       label: label,
       labeltag: labeltag,
       dommeta: domMeta,
       dommetawrapper: domMetaWrapper
     }) : null, label ? /*#__PURE__*/React__default.createElement("div", {
       className: "mura-flex-break"
-    }) : null, /*#__PURE__*/React__default.createElement("div", domContent, children));
+    }) : null, /*#__PURE__*/React__default.createElement("div", _extends({
+      style: contentStyles
+    }, domContent), children));
   }
 }
 
@@ -784,9 +834,12 @@ var Meta = function Meta(_ref) {
   var label = _ref.label,
       labeltag = _ref.labeltag,
       dommeta = _ref.dommeta,
-      dommetawrapper = _ref.dommetawrapper;
+      dommetawrapper = _ref.dommetawrapper,
+      styles = _ref.styles;
   var LabelHeader = labeltag ? "" + labeltag : 'h2';
-  return /*#__PURE__*/React__default.createElement("div", dommetawrapper, /*#__PURE__*/React__default.createElement("div", dommeta, /*#__PURE__*/React__default.createElement(LabelHeader, null, label)));
+  return /*#__PURE__*/React__default.createElement("div", dommetawrapper, /*#__PURE__*/React__default.createElement("div", _extends({
+    style: styles
+  }, dommeta), /*#__PURE__*/React__default.createElement(LabelHeader, null, label)));
 };
 
 var EditContext = React.createContext();
@@ -923,21 +976,17 @@ var EditLayout = function EditLayout(_ref) {
 function Styles(props) {
   var moduleStyleData = props.moduleStyleData;
 
-  if (typeof moduleStyleData !== 'undefined') {
+  if (!getIsEditMode() && typeof moduleStyleData !== 'undefined') {
     return /*#__PURE__*/React__default.createElement(React__default.Fragment, null, Object.keys(moduleStyleData).map(function (instanceid) {
       var rules = moduleStyleData[instanceid];
-
-      if (!rules.isEditMode) {
-        return /*#__PURE__*/React__default.createElement("style", {
-          id: rules.id,
-          key: rules.id,
-          dangerouslySetInnerHTML: {
-            __html: rules.cssRules.join('\n')
-          }
-        });
-      } else {
-        return '';
-      }
+      var id = "mura-styles-" + instanceid;
+      return /*#__PURE__*/React__default.createElement("style", {
+        id: id,
+        key: id,
+        dangerouslySetInnerHTML: {
+          __html: rules.cssRules.join('\n')
+        }
+      });
     }));
   }
 
