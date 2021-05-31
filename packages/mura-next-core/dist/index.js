@@ -659,44 +659,46 @@ function Decorator(props) {
   var metaStyles = {};
   var contentStyles = {};
 
-  if (isEditMode && typeof document != 'undefined' && typeof props.stylesupport == 'object' && Object.keys(props.stylesupport).length) {
-    var params = Object.assign({}, {
-      stylesupport: props.stylesupport,
-      instanceid: props.instanceid
-    });
-    var sheet = Mura.getStyleSheet('mura-styles-' + params.instanceid);
-    var styleTargets = Mura.getModuleStyleTargets(params.instanceid, false);
-
-    while (sheet.cssRules.length) {
-      sheet.deleteRule(0);
-    }
-
-    Mura.applyModuleStyles(params.stylesupport, styleTargets.object, sheet);
-    Mura.applyModuleCustomCSS(params.stylesupport, sheet, params.instanceid);
-    Mura.applyModuleStyles(params.stylesupport, styleTargets.meta, sheet);
-    Mura.applyModuleStyles(params.stylesupport, styleTargets.content, sheet);
-  } else if (typeof document == 'undefined') {
-    var getModuleTargetStyles = function getModuleTargetStyles(incoming) {
-      var styles = {};
-      var invalid = {
-        backgroundcolor: true,
-        backgroundimage: true
-      };
-      Object.keys(incoming).forEach(function (key) {
-        if (!invalid[key]) {
-          if (Mura.styleMap.tojs[key]) {
-            styles[Mura.styleMap.tojs[key]] = incoming[key];
-          } else {
-            styles[key] = incoming[key];
+  if (isEditMode && typeof props.stylesupport == 'object' && Object.keys(props.stylesupport).length) {
+    if (typeof document == 'undefined') {
+      var getModuleTargetStyles = function getModuleTargetStyles(incoming) {
+        var styles = {};
+        var invalid = {
+          backgroundcolor: true,
+          backgroundimage: true
+        };
+        Object.keys(incoming).forEach(function (key) {
+          if (!invalid[key]) {
+            if (Mura.styleMap.tojs[key]) {
+              styles[Mura.styleMap.tojs[key]] = incoming[key];
+            } else {
+              styles[key] = incoming[key];
+            }
           }
-        }
-      });
-      return styles;
-    };
+        });
+        return styles;
+      };
 
-    objectStyles = props.stylesupport.objectstyles ? getModuleTargetStyles(props.stylesupport.objectstyles) : {};
-    metaStyles = props.stylesupport.metastyles ? getModuleTargetStyles(props.stylesupport.metastyles) : {};
-    contentStyles = props.stylesupport.contentstyles ? getModuleTargetStyles(props.stylesupport.contentstyles) : {};
+      objectStyles = props.stylesupport.objectstyles ? getModuleTargetStyles(props.stylesupport.objectstyles) : {};
+      metaStyles = props.stylesupport.metastyles ? getModuleTargetStyles(props.stylesupport.metastyles) : {};
+      contentStyles = props.stylesupport.contentstyles ? getModuleTargetStyles(props.stylesupport.contentstyles) : {};
+    } else {
+      var params = Object.assign({}, {
+        stylesupport: props.stylesupport,
+        instanceid: props.instanceid
+      });
+      var sheet = Mura.getStyleSheet('mura-styles-' + params.instanceid);
+      var styleTargets = Mura.getModuleStyleTargets(params.instanceid, false);
+
+      while (sheet.cssRules.length) {
+        sheet.deleteRule(0);
+      }
+
+      Mura.applyModuleStyles(params.stylesupport, styleTargets.object, sheet);
+      Mura.applyModuleCustomCSS(params.stylesupport, sheet, params.instanceid);
+      Mura.applyModuleStyles(params.stylesupport, styleTargets.meta, sheet);
+      Mura.applyModuleStyles(params.stylesupport, styleTargets.content, sheet);
+    }
   }
 
   var domObject = {
@@ -727,7 +729,7 @@ function Decorator(props) {
 
   if (isEditMode || isExternalModule || !isSSR) {
     Object.keys(props).forEach(function (key) {
-      if (!['html', 'content', 'children', 'isEditMode', 'dynamicProps', 'moduleStyleData'].find(function (restrictedkey) {
+      if (!['Link', 'html', 'content', 'children', 'isEditMode', 'dynamicProps', 'moduleStyleData'].find(function (restrictedkey) {
         return restrictedkey === key;
       })) {
         if (typeof props[key] === 'object') {

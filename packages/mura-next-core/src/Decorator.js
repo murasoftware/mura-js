@@ -32,53 +32,54 @@ function Decorator(props) {
   let metaStyles={};
   let contentStyles={};
 
-  if(isEditMode && typeof document != 'undefined' 
-    && typeof props.stylesupport == 'object'
-    && Object.keys(props.stylesupport).length){
-  
-    const params=Object.assign(
+  if(isEditMode  && typeof props.stylesupport == 'object' && Object.keys(props.stylesupport).length){
+    if(typeof document == 'undefined'){  
+      const getModuleTargetStyles = (incoming)=>{
+        const styles={};
+        const invalid={
+          backgroundcolor:true,
+          backgroundimage:true
+        };
+    
+        Object.keys(incoming).forEach((key)=>{
+          if(!invalid[key]){
+            if(Mura.styleMap.tojs[key]){
+              styles[Mura.styleMap.tojs[key]]=incoming[key];
+            } else {
+              styles[key]=incoming[key];
+            }
+          }
+        })
+    
+        return styles;
+      };
+      
+      objectStyles=(props.stylesupport.objectstyles) ? getModuleTargetStyles(props.stylesupport.objectstyles) : {};
+      metaStyles=(props.stylesupport.metastyles) ? getModuleTargetStyles(props.stylesupport.metastyles) : {};
+      contentStyles=(props.stylesupport.contentstyles) ? getModuleTargetStyles(props.stylesupport.contentstyles) : {};
+
+    } else {
+      const params=Object.assign(
         {},{
           stylesupport:props.stylesupport,
           instanceid:props.instanceid
         }
       );
-    const sheet=Mura.getStyleSheet('mura-styles-' + params.instanceid)
-    const styleTargets=Mura.getModuleStyleTargets(params.instanceid,false);
 
-    while (sheet.cssRules.length) {
-      sheet.deleteRule(0);
+      const sheet=Mura.getStyleSheet('mura-styles-' + params.instanceid)
+      const styleTargets=Mura.getModuleStyleTargets(params.instanceid,false);
+
+      while (sheet.cssRules.length) {
+        sheet.deleteRule(0);
+      }
+
+      Mura.applyModuleStyles(params.stylesupport,styleTargets.object,sheet);
+      Mura.applyModuleCustomCSS(params.stylesupport,sheet,params.instanceid);
+      Mura.applyModuleStyles(params.stylesupport,styleTargets.meta,sheet);
+      Mura.applyModuleStyles(params.stylesupport,styleTargets.content,sheet);
+      
     }
-
-    Mura.applyModuleStyles(params.stylesupport,styleTargets.object,sheet);
-    Mura.applyModuleCustomCSS(params.stylesupport,sheet,params.instanceid);
-    Mura.applyModuleStyles(params.stylesupport,styleTargets.meta,sheet);
-    Mura.applyModuleStyles(params.stylesupport,styleTargets.content,sheet);
-
-  } else if(typeof document == 'undefined'){
-    const getModuleTargetStyles = (incoming)=>{
-      const styles={};
-      const invalid={
-        backgroundcolor:true,
-        backgroundimage:true
-      };
-  
-      Object.keys(incoming).forEach((key)=>{
-        if(!invalid[key]){
-          if(Mura.styleMap.tojs[key]){
-            styles[Mura.styleMap.tojs[key]]=incoming[key];
-          } else {
-            styles[key]=incoming[key];
-          }
-        }
-      })
-  
-      return styles;
-    };
-    
-    objectStyles=(props.stylesupport.objectstyles) ? getModuleTargetStyles(props.stylesupport.objectstyles) : {};
-    metaStyles=(props.stylesupport.metastyles) ? getModuleTargetStyles(props.stylesupport.metastyles) : {};
-    contentStyles=(props.stylesupport.contentstyles) ? getModuleTargetStyles(props.stylesupport.contentstyles) : {};
-  }
+  } 
 
   const domObject = {
     className: 'mura-object mura-async-object',
@@ -115,7 +116,7 @@ function Decorator(props) {
   if (isEditMode || isExternalModule || !isSSR) {
     Object.keys(props).forEach(key => {
       if (
-        !['html', 'content', 'children', 'isEditMode', 'dynamicProps', 'moduleStyleData'].find(
+        !['Link','html', 'content', 'children', 'isEditMode', 'dynamicProps', 'moduleStyleData'].find(
           restrictedkey => restrictedkey === key,
         )
       ) {
