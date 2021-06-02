@@ -669,7 +669,6 @@ function Decorator(props) {
     var getModuleTargetStyles = function getModuleTargetStyles(incoming) {
       var styles = {};
       var invalid = {
-        backgroundcolor: true,
         backgroundimage: true
       };
       Object.keys(incoming).forEach(function (key) {
@@ -765,7 +764,7 @@ function Decorator(props) {
     });
 
     if (domObject.className.split(' ').find(function ($class) {
-      return $class === 'container';
+      return $class === 'constrain';
     })) {
       domMetaWrapper.className += ' container';
     }

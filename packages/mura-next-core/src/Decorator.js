@@ -44,7 +44,6 @@ function Decorator(props) {
     const getModuleTargetStyles = (incoming)=>{
       const styles={};
       const invalid={
-        backgroundcolor:true,
         backgroundimage:true
       };
   
@@ -156,7 +155,7 @@ function Decorator(props) {
       }
     });
     
-    if(domObject.className.split(' ').find($class => $class === 'container')){
+    if(domObject.className.split(' ').find($class => $class === 'constrain')){
       domMetaWrapper.className += ' container';
     }
   } else {
