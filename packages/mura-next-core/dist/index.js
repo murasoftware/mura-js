@@ -635,7 +635,13 @@ function Decorator(props) {
       labeltag = props.labeltag,
       children = props.children;
   var isEditMode = getIsEditMode();
+
+  var _useState = React.useState(false),
+      mounted = _useState[0],
+      setMounted = _useState[1];
+
   React.useEffect(function () {
+    setMounted(true);
     Mura(function () {
       var obj = Mura('div[data-instanceid="' + instanceid + '"]');
 
@@ -659,30 +665,30 @@ function Decorator(props) {
   var metaStyles = {};
   var contentStyles = {};
 
-  if (isEditMode && typeof props.stylesupport == 'object' && Object.keys(props.stylesupport).length) {
-    if (typeof document == 'undefined') {
-      var getModuleTargetStyles = function getModuleTargetStyles(incoming) {
-        var styles = {};
-        var invalid = {
-          backgroundcolor: true,
-          backgroundimage: true
-        };
-        Object.keys(incoming).forEach(function (key) {
-          if (!invalid[key]) {
-            if (Mura.styleMap.tojs[key]) {
-              styles[Mura.styleMap.tojs[key]] = incoming[key];
-            } else {
-              styles[key] = incoming[key];
-            }
-          }
-        });
-        return styles;
+  if (!mounted && isEditMode && typeof props.stylesupport == 'object' && Object.keys(props.stylesupport).length) {
+    var getModuleTargetStyles = function getModuleTargetStyles(incoming) {
+      var styles = {};
+      var invalid = {
+        backgroundcolor: true,
+        backgroundimage: true
       };
+      Object.keys(incoming).forEach(function (key) {
+        if (!invalid[key]) {
+          if (Mura.styleMap.tojs[key]) {
+            styles[Mura.styleMap.tojs[key]] = incoming[key];
+          } else {
+            styles[key] = incoming[key];
+          }
+        }
+      });
+      return styles;
+    };
 
-      objectStyles = props.stylesupport.objectstyles ? getModuleTargetStyles(props.stylesupport.objectstyles) : {};
-      metaStyles = props.stylesupport.metastyles ? getModuleTargetStyles(props.stylesupport.metastyles) : {};
-      contentStyles = props.stylesupport.contentstyles ? getModuleTargetStyles(props.stylesupport.contentstyles) : {};
-    } else {
+    objectStyles = props.stylesupport.objectstyles ? getModuleTargetStyles(props.stylesupport.objectstyles) : {};
+    metaStyles = props.stylesupport.metastyles ? getModuleTargetStyles(props.stylesupport.metastyles) : {};
+    contentStyles = props.stylesupport.contentstyles ? getModuleTargetStyles(props.stylesupport.contentstyles) : {};
+
+    if (typeof document != 'undefined') {
       var params = Object.assign({}, {
         stylesupport: props.stylesupport,
         instanceid: props.instanceid
@@ -729,7 +735,7 @@ function Decorator(props) {
 
   if (isEditMode || isExternalModule || !isSSR) {
     Object.keys(props).forEach(function (key) {
-      if (!['Link', 'html', 'content', 'children', 'isEditMode', 'dynamicProps', 'moduleStyleData'].find(function (restrictedkey) {
+      if (!['Router', 'Link', 'html', 'content', 'children', 'isEditMode', 'dynamicProps', 'moduleStyleData'].find(function (restrictedkey) {
         return restrictedkey === key;
       })) {
         if (typeof props[key] === 'object') {

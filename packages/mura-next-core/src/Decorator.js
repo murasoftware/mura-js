@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect,useState } from 'react';
 import { getMura ,getIsEditMode, getMuraConfig } from './Connector';
 
 function Decorator(props) {
@@ -8,8 +8,10 @@ function Decorator(props) {
   const { label, instanceid, labeltag, children } = props;
  
   let isEditMode = getIsEditMode();
-
+  const [mounted,setMounted]=useState(false);
+  
   useEffect(() => {
+    setMounted(true);
     Mura(function(){
       const obj=Mura('div[data-instanceid="' + instanceid + '"]');
       if(obj.data('async')=='true' || obj.data('render')=='server'){
@@ -28,37 +30,43 @@ function Decorator(props) {
     })
   }, []);
 
+    /*
+      The idea here is to write the style object of the default XL view to the target objects.
+      The helps the initial paint to browser. 
+      However, since it's not responsive it needs to be taken out.
+    */
+
   let objectStyles={};
   let metaStyles={};
   let contentStyles={};
 
-  if(isEditMode  && typeof props.stylesupport == 'object' && Object.keys(props.stylesupport).length){
-    if(typeof document == 'undefined'){  
-      const getModuleTargetStyles = (incoming)=>{
-        const styles={};
-        const invalid={
-          backgroundcolor:true,
-          backgroundimage:true
-        };
-    
-        Object.keys(incoming).forEach((key)=>{
-          if(!invalid[key]){
-            if(Mura.styleMap.tojs[key]){
-              styles[Mura.styleMap.tojs[key]]=incoming[key];
-            } else {
-              styles[key]=incoming[key];
-            }
-          }
-        })
-    
-        return styles;
+  if(!mounted && isEditMode && typeof props.stylesupport == 'object' && Object.keys(props.stylesupport).length){
+    const getModuleTargetStyles = (incoming)=>{
+      const styles={};
+      const invalid={
+        backgroundcolor:true,
+        backgroundimage:true
       };
-      
-      objectStyles=(props.stylesupport.objectstyles) ? getModuleTargetStyles(props.stylesupport.objectstyles) : {};
-      metaStyles=(props.stylesupport.metastyles) ? getModuleTargetStyles(props.stylesupport.metastyles) : {};
-      contentStyles=(props.stylesupport.contentstyles) ? getModuleTargetStyles(props.stylesupport.contentstyles) : {};
+  
+      Object.keys(incoming).forEach((key)=>{
+        if(!invalid[key]){
+          if(Mura.styleMap.tojs[key]){
+            styles[Mura.styleMap.tojs[key]]=incoming[key];
+          } else {
+            styles[key]=incoming[key];
+          }
+        }
+      })
+  
+      return styles;
+    };
+  
+    objectStyles=(props.stylesupport.objectstyles) ? getModuleTargetStyles(props.stylesupport.objectstyles) : {};
+    metaStyles=(props.stylesupport.metastyles) ? getModuleTargetStyles(props.stylesupport.metastyles) : {};
+    contentStyles=(props.stylesupport.contentstyles) ? getModuleTargetStyles(props.stylesupport.contentstyles) : {};
+  
+    if(typeof document != 'undefined'){  
 
-    } else {
       const params=Object.assign(
         {},{
           stylesupport:props.stylesupport,
@@ -116,7 +124,7 @@ function Decorator(props) {
   if (isEditMode || isExternalModule || !isSSR) {
     Object.keys(props).forEach(key => {
       if (
-        !['Link','html', 'content', 'children', 'isEditMode', 'dynamicProps', 'moduleStyleData'].find(
+        !['Router', 'Link','html', 'content', 'children', 'isEditMode', 'dynamicProps', 'moduleStyleData'].find(
           restrictedkey => restrictedkey === key,
         )
       ) {
