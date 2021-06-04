@@ -4,6 +4,7 @@ import Navbar from 'react-bootstrap/Navbar'
 import Nav from 'react-bootstrap/Nav'
 import NavDropdown from 'react-bootstrap/NavDropdown'
 import { getMura, getHref } from '@murasoftware/next-core';
+import { SearchForm } from './';
 
 function PrimaryNav(props) {
   const objectparams = Object.assign({}, props);
@@ -63,6 +64,9 @@ const Render = ({ items, link, ...props }) => {
               )
             }
             </Nav>
+            {props.props.displaysearch &&
+              <SearchForm />
+            }
           </Navbar.Collapse>
         </div>
       </Navbar>
