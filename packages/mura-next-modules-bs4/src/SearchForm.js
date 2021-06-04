@@ -8,7 +8,7 @@ import { faSearch } from '@fortawesome/free-solid-svg-icons'
 function SearchForm(props) {
     return (
 
-        <Form method="get" id="searchForm" className="form-inline" role="search" action="/search-results" key="siteSearch">
+        <Form method="get" id="searchForm" className="form-inline ml-5" role="search" action="/search-results" key="siteSearch">
             <InputGroup className="">
                 <Form.Control
                 placeholder="Search"
