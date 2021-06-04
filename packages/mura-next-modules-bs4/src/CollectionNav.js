@@ -7,8 +7,7 @@ import { faChevronLeft } from '@fortawesome/free-solid-svg-icons'
 
 const CollectionNav = (props) => {
 	let nav = [];
-	const {collection,setCollection,pos,nextn,setPos,scrollpages,instanceid,itemsTo,setItemsTo} = props;
-
+	const {collection,setCollection,pos,nextn,setPos,scrollpages,instanceid,itemsTo,setItemsTo,setPage} = props;
 
 	if(Mura.renderMode == 'static'){
 		const items = collection.get('items');

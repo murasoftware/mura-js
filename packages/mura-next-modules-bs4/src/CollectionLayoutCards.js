@@ -7,18 +7,14 @@ import CollectionReadMoreBtn from './CollectionReadMoreBtn';
 import ItemCategories from './ItemCategories';
 import NoItemsMessage from './NoItemsMessage';
 import { getMura } from '@murasoftware/next-core';
-/*
-  The link component throws an error when rerending after being 
-  reconfigured in edit mode. Hence CollectionLink
-*/
+
 const Cards = ({props,collection,setCollection,link}) => {
   const [pos, setPos] = useState(0);
   if (!collection.properties.totalpages){
     return(
       <NoItemsMessage />
     )
-  }  
-
+  }
   return (
     <>
       <div className={`row collectionLayoutCards row-cols-1 row-cols-sm-${props.rowcolssm} row-cols-md-${props.rowcolsmd} row-cols-lg-${props.rowcolslg} row-cols-xl-${props.rowcolsxl}`}>
@@ -35,6 +31,7 @@ const Cards = ({props,collection,setCollection,link}) => {
 
 const CurrentItems = (props) => {
   const {collection,nextn,link,pos,fields,scrollpages} = props;
+
   let itemsList = [];
   let item = '';
   const Link = link;
@@ -42,9 +39,6 @@ const CurrentItems = (props) => {
   let itemsTo = pos+nextn > items.length ? items.length : pos+nextn;
   const fieldlist = fields ? fields.toLowerCase().split(",") : [];
   const maxItems = props.maxitems;
-  // console.log('fieldlist: ' + fieldlist);
-  // console.log('props.showcategories: ', props.showcategories);
-  // console.log('props.featuredcategoriesonly: ', props.featuredcategoriesonly);
   let catAssignments = [];
 
   if(getMura().renderMode != 'static' && scrollpages){
@@ -57,8 +51,6 @@ const CurrentItems = (props) => {
 
   for(let i = pos;i < itemsTo;i++) {
     item = items[i];
-    //categoryassignments require the feed to be expanded to include them
-    //the feed in resource hub is expanded but collection is not
     catAssignments = item.getAll().categoryassignments;
     
     itemsList.push(    

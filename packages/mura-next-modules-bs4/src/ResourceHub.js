@@ -159,7 +159,7 @@ export function ResourceHub(props) {
     }
 
   } else {
-    console.log('ssr');
+    // console.log('ssr');
     useEffect(() => {
       let isMounted = true;
       if (isMounted) {
@@ -181,7 +181,7 @@ export function ResourceHub(props) {
       }
       return () => { isMounted = false };
     }, [filterUpdated])
-
+    console.log('collection: ', collection);
     return (
       <div>
         <RenderFilterForm 
