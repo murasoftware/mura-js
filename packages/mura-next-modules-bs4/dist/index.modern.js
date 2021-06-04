@@ -4144,5 +4144,42 @@ var render = function render(props) {
   }
 };
 
-export { ArticleMeta, CTAButton, Collection, CollectionLayout, CollectionLayoutAccordian as CollectionLayoutAccordion, AlternatingBoxes as CollectionLayoutAlternatingBoxes, AlternatingRows as CollectionLayoutAlternatingRows, Cards as CollectionLayoutCards, List as CollectionLayoutList, Masonry as CollectionLayoutMasonry, SlickSlider as CollectionLayoutSlickSlider, CollectionNav, CollectionReadMoreBtn, Container, Embed, GatedAsset, render as Gist, Hr, Image, ItemCategories$1 as ItemCategories, ItemCredits, ItemDate, ItemImage, ItemTags, Login, MatrixSelector, CheckForItems as NoItemsMessage, OutputMarkup, PrimaryNav, PrivacyTools, ResourceHub, RouterLink, RouterlessLink, Text, Video, getDynamicProps as getCollectionDynamicProps, getLayout as getCollectionLayout, getQueryProps$1 as getCollectionLayoutAccordionQueryProps, getQueryProps$2 as getCollectionLayoutAlternatingBoxesQueryProps, getQueryProps$3 as getCollectionLayoutAlternatingRowsQueryProps, getQueryProps$4 as getCollectionLayoutCardsQueryProps, getQueryProps$5 as getCollectionLayoutListQueryProps, getQueryProps$6 as getCollectionLayoutMasonryQueryProps, getQueryProps as getCollectionLayoutQueryProps, getQueryProps$7 as getCollectionLayoutSlickSliderQueryProps, getDynamicProps$1 as getMatrixSelectorDynamicProps, getDynamicProps$2 as getPrimaryNavDynamicProps, getDynamicProps$3 as getResourceHubDynamicProps, getDynamicProps$4 as getTextDynamicProps };
+function UtilityNav(props) {
+  var objectparams = Object.assign({}, props);
+
+  if (!objectparams.dynamicProps) {
+    return /*#__PURE__*/React.createElement("div", {
+      className: "mura-utility-links"
+    }, /*#__PURE__*/React.createElement(UtilityLinks, props));
+  } else {
+    return /*#__PURE__*/React.createElement("div", {
+      className: "mura-utility-links"
+    });
+  }
+}
+
+var UtilityLinks = function UtilityLinks(props) {
+  var CustomLinks = props.customlinks ? Array.from(props.customlinks) : [];
+  console.log('props: ', props);
+
+  if (CustomLinks && CustomLinks.length) {
+    var _UtilityLinks = CustomLinks.map(function (link) {
+      return /*#__PURE__*/React.createElement("li", {
+        className: "list-inline-item",
+        key: link.name
+      }, /*#__PURE__*/React.createElement("a", {
+        href: link.value,
+        target: props.linktarget && props.linktarget != "_self" ? props.linktarget : ''
+      }, link.name));
+    });
+
+    return /*#__PURE__*/React.createElement("ul", {
+      className: "list-inline"
+    }, _UtilityLinks);
+  }
+
+  return null;
+};
+
+export { ArticleMeta, CTAButton, Collection, CollectionLayout, CollectionLayoutAccordian as CollectionLayoutAccordion, AlternatingBoxes as CollectionLayoutAlternatingBoxes, AlternatingRows as CollectionLayoutAlternatingRows, Cards as CollectionLayoutCards, List as CollectionLayoutList, Masonry as CollectionLayoutMasonry, SlickSlider as CollectionLayoutSlickSlider, CollectionNav, CollectionReadMoreBtn, Container, Embed, GatedAsset, render as Gist, Hr, Image, ItemCategories$1 as ItemCategories, ItemCredits, ItemDate, ItemImage, ItemTags, Login, MatrixSelector, CheckForItems as NoItemsMessage, OutputMarkup, PrimaryNav, PrivacyTools, ResourceHub, RouterLink, RouterlessLink, Text, UtilityNav, Video, getDynamicProps as getCollectionDynamicProps, getLayout as getCollectionLayout, getQueryProps$1 as getCollectionLayoutAccordionQueryProps, getQueryProps$2 as getCollectionLayoutAlternatingBoxesQueryProps, getQueryProps$3 as getCollectionLayoutAlternatingRowsQueryProps, getQueryProps$4 as getCollectionLayoutCardsQueryProps, getQueryProps$5 as getCollectionLayoutListQueryProps, getQueryProps$6 as getCollectionLayoutMasonryQueryProps, getQueryProps as getCollectionLayoutQueryProps, getQueryProps$7 as getCollectionLayoutSlickSliderQueryProps, getDynamicProps$1 as getMatrixSelectorDynamicProps, getDynamicProps$2 as getPrimaryNavDynamicProps, getDynamicProps$3 as getResourceHubDynamicProps, getDynamicProps$4 as getTextDynamicProps };
 //# sourceMappingURL=index.modern.js.map

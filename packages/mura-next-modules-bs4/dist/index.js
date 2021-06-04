@@ -4147,6 +4147,43 @@ var render = function render(props) {
   }
 };
 
+function UtilityNav(props) {
+  var objectparams = Object.assign({}, props);
+
+  if (!objectparams.dynamicProps) {
+    return /*#__PURE__*/React__default.createElement("div", {
+      className: "mura-utility-links"
+    }, /*#__PURE__*/React__default.createElement(UtilityLinks, props));
+  } else {
+    return /*#__PURE__*/React__default.createElement("div", {
+      className: "mura-utility-links"
+    });
+  }
+}
+
+var UtilityLinks = function UtilityLinks(props) {
+  var CustomLinks = props.customlinks ? Array.from(props.customlinks) : [];
+  console.log('props: ', props);
+
+  if (CustomLinks && CustomLinks.length) {
+    var _UtilityLinks = CustomLinks.map(function (link) {
+      return /*#__PURE__*/React__default.createElement("li", {
+        className: "list-inline-item",
+        key: link.name
+      }, /*#__PURE__*/React__default.createElement("a", {
+        href: link.value,
+        target: props.linktarget && props.linktarget != "_self" ? props.linktarget : ''
+      }, link.name));
+    });
+
+    return /*#__PURE__*/React__default.createElement("ul", {
+      className: "list-inline"
+    }, _UtilityLinks);
+  }
+
+  return null;
+};
+
 exports.ArticleMeta = ArticleMeta;
 exports.CTAButton = CTAButton;
 exports.Collection = Collection;
@@ -4181,6 +4218,7 @@ exports.ResourceHub = ResourceHub;
 exports.RouterLink = RouterLink;
 exports.RouterlessLink = RouterlessLink;
 exports.Text = Text;
+exports.UtilityNav = UtilityNav;
 exports.Video = Video;
 exports.getCollectionDynamicProps = getDynamicProps;
 exports.getCollectionLayout = getLayout;
