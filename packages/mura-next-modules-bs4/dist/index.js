@@ -4149,6 +4149,7 @@ var render = function render(props) {
   }
 };
 
+<<<<<<< HEAD
 function getDefaultQueryPropsFromLayout$2(layout, item) {
   if (layout) {
     return layout.getQueryProps ? layout.getQueryProps(item) : {
@@ -4475,6 +4476,45 @@ function SearchForm(props) {
   })))));
 }
 
+=======
+function UtilityNav(props) {
+  var objectparams = Object.assign({}, props);
+
+  if (!objectparams.dynamicProps) {
+    return /*#__PURE__*/React__default.createElement("div", {
+      className: "mura-utility-links"
+    }, /*#__PURE__*/React__default.createElement(UtilityLinks, props));
+  } else {
+    return /*#__PURE__*/React__default.createElement("div", {
+      className: "mura-utility-links"
+    });
+  }
+}
+
+var UtilityLinks = function UtilityLinks(props) {
+  var CustomLinks = props.customlinks ? Array.from(props.customlinks) : [];
+  console.log('props: ', props);
+
+  if (CustomLinks && CustomLinks.length) {
+    var _UtilityLinks = CustomLinks.map(function (link) {
+      return /*#__PURE__*/React__default.createElement("li", {
+        className: "list-inline-item",
+        key: link.name
+      }, /*#__PURE__*/React__default.createElement("a", {
+        href: link.value,
+        target: props.linktarget && props.linktarget != "_self" ? props.linktarget : ''
+      }, link.name));
+    });
+
+    return /*#__PURE__*/React__default.createElement("ul", {
+      className: "list-inline"
+    }, _UtilityLinks);
+  }
+
+  return null;
+};
+
+>>>>>>> ca87e313ef7746e1a2f6e31b91be6bf9f23c3f36
 exports.ArticleMeta = ArticleMeta;
 exports.CTAButton = CTAButton;
 exports.Collection = Collection;
@@ -4512,6 +4552,7 @@ exports.SearchForm = SearchForm;
 exports.SearchResults = SearchResults;
 exports.SearchResultsLayout = SearchResultsLayout;
 exports.Text = Text;
+exports.UtilityNav = UtilityNav;
 exports.Video = Video;
 exports.getCollectionDynamicProps = getDynamicProps;
 exports.getCollectionLayout = getLayout;

@@ -34,6 +34,7 @@ import Gist from "./Gist";
 import { default as SearchResults, getDynamicProps as getSearchResultsDynamicProps } from "./SearchResults";
 import SearchResultsLayout from "./SearchResultsLayout";
 import SearchForm from "./SearchForm";
+import UtilityNav from "./UtilityNav";
 
 export {
     Video,
@@ -88,5 +89,6 @@ export {
     SearchResults,
     getSearchResultsDynamicProps,
     SearchResultsLayout,
-    SearchForm
+    SearchForm,
+    UtilityNav
 };
