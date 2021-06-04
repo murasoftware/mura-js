@@ -1735,6 +1735,8 @@ var CurrentItems$5 = function CurrentItems(props) {
   var itemsTo = pos + nextn > items.length ? items.length : pos + nextn;
   var fieldlist = fields ? fields.toLowerCase().split(",") : [];
   var maxItems = props.maxitems;
+  console.log('itemsTo', itemsTo);
+  console.log('pos', pos);
 
   if (nextCore.getMura().renderMode != 'static' && scrollpages) {
     itemsTo = items.length;
@@ -3297,7 +3299,6 @@ function ResourceHub(props) {
       return /*#__PURE__*/React__default.createElement("div", null);
     }
   } else {
-    console.log('ssr');
     React.useEffect(function () {
       var isMounted = true;
 
@@ -3322,6 +3323,7 @@ function ResourceHub(props) {
         isMounted = false;
       };
     }, [filterUpdated]);
+    console.log('collection: ', collection);
     return /*#__PURE__*/React__default.createElement("div", null, /*#__PURE__*/React__default.createElement(RenderFilterForm, _extends({
       updateFilter: updateFilter
     }, props, {
@@ -4147,6 +4149,332 @@ var render = function render(props) {
   }
 };
 
+function getDefaultQueryPropsFromLayout$2(layout, item) {
+  if (layout) {
+    return layout.getQueryProps ? layout.getQueryProps(item) : {
+      fields: ''
+    };
+  } else {
+    return {
+      fields: ''
+    };
+  }
+}
+
+function SearchResults(props) {
+  var Mura = nextCore.getMura();
+  var objectparams = Object.assign({}, props);
+  var DynamicCollectionLayout = getLayout('SearchResultsLayout').component;
+  objectparams.fields = objectparams.fields || getDefaultQueryPropsFromLayout$2(DynamicCollectionLayout, objectparams).fields || 'Image,Date,Title,Summary,Credits,Tags';
+  var queryText = '';
+
+  if (!Mura.editing) {
+    var router$1 = router.useRouter();
+    queryText = router$1.query.q;
+  }
+
+  objectparams.dynamicProps = objectparams.dynamicProps || {
+    something: 'new'
+  };
+
+  var _collection = objectparams.dynamicProps.collection ? new Mura.EntityCollection(objectparams.dynamicProps.collection, Mura._requestcontext) : false;
+
+  if (!_collection) {
+    var _useState = React.useState(_collection),
+        collection = _useState[0],
+        setCollection = _useState[1];
+
+    React.useEffect(function () {
+      var isMounted = true;
+
+      if (isMounted) {
+        getDynamicProps$5(queryText, props).then(function (_dynamicProps) {
+          if (isMounted) {
+            setCollection(new Mura.EntityCollection(_dynamicProps.collection, Mura._requestcontext));
+          }
+        });
+      }
+
+      return function () {
+        isMounted = false;
+      };
+    }, []);
+
+    if (collection) {
+      return /*#__PURE__*/React__default.createElement(React__default.Fragment, null, /*#__PURE__*/React__default.createElement(SearchMessage, {
+        qText: queryText
+      }), /*#__PURE__*/React__default.createElement(DynamicCollectionLayout, {
+        setCollection: setCollection,
+        collection: collection,
+        props: objectparams,
+        link: RouterlessLink
+      }));
+    } else {
+      return /*#__PURE__*/React__default.createElement("div", null);
+    }
+  } else {
+    var _useState2 = React.useState(_collection),
+        _collection2 = _useState2[0],
+        _setCollection = _useState2[1];
+
+    return /*#__PURE__*/React__default.createElement(React__default.Fragment, null, /*#__PURE__*/React__default.createElement(SearchMessage, {
+      qText: queryText
+    }), /*#__PURE__*/React__default.createElement(DynamicCollectionLayout, {
+      setCollection: _setCollection,
+      collection: _collection2,
+      props: props,
+      link: RouterLink
+    }));
+  }
+}
+
+var getDynamicProps$5 = function getDynamicProps(queryText, props) {
+  try {
+    var Mura = nextCore.getMura();
+    var data = {};
+    var feed = Mura.getFeed('content');
+    feed.prop('subtype').isNEQ('Author');
+    feed.andProp('subtype').isNEQ('Confirmation');
+    feed.andOpenGrouping();
+    feed.orProp('title').containsValue(queryText);
+    feed.orProp('body').containsValue(queryText);
+    feed.orProp('summary').containsValue(queryText);
+    feed.closeGrouping();
+    feed.maxItems(props.maxitems);
+
+    if (Mura.renderMode != 'static') {
+      feed.itemsPerPage(props.nextn);
+    } else {
+      feed.itemsPerPage(0);
+    }
+
+    return Promise.resolve(feed.getQuery()).then(function (query) {
+      data.collection = query.getAll();
+      return data;
+    });
+  } catch (e) {
+    return Promise.reject(e);
+  }
+};
+
+var SearchMessage = function SearchMessage(props) {
+  var qText = props.qText;
+  return /*#__PURE__*/React__default.createElement(Alert, {
+    variant: "info"
+  }, /*#__PURE__*/React__default.createElement("p", {
+    className: "mb-0"
+  }, "Results for your search of: ", /*#__PURE__*/React__default.createElement("strong", null, qText)));
+};
+
+var SearchResultsLayout = function SearchResultsLayout(_ref) {
+  var props = _ref.props,
+      collection = _ref.collection,
+      setCollection = _ref.setCollection,
+      link = _ref.link;
+
+  var _useState = React.useState(0),
+      pos = _useState[0],
+      setPos = _useState[1];
+
+  return /*#__PURE__*/React__default.createElement("div", {
+    className: "searchResultsLayout"
+  }, /*#__PURE__*/React__default.createElement(CurrentItems$7, _extends({
+    collection: collection,
+    pos: pos,
+    link: link
+  }, props)), /*#__PURE__*/React__default.createElement("div", {
+    className: "row"
+  }, /*#__PURE__*/React__default.createElement("div", {
+    className: "col-12"
+  }, /*#__PURE__*/React__default.createElement(CollectionNav, _extends({
+    setCollection: setCollection,
+    collection: collection,
+    pos: pos,
+    setPos: setPos,
+    link: link
+  }, props)))));
+};
+
+var CurrentItems$7 = function CurrentItems(props) {
+  var collection = props.collection,
+      nextn = props.nextn,
+      link = props.link,
+      pos = props.pos,
+      fields = props.fields,
+      scrollpages = props.scrollpages;
+  var itemsList = [];
+  var item = '';
+  var Link = link;
+  var items = collection.get('items');
+  var itemsTo = pos + nextn > items.length ? items.length : pos + nextn;
+  var fieldlist = fields ? fields.toLowerCase().split(",") : [];
+  var maxItems = props.maxitems;
+  var startIndex = collection.get('startindex');
+
+  if (nextCore.getMura().renderMode != 'static' && scrollpages) {
+    itemsTo = items.length;
+  } else {
+    if (maxItems < items.length && pos + nextn > maxItems) {
+      itemsTo = maxItems;
+    }
+  }
+
+  for (var i = pos; i < itemsTo; i++) {
+    item = items[i];
+    itemsList.push( /*#__PURE__*/React__default.createElement("div", {
+      className: "row mb-3",
+      key: item.get('contentid')
+    }, /*#__PURE__*/React__default.createElement(ListImage$1, {
+      fieldlist: fieldlist,
+      item: item,
+      imagesize: props.imagesize
+    }), /*#__PURE__*/React__default.createElement(ListMeta$1, {
+      startIndex: startIndex,
+      index: i,
+      pos: pos,
+      itemsTo: itemsTo,
+      fieldlist: fieldlist,
+      item: item,
+      Link: Link
+    })));
+  }
+
+  return itemsList;
+};
+
+var ListImage$1 = function ListImage(props) {
+  var fieldlist = props.fieldlist,
+      item = props.item;
+  var hasImage = false;
+
+  if (fieldlist.indexOf("image") > -1) {
+    hasImage = true;
+  }
+
+  if (hasImage) {
+    var imagesize = props.imagesize || 'medium';
+    return /*#__PURE__*/React__default.createElement("div", {
+      className: "col-12 col-md-3 mb-3 pr-md-0"
+    }, /*#__PURE__*/React__default.createElement(ItemImage, {
+      image: item.get('images')[imagesize],
+      className: "img-fluid",
+      alt: item.get('title'),
+      key: "image"
+    }));
+  }
+
+  return /*#__PURE__*/React__default.createElement(React__default.Fragment, null);
+};
+
+var ListMeta$1 = function ListMeta(props) {
+  var fieldlist = props.fieldlist,
+      item = props.item,
+      Link = props.Link,
+      index = props.index,
+      startIndex = props.startIndex;
+  var currentIndex = index + startIndex;
+
+  if (fieldlist.indexOf("image") > -1) ;
+
+  if (item.get('type') === "Link") ;
+
+  return /*#__PURE__*/React__default.createElement("div", {
+    className: "col-12 py-3"
+  }, /*#__PURE__*/React__default.createElement("div", {
+    className: "mura-item-meta"
+  }, fieldlist.map(function (field) {
+    switch (field) {
+      case "title":
+        return /*#__PURE__*/React__default.createElement("div", {
+          className: "mura-item-meta__title",
+          key: item.get('field')
+        }, /*#__PURE__*/React__default.createElement("h3", null, /*#__PURE__*/React__default.createElement(Link, {
+          href: "/" + item.get('filename'),
+          className: "text-dark"
+        }, currentIndex, ". ", item.get('title'))));
+
+      case "date":
+      case "releasedate":
+        return /*#__PURE__*/React__default.createElement("div", {
+          className: "mura-item-meta__date",
+          key: "date"
+        }, /*#__PURE__*/React__default.createElement(ItemDate, {
+          releasedate: item.get('releasedate'),
+          lastupdate: item.get('lastupdate')
+        }));
+
+      case "summary":
+        return /*#__PURE__*/React__default.createElement(OutputMarkup, {
+          source: item.get('summary'),
+          key: field
+        });
+
+      case "readmore":
+        return /*#__PURE__*/React__default.createElement("div", {
+          className: "mura-item-meta__readmore",
+          key: field
+        }, /*#__PURE__*/React__default.createElement(CollectionReadMoreBtn, {
+          href: "/" + item.get('filename'),
+          ctatext: "Read More",
+          link: Link,
+          key: item.get('contentid')
+        }));
+
+      case "credits":
+        if (item.get('credits').length) {
+          return /*#__PURE__*/React__default.createElement("div", {
+            className: "mura-item-meta__credits"
+          }, /*#__PURE__*/React__default.createElement(ItemCredits, {
+            credits: item.get('credits'),
+            key: "credits"
+          }));
+        }
+
+        return null;
+
+      case "tags":
+        return /*#__PURE__*/React__default.createElement("div", {
+          className: "mura-item-meta__tags pb-2",
+          key: "tags"
+        }, /*#__PURE__*/React__default.createElement(ItemTags, {
+          tags: item.get('tags')
+        }));
+
+      default:
+        return /*#__PURE__*/React__default.createElement("div", {
+          className: "mura-item-meta__" + field,
+          key: field,
+          "data-value": item.get(field)
+        }, item.get(field));
+    }
+  })));
+};
+
+function SearchForm(props) {
+  return /*#__PURE__*/React__default.createElement(Form, {
+    method: "get",
+    id: "searchForm",
+    className: "form-inline",
+    role: "search",
+    action: "/search-results",
+    key: "siteSearch"
+  }, /*#__PURE__*/React__default.createElement(InputGroup, {
+    className: ""
+  }, /*#__PURE__*/React__default.createElement(Form.Control, {
+    placeholder: "Search",
+    "aria-label": "Search",
+    "aria-describedby": "Search",
+    name: "q",
+    type: "text"
+  }), /*#__PURE__*/React__default.createElement(InputGroup.Append, null, /*#__PURE__*/React__default.createElement(Button, {
+    variant: "light",
+    type: "submit"
+  }, /*#__PURE__*/React__default.createElement(reactFontawesome.FontAwesomeIcon, {
+    icon: freeSolidSvgIcons.faSearch,
+    size: "lg"
+  })))));
+}
+
 exports.ArticleMeta = ArticleMeta;
 exports.CTAButton = CTAButton;
 exports.Collection = Collection;
@@ -4180,6 +4508,9 @@ exports.PrivacyTools = PrivacyTools;
 exports.ResourceHub = ResourceHub;
 exports.RouterLink = RouterLink;
 exports.RouterlessLink = RouterlessLink;
+exports.SearchForm = SearchForm;
+exports.SearchResults = SearchResults;
+exports.SearchResultsLayout = SearchResultsLayout;
 exports.Text = Text;
 exports.Video = Video;
 exports.getCollectionDynamicProps = getDynamicProps;
@@ -4195,5 +4526,6 @@ exports.getCollectionLayoutSlickSliderQueryProps = getQueryProps$7;
 exports.getMatrixSelectorDynamicProps = getDynamicProps$1;
 exports.getPrimaryNavDynamicProps = getDynamicProps$2;
 exports.getResourceHubDynamicProps = getDynamicProps$3;
+exports.getSearchResultsDynamicProps = getDynamicProps$5;
 exports.getTextDynamicProps = getDynamicProps$4;
 //# sourceMappingURL=index.js.map
