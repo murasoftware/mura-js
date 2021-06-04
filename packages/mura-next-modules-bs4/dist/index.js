@@ -2907,7 +2907,7 @@ var Render = function Render(_ref) {
     });
   }), props.props.content && props.props.content.translations && /*#__PURE__*/React__default.createElement(LangOptions, {
     translations: props.props.content.translations
-  })))));
+  })), props.props.displaysearch && /*#__PURE__*/React__default.createElement(SearchForm, null))));
 };
 
 var getDynamicProps$2 = function getDynamicProps(props) {
@@ -4149,7 +4149,6 @@ var render = function render(props) {
   }
 };
 
-<<<<<<< HEAD
 function getDefaultQueryPropsFromLayout$2(layout, item) {
   if (layout) {
     return layout.getQueryProps ? layout.getQueryProps(item) : {
@@ -4455,7 +4454,7 @@ function SearchForm(props) {
   return /*#__PURE__*/React__default.createElement(Form, {
     method: "get",
     id: "searchForm",
-    className: "form-inline",
+    className: "form-inline ml-5",
     role: "search",
     action: "/search-results",
     key: "siteSearch"
@@ -4476,7 +4475,6 @@ function SearchForm(props) {
   })))));
 }
 
-=======
 function UtilityNav(props) {
   var objectparams = Object.assign({}, props);
 
@@ -4514,7 +4512,6 @@ var UtilityLinks = function UtilityLinks(props) {
   return null;
 };
 
->>>>>>> ca87e313ef7746e1a2f6e31b91be6bf9f23c3f36
 exports.ArticleMeta = ArticleMeta;
 exports.CTAButton = CTAButton;
 exports.Collection = Collection;
