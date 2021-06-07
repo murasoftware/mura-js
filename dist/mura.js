@@ -1480,11 +1480,15 @@ var commandKeyActive = false;
 
 var keyCmdCheck = function keyCmdCheck(event) {
   switch (event.which) {
-    case 17:
-    case 18:
-    case 27:
+    case 17: //ctrl
+
+    case 18: //alt
+
+    case 27: //escape
+
     case 91:
-      commandKeyActive = true;
+      //cmd
+      commandKeyActive = event.which;
       break;
 
     case 69:
@@ -1521,7 +1525,7 @@ var keyCmdCheck = function keyCmdCheck(event) {
       break;
 
     case 76:
-      if (commandKeyActive) {
+      if (commandKeyActive && commandKeyActive != 91) {
         event.preventDefault();
         var params = getQueryStringParams(location.search);
 
