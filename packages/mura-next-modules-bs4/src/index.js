@@ -31,6 +31,10 @@ import { getDynamicProps as getTextDynamicProps, default as Text} from "./Text";
 import PrivacyTools from "./PrivacyTools";
 import GatedAsset from "./GatedAsset";
 import Gist from "./Gist";
+import { default as SearchResults, getDynamicProps as getSearchResultsDynamicProps } from "./SearchResults";
+import SearchResultsLayout from "./SearchResultsLayout";
+import SearchForm from "./SearchForm";
+import UtilityNav from "./UtilityNav";
 
 export {
     Video,
@@ -81,5 +85,10 @@ export {
     NoItemsMessage,
     OutputMarkup,
     GatedAsset,
-    Gist
+    Gist,
+    SearchResults,
+    getSearchResultsDynamicProps,
+    SearchResultsLayout,
+    SearchForm,
+    UtilityNav
 };
