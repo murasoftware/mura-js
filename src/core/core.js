@@ -3972,6 +3972,13 @@ function init(config) {
 						var source=Mura(e.target);
 						var data=setLowerCaseKeys(getQueryStringParams(hArray[hArray.length-1]));
 						var obj=source.closest('div.mura-object');
+
+						if (obj.data("object") == "resource_hub"){
+							if (!obj.hasOwnProperty("categoryid")){
+								obj.removeAttr("data-categoryid");
+							}
+						}
+
 						obj.data(data);
 						processAsyncObject(obj.node).then(function(){
 							try {
