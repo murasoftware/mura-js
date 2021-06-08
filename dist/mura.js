@@ -1525,7 +1525,7 @@ var keyCmdCheck = function keyCmdCheck(event) {
       break;
 
     case 76:
-      if (commandKeyActive && commandKeyActive != 91) {
+      if (commandKeyActive && commandKeyActive != 91 && commandKeyActive != 17) {
         event.preventDefault();
         var params = getQueryStringParams(location.search);
 
