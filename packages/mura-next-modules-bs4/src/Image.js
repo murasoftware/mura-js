@@ -30,7 +30,7 @@ const Image =function(props) {
   );
   } else {
     return (
-      <figure style={{margin:"0px"}}>
+      <figure style={{margin:"0px",height:"100%"}}>
          <Img {...objectparams} />
         <FigCaption {...objectparams} />
       </figure>

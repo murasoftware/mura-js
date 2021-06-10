@@ -2371,7 +2371,8 @@ var Image = function Image(props) {
   } else {
     return /*#__PURE__*/React__default.createElement("figure", {
       style: {
-        margin: "0px"
+        margin: "0px",
+        height: "100%"
       }
     }, /*#__PURE__*/React__default.createElement(Img, objectparams), /*#__PURE__*/React__default.createElement(FigCaption, objectparams));
   }

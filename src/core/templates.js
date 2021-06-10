@@ -73,7 +73,7 @@ Mura.templates['image']=function(context){
 	if(context.caption && context.caption != '<p></p>'){
 		source+='<figcaption>' + context.caption + '</figcaption>';
 	}
-	source='<figure>' + source + '</figure>';
+	source='<figure style="margin:0px,height:100%">' + source + '</figure>';
 
 	return source;
 }
