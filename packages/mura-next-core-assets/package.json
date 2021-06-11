@@ -5,7 +5,7 @@
     "author": "Mura Software",
     "license": "MIT",
     "repository": "https://github.com/murasoftware/mura-js.git",
-    "main": "css/mura.10.min.css",
+    "main": "dist/mura.10.min.css",
     "files": [
       "dist/*.css"
     ]
