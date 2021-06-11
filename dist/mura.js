@@ -14403,7 +14403,7 @@ Mura.templates['image'] = function (context) {
     source += '<figcaption>' + context.caption + '</figcaption>';
   }
 
-  source = '<figure style="margin:0px,height:100%">' + source + '</figure>';
+  source = '<figure style="margin:0px">' + source + '</figure>';
   return source;
 };
 
