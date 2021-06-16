@@ -12,6 +12,7 @@ export const Container = function(props) {
   if (!items) return '';
 
   useEffect(() => {
+    Mura.displayObjectInstances=Mura.displayObjectInstances || {};
     if(typeof Mura.displayObjectInstances[instanceid]=='undefined'){
       Mura.displayObjectInstances[instanceid]= new Mura.DisplayObject.Container(props);
     }

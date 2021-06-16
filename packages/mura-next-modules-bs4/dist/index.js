@@ -2256,6 +2256,8 @@ var Container = function Container(props) {
       instanceid = props.instanceid;
   if (!items) return '';
   React.useEffect(function () {
+    Mura$2.displayObjectInstances = Mura$2.displayObjectInstances || {};
+
     if (typeof Mura$2.displayObjectInstances[instanceid] == 'undefined') {
       Mura$2.displayObjectInstances[instanceid] = new Mura$2.DisplayObject.Container(props);
     }
