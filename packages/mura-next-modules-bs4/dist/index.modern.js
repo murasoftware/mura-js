@@ -59,14 +59,22 @@ function Wistia(props) {
   var instanceid = props.instanceid,
       videoid = props.videoid;
   useEffect(function () {
-    Mura$1.loader().loadjs('https://fast.wistia.net/assets/external/E-v1.js', 'https://fast.wistia.com/embed/medias/${videoid}.jsonp');
+    var loader = Mura$1.loader();
+    loader.loadjs('https://fast.wistia.net/assets/external/E-v1.js', {
+      defer: true
+    });
+    loader.loadjs('https://fast.wistia.com/embed/medias/${videoid}.jsonp', {
+      defer: true
+    });
   }, []);
   return /*#__PURE__*/React.createElement("div", {
     className: "wistiaWrapper",
     id: "player-" + instanceid
   }, /*#__PURE__*/React.createElement(Head, null, /*#__PURE__*/React.createElement("script", {
+    defer: true,
     src: "https://fast.wistia.net/assets/external/E-v1.js"
   }), /*#__PURE__*/React.createElement("script", {
+    defer: true,
     src: "https://fast.wistia.com/embed/medias/" + videoid + ".jsonp"
   })), /*#__PURE__*/React.createElement("div", {
     className: "wistia_responsive_padding",

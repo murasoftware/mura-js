@@ -6,18 +6,17 @@ function Wistia(props) {
 	const { instanceid, videoid } = props;
 
 	useEffect(() => {
-		Mura.loader().loadjs(
-			'https://fast.wistia.net/assets/external/E-v1.js',
-			'https://fast.wistia.com/embed/medias/${videoid}.jsonp'
-		);
-	  }, []);
+		const loader=Mura.loader();
+		loader.loadjs('https://fast.wistia.net/assets/external/E-v1.js',{defer:true});
+		loader.loadjs('https://fast.wistia.com/embed/medias/${videoid}.jsonp',{defer:true});
+	}, []);
 
 	// j38ihh83m5
 	return (
 	  <div className="wistiaWrapper" id={`player-${instanceid}`}>
 		<Head>
-			<script src='https://fast.wistia.net/assets/external/E-v1.js'></script>
-			<script src={`https://fast.wistia.com/embed/medias/${videoid}.jsonp`}></script>
+			<script defer src='https://fast.wistia.net/assets/external/E-v1.js'></script>
+			<script defer src={`https://fast.wistia.com/embed/medias/${videoid}.jsonp`}></script>
 		</Head>
 		<div
 			className="wistia_responsive_padding"
