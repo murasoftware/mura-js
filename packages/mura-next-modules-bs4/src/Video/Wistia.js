@@ -3,7 +3,17 @@ import Head from 'next/head';
 import Mura from 'mura.js';
 
 function Wistia(props) {
-	const { instanceid, videoid } = props;
+	const { instanceid, videoid, dynamicProps } = props;
+	
+	useEffect(() => {
+		if(typeof dynamicProps == 'undefined'){
+			const loader=Mura.loader();
+			if(typeof window.Wistia == 'undefined'){
+				loader.loadjs('https://fast.wistia.net/assets/external/E-v1.js',{async:true});
+			}
+			loader.loadjs('https://fast.wistia.com/embed/medias/${videoid}.jsonp',{async:true});
+		}
+	}, []);
 
 	// j38ihh83m5
 	return (

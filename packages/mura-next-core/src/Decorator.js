@@ -12,22 +12,6 @@ function Decorator(props) {
   
   useEffect(() => {
     setMounted(true);
-    Mura(function(){
-      const obj=Mura('div[data-instanceid="' + instanceid + '"]');
-      if(obj.data('async')=='true' || obj.data('render')=='server'){
-        setTimeout(function(){
-            const obj=Mura('div[data-instanceid="' + instanceid + '"]');
-            const contentCheck=obj.find('.mura-object-content');
-            if(!contentCheck.length ){
-              console.log('rebuilding stale async module because no mura-object-content',instanceid)
-              obj.processDisplayObject();
-            } else if (!contentCheck.children().length){
-              console.log('rebuilding stale async module because mura-object-content is empty',instanceid)
-              obj.processDisplayObject();
-            }
-        },2000);
-      }
-    })
   }, []);
 
     /*

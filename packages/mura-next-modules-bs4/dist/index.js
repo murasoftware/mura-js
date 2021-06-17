@@ -60,7 +60,23 @@ function Vimeo(props) {
 
 function Wistia(props) {
   var instanceid = props.instanceid,
-      videoid = props.videoid;
+      videoid = props.videoid,
+      dynamicProps = props.dynamicProps;
+  React.useEffect(function () {
+    if (typeof dynamicProps == 'undefined') {
+      var loader = Mura$1.loader();
+
+      if (typeof window.Wistia == 'undefined') {
+        loader.loadjs('https://fast.wistia.net/assets/external/E-v1.js', {
+          async: true
+        });
+      }
+
+      loader.loadjs('https://fast.wistia.com/embed/medias/${videoid}.jsonp', {
+        async: true
+      });
+    }
+  }, []);
   return /*#__PURE__*/React__default.createElement("div", {
     className: "wistiaWrapper",
     id: "player-" + instanceid
