@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Mura$1 from 'mura.js';
 import Badge from 'react-bootstrap/Badge';
@@ -58,23 +58,14 @@ function Vimeo(props) {
 function Wistia(props) {
   var instanceid = props.instanceid,
       videoid = props.videoid;
-  useEffect(function () {
-    var loader = Mura$1.loader();
-    loader.loadjs('https://fast.wistia.net/assets/external/E-v1.js', {
-      defer: true
-    });
-    loader.loadjs('https://fast.wistia.com/embed/medias/${videoid}.jsonp', {
-      defer: true
-    });
-  }, []);
   return /*#__PURE__*/React.createElement("div", {
     className: "wistiaWrapper",
     id: "player-" + instanceid
   }, /*#__PURE__*/React.createElement(Head, null, /*#__PURE__*/React.createElement("script", {
-    defer: true,
+    async: true,
     src: "https://fast.wistia.net/assets/external/E-v1.js"
   }), /*#__PURE__*/React.createElement("script", {
-    defer: true,
+    async: true,
     src: "https://fast.wistia.com/embed/medias/" + videoid + ".jsonp"
   })), /*#__PURE__*/React.createElement("div", {
     className: "wistia_responsive_padding",
