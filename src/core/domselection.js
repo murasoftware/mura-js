@@ -472,7 +472,7 @@ Mura.DOMSelection = Mura.Core.extend(
 					return (el.nodeType === 1 || el.nodeType === 11 || el.nodeType === 9) && el.matchesSelector(selector);
 				};
 			} else {
-				var filterFn = function() {
+				var filterFn = function(el) {
 					return el.nodeType === 1 || el.nodeType === 11 ||	el.nodeType === 9;
 				};
 			}
