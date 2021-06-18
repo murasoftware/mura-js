@@ -243,23 +243,23 @@ Mura.DOMSelection = Mura.Core.extend(
 				var self = this;
 				setTimeout(
 					function() {
-						self.each(function() {
+						self.each(function(target) {
 							if (selector) {
-								Mura(this).find(
+								Mura(target).find(
 									selector
 								).each(
-									function() {
+									function(target) {
 										if(typeof fn.call =='undefined'){
-											fn(this);
+											fn(target);
 										} else {
-											fn.call(this,this);
+											fn.call(target,target);
 										}
 								});
 							} else {
 								if(typeof fn.call =='undefined'){
-									fn(this);
+									fn(target);
 								} else {
-									fn.call(this,this);
+									fn.call(target,target);
 								}
 							}
 						});
@@ -272,10 +272,10 @@ Mura.DOMSelection = Mura.Core.extend(
 			}
 		}
 
-		this.each(function() {
+		this.each(function(el) {
 				if (typeof this.addEventListener ==
 						'function') {
-						var self = this;
+						var self = el;
 						this.addEventListener(
 								eventName,
 								function(event) {
@@ -468,12 +468,12 @@ Mura.DOMSelection = Mura.Core.extend(
 		if (this.selection[0].hasChildNodes()) {
 			var children = Mura(this.selection[0].childNodes);
 			if (typeof selector == 'string') {
-				var filterFn = function() {
-					return (this.nodeType === 1 || this.nodeType === 11 ||this.nodeType === 9) &&	this.matchesSelector(selector);
+				var filterFn = function(el) {
+					return (el.nodeType === 1 || el.nodeType === 11 || el.nodeType === 9) && el.matchesSelector(selector);
 				};
 			} else {
-				var filterFn = function() {
-					return this.nodeType === 1 ||	this.nodeType === 11 ||	this.nodeType === 9;
+				var filterFn = function(el) {
+					return el.nodeType === 1 || el.nodeType === 11 ||	el.nodeType === 9;
 				};
 			}
 			return children.filter(filterFn);
@@ -585,12 +585,12 @@ Mura.DOMSelection = Mura.Core.extend(
 		if (el.hasChildNodes()) {
 			var silbings = Mura(this.selection[0].childNodes);
 			if (typeof selector == 'string') {
-				var filterFn = function() {
-					return (this.nodeType === 1 |	this.nodeType === 11 || this.nodeType === 9) && this.matchesSelector(selector);
+				var filterFn = function(el) {
+					return (el.nodeType === 1 || el.nodeType === 11 || el.nodeType === 9) && el.matchesSelector(selector);
 				};
 			} else {
-				var filterFn = function() {
-					return this.nodeType === 1 ||	this.nodeType === 11 ||	this.nodeType === 9;
+				var filterFn = function(el) {
+					return el.nodeType === 1 ||	el.nodeType === 11 || el.nodeType === 9;
 				};
 			}
 			return silbings.filter(filterFn);
@@ -657,12 +657,12 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @return {Mura.DOMSelection} Self
 	 */
 	append(el) {
-		this.each(function() {
+		this.each(function(target) {
 			try {
 				if (typeof el == 'string') {
-					this.insertAdjacentHTML('beforeend', el);
+					target.insertAdjacentHTML('beforeend', el);
 				} else {
-					this.appendChild(el);
+					target.appendChild(el);
 				}
 			} catch(e){
 				console.log(e);
@@ -684,7 +684,7 @@ Mura.DOMSelection = Mura.Core.extend(
 			data.transient=true;
 		}
 		return new Promise(function(resolve, reject) {
-			self.each(function() {
+			self.each(function(target) {
 				var el = document.createElement('div');
 				el.setAttribute('class','mura-object');
 				var preserveid=false;
@@ -708,7 +708,7 @@ Mura.DOMSelection = Mura.Core.extend(
 				} else {
 					el.setAttribute('data-instanceid',Mura.createUUID());
 				}	
-				var self=this;
+				var self=target;
 				function watcher(){
 					if(Mura.markupInitted){
 						Mura(self).append(el);
@@ -745,7 +745,7 @@ Mura.DOMSelection = Mura.Core.extend(
 			data.transient=true;
 		}
 		return new Promise(function(resolve, reject) {
-			self.each(function() {
+			self.each(function(target) {
 				var el = document.createElement('div');
 				el.setAttribute('class','mura-object');
 				var preserveid=false;
@@ -769,7 +769,7 @@ Mura.DOMSelection = Mura.Core.extend(
 				} else {
 					el.setAttribute('data-instanceid',Mura.createUUID());
 				}	
-				var self=this;
+				var self=target;
 				function watcher(){
 					if(Mura.markupInitted){
 						Mura(self).after(el);
@@ -806,7 +806,7 @@ Mura.DOMSelection = Mura.Core.extend(
 			data.transient=true;
 		}
 		return new Promise(function(resolve, reject) {
-			self.each(function() {
+			self.each(function(target) {
 				var el = document.createElement('div');
 				el.setAttribute('class','mura-object');
 				var preserveid=false;
@@ -830,7 +830,7 @@ Mura.DOMSelection = Mura.Core.extend(
 				} else {
 					el.setAttribute('data-instanceid',Mura.createUUID());
 				}	
-				var self=this;
+				var self=target;
 				function watcher(){
 					if(Mura.markupInitted){
 						Mura(self).before(el);
@@ -867,7 +867,7 @@ Mura.DOMSelection = Mura.Core.extend(
 			data.transient=true;
 		}
 		return new Promise(function(resolve, reject) {
-			self.each(function() {
+			self.each(function(target) {
 				var el = document.createElement('div');
 				el.setAttribute('class','mura-object');
 				var preserveid=false;
@@ -891,7 +891,7 @@ Mura.DOMSelection = Mura.Core.extend(
 				} else {
 					el.setAttribute('data-instanceid',Mura.createUUID());
 				}	
-				var self=this;
+				var self=target;
 				function watcher(){
 					if(Mura.markupInitted){
 						Mura(self).prepend(el);
@@ -923,9 +923,9 @@ Mura.DOMSelection = Mura.Core.extend(
 	processDisplayObject() {
 		var self = this;
 		return new Promise(function(resolve, reject) {
-			self.each(function() {
+			self.each(function(target) {
 				Mura.processDisplayObject(
-					this,true,true).then(
+					target,true,true).then(
 					resolve, reject
 				);
 			});
@@ -948,12 +948,12 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @return {Mura.DOMSelection} Self
 	 */
 	prepend(el) {
-		this.each(function() {
+		this.each(function(target) {
 			try {
 				if (typeof el == 'string') {
-					this.insertAdjacentHTML('afterbegin', el);
+					target.insertAdjacentHTML('afterbegin', el);
 				} else {
-					this.insertBefore(el, this.firstChild);
+					target.insertBefore(el, target.firstChild);
 				}
 			} catch(e){
 				console.log(e);
@@ -969,12 +969,12 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @return {Mura.DOMSelection} Self
 	 */
 	before(el) {
-		this.each(function() {
+		this.each(function(target) {
 			try {
 				if (typeof el == 'string') {
-					this.insertAdjacentHTML('beforebegin', el);
+					target.insertAdjacentHTML('beforebegin', el);
 				} else {
-					this.parentNode.insertBefore(el,this);
+					target.parentNode.insertBefore(el,target);
 				}
 			} catch(e){
 				console.log(e);
@@ -990,15 +990,15 @@ Mura.DOMSelection = Mura.Core.extend(
 	 * @return {Mura.DOMSelection} Self
 	 */
 	after(el) {
-		this.each(function() {
+		this.each(function(target) {
 			try {
 				if (typeof el == 'string') {
-					this.insertAdjacentHTML('afterend', el);
+					target.insertAdjacentHTML('afterend', el);
 				} else {
-					if(this.nextSibling){
-						this.parentNode.insertBefore(el, this.nextSibling);
+					if(target.nextSibling){
+						target.parentNode.insertBefore(el, target.nextSibling);
 					} else {
-						this.parentNode.appendChild(el);
+						target.parentNode.appendChild(el);
 					}
 					
 				}

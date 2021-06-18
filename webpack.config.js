@@ -27,10 +27,11 @@ plugins.push(
 
 module.exports = {
 	mode: mode,
+  target: ['web', 'es5','browserslist'],
 	optimization: {
     minimize: minimize
   },
-  entry: ['core-js/web','regenerator-runtime/runtime','./index.js'],
+  entry: ['core-js/web','core-js/features/promise','regenerator-runtime/runtime','./index.js'],
   devtool: 'source-map',
   output: {
     filename: outputFile,

@@ -549,7 +549,7 @@ var getMuraProps = function getMuraProps(context, isEditMode, params) {
 
         var _temp6 = _catch(function () {
           var _temp5 = function () {
-            if (connectorConfig.codeblocks) {
+            if (connectorConfig.codeblocks && (context.res || context.browser)) {
               return Promise.resolve(Mura.getFeed('codeblock').where().prop('active').isEQ(1).getQuery()).then(function (codeCollection) {
                 codeCollection.forEach(function (item) {
                   var placement = item.get('placement').toLowerCase();
@@ -642,24 +642,6 @@ function Decorator(props) {
 
   React.useEffect(function () {
     setMounted(true);
-    Mura(function () {
-      var obj = Mura('div[data-instanceid="' + instanceid + '"]');
-
-      if (obj.data('async') == 'true' || obj.data('render') == 'server') {
-        setTimeout(function () {
-          var obj = Mura('div[data-instanceid="' + instanceid + '"]');
-          var contentCheck = obj.find('.mura-object-content');
-
-          if (!contentCheck.length) {
-            console.log('rebuilding stale async module because no mura-object-content', instanceid);
-            obj.processDisplayObject();
-          } else if (!contentCheck.children().length) {
-            console.log('rebuilding stale async module because mura-object-content is empty', instanceid);
-            obj.processDisplayObject();
-          }
-        }, 2000);
-      }
-    });
   }, []);
   var objectStyles = {};
   var metaStyles = {};

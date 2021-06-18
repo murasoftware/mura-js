@@ -3,21 +3,24 @@ import Head from 'next/head';
 import Mura from 'mura.js';
 
 function Wistia(props) {
-	const { instanceid, videoid } = props;
-
+	const { instanceid, videoid, dynamicProps } = props;
+	
 	useEffect(() => {
-		Mura.loader().loadjs(
-			'https://fast.wistia.net/assets/external/E-v1.js',
-			'https://fast.wistia.com/embed/medias/${videoid}.jsonp'
-		);
-	  }, []);
+		if(typeof dynamicProps == 'undefined'){
+			const loader=Mura.loader();
+			if(typeof window.Wistia == 'undefined'){
+				loader.loadjs('https://fast.wistia.net/assets/external/E-v1.js',{async:true});
+			}
+			loader.loadjs('https://fast.wistia.com/embed/medias/${videoid}.jsonp',{async:true});
+		}
+	}, []);
 
 	// j38ihh83m5
 	return (
 	  <div className="wistiaWrapper" id={`player-${instanceid}`}>
 		<Head>
-			<script src='https://fast.wistia.net/assets/external/E-v1.js'></script>
-			<script src={`https://fast.wistia.com/embed/medias/${videoid}.jsonp`}></script>
+			<script async src='https://fast.wistia.net/assets/external/E-v1.js'></script>
+			<script async src={`https://fast.wistia.com/embed/medias/${videoid}.jsonp`}></script>
 		</Head>
 		<div
 			className="wistia_responsive_padding"

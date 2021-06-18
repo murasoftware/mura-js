@@ -1839,8 +1839,8 @@ function processMarkup(scope) {
 			function(){
 				//if layout manager UI exists check for rendered regions and remove them from additional regions
 				if(Mura('.mura__layout-manager__display-regions').length){
-					find('.mura-region').each(function(){
-						var region=Mura(this);
+					find('.mura-region').each(function(el){
+						var region=Mura(el);
 						Mura('.mura-region__item[data-regionid="' + region.data('regionid') + '"]').remove()
 					})
 
@@ -1852,16 +1852,16 @@ function processMarkup(scope) {
 
 			function() {
 				find('.mura-object, .mura-async-object')
-					.each(function() {
+					.each(function(el) {
 						if(scope==document){
-							var obj=Mura(this);
+							var obj=Mura(el);
 							if(!obj.parent().closest('.mura-object').length){
 								processDisplayObject(this,
 									Mura.queueobjects).then(
 									resolve);
 							}
 						} else {
-							processDisplayObject(this,
+							processDisplayObject(el,
 								Mura.queueobjects).then(
 								resolve);
 						}
@@ -1871,7 +1871,7 @@ function processMarkup(scope) {
 
 			function() {
 				find(".htmlEditor").each(function(el) {
-					setHTMLEditor(this);
+					setHTMLEditor(el);
 				});
 			},
 
@@ -1945,13 +1945,13 @@ function processMarkup(scope) {
 				if (typeof resizeEditableObject == 'function') {
 
 					scope.closest('.editableObject').each(
-					function() {
-						resizeEditableObject(this);
+					function(el) {
+						resizeEditableObject(el);
 					});
 
 					find(".editableObject").each(
-					function() {
-						resizeEditableObject(this);
+					function(el) {
+						resizeEditableObject(el);
 					});
 
 				}
@@ -1964,9 +1964,9 @@ function processMarkup(scope) {
 				
 				if (typeof window !='undefined' && typeof window.document != 'undefined'	&& window.MuraInlineEditor
 						&& window.MuraInlineEditor.checkforImageCroppers) {
-						find("img").each(function() {
+						find("img").each(function(el) {
 								window.muraInlineEditor.checkforImageCroppers(
-										this);
+									el);
 						});
 
 				}
@@ -2386,8 +2386,8 @@ function wireUpObject(obj, response, attempt) {
 						item.children('.frontEndToolsModal').children('.mura-edit-label').addClass(item.data('objecticonclass'));
 					}
 					item.off("click",Mura.handleObjectClick).on("click",Mura.handleObjectClick);
-					item.find("img").each(function(){MuraInlineEditor.checkforImageCroppers(this);});
-					item.find('.mura-object').each(function(){initEditableObject(Mura(this))});
+					item.find("img").each(function(el){MuraInlineEditor.checkforImageCroppers(el);});
+					item.find('.mura-object').each(function(el){initEditableObject(Mura(el))});
 					Mura.initDraggableObject(item.node);
 				} else {
 					var lcaseObject=item.data('object');
@@ -2411,13 +2411,13 @@ function wireUpObject(obj, response, attempt) {
 									item.children('.frontEndToolsModal').children('.mura-edit-label').addClass(item.data('objecticonclass'));
 								}
 								item.off("click",Mura.handleObjectClick).on("click",Mura.handleObjectClick);
-								item.find("img").each(function(){MuraInlineEditor.checkforImageCroppers(this);});
-								item.find('.mura-object').each(function(){initEditableObject(Mura(this))});
+								item.find("img").each(function(el){MuraInlineEditor.checkforImageCroppers(el);});
+								item.find('.mura-object').each(function(el){initEditableObject(Mura(el))});
 								Mura.initDraggableObject(item.node);
 
 								if(typeof Mura.initPinnedObject =='function'){
-									item.find('div.mura-object[data-pinned="true"]').each(function(){
-										Mura.initPinnedObject(this);
+									item.find('div.mura-object[data-pinned="true"]').each(function(el){
+										Mura.initPinnedObject(el);
 									});
 								}
 							}
@@ -2446,8 +2446,8 @@ function wireUpObject(obj, response, attempt) {
 									item.children('.frontEndToolsModal').children('.mura-edit-label').addClass(item.data('objecticonclass'));
 								}
 								item.off("click",Mura.handleObjectClick).on("click",Mura.handleObjectClick);
-								item.find("img").each(function(){MuraInlineEditor.checkforImageCroppers(this);});
-								item.find('.mura-object').each(function(){initEditableObject(Mura(this))});
+								item.find("img").each(function(el){MuraInlineEditor.checkforImageCroppers(el);});
+								item.find('.mura-object').each(function(el){initEditableObject(Mura(el))});
 							}
 						}
 						
@@ -2490,8 +2490,8 @@ function wireUpObject(obj, response, attempt) {
 	//}
 
 	if(obj.data('object') != 'container'){
-		obj.find('a[href="javascript:history.back();"]').each(function() {
-			Mura(this).off("click").on("click", function(e) {
+		obj.find('a[href="javascript:history.back();"]').each(function(el) {
+			Mura(el).off("click").on("click", function(e) {
 				if (obj.node.prevInnerHTML) {
 					e.preventDefault();
 					wireUpObject(obj, obj.node.prevInnerHTML);
@@ -2508,8 +2508,8 @@ function wireUpObject(obj, response, attempt) {
 		});
 		
 		if(obj.data('render') && obj.data('render').toLowerCase() == 'server'){
-			obj.find('form').each(function() {
-				var form = Mura(this);
+			obj.find('form').each(function(el) {
+				var form = Mura(el);
 				if(form.closest('.mura-object').data('instanceid')==obj.data('instanceid')) {		
 					if(form.data('async') 
 						|| !(
@@ -2688,8 +2688,8 @@ function processDisplayObject(el, queue, rerender, resolveFn, usePreloaderMarkup
 				}
 
 				if(obj.data('render') && obj.data('render').toLowerCase() == 'server'){
-					obj.find('form').each(function() {
-						var form = Mura(this);
+					obj.find('form').each(function(el) {
+						var form = Mura(el);
 						if(form.closest('.mura-object').data('instanceid')==obj.data('instanceid')) {
 							if(form.data('async')
 								|| !(
@@ -2836,15 +2836,15 @@ function handleHashChange() {
 		hashparams = getQueryStringParams(hash);
 		if (hashparams.nextnid) {
 			Mura('.mura-async-object[data-nextnid="' + hashparams.nextnid + '"]')
-				.each(function() {
-					Mura(this).data(hashparams);
-					processAsyncObject(this);
+				.each(function(el) {
+					Mura(el).data(hashparams);
+					processAsyncObject(el);
 			});
 		} else if (hashparams.objectid) {
 			Mura('.mura-async-object[data-objectid="' + hashparams.objectid + '"]')
-			.each(function() {
-					Mura(this).data(hashparams);
-					processAsyncObject(this);
+			.each(function(el) {
+					Mura(el).data(hashparams);
+					processAsyncObject(el);
 			});
 		}
 	}
@@ -3952,13 +3952,13 @@ function init(config) {
 				if (hashparams.nextnid) {
 					Mura('.mura-async-object[data-nextnid="' +
 						hashparams.nextnid + '"]').each(
-						function() {
-							Mura(this).data(hashparams);
+						function(el) {
+							Mura(el).data(hashparams);
 						});
 				} else if (hashparams.objectid) {
 					Mura('.mura-async-object[data-nextnid="' +hashparams.objectid + '"]').each(
-					function() {
-						Mura(this).data(hashparams);
+					function(el) {
+						Mura(el).data(hashparams);
 					});
 				}
 
@@ -4016,8 +4016,8 @@ function init(config) {
 						var breakpoint=getBreakpoint();
 						if(breakpoint!=Mura.breakpoint){
 							Mura.breakpoint=breakpoint;
-							Mura('.mura-object').each(function(){
-								var obj=Mura(this);
+							Mura('.mura-object').each(function(el){
+								var obj=Mura(el);
 								var instanceid=obj.data('instanceid');
 								if(typeof Mura.windowResponsiveModules[instanceid] == 'undefined' || Mura.windowResponsiveModules[instanceid]){
 									obj.calculateDisplayObjectStyles(true);

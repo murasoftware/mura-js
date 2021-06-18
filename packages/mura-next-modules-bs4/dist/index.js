@@ -60,16 +60,31 @@ function Vimeo(props) {
 
 function Wistia(props) {
   var instanceid = props.instanceid,
-      videoid = props.videoid;
+      videoid = props.videoid,
+      dynamicProps = props.dynamicProps;
   React.useEffect(function () {
-    Mura$1.loader().loadjs('https://fast.wistia.net/assets/external/E-v1.js', 'https://fast.wistia.com/embed/medias/${videoid}.jsonp');
+    if (typeof dynamicProps == 'undefined') {
+      var loader = Mura$1.loader();
+
+      if (typeof window.Wistia == 'undefined') {
+        loader.loadjs('https://fast.wistia.net/assets/external/E-v1.js', {
+          async: true
+        });
+      }
+
+      loader.loadjs('https://fast.wistia.com/embed/medias/${videoid}.jsonp', {
+        async: true
+      });
+    }
   }, []);
   return /*#__PURE__*/React__default.createElement("div", {
     className: "wistiaWrapper",
     id: "player-" + instanceid
   }, /*#__PURE__*/React__default.createElement(Head, null, /*#__PURE__*/React__default.createElement("script", {
+    async: true,
     src: "https://fast.wistia.net/assets/external/E-v1.js"
   }), /*#__PURE__*/React__default.createElement("script", {
+    async: true,
     src: "https://fast.wistia.com/embed/medias/" + videoid + ".jsonp"
   })), /*#__PURE__*/React__default.createElement("div", {
     className: "wistia_responsive_padding",
@@ -2248,6 +2263,8 @@ var Container = function Container(props) {
       instanceid = props.instanceid;
   if (!items) return '';
   React.useEffect(function () {
+    Mura$2.displayObjectInstances = Mura$2.displayObjectInstances || {};
+
     if (typeof Mura$2.displayObjectInstances[instanceid] == 'undefined') {
       Mura$2.displayObjectInstances[instanceid] = new Mura$2.DisplayObject.Container(props);
     }
