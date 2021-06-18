@@ -243,23 +243,23 @@ Mura.DOMSelection = Mura.Core.extend(
 				var self = this;
 				setTimeout(
 					function() {
-						self.each(function() {
+						self.each(function(target) {
 							if (selector) {
-								Mura(this).find(
+								Mura(target).find(
 									selector
 								).each(
-									function() {
+									function(target) {
 										if(typeof fn.call =='undefined'){
-											fn(this);
+											fn(target);
 										} else {
-											fn.call(this,this);
+											fn.call(target,target);
 										}
 								});
 							} else {
 								if(typeof fn.call =='undefined'){
-									fn(this);
+									fn(target);
 								} else {
-									fn.call(this,this);
+									fn.call(target,target);
 								}
 							}
 						});
