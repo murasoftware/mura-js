@@ -44,6 +44,10 @@ Mura.Request=Mura.Core.extend(
 				params.headers = {};
 			}
 
+			if (!('method' in params)) {
+				params.type = params.method;
+			}
+
 			try{
 				//if is in node not a FormData obj
 				if(!Mura.formdata || !(params.data instanceof FormData)){
@@ -328,7 +332,7 @@ Mura.Request=Mura.Core.extend(
 				nodeResponseHandler(res,body);
 			}
 				
-			if (params.type.toLowerCase() === 'post') {
+			if (params.type.toLowerCase() != 'get') {
 					const formData=new Mura._formData();
 
 					Object.keys(params.data).forEach((key)=>{
@@ -347,7 +351,7 @@ Mura.Request=Mura.Core.extend(
 					Mura._fetch(
 						params.url,
 						{
-							method:"POST",
+							method:params.type.toUpperCase(),
 							body:formData,
 							headers: params.headers
 						}
@@ -477,7 +481,7 @@ Mura.Request=Mura.Core.extend(
 				}
 			}
 		
-			if (params.type.toLowerCase() == 'post') {
+			if (params.type.toLowerCase() != 'get') {
 				
 				req.open(params.type.toUpperCase(), params.url, params.async);
 				for (var p in params.xhrFields) {

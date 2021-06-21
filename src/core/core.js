@@ -477,6 +477,41 @@ function post(url, data, eventHandler) {
 }
 
 /**
+ * put - Make PUT request
+ *
+ * @param	{url} url	URL
+ * @param	{object} data Data to send to url
+ * @return {Promise}
+ * @memberof {class} Mura
+ */
+ function put(url, data, eventHandler) {
+	return Mura._requestcontext.put(url, data, eventHandler);
+}
+
+/**
+ * update - Make UPDATE request
+ *
+ * @param	{url} url	URL
+ * @param	{object} data Data to send to url
+ * @return {Promise}
+ * @memberof {class} Mura
+ */
+ function patch(url, data, eventHandler) {
+	return Mura._requestcontext.patch(url, data, eventHandler);
+}
+
+/**
+ * delete - Make Delete request
+ *
+ * @param	{url} url	URL
+ * @param	{object} data Data to send to url
+ * @return {Promise}
+ * @memberof {class} Mura
+ */
+ function deleteReq(url, data, eventHandler) {
+	return Mura._requestcontext.delete}
+
+/**
  * ajax - Make ajax request
  *
  * @param	{object} params
@@ -4080,8 +4115,12 @@ const Mura=extend(
 		isNumeric: isNumeric,
 		post: post,
 		get: get,
+		delete: deleteReq,
+		put: put,
+		patch: patch,
 		deepExtend: deepExtend,
 		ajax: ajax,
+		request: ajax,
 		changeElementType: changeElementType,
 		setHTMLEditor: setHTMLEditor,
 		each: each,

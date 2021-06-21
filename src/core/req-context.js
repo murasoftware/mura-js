@@ -520,13 +520,13 @@ Mura.RequestContext=Mura.Core.extend(
 	},
 
 	/**
-	 * get - Make GET request
+	 * normalizeRequest - I normalize protocol requests
 	 *
 	 * @param	{url} url	URL
 	 * @param	{object} data Data to send to url
 	 * @return {Promise}
 	 */
-	get(url, data, eventHandler) {
+	normalizeRequest(type,url,data,eventHandler){
 		if(typeof url == 'object'){
 			data=url.data;
 			eventHander=url;
@@ -534,24 +534,24 @@ Mura.RequestContext=Mura.Core.extend(
 		} else {
 			eventHandler=eventHandler || {};
 		}
-
+	
 		Mura.normalizeRequestHandler(eventHandler);
-
+	
 		var self=this;
 		data = data || {};
-
+	
 		return new Promise(function(resolve, reject) {
-
+	
 			if(typeof resolve == 'function'){
 				eventHandler.success=resolve;
 			}
-
+	
 			if(typeof reject == 'function'){
 				eventHandler.error=reject;
 			}
-
+	
 			return self.request({
-				type: 'get',
+				type: type,
 				url: url,
 				data: data,
 				success: eventHandler.success,
@@ -563,6 +563,17 @@ Mura.RequestContext=Mura.Core.extend(
 	},
 
 	/**
+	 * get - Make GET request
+	 *
+	 * @param	{url} url	URL
+	 * @param	{object} data Data to send to url
+	 * @return {Promise}
+	 */
+	get(url, data, eventHandler) {
+		return this.normalizeRequest('get',url, data, eventHandler);
+	},
+
+	/**
 	 * post - Make POST request
 	 *
 	 * @param	{url} url	URL
@@ -570,39 +581,40 @@ Mura.RequestContext=Mura.Core.extend(
 	 * @return {Promise}
 	 */
 	post(url, data, eventHandler) {
-		if(typeof url == 'object'){
-			data=url.data;
-			eventHander=url;
-			url=url.url;
-		} else {
-			eventHandler=eventHandler || {};
-		}
+		return this.normalizeRequest('post',url, data, eventHandler);
+	},
 
-		Mura.normalizeRequestHandler(eventHandler);
+	/**
+	 * put - Make PUT request
+	 *
+	 * @param	{url} url	URL
+	 * @param	{object} data Data to send to url
+	 * @return {Promise}
+	 */
+	 put(url, data, eventHandler) {
+		return this.normalizeRequest('put',url, data, eventHandler);
+	},
 
-		var self=this;
-		data = data || {};
+	/**
+	 * update - Make UPDATE request
+	 *
+	 * @param	{url} url	URL
+	 * @param	{object} data Data to send to url
+	 * @return {Promise}
+	 */
+	 patch(url, data, eventHandler) {
+		return this.normalizeRequest('patch',url, data, eventHandler);
+	},
 
-		return new Promise(function(resolve, reject) {
-
-			if(typeof resolve == 'function'){
-				eventHandler.success=resolve;
-			}
-
-			if(typeof reject == 'function'){
-				eventHandler.error=reject;
-			}
-
-			return self.request({
-				type: 'post',
-				url: url,
-				data: data,
-				success: eventHandler.success,
-				error: eventHandler.error,
-				progress:eventHandler.progress,
-				abort: eventHandler.abort
-			});
-		});
+	/**
+	 * delete - Make DELETE request
+	 *
+	 * @param	{url} url	URL
+	 * @param	{object} data Data to send to url
+	 * @return {Promise}
+	 */
+	delete(url, data, eventHandler) {
+		return this.normalizeRequest('delete',url, data, eventHandler);	
 	},
 
 	/**
