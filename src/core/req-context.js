@@ -526,16 +526,16 @@ Mura.RequestContext=Mura.Core.extend(
 	 * @param	{object} data Data to send to url
 	 * @return {Promise}
 	 */
-	normalizeRequest(type,url,data,eventHandler){
+	normalizeRequest(type,url,data,config){
 		if(typeof url == 'object'){
 			data=url.data;
-			eventHander=url;
+			config=url;
 			url=url.url;
 		} else {
-			eventHandler=eventHandler || {};
+			config=config || {};
 		}
 	
-		Mura.normalizeRequestHandler(eventHandler);
+		Mura.normalizeRequestHandler(config);
 	
 		var self=this;
 		data = data || {};
@@ -543,22 +543,22 @@ Mura.RequestContext=Mura.Core.extend(
 		return new Promise(function(resolve, reject) {
 	
 			if(typeof resolve == 'function'){
-				eventHandler.success=resolve;
+				config.success=resolve;
 			}
 	
 			if(typeof reject == 'function'){
-				eventHandler.error=reject;
+				config.error=reject;
 			}
-	
-			return self.request({
-				type: type,
-				url: url,
-				data: data,
-				success: eventHandler.success,
-				error: eventHandler.error,
-				progress:eventHandler.progress,
-				abort: eventHandler.abort
-			});
+			
+			var params=Mura.extend({
+					type: type,
+					url: url,
+					data: data
+				},
+				config
+			);
+
+			return self.request(params);
 		});
 	},
 
@@ -569,8 +569,8 @@ Mura.RequestContext=Mura.Core.extend(
 	 * @param	{object} data Data to send to url
 	 * @return {Promise}
 	 */
-	get(url, data, eventHandler) {
-		return this.normalizeRequest('get',url, data, eventHandler);
+	get(url, data, config) {
+		return this.normalizeRequest('get',url, data, config);
 	},
 
 	/**
@@ -580,8 +580,8 @@ Mura.RequestContext=Mura.Core.extend(
 	 * @param	{object} data Data to send to url
 	 * @return {Promise}
 	 */
-	post(url, data, eventHandler) {
-		return this.normalizeRequest('post',url, data, eventHandler);
+	post(url, data, config) {
+		return this.normalizeRequest('post',url, data, config);
 	},
 
 	/**
@@ -591,8 +591,8 @@ Mura.RequestContext=Mura.Core.extend(
 	 * @param	{object} data Data to send to url
 	 * @return {Promise}
 	 */
-	 put(url, data, eventHandler) {
-		return this.normalizeRequest('put',url, data, eventHandler);
+	 put(url, data, config) {
+		return this.normalizeRequest('put',url, data, config);
 	},
 
 	/**
@@ -602,8 +602,8 @@ Mura.RequestContext=Mura.Core.extend(
 	 * @param	{object} data Data to send to url
 	 * @return {Promise}
 	 */
-	 patch(url, data, eventHandler) {
-		return this.normalizeRequest('patch',url, data, eventHandler);
+	 patch(url, data, config) {
+		return this.normalizeRequest('patch',url, data, config);
 	},
 
 	/**
@@ -613,8 +613,8 @@ Mura.RequestContext=Mura.Core.extend(
 	 * @param	{object} data Data to send to url
 	 * @return {Promise}
 	 */
-	delete(url, data, eventHandler) {
-		return this.normalizeRequest('delete',url, data, eventHandler);	
+	delete(url, data, config) {
+		return this.normalizeRequest('delete',url, data, config);	
 	},
 
 	/**

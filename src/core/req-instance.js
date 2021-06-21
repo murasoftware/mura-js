@@ -44,7 +44,7 @@ Mura.Request=Mura.Core.extend(
 				params.headers = {};
 			}
 
-			if (!('method' in params)) {
+			if (('method' in params)) {
 				params.type = params.method;
 			}
 
