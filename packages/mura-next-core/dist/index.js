@@ -745,10 +745,6 @@ function Decorator(props) {
       }
     });
 
-    if (props.object.toLowercase() === "container") {
-      domObject['data-async'] = false;
-    }
-
     if (domObject.className.split(' ').find(function ($class) {
       return $class === 'constrain';
     })) {
