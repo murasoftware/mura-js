@@ -107,7 +107,7 @@ function Decorator(props) {
   if (isEditMode || isExternalModule || !isSSR) {
     Object.keys(props).forEach(key => {
       if (
-        !['Router', 'Link','html', 'content', 'children', 'isEditMode', 'dynamicProps', 'moduleStyleData'].find(
+        !['Router', 'Link','html', 'content', 'children', 'isEditMode', 'dynamicProps', 'moduleStyleData', 'regionContext'].find(
           restrictedkey => restrictedkey === key,
         )
       ) {
@@ -138,6 +138,10 @@ function Decorator(props) {
         }
       }
     });
+
+    if(props.object.toLowercase()==="container"){
+      domObject['data-async']=false;
+    }
     
     if(domObject.className.split(' ').find($class => $class === 'constrain')){
       domMetaWrapper.className += ' container';
