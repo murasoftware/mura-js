@@ -519,7 +519,7 @@ function post(url, data, eventHandler) {
  * @memberof {class} Mura
  */
 function ajax(params) {
-	return Mura._requestcontext.request(params);
+	return Mura.getRequestContext().request(params);
 }
 
 /**

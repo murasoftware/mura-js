@@ -778,7 +778,7 @@ function deleteReq(url, data, eventHandler) {
 
 
 function ajax(params) {
-  return Mura._requestcontext.request(params);
+  return Mura.getRequestContext().request(params);
 }
 /**
  * normalizeRequestHandler - Standardizes request handler objects

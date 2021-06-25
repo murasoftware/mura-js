@@ -1,7 +1,7 @@
 {
   "name": "mura.js",
   "homepage": "http://www.murasoftware.com",
-  "version": "1.0.314",
+  "version": "1.0.315",
   "description": "Utility for interacting with the Mura JSON/REST API",
   "browserslist": "> 0.25%, not dead, ie >= 11",
   "files": [
