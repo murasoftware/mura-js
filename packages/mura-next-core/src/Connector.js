@@ -295,7 +295,9 @@ export const getMuraProps = async (context,isEditMode,params) => {
     }
   } catch(e){console.error(e)}
 
-  Mura.deInit();
+  if(Mura.isInNode()){
+    Mura.deInit();
+  }
 
   const props = {
     content: content,

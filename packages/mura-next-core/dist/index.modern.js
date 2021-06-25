@@ -518,7 +518,10 @@ var getMuraProps = function getMuraProps(context, isEditMode, params) {
 
       return Promise.resolve(getRegionProps(content, isEditMode)).then(function (moduleStyleData) {
         function _temp7() {
-          Mura.deInit();
+          if (Mura.isInNode()) {
+            Mura.deInit();
+          }
+
           var props = {
             content: content,
             moduleStyleData: moduleStyleData,
