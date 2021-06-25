@@ -714,7 +714,7 @@ function readyInternal(fn) {
 
 
 function get(url, data, eventHandler) {
-  return Mura._requestcontext.get(url, data, eventHandler);
+  return Mura.getRequestContext().get(url, data, eventHandler);
 }
 /**
  * post - Make POST request
@@ -727,7 +727,7 @@ function get(url, data, eventHandler) {
 
 
 function post(url, data, eventHandler) {
-  return Mura._requestcontext.post(url, data, eventHandler);
+  return Mura.getRequestContext().post(url, data, eventHandler);
 }
 /**
  * put - Make PUT request
@@ -740,7 +740,7 @@ function post(url, data, eventHandler) {
 
 
 function put(url, data, eventHandler) {
-  return Mura._requestcontext.put(url, data, eventHandler);
+  return Mura.getRequestContext().put(url, data, eventHandler);
 }
 /**
  * update - Make UPDATE request
@@ -753,7 +753,7 @@ function put(url, data, eventHandler) {
 
 
 function patch(url, data, eventHandler) {
-  return Mura._requestcontext.patch(url, data, eventHandler);
+  return Mura.getRequestContext().patch(url, data, eventHandler);
 }
 /**
  * delete - Make Delete request
@@ -766,7 +766,7 @@ function patch(url, data, eventHandler) {
 
 
 function deleteReq(url, data, eventHandler) {
-  return Mura._requestcontext.delete;
+  return Mura.getRequestContext().delete;
 }
 /**
  * ajax - Make ajax request
