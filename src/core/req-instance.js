@@ -134,68 +134,17 @@ Mura.Request=Mura.Core.extend(
 			var debug=typeof Mura.debug != 'undefined' && Mura.debug;
 			var self=this;
 			if(typeof this.requestObject != 'undefined'){
-				if(typeof this.requestObject.headers['cookie'] != 'undefined'){
-					if(debug){
-						console.log('pre cookies:');
-						console.log(this.requestObject.headers['cookie']);
+				['Cookie','X-client_id','X-client_secret','X-access_token','Authorization','User-Agent','Referer'].forEach((item)=>{
+					if(typeof this.requestObject.headers[item] != 'undefined'){
+						params.headers[item]=this.requestObject.headers[item];
+					} else {
+						var lcaseItem=item.toLowerCase();
+						if(typeof this.requestObject.headers[lcaseItem] != 'undefined'){
+							params.headers[item]=this.requestObject.headers[lcaseItem];
+						}
 					}
-					params.headers['Cookie']=this.requestObject.headers['cookie'];
-				}
-				if(typeof this.requestObject.headers['x-client_id'] != 'undefined'){
-					params.headers['X-client_id']=this.requestObject.headers['x-client_id'];
-				}
-				if(typeof this.requestObject.headers['x-client_id'] != 'undefined'){
-					params.headers['X-client_id']=this.requestObject.headers['x-client_id'];
-				}
-				if(typeof this.requestObject.headers['X-client_secret'] != 'undefined'){
-					params.headers['X-client_secret']=this.requestObject.headers['X-client_secret'];
-				}
-				if(typeof this.requestObject.headers['x-client_secret'] != 'undefined'){
-					params.headers['X-client_secret']=this.requestObject.headers['x-client_secret'];
-				}
-				if(typeof this.requestObject.headers['X-access_token'] != 'undefined'){
-					params.headers['X-access_token']=this.requestObject.headers['X-access_token'];
-				}
-				if(typeof this.requestObject.headers['x-access_token'] != 'undefined'){
-					params.headers['X-access_token']=this.requestObject.headers['x-access_token'];
-				}
-				if(typeof this.requestObject.headers['x-client-id'] != 'undefined'){
-					params.headers['X-client-id']=this.requestObject.headers['x-client-id'];
-				}
-				if(typeof this.requestObject.headers['x-client-id'] != 'undefined'){
-					params.headers['X-client-id']=this.requestObject.headers['x-client-id'];
-				}
-				if(typeof this.requestObject.headers['X-client_secret'] != 'undefined'){
-					params.headers['X-client-secret']=this.requestObject.headers['X-client-secret'];
-				}
-				if(typeof this.requestObject.headers['x-client-secret'] != 'undefined'){
-					params.headers['X-client-secret']=this.requestObject.headers['x-client-secret'];
-				}
-				if(typeof this.requestObject.headers['X-access-token'] != 'undefined'){
-					params.headers['X-access-token']=this.requestObject.headers['X-access-token'];
-				}
-				if(typeof this.requestObject.headers['x-access-token'] != 'undefined'){
-					params.headers['X-access-token']=this.requestObject.headers['x-access-token'];
-				}
-				if(typeof this.requestObject.headers['Authorization'] != 'undefined'){
-					params.headers['Authorization']=this.requestObject.headers['Authorization'];
-				}
-				if(typeof this.requestObject.headers['authorization'] != 'undefined'){
-					params.headers['Authorization']=this.requestObject.headers['authorization'];
-				}
-				if(typeof this.requestObject.headers['user-agent'] != 'undefined'){
-					params.headers['user-agent']=this.requestObject.headers['user-agent'];
-				}
-				if(typeof this.requestObject.headers['User-Agent'] != 'undefined'){
-					params.headers['User-Agent']=this.requestObject.headers['User-Agent'];
-				}
-				if(typeof this.requestObject.headers['Referer'] != 'undefined'){
-					params.headers['Referer']=this.requestObject.headers['Referer'];
-				}
-				if(typeof this.requestObject.headers['referer'] != 'undefined'){
-					params.headers['referer']=this.requestObject.headers['referer'];
-				}
-			}
+				})
+			}	
 			
 			for(var h in Mura.requestHeaders){
 					if(Mura.requestHeaders.hasOwnProperty(h)){
@@ -208,6 +157,23 @@ Mura.Request=Mura.Core.extend(
 					}
 			}
 			//console.log('pre:',params.headers)
+			const nodeProxyRedirects = (httpResponse)=>{
+				if(typeof self.responseObject != 'undefined'){
+						if(httpResponse.statusCode > 300 && httpResponse.statusCode < 400){
+							const location=httpResponse.headers.raw()['location'] || httpResponse.headers.raw()['Location'];
+							if(location){
+								try{
+									 //match casing of mura-next connector
+									self.responseObject.setHeader('Location',location);
+									self.responseObject.statusCode=httpResponse.statusCode;
+								} catch (e){
+									console.log('Error setting location header');
+								}
+							}
+						
+						}
+				}
+			}
 
 			const nodeProxyCookies = (httpResponse)=>{
 				var debug=typeof Mura.debug != 'undefined' && Mura.debug;
@@ -329,6 +295,7 @@ Mura.Request=Mura.Core.extend(
 			const routeNodeResponse=async (res)=>{
 				const body= await res.text();
 				nodeProxyCookies(res);
+				nodeProxyRedirects(res);
 				nodeResponseHandler(res,body);
 			}
 				

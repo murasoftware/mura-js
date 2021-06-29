@@ -512,8 +512,20 @@ var getMuraProps = function getMuraProps(context, isEditMode, params) {
         if (typeof context.res != 'undefined') {
           context.res.statusCode = 404;
         }
-      } else if (typeof content.statusCode != 'undefined' && typeof context.res != 'undefined') {
-        context.res.statusCode = content.statusCode;
+      }
+
+      if (typeof content.isondisplay != 'undefined' && !content.isondisplay) {
+        context.res.statusCode = 404;
+      } else {
+        if (content.redirect) {
+          context.res.setHeader('Location', content.redirect);
+
+          if (content.statuscode) {
+            context.res.statusCode = content.statuscode;
+          } else {
+            context.res.statusCode = 301;
+          }
+        }
       }
 
       return Promise.resolve(getRegionProps(content, isEditMode)).then(function (moduleStyleData) {

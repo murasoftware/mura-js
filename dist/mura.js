@@ -9601,6 +9601,8 @@ Mura.Request = Mura.Core.extend(
     return this.requestHeaders;
   },
   nodeRequest: function nodeRequest(params) {
+    var _this = this;
+
     if (typeof Mura.renderMode != 'undefined') {
       params.renderMode = Mura.renderMode;
     }
@@ -9609,86 +9611,17 @@ Mura.Request = Mura.Core.extend(
     var self = this;
 
     if (typeof this.requestObject != 'undefined') {
-      if (typeof this.requestObject.headers['cookie'] != 'undefined') {
-        if (debug) {
-          console.log('pre cookies:');
-          console.log(this.requestObject.headers['cookie']);
+      ['Cookie', 'X-client_id', 'X-client_secret', 'X-access_token', 'Authorization', 'User-Agent', 'Referer'].forEach(function (item) {
+        if (typeof _this.requestObject.headers[item] != 'undefined') {
+          params.headers[item] = _this.requestObject.headers[item];
+        } else {
+          var lcaseItem = item.toLowerCase();
+
+          if (typeof _this.requestObject.headers[lcaseItem] != 'undefined') {
+            params.headers[item] = _this.requestObject.headers[lcaseItem];
+          }
         }
-
-        params.headers['Cookie'] = this.requestObject.headers['cookie'];
-      }
-
-      if (typeof this.requestObject.headers['x-client_id'] != 'undefined') {
-        params.headers['X-client_id'] = this.requestObject.headers['x-client_id'];
-      }
-
-      if (typeof this.requestObject.headers['x-client_id'] != 'undefined') {
-        params.headers['X-client_id'] = this.requestObject.headers['x-client_id'];
-      }
-
-      if (typeof this.requestObject.headers['X-client_secret'] != 'undefined') {
-        params.headers['X-client_secret'] = this.requestObject.headers['X-client_secret'];
-      }
-
-      if (typeof this.requestObject.headers['x-client_secret'] != 'undefined') {
-        params.headers['X-client_secret'] = this.requestObject.headers['x-client_secret'];
-      }
-
-      if (typeof this.requestObject.headers['X-access_token'] != 'undefined') {
-        params.headers['X-access_token'] = this.requestObject.headers['X-access_token'];
-      }
-
-      if (typeof this.requestObject.headers['x-access_token'] != 'undefined') {
-        params.headers['X-access_token'] = this.requestObject.headers['x-access_token'];
-      }
-
-      if (typeof this.requestObject.headers['x-client-id'] != 'undefined') {
-        params.headers['X-client-id'] = this.requestObject.headers['x-client-id'];
-      }
-
-      if (typeof this.requestObject.headers['x-client-id'] != 'undefined') {
-        params.headers['X-client-id'] = this.requestObject.headers['x-client-id'];
-      }
-
-      if (typeof this.requestObject.headers['X-client_secret'] != 'undefined') {
-        params.headers['X-client-secret'] = this.requestObject.headers['X-client-secret'];
-      }
-
-      if (typeof this.requestObject.headers['x-client-secret'] != 'undefined') {
-        params.headers['X-client-secret'] = this.requestObject.headers['x-client-secret'];
-      }
-
-      if (typeof this.requestObject.headers['X-access-token'] != 'undefined') {
-        params.headers['X-access-token'] = this.requestObject.headers['X-access-token'];
-      }
-
-      if (typeof this.requestObject.headers['x-access-token'] != 'undefined') {
-        params.headers['X-access-token'] = this.requestObject.headers['x-access-token'];
-      }
-
-      if (typeof this.requestObject.headers['Authorization'] != 'undefined') {
-        params.headers['Authorization'] = this.requestObject.headers['Authorization'];
-      }
-
-      if (typeof this.requestObject.headers['authorization'] != 'undefined') {
-        params.headers['Authorization'] = this.requestObject.headers['authorization'];
-      }
-
-      if (typeof this.requestObject.headers['user-agent'] != 'undefined') {
-        params.headers['user-agent'] = this.requestObject.headers['user-agent'];
-      }
-
-      if (typeof this.requestObject.headers['User-Agent'] != 'undefined') {
-        params.headers['User-Agent'] = this.requestObject.headers['User-Agent'];
-      }
-
-      if (typeof this.requestObject.headers['Referer'] != 'undefined') {
-        params.headers['Referer'] = this.requestObject.headers['Referer'];
-      }
-
-      if (typeof this.requestObject.headers['referer'] != 'undefined') {
-        params.headers['referer'] = this.requestObject.headers['referer'];
-      }
+      });
     }
 
     for (var h in Mura.requestHeaders) {
@@ -9703,6 +9636,24 @@ Mura.Request = Mura.Core.extend(
       }
     } //console.log('pre:',params.headers)
 
+
+    var nodeProxyRedirects = function nodeProxyRedirects(httpResponse) {
+      if (typeof self.responseObject != 'undefined') {
+        if (httpResponse.statusCode > 300 && httpResponse.statusCode < 400) {
+          var _location = httpResponse.headers.raw()['location'] || httpResponse.headers.raw()['Location'];
+
+          if (_location) {
+            try {
+              //match casing of mura-next connector
+              self.responseObject.setHeader('Location', _location);
+              self.responseObject.statusCode = httpResponse.statusCode;
+            } catch (e) {
+              console.log('Error setting location header');
+            }
+          }
+        }
+      }
+    };
 
     var nodeProxyCookies = function nodeProxyCookies(httpResponse) {
       var debug = typeof Mura.debug != 'undefined' && Mura.debug;
@@ -9883,9 +9834,10 @@ Mura.Request = Mura.Core.extend(
               case 2:
                 body = _context2.sent;
                 nodeProxyCookies(res);
+                nodeProxyRedirects(res);
                 nodeResponseHandler(res, body);
 
-              case 5:
+              case 6:
               case "end":
                 return _context2.stop();
             }
