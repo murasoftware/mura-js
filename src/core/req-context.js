@@ -520,46 +520,57 @@ Mura.RequestContext=Mura.Core.extend(
 	},
 
 	/**
+	 * normalizeRequest - I normalize protocol requests
+	 *
+	 * @param	{url} url	URL
+	 * @param	{object} data Data to send to url
+	 * @return {Promise}
+	 */
+	normalizeRequest(type,url,data,config){
+		if(typeof url == 'object'){
+			data=url.data;
+			config=url;
+			url=url.url;
+		} else {
+			config=config || {};
+		}
+	
+		Mura.normalizeRequestHandler(config);
+	
+		var self=this;
+		data = data || {};
+	
+		return new Promise(function(resolve, reject) {
+	
+			if(typeof resolve == 'function'){
+				config.success=resolve;
+			}
+	
+			if(typeof reject == 'function'){
+				config.error=reject;
+			}
+			
+			var params=Mura.extend({
+					type: type,
+					url: url,
+					data: data
+				},
+				config
+			);
+
+			return self.request(params);
+		});
+	},
+
+	/**
 	 * get - Make GET request
 	 *
 	 * @param	{url} url	URL
 	 * @param	{object} data Data to send to url
 	 * @return {Promise}
 	 */
-	get(url, data, eventHandler) {
-		if(typeof url == 'object'){
-			data=url.data;
-			eventHander=url;
-			url=url.url;
-		} else {
-			eventHandler=eventHandler || {};
-		}
-
-		Mura.normalizeRequestHandler(eventHandler);
-
-		var self=this;
-		data = data || {};
-
-		return new Promise(function(resolve, reject) {
-
-			if(typeof resolve == 'function'){
-				eventHandler.success=resolve;
-			}
-
-			if(typeof reject == 'function'){
-				eventHandler.error=reject;
-			}
-
-			return self.request({
-				type: 'get',
-				url: url,
-				data: data,
-				success: eventHandler.success,
-				error: eventHandler.error,
-				progress:eventHandler.progress,
-				abort: eventHandler.abort
-			});
-		});
+	get(url, data, config) {
+		return this.normalizeRequest('get',url, data, config);
 	},
 
 	/**
@@ -569,40 +580,41 @@ Mura.RequestContext=Mura.Core.extend(
 	 * @param	{object} data Data to send to url
 	 * @return {Promise}
 	 */
-	post(url, data, eventHandler) {
-		if(typeof url == 'object'){
-			data=url.data;
-			eventHander=url;
-			url=url.url;
-		} else {
-			eventHandler=eventHandler || {};
-		}
+	post(url, data, config) {
+		return this.normalizeRequest('post',url, data, config);
+	},
 
-		Mura.normalizeRequestHandler(eventHandler);
+	/**
+	 * put - Make PUT request
+	 *
+	 * @param	{url} url	URL
+	 * @param	{object} data Data to send to url
+	 * @return {Promise}
+	 */
+	 put(url, data, config) {
+		return this.normalizeRequest('put',url, data, config);
+	},
 
-		var self=this;
-		data = data || {};
+	/**
+	 * update - Make UPDATE request
+	 *
+	 * @param	{url} url	URL
+	 * @param	{object} data Data to send to url
+	 * @return {Promise}
+	 */
+	 patch(url, data, config) {
+		return this.normalizeRequest('patch',url, data, config);
+	},
 
-		return new Promise(function(resolve, reject) {
-
-			if(typeof resolve == 'function'){
-				eventHandler.success=resolve;
-			}
-
-			if(typeof reject == 'function'){
-				eventHandler.error=reject;
-			}
-
-			return self.request({
-				type: 'post',
-				url: url,
-				data: data,
-				success: eventHandler.success,
-				error: eventHandler.error,
-				progress:eventHandler.progress,
-				abort: eventHandler.abort
-			});
-		});
+	/**
+	 * delete - Make DELETE request
+	 *
+	 * @param	{url} url	URL
+	 * @param	{object} data Data to send to url
+	 * @return {Promise}
+	 */
+	delete(url, data, config) {
+		return this.normalizeRequest('delete',url, data, config);	
 	},
 
 	/**

@@ -461,7 +461,7 @@ function readyInternal(fn) {
  * @memberof {class} Mura
  */
 function get(url, data, eventHandler) {
-	return Mura._requestcontext.get(url, data, eventHandler);
+	return Mura.getRequestContext().get(url, data, eventHandler);
 }
 
 /**
@@ -473,8 +473,43 @@ function get(url, data, eventHandler) {
  * @memberof {class} Mura
  */
 function post(url, data, eventHandler) {
-	return Mura._requestcontext.post(url, data, eventHandler);
+	return Mura.getRequestContext().post(url, data, eventHandler);
 }
+
+/**
+ * put - Make PUT request
+ *
+ * @param	{url} url	URL
+ * @param	{object} data Data to send to url
+ * @return {Promise}
+ * @memberof {class} Mura
+ */
+ function put(url, data, eventHandler) {
+	return Mura.getRequestContext().put(url, data, eventHandler);
+}
+
+/**
+ * update - Make UPDATE request
+ *
+ * @param	{url} url	URL
+ * @param	{object} data Data to send to url
+ * @return {Promise}
+ * @memberof {class} Mura
+ */
+ function patch(url, data, eventHandler) {
+	return Mura.getRequestContext().patch(url, data, eventHandler);
+}
+
+/**
+ * delete - Make Delete request
+ *
+ * @param	{url} url	URL
+ * @param	{object} data Data to send to url
+ * @return {Promise}
+ * @memberof {class} Mura
+ */
+ function deleteReq(url, data, eventHandler) {
+	return Mura.getRequestContext().delete}
 
 /**
  * ajax - Make ajax request
@@ -484,7 +519,7 @@ function post(url, data, eventHandler) {
  * @memberof {class} Mura
  */
 function ajax(params) {
-	return Mura._requestcontext.request(params);
+	return Mura.getRequestContext().request(params);
 }
 
 /**
@@ -4080,8 +4115,12 @@ const Mura=extend(
 		isNumeric: isNumeric,
 		post: post,
 		get: get,
+		delete: deleteReq,
+		put: put,
+		patch: patch,
 		deepExtend: deepExtend,
 		ajax: ajax,
+		request: ajax,
 		changeElementType: changeElementType,
 		setHTMLEditor: setHTMLEditor,
 		each: each,

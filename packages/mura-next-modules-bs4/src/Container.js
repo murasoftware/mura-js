@@ -55,6 +55,7 @@ export const Container = function(props) {
           const obj=Object.assign({},item);
           obj.key=obj.instanceid;
           obj.moduleStyleData=props.moduleStyleData;
+          obj.regionContext =  props.regionContext;
           obj.content = content;
           return (<Decorator {...obj}> {getComponent(obj)} </Decorator>)
       })

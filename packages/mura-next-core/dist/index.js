@@ -149,7 +149,7 @@ function _catch(body, recover) {
 
 var getModuleProps = function getModuleProps(item, moduleStyleData, isEditMode, content) {
   try {
-    var _temp27 = function _temp27() {
+    function _temp27() {
       if (isEditMode || !Mura.isInNode()) {
         return {
           cssRules: []
@@ -159,7 +159,7 @@ var getModuleProps = function getModuleProps(item, moduleStyleData, isEditMode, 
           cssRules: Mura.recordModuleStyles(item).cssRules
         };
       }
-    };
+    }
 
     getMura();
 
@@ -172,7 +172,7 @@ var getModuleProps = function getModuleProps(item, moduleStyleData, isEditMode, 
 
       var _temp24 = function () {
         if (typeof ComponentRegistry[objectkey] != 'undefined') {
-          var _temp29 = function _temp29() {
+          function _temp29() {
             var _temp21 = function () {
               if (item.object == 'container') {
                 if (typeof item.items != 'undefined' && !Array.isArray(item.items)) {
@@ -196,7 +196,7 @@ var getModuleProps = function getModuleProps(item, moduleStyleData, isEditMode, 
             }();
 
             if (_temp21 && _temp21.then) return _temp21.then(function () {});
-          };
+          }
 
           var _temp30 = function () {
             if (ComponentRegistry[objectkey].SSR) {
@@ -382,7 +382,7 @@ var getComponent = function getComponent(item) {
 };
 var getMuraPaths = function getMuraPaths() {
   try {
-    var _temp3 = function _temp3() {
+    function _temp3() {
       var paths = pathList.map(function (item) {
         var page = [];
 
@@ -401,7 +401,7 @@ var getMuraPaths = function getMuraPaths() {
         return item.params.page.length || item.params.page[0];
       });
       return paths;
-    };
+    }
 
     var siteids = ConnectorConfig.siteid;
     var pathList = [];
@@ -506,7 +506,7 @@ var getMuraProps = function getMuraProps(context, isEditMode, params) {
   try {
     var _content;
 
-    var _temp10 = function _temp10() {
+    function _temp10() {
       if (content.filename == '404') {
         if (typeof context.params != 'undefined') {
           console.error('404 rendering content', context.params);
@@ -521,7 +521,10 @@ var getMuraProps = function getMuraProps(context, isEditMode, params) {
 
       return Promise.resolve(getRegionProps(content, isEditMode)).then(function (moduleStyleData) {
         function _temp7() {
-          Mura.deInit();
+          if (Mura.isInNode()) {
+            Mura.deInit();
+          }
+
           var props = {
             content: content,
             moduleStyleData: moduleStyleData,
@@ -573,7 +576,7 @@ var getMuraProps = function getMuraProps(context, isEditMode, params) {
 
         return _temp6 && _temp6.then ? _temp6.then(_temp7) : _temp7(_temp6);
       });
-    };
+    }
 
     getMura(context);
     Mura.renderMode = 'dynamic';
@@ -716,7 +719,7 @@ function Decorator(props) {
 
   if (isEditMode || isExternalModule || !isSSR) {
     Object.keys(props).forEach(function (key) {
-      if (!['Router', 'Link', 'html', 'content', 'children', 'isEditMode', 'dynamicProps', 'moduleStyleData'].find(function (restrictedkey) {
+      if (!['Router', 'Link', 'html', 'content', 'children', 'isEditMode', 'dynamicProps', 'moduleStyleData', 'regionContext'].find(function (restrictedkey) {
         return restrictedkey === key;
       })) {
         if (typeof props[key] === 'object') {
@@ -755,12 +758,12 @@ function Decorator(props) {
     domObject.className = "mura-object-" + props.object;
 
     if (typeof props.moduleStyleData != 'undefined' && typeof props.moduleStyleData[instanceid] != 'undefined') {
-      domObject.className += " " + props.moduleStyleData[instanceid].targets.object["class"];
+      domObject.className += " " + props.moduleStyleData[instanceid].targets.object.class;
       domObject.id = props.moduleStyleData[props.instanceid].targets.object.id;
-      domContent.className = props.moduleStyleData[props.instanceid].targets.content["class"];
+      domContent.className = props.moduleStyleData[props.instanceid].targets.content.class;
       domContent.id = props.moduleStyleData[props.instanceid].targets.content.id;
-      domMetaWrapper.className = props.moduleStyleData[props.instanceid].targets.metawrapper["class"];
-      domMeta.className = props.moduleStyleData[props.instanceid].targets.meta["class"];
+      domMetaWrapper.className = props.moduleStyleData[props.instanceid].targets.metawrapper.class;
+      domMeta.className = props.moduleStyleData[props.instanceid].targets.meta.class;
       domMeta.id = props.moduleStyleData[props.instanceid].targets.meta.id;
     } else {
       domObject.id = '';
@@ -881,7 +884,8 @@ var DisplayRegionSection = function DisplayRegionSection(_ref) {
 var DisplayRegion = function DisplayRegion(_ref2) {
   var region = _ref2.region,
       moduleStyleData = _ref2.moduleStyleData,
-      content = _ref2.content;
+      content = _ref2.content,
+      context = _ref2.context;
   var isEditMode = getIsEditMode();
   var inherited = '';
 
@@ -895,6 +899,7 @@ var DisplayRegion = function DisplayRegion(_ref2) {
       obj.key = obj.instanceid;
       obj.moduleStyleData = moduleStyleData;
       obj.content = content;
+      obj.regionContext = context;
       return /*#__PURE__*/React__default.createElement(Decorator, obj, getComponent(obj));
     }));
   }
@@ -905,13 +910,13 @@ var DisplayRegion = function DisplayRegion(_ref2) {
   }, inherited, /*#__PURE__*/React__default.createElement(DisplayRegionSection, {
     region: region,
     isEditMode: isEditMode,
-    content: content,
     section: "local"
   }, region.local.items.map(function (item) {
     var obj = Object.assign({}, item);
     obj.key = obj.instanceid;
     obj.moduleStyleData = moduleStyleData;
     obj.content = content;
+    obj.regionContext = context;
     return /*#__PURE__*/React__default.createElement(Decorator, obj, getComponent(obj));
   })));
 };

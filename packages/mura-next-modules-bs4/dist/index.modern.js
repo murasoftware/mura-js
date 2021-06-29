@@ -526,10 +526,10 @@ var getDynamicProps = function getDynamicProps(item) {
         });
       } else return function () {
         if (item.sourcetype === 'relatedcontent') {
-          var _temp7 = function _temp7() {
+          function _temp7() {
             _exit2 = true;
             return data;
-          };
+          }
 
           var src = item.source;
 
@@ -2309,6 +2309,7 @@ var Container = function Container(props) {
     var obj = Object.assign({}, item);
     obj.key = obj.instanceid;
     obj.moduleStyleData = props.moduleStyleData;
+    obj.regionContext = props.regionContext;
     obj.content = content;
     return /*#__PURE__*/React.createElement(Decorator, obj, " ", getComponent(obj), " ");
   });
