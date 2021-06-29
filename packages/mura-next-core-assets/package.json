@@ -1,0 +1,13 @@
+{
+    "name": "@murasoftware/next-core-assets",
+    "version": "1.0.0",
+    "description": "Core assets for Mura.js and Next.js",
+    "author": "Mura Software",
+    "license": "MIT",
+    "repository": "https://github.com/murasoftware/mura-js.git",
+    "main": "dist/mura.10.min.css",
+    "source": "src",
+    "files": [
+      "dist/*.css"
+    ]
+  }
