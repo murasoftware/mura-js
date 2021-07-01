@@ -65,12 +65,12 @@ function Wistia(props) {
 
       if (typeof window.Wistia == 'undefined') {
         loader.loadjs('https://fast.wistia.net/assets/external/E-v1.js', {
-          async: true
+          defer: true
         });
       }
 
       loader.loadjs('https://fast.wistia.com/embed/medias/${videoid}.jsonp', {
-        async: true
+        defer: true
       });
     }
   }, []);
@@ -78,10 +78,10 @@ function Wistia(props) {
     className: "wistiaWrapper",
     id: "player-" + instanceid
   }, /*#__PURE__*/React.createElement(Head, null, /*#__PURE__*/React.createElement("script", {
-    async: true,
+    defer: true,
     src: "https://fast.wistia.net/assets/external/E-v1.js"
   }), /*#__PURE__*/React.createElement("script", {
-    async: true,
+    defer: true,
     src: "https://fast.wistia.com/embed/medias/" + videoid + ".jsonp"
   })), /*#__PURE__*/React.createElement("div", {
     className: "wistia_responsive_padding",

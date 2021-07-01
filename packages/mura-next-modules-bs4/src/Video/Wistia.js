@@ -9,9 +9,9 @@ function Wistia(props) {
 		if(typeof dynamicProps == 'undefined'){
 			const loader=Mura.loader();
 			if(typeof window.Wistia == 'undefined'){
-				loader.loadjs('https://fast.wistia.net/assets/external/E-v1.js',{async:true});
+				loader.loadjs('https://fast.wistia.net/assets/external/E-v1.js',{defer:true});
 			}
-			loader.loadjs('https://fast.wistia.com/embed/medias/${videoid}.jsonp',{async:true});
+			loader.loadjs('https://fast.wistia.com/embed/medias/${videoid}.jsonp',{defer:true});
 		}
 	}, []);
 
@@ -19,8 +19,8 @@ function Wistia(props) {
 	return (
 	  <div className="wistiaWrapper" id={`player-${instanceid}`}>
 		<Head>
-			<script async src='https://fast.wistia.net/assets/external/E-v1.js'></script>
-			<script async src={`https://fast.wistia.com/embed/medias/${videoid}.jsonp`}></script>
+			<script defer src='https://fast.wistia.net/assets/external/E-v1.js'></script>
+			<script defer src={`https://fast.wistia.com/embed/medias/${videoid}.jsonp`}></script>
 		</Head>
 		<div
 			className="wistia_responsive_padding"
