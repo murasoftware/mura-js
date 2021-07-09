@@ -9164,7 +9164,18 @@ Mura.RequestContext = Mura.Core.extend(
    * @return {Mura.Feed}
    */
   getFeed: function getFeed(entityname, siteid) {
+    Mura.feeds = Mura.feeds || {};
     siteid = siteid || Mura.siteid;
+
+    if (typeof entityname === 'string') {
+      entityname = entityname.substr(0, 1).toUpperCase() + entityname.substr(1);
+
+      if (Mura.feeds[entityname]) {
+        var feed = new Mura.feeds[entityname](siteid, entityname, this);
+        return feed;
+      }
+    }
+
     var feed = new Mura.Feed(siteid, entityname, this);
     return feed;
   },
