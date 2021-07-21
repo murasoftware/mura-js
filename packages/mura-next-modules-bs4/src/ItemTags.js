@@ -1,6 +1,5 @@
 import React from 'react';
 import Badge from 'react-bootstrap/Badge';
-import { PrimaryNav } from '../dist';
 
 function ItemTags(props){
     
