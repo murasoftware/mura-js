@@ -207,12 +207,11 @@ function ItemTags(props) {
   var Tags = props.tags.split(',');
   var tagList = [];
   var tag = '';
-  var variant = props.variant ? props.variant : primary;
 
   for (var i = 0; i < Tags.length; i++) {
     tag = Tags[i];
     tagList.push( /*#__PURE__*/React.createElement(Badge, {
-      variant: variant + " mr-2",
+      variant: "primary mr-2",
       key: tag
     }, tag));
   }
