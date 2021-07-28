@@ -79,6 +79,8 @@ const CurrentItems = (props) => {
                     );
                 case "summary":
                   return <OutputMarkup source={item.get('summary')} key={field} />
+                case "readmore":
+                  return null
                 default:
                   return <div className={`mura-item-meta__${field}`} key={field} data-value={item.get(field)}>{item.get(field)}</div>
               }        
