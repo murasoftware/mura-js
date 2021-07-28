@@ -479,9 +479,12 @@ async function getModuleProps(item,moduleStyleData,isEditMode,content,queryParam
       cssRules:[]
     };
   } else {
-    return  {
-      cssRules: Mura.recordModuleStyles(item).cssRules,
-    };
+    const styleData=Mura.recordModuleStyles(item);
+    delete styleData.deleteRule;
+    delete styleData.insertRule;
+    
+    return  styleData;
+      
   }
    
 }
