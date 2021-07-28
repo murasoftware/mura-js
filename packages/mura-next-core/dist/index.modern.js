@@ -538,7 +538,8 @@ var getMuraProps = function getMuraProps(context, isEditMode, params) {
             content: content,
             moduleStyleData: moduleStyleData,
             externalModules: ExternalModules,
-            codeblocks: codeblocks
+            codeblocks: codeblocks,
+            queryParams: queryParams
           };
 
           if (isEditMode) {
@@ -551,6 +552,14 @@ var getMuraProps = function getMuraProps(context, isEditMode, params) {
               revalidate: 1
             };
           }
+        }
+
+        var queryParams = {};
+
+        if (context.browser) {
+          queryParams = Mura.getQueryStringParams();
+        } else if (context.query) {
+          queryParams = _extends({}, context.query);
         }
 
         var codeblocks = {
@@ -728,7 +737,7 @@ function Decorator(props) {
 
   if (isEditMode || isExternalModule || !isSSR) {
     Object.keys(props).forEach(function (key) {
-      if (!['Router', 'Link', 'html', 'content', 'children', 'isEditMode', 'dynamicProps', 'moduleStyleData', 'regionContext'].find(function (restrictedkey) {
+      if (!['queryParams', 'Router', 'Link', 'html', 'content', 'children', 'isEditMode', 'dynamicProps', 'moduleStyleData', 'regionContext'].find(function (restrictedkey) {
         return restrictedkey === key;
       })) {
         if (typeof props[key] === 'object') {
@@ -894,7 +903,8 @@ var DisplayRegion = function DisplayRegion(_ref2) {
   var region = _ref2.region,
       moduleStyleData = _ref2.moduleStyleData,
       content = _ref2.content,
-      context = _ref2.context;
+      context = _ref2.context,
+      queryParams = _ref2.queryParams;
   var isEditMode = getIsEditMode();
   var inherited = '';
 
@@ -908,6 +918,7 @@ var DisplayRegion = function DisplayRegion(_ref2) {
       obj.key = obj.instanceid;
       obj.moduleStyleData = moduleStyleData;
       obj.content = content;
+      obj.queryParams = queryParams;
       obj.regionContext = context;
       return /*#__PURE__*/React.createElement(Decorator, obj, getComponent(obj));
     }));
@@ -925,6 +936,7 @@ var DisplayRegion = function DisplayRegion(_ref2) {
     obj.key = obj.instanceid;
     obj.moduleStyleData = moduleStyleData;
     obj.content = content;
+    obj.queryParams = queryParams;
     obj.regionContext = context;
     return /*#__PURE__*/React.createElement(Decorator, obj, getComponent(obj));
   })));

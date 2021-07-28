@@ -280,6 +280,14 @@ export const getMuraProps = async (context,isEditMode,params) => {
 
   const moduleStyleData = await getRegionProps(content,isEditMode);
 
+  let queryParams={};
+
+  if (context.browser) {
+    queryParams = Mura.getQueryStringParams();
+  } else if (context.query) {
+    queryParams = {...context.query};
+  }
+
   const codeblocks={
     header:[],
     bodystart:[],
@@ -313,7 +321,8 @@ export const getMuraProps = async (context,isEditMode,params) => {
     content: content,
     moduleStyleData: moduleStyleData,
     externalModules: ExternalModules,
-    codeblocks: codeblocks
+    codeblocks: codeblocks,
+    queryParams : queryParams
   };
 
   if(isEditMode){
