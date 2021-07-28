@@ -278,8 +278,6 @@ export const getMuraProps = async (context,isEditMode,params) => {
     }
   }
 
-  const moduleStyleData = await getRegionProps(content,isEditMode);
-
   let queryParams={};
 
   if (context.browser) {
@@ -287,6 +285,8 @@ export const getMuraProps = async (context,isEditMode,params) => {
   } else if (context.query) {
     queryParams = {...context.query};
   }
+
+  const moduleStyleData = await getRegionProps(content,queryParams,isEditMode);
 
   const codeblocks={
     header:[],
@@ -380,7 +380,7 @@ async function renderContent(context,isEditMode,params) {
 
 
 
-async function getRegionProps(content,isEditMode) {
+async function getRegionProps(content,queryParams,isEditMode) {
   getMura();
   let moduleStyleData = {};
 
@@ -401,7 +401,8 @@ async function getRegionProps(content,isEditMode) {
           item,
           moduleStyleData,
           isEditMode,
-          content
+          content,
+          queryParams
         );
       }
     }
@@ -413,7 +414,8 @@ async function getRegionProps(content,isEditMode) {
         item,
         moduleStyleData,
         isEditMode,
-        content
+        content,
+        queryParams
       );
     }
 
@@ -422,7 +424,7 @@ async function getRegionProps(content,isEditMode) {
   return moduleStyleData;
 }
 
-async function getModuleProps(item,moduleStyleData,isEditMode,content) {
+async function getModuleProps(item,moduleStyleData,isEditMode,content,queryParams) {
   getMura();
 
   try{
@@ -437,7 +439,7 @@ async function getModuleProps(item,moduleStyleData,isEditMode,content) {
      
       if(ComponentRegistry[objectkey].SSR){
         try {
-          item.dynamicProps = await ComponentRegistry[objectkey].getDynamicProps({...item,content});
+          item.dynamicProps = await ComponentRegistry[objectkey].getDynamicProps({...item,content,queryParams});
         } catch(e){
           console.error('Error getting dynamicProps',e);
           item.dynamicProps={};
@@ -462,7 +464,8 @@ async function getModuleProps(item,moduleStyleData,isEditMode,content) {
             containerItem,
             moduleStyleData,
             isEditMode,
-            content
+            content,
+            queryParams
           );
         }
       }
