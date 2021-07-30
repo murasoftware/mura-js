@@ -5,7 +5,7 @@ import ItemTags from './ItemTags';
 import OutputMarkup from './OutputMarkup';
 
 export const ArticleMeta = (props) => {
-    console.log('fields ArticleMeta: ' + props.fields);
+    // console.log('fields ArticleMeta: ' + props.fields);
     
     const fields = props.fields ? props.fields : '';
     const fieldlist = fields ? fields.toLowerCase().split(",") : [];
