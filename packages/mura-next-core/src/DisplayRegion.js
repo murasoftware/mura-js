@@ -42,7 +42,7 @@ const DisplayRegionSection = ({ children, region, section, isEditMode }) => {
   return out;
 };
 
-const DisplayRegion = ({ region, moduleStyleData, content, context }) => {
+const DisplayRegion = ({ region, moduleStyleData, content, context, queryParams }) => {
   const isEditMode = getIsEditMode();
   let inherited = '';
 // Mura inheritance, where modules are inherited from parent content
@@ -58,6 +58,7 @@ const DisplayRegion = ({ region, moduleStyleData, content, context }) => {
           obj.key = obj.instanceid;
           obj.moduleStyleData = moduleStyleData;
           obj.content = content;
+          obj.queryParams = queryParams;
           obj.regionContext =  context;
           return <Decorator {...obj}>{getComponent(obj)}</Decorator>;
         })}
@@ -78,6 +79,7 @@ const DisplayRegion = ({ region, moduleStyleData, content, context }) => {
           obj.key = obj.instanceid;
           obj.moduleStyleData = moduleStyleData;
           obj.content = content;
+          obj.queryParams = queryParams;
           obj.regionContext =  context;
           return <Decorator {...obj}>{getComponent(obj)}</Decorator>;
         })}

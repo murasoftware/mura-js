@@ -144,7 +144,7 @@ function _catch(body, recover) {
 	return result;
 }
 
-var getModuleProps = function getModuleProps(item, moduleStyleData, isEditMode, content) {
+var getModuleProps = function getModuleProps(item, moduleStyleData, isEditMode, content, queryParams) {
   try {
     function _temp27() {
       if (isEditMode || !Mura.isInNode()) {
@@ -152,9 +152,10 @@ var getModuleProps = function getModuleProps(item, moduleStyleData, isEditMode, 
           cssRules: []
         };
       } else {
-        return {
-          cssRules: Mura.recordModuleStyles(item).cssRules
-        };
+        var styleData = Mura.recordModuleStyles(item);
+        delete styleData.deleteRule;
+        delete styleData.insertRule;
+        return styleData;
       }
     }
 
@@ -183,7 +184,7 @@ var getModuleProps = function getModuleProps(item, moduleStyleData, isEditMode, 
                 var _temp31 = _forIn(item.items, function (containerIdx) {
                   var containerItem = item.items[containerIdx];
                   containerItem.instanceid = containerItem.instanceid || Mura.createUUID();
-                  return Promise.resolve(getModuleProps(containerItem, moduleStyleData, isEditMode, content)).then(function (_getModuleProps3) {
+                  return Promise.resolve(getModuleProps(containerItem, moduleStyleData, isEditMode, content, queryParams)).then(function (_getModuleProps3) {
                     moduleStyleData[containerItem.instanceid] = _getModuleProps3;
                   });
                 });
@@ -199,7 +200,8 @@ var getModuleProps = function getModuleProps(item, moduleStyleData, isEditMode, 
             if (ComponentRegistry[objectkey].SSR) {
               var _temp32 = _catch(function () {
                 return Promise.resolve(ComponentRegistry[objectkey].getDynamicProps(_extends({}, item, {
-                  content: content
+                  content: content,
+                  queryParams: queryParams
                 }))).then(function (_ComponentRegistry$ob) {
                   item.dynamicProps = _ComponentRegistry$ob;
                 });
@@ -227,7 +229,7 @@ var getModuleProps = function getModuleProps(item, moduleStyleData, isEditMode, 
   }
 };
 
-var getRegionProps = function getRegionProps(content, isEditMode) {
+var getRegionProps = function getRegionProps(content, queryParams, isEditMode) {
   try {
     getMura();
     var moduleStyleData = {};
@@ -239,7 +241,7 @@ var getRegionProps = function getRegionProps(content, isEditMode) {
         var _temp13 = _forIn(region.local.items, function (itemIdx) {
           var item = region.local.items[itemIdx];
           item.instanceid = item.instanceid || Mura.createUUID();
-          return Promise.resolve(getModuleProps(item, moduleStyleData, isEditMode, content)).then(function (_getModuleProps2) {
+          return Promise.resolve(getModuleProps(item, moduleStyleData, isEditMode, content, queryParams)).then(function (_getModuleProps2) {
             moduleStyleData[item.instanceid] = _getModuleProps2;
           });
         });
@@ -254,7 +256,7 @@ var getRegionProps = function getRegionProps(content, isEditMode) {
           var _temp18 = _forIn(region.inherited.items, function (itemdIx) {
             var item = region.inherited.items[itemdIx];
             item.instanceid = item.instanceid || Mura.createUUID();
-            return Promise.resolve(getModuleProps(item, moduleStyleData, isEditMode, content)).then(function (_getModuleProps) {
+            return Promise.resolve(getModuleProps(item, moduleStyleData, isEditMode, content, queryParams)).then(function (_getModuleProps) {
               moduleStyleData[item.instanceid] = _getModuleProps;
             });
           });
@@ -528,7 +530,15 @@ var getMuraProps = function getMuraProps(context, isEditMode, params) {
         }
       }
 
-      return Promise.resolve(getRegionProps(content, isEditMode)).then(function (moduleStyleData) {
+      var queryParams = {};
+
+      if (context.browser) {
+        queryParams = Mura.getQueryStringParams();
+      } else if (context.query) {
+        queryParams = _extends({}, context.query);
+      }
+
+      return Promise.resolve(getRegionProps(content, queryParams, isEditMode)).then(function (moduleStyleData) {
         function _temp7() {
           if (Mura.isInNode()) {
             Mura.deInit();
@@ -538,7 +548,8 @@ var getMuraProps = function getMuraProps(context, isEditMode, params) {
             content: content,
             moduleStyleData: moduleStyleData,
             externalModules: ExternalModules,
-            codeblocks: codeblocks
+            codeblocks: codeblocks,
+            queryParams: queryParams
           };
 
           if (isEditMode) {
@@ -728,7 +739,7 @@ function Decorator(props) {
 
   if (isEditMode || isExternalModule || !isSSR) {
     Object.keys(props).forEach(function (key) {
-      if (!['Router', 'Link', 'html', 'content', 'children', 'isEditMode', 'dynamicProps', 'moduleStyleData', 'regionContext'].find(function (restrictedkey) {
+      if (!['queryParams', 'Router', 'Link', 'html', 'content', 'children', 'isEditMode', 'dynamicProps', 'moduleStyleData', 'regionContext'].find(function (restrictedkey) {
         return restrictedkey === key;
       })) {
         if (typeof props[key] === 'object') {
@@ -894,7 +905,8 @@ var DisplayRegion = function DisplayRegion(_ref2) {
   var region = _ref2.region,
       moduleStyleData = _ref2.moduleStyleData,
       content = _ref2.content,
-      context = _ref2.context;
+      context = _ref2.context,
+      queryParams = _ref2.queryParams;
   var isEditMode = getIsEditMode();
   var inherited = '';
 
@@ -908,6 +920,7 @@ var DisplayRegion = function DisplayRegion(_ref2) {
       obj.key = obj.instanceid;
       obj.moduleStyleData = moduleStyleData;
       obj.content = content;
+      obj.queryParams = queryParams;
       obj.regionContext = context;
       return /*#__PURE__*/React.createElement(Decorator, obj, getComponent(obj));
     }));
@@ -925,6 +938,7 @@ var DisplayRegion = function DisplayRegion(_ref2) {
     obj.key = obj.instanceid;
     obj.moduleStyleData = moduleStyleData;
     obj.content = content;
+    obj.queryParams = queryParams;
     obj.regionContext = context;
     return /*#__PURE__*/React.createElement(Decorator, obj, getComponent(obj));
   })));

@@ -9,7 +9,8 @@ import { SearchForm } from './';
 function PrimaryNav(props) {
   const objectparams = Object.assign({}, props);
   //console.log(props)
-  if(!objectparams.dynamicProps){
+
+  if(!objectparams.dynamicProps || !objectparams.dynamicProps.items){
     const [items, setItems]=useState('');
 
     useEffect(() => {

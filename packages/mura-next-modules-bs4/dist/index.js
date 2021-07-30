@@ -2316,6 +2316,7 @@ var Container = function Container(props) {
     obj.key = obj.instanceid;
     obj.moduleStyleData = props.moduleStyleData;
     obj.regionContext = props.regionContext;
+    obj.queryParams = props.queryParams;
     obj.content = content;
     return /*#__PURE__*/React__default.createElement(nextCore.Decorator, obj, " ", nextCore.getComponent(obj), " ");
   });

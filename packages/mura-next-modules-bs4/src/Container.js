@@ -56,6 +56,7 @@ export const Container = function(props) {
           obj.key=obj.instanceid;
           obj.moduleStyleData=props.moduleStyleData;
           obj.regionContext =  props.regionContext;
+          obj.queryParams =  props.queryParams;
           obj.content = content;
           return (<Decorator {...obj}> {getComponent(obj)} </Decorator>)
       })
