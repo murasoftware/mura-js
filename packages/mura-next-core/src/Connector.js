@@ -206,6 +206,7 @@ export const getSiteName = () => {
 
 export const getMuraProps = async (context,isEditMode,params) => {
   getMura(context);
+  setIsEditMode(isEditMode);
   
   Mura.renderMode='dynamic';
 

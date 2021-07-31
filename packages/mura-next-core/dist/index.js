@@ -602,6 +602,7 @@ var getMuraProps = function getMuraProps(context, isEditMode, params) {
     }
 
     getMura(context);
+    setIsEditMode(isEditMode);
     Mura.renderMode = 'dynamic';
 
     if (!isEditMode) {
