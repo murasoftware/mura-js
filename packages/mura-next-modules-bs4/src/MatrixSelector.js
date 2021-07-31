@@ -15,9 +15,9 @@ function MatrixSelector(props){
     const [personaIds, setPersonaIds] = useState(_personaIds);
     const [stageIds, setStageIds] = useState(_stageIds);
 
-    const _selfIdStart = objectparams.selfidstart ? objectparams.selfidstart : 'I want to learn about';
-    const _selfIdMiddle = objectparams.selfidmiddle ? objectparams.selfidmiddle : 'for my company, or about the';
-    const _selfIdEnd = objectparams.selfidend ? objectparams.selfidend : 'industry.';
+    const _selfIdStart = objectparams.selfidstart ? objectparams.selfidstart : 'I am a';
+    const _selfIdMiddle = objectparams.selfidmiddle ? objectparams.selfidmiddle : 'who';
+    const _selfIdEnd = objectparams.selfidend ? objectparams.selfidend : 'your product.';
     const _displayType = objectparams.displaytype ? objectparams.displaytype : 'inline';
 
     const [selfIdStart, setSelfIdStart] = useState(_selfIdStart);

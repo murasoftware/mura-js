@@ -210,11 +210,12 @@ function ItemTags(props) {
   var Tags = props.tags.split(',');
   var tagList = [];
   var tag = '';
+  var variant = props.variant ? props.variant : 'primary';
 
   for (var i = 0; i < Tags.length; i++) {
     tag = Tags[i];
     tagList.push( /*#__PURE__*/React__default.createElement(Badge, {
-      variant: "primary mr-2",
+      variant: variant + " mr-2",
       key: tag
     }, tag));
   }
@@ -300,7 +301,6 @@ function OutputMarkup(_ref) {
 }
 
 var ArticleMeta = function ArticleMeta(props) {
-  console.log('fields ArticleMeta: ' + props.fields);
   var fields = props.fields ? props.fields : '';
   var fieldlist = fields ? fields.toLowerCase().split(",") : [];
   var titleclass = props.titleclass ? props.titleclass : '';
@@ -2455,11 +2455,11 @@ function MatrixSelector(props) {
       stageIds = _useState2[0],
       setStageIds = _useState2[1];
 
-  var _selfIdStart = objectparams.selfidstart ? objectparams.selfidstart : 'I want to learn about';
+  var _selfIdStart = objectparams.selfidstart ? objectparams.selfidstart : 'I am a';
 
-  var _selfIdMiddle = objectparams.selfidmiddle ? objectparams.selfidmiddle : 'for my company, or about the';
+  var _selfIdMiddle = objectparams.selfidmiddle ? objectparams.selfidmiddle : 'who';
 
-  var _selfIdEnd = objectparams.selfidend ? objectparams.selfidend : 'industry.';
+  var _selfIdEnd = objectparams.selfidend ? objectparams.selfidend : 'your product.';
 
   var _displayType = objectparams.displaytype ? objectparams.displaytype : 'inline';
 
@@ -2858,7 +2858,7 @@ var getStages = function getStages() {
 function PrimaryNav(props) {
   var objectparams = Object.assign({}, props);
 
-  if (!objectparams.dynamicProps) {
+  if (!objectparams.dynamicProps || !objectparams.dynamicProps.items) {
     var _useState = React.useState(''),
         items = _useState[0],
         setItems = _useState[1];
