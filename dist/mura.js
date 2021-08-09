@@ -3740,6 +3740,18 @@ function getAPIEndpoint() {
   return Mura.apiEndpoint;
 }
 
+function setAPIEndpoint(apiEndpoint) {
+  Mura.apiEndpoint = apiEndpoint;
+}
+
+function setMode(mode) {
+  Mura.mode = mode;
+}
+
+function getMode() {
+  return Mura.mode;
+}
+
 function startUserStateListener(interval) {
   Mura.userStateListenerInterval = interval;
 }
@@ -3774,11 +3786,13 @@ function deInit() {
   delete Mura._requestcontext;
   delete Mura.response;
   delete Mura.request;
-  delete Mura.requestHeaders;
-  delete Mura.displayObjectInstances;
+  Mura.requestHeaders = {};
+  Mura.displayObjectInstances = {};
   delete Mura.renderMode;
   delete Mura.userStateListenerInterval;
   delete Mura.currentUser;
+  Mura.mode = "json";
+  setAPIEndpoint(getAPIEndpoint().replace('/rest/', '/json/'));
   Mura.trackingMetadata = {};
   delete Mura.trackingVars; //delete Mura.apiEndpoint;
   //delete Mura.apiendpoint;
@@ -4268,6 +4282,9 @@ var Mura = extend(function (selector, context) {
   getModuleStyleTargets: getModuleStyleTargets,
   getBreakpoint: getBreakpoint,
   getAPIEndpoint: getAPIEndpoint,
+  setAPIEndpoint: setAPIEndpoint,
+  getMode: getMode,
+  setMode: setMode,
   parseStringAsTemplate: parseStringAsTemplate,
   findText: findText,
   deInit: deInit,

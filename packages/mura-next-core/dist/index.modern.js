@@ -604,6 +604,12 @@ var getMuraProps = function getMuraProps(context, isEditMode, params) {
 
     if (!isEditMode) {
       Mura.renderMode = 'static';
+
+      if (Mura.isInNode() && process && process.env && process.env.MURA_SSR_BASICTOKEN) {
+        Mura.setRequestHeader("Authorization", "Basic " + process.env.MURA_SSR_BASICTOKEN);
+        Mura.setMode("rest");
+        Mura.setAPIEndpoint(Mura.getAPIEndpoint().replace('/json/', '/rest/'));
+      }
     }
 
     var content = (_content = {
