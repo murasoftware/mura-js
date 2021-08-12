@@ -4106,6 +4106,7 @@ const Mura=extend(
 		preInit(fn){if(holdingReady){holdingPreInitQueue.push(fn)}else{Mura(fn)}},
 		generateOAuthToken: generateOAuthToken,
 		entities: {},
+		feeds: {},
 		submitForm: submitForm,
 		escapeHTML: escapeHTML,
 		unescapeHTML: unescapeHTML,

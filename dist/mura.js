@@ -4186,6 +4186,7 @@ var Mura = extend(function (selector, context) {
   },
   generateOAuthToken: generateOAuthToken,
   entities: {},
+  feeds: {},
   submitForm: submitForm,
   escapeHTML: escapeHTML,
   unescapeHTML: unescapeHTML,
