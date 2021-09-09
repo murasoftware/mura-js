@@ -21,7 +21,7 @@ Mura.UI.Text=Mura.UI.extend(
 				var loadbykey='tile';
 			}
 			Mura.getEntity('content')
-				.loadBy(loadbykey,this.context.source,{fields:'body'})
+				.loadBy(loadbykey,this.context.source,{fields:'body',type: 'component',})
 				.then((content)=>{
 					if(content.get('body')){
 						Mura(this.context.targetEl).html(this.deserialize(content.get('body')));

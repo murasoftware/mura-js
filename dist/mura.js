@@ -16410,7 +16410,8 @@ Mura.UI.Text = Mura.UI.extend(
       }
 
       Mura.getEntity('content').loadBy(loadbykey, this.context.source, {
-        fields: 'body'
+        fields: 'body',
+        type: 'component'
       }).then(function (content) {
         if (content.get('body')) {
           Mura(_this.context.targetEl).html(_this.deserialize(content.get('body')));
