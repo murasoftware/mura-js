@@ -572,7 +572,7 @@ var getMuraProps = function getMuraProps(context, isEditMode, params) {
 
         var _temp6 = _catch(function () {
           var _temp5 = function () {
-            if (connectorConfig.codeblocks && (context.res || context.browser)) {
+            if (connectorConfig.codeblocks && (context.res || context.browser) && !(queryParams.codeblocks && queryParams.codeblocks === "false")) {
               return Promise.resolve(Mura.getFeed('codeblock').where().prop('active').isEQ(1).getQuery()).then(function (codeCollection) {
                 codeCollection.forEach(function (item) {
                   var placement = item.get('placement').toLowerCase();

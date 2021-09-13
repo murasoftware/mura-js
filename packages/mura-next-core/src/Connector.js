@@ -304,7 +304,10 @@ export const getMuraProps = async (context,isEditMode,params) => {
   };
 
   try {
-    if(connectorConfig.codeblocks && (context.res || context.browser)){
+    if(connectorConfig.codeblocks 
+      && (context.res || context.browser)
+      && !(queryParams.codeblocks && queryParams.codeblocks==="false")  
+    ){
       const codeCollection=await Mura.getFeed('codeblock')
         .where().prop('active').isEQ(1).getQuery();
       
