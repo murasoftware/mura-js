@@ -42,6 +42,15 @@ Mura.Entity = Mura.Core.extend(
 	},
 
 	/**
+	 * updateFromDom - Updates editable data from what's in the DOM.
+	 *
+	 * @return {string}
+	 */
+	updateFromDom(){
+		return this;
+	},
+
+	/**
 	 * setRequestContext - Sets the RequestContext
 	 *
 	 * @RequestContext	{Mura.RequestContext} Mura.RequestContext List of fields

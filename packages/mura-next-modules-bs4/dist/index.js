@@ -2752,7 +2752,6 @@ function MatrixSelector(props) {
 
 var MatrixSelectorFooter = function MatrixSelectorFooter(props) {
   var CustomLinks = props.customlinks ? Array.from(props.customlinks) : [];
-  console.log('props: ', props);
 
   if (CustomLinks && CustomLinks.length) {
     var UtilityLinks = CustomLinks.map(function (link) {
@@ -3345,7 +3344,6 @@ function ResourceHub(props) {
         isMounted = false;
       };
     }, [filterUpdated]);
-    console.log('collection: ', collection);
     return /*#__PURE__*/React__default.createElement("div", null, /*#__PURE__*/React__default.createElement(RenderFilterForm, _extends({
       updateFilter: updateFilter
     }, props, {
@@ -3859,7 +3857,6 @@ function PrivacyTools(props) {
     if (isMounted) {
       getCurrentPrivacy().then(function (result) {
         setMxpAnon(result);
-        console.log('result: ' + result);
       });
     }
 
@@ -4513,7 +4510,6 @@ function UtilityNav(props) {
 
 var UtilityLinks = function UtilityLinks(props) {
   var CustomLinks = props.customlinks ? Array.from(props.customlinks) : [];
-  console.log('props: ', props);
 
   if (CustomLinks && CustomLinks.length) {
     var _UtilityLinks = CustomLinks.map(function (link) {

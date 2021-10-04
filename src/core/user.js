@@ -8,7 +8,7 @@ var Mura=require('./core');
 * @extends Mura.Entity
 * @memberof Mura
 * @param	{object} properties Object containing values to set into object
-* @return {Mura.Entity}
+* @return {Mura.entities.User}
 */
 
 Mura.entities.User = Mura.Entity.extend(

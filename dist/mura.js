@@ -135,6 +135,8 @@ Mura.datacache = new Mura.Cache();
 /***/ 4506:
 /***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
 
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 var Mura = __webpack_require__(791);
 /**
 * Creates a new Mura.entities.Content
@@ -143,7 +145,7 @@ var Mura = __webpack_require__(791);
 * @extends Mura.Entity
 * @memberof Mura
 * @param	{object} properties Object containing values to set into object
-* @return {Mura.Entity}
+* @return {Mura.entities.Content}
 */
 
 
@@ -157,14 +159,57 @@ Mura.entities.Content = Mura.Entity.extend(
    */
   hasParent: function hasParent() {
     var parentid = this.get('parentid');
-
-    if (!parentid || ['00000000000000000000000000000000END', '00000000000000000000000000000000003', '00000000000000000000000000000000004', '00000000000000000000000000000000099'].find(function (value) {
+    return !(!parentid || ['00000000000000000000000000000000END', '00000000000000000000000000000000003', '00000000000000000000000000000000004', '00000000000000000000000000000000099'].find(function (value) {
       return value === parentid;
-    })) {
-      return false;
-    } else {
-      return true;
+    }));
+  },
+
+  /**
+   * updateFromDom - Updates editable data from what's in the DOM.
+   *
+   * @return {string}
+   */
+  updateFromDom: function updateFromDom() {
+    var regions = this.get('displayregions');
+
+    if (regions && _typeof(regions) === 'object') {
+      Object.keys(regions).forEach(function (key) {
+        var region = regions[key];
+
+        if (region) {
+          var items = [];
+          Mura('.mura-region-local[data-regionid="' + region.regionid + '"]').forEach(function () {
+            Mura(this).children('.mura-object[data-object]').forEach(function () {
+              var obj = Mura(this);
+
+              if (typeof Mura.displayObjectInstances[obj.data('instanceid')] != 'undefined') {
+                Mura.displayObjectInstances[obj.data('instanceid')].reset(obj, false);
+              }
+
+              items.push(Mura.cleanModuleProps(obj.data()));
+            });
+          });
+          region.local.items = items;
+        }
+      });
     }
+
+    var self = this;
+    Mura('div.mura-object[data-targetattr]').each(function () {
+      var obj = Mura(this);
+
+      if (typeof Mura.displayObjectInstances[obj.data('instanceid')] != 'undefined') {
+        Mura.displayObjectInstances[obj.data('instanceid')].reset(obj, false);
+      }
+
+      self.set(obj.data('targetattr'), Mura.cleanModuleProps(Mura(this).data()));
+    });
+    Mura('.mura-editable-attribute.inline').forEach(function () {
+      var editable = Mura(this);
+      var attributeName = editable.data('attribute');
+      self.set(attributeName, editable.html());
+    });
+    return this;
   },
 
   /**
@@ -1039,13 +1084,7 @@ function getData(el) {
 }
 
 function getProps(el) {
-  var data = {};
-  Array.prototype.forEach.call(el.attributes, function (attr) {
-    if (/^data-/.test(attr.name)) {
-      data[attr.name.substr(5)] = parseString(attr.value);
-    }
-  });
-  return data;
+  return getData(el);
 }
 /**
  * isNumeric - Returns if the value is numeric
@@ -2344,27 +2383,33 @@ function firstToLowerCase(str) {
   return str.substr(0, 1).toLowerCase() + str.substr(1);
 }
 
-function resetAsyncObject(el, empty) {
-  var self = Mura(el);
+function cleanModuleProps(obj) {
+  if (obj) {
+    var dataTargets = ['runtime', 'perm', 'startrow', 'pagenum', 'pageidx', 'nextnid', 'purgecache', 'origininstanceid'];
 
-  function clearAttrs(obj) {
-    obj.removeClass('mura-active');
-    obj.removeAttr('data-perm');
-    obj.removeAttr('data-runtime');
-    obj.removeAttr('draggable');
-    obj.removeAttr('style');
-    obj.removeAttr('data-inited');
-    obj.removeAttr('data-startrow');
-    obj.removeAttr('data-pagenum');
-    obj.removeAttr('data-pageidx');
-    obj.removeAttr('data-nextnid');
-    obj.removeAttr('data-purgecache');
-    obj.removeAttr('data-origininstanceid');
+    if (typeof obj.removeAttr == 'function') {
+      dataTargets.forEach(function (item) {
+        obj.removeAttr('data-' + item);
+      });
 
-    if (obj.hasAttr('data-cachedwithin') && !obj.attr('data-cachedwithin')) {
-      obj.removeAttr('data-cachedwithin');
+      if (obj.hasAttr('data-cachedwithin') && !obj.attr('data-cachedwithin')) {
+        obj.removeAttr('data-cachedwithin');
+      }
+    } else {
+      dataTargets.forEach(function (item) {
+        if (typeof obj[item] != 'undefined') {
+          delete obj[item];
+        }
+      });
+      delete obj.inited;
     }
   }
+
+  return obj;
+}
+
+function resetAsyncObject(el, empty) {
+  var self = Mura(el);
 
   if (self.data('transient')) {
     self.remove();
@@ -2373,7 +2418,12 @@ function resetAsyncObject(el, empty) {
       empty = true;
     }
 
-    clearAttrs(self);
+    cleanModuleProps(self);
+
+    if (empty) {
+      self.removeAttr('data-inited');
+    }
+
     var data = self.data();
 
     for (var p in data) {
@@ -4221,6 +4271,7 @@ var Mura = extend(function (selector, context) {
   each: each,
   parseHTML: parseHTML,
   getData: getData,
+  cleanModuleProps: cleanModuleProps,
   getProps: getProps,
   isEmptyObject: isEmptyObject,
   isScrolledIntoView: isScrolledIntoView,
@@ -6564,6 +6615,15 @@ Mura.Entity = Mura.Core.extend(
   },
 
   /**
+   * updateFromDom - Updates editable data from what's in the DOM.
+   *
+   * @return {string}
+   */
+  updateFromDom: function updateFromDom() {
+    return this;
+  },
+
+  /**
    * setRequestContext - Sets the RequestContext
    *
    * @RequestContext	{Mura.RequestContext} Mura.RequestContext List of fields
@@ -8659,7 +8719,6 @@ Core.prototype = {
    * @return {any}
    */
   invoke: function invoke(funcName, params) {
-    var self = this;
     params = params || {};
 
     if (this[funcName] == 'function') {
@@ -14650,9 +14709,12 @@ Mura.UI.Container = Mura.UI.extend(
     this.trigger('afterRender');
   },
   reset: function reset(self, empty) {
-    self.find('.mura-object:not([data-object="container"])').html('');
-    self.find('.frontEndToolsModal').remove();
-    self.find('.mura-object-meta').html('');
+    if (empty) {
+      self.find('.mura-object:not([data-object="container"])').html('');
+      self.find('.frontEndToolsModal').remove();
+      self.find('.mura-object-meta').html('');
+    }
+
     var content = self.children('div.mura-object-content');
 
     if (content.length) {
@@ -16456,7 +16518,7 @@ var Mura = __webpack_require__(791);
 * @extends Mura.Entity
 * @memberof Mura
 * @param	{object} properties Object containing values to set into object
-* @return {Mura.Entity}
+* @return {Mura.entities.User}
 */
 
 

@@ -19,7 +19,7 @@ function PrivacyTools(props){
             
             getCurrentPrivacy().then(result => {
                 setMxpAnon(result);
-                console.log('result: ' + result);
+                //console.log('result: ' + result);
             }); 
 
         }

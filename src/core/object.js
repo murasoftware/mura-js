@@ -26,7 +26,6 @@ Core.prototype=
 	 * @return {any}
 	 */
 	invoke(funcName,params){
-		var self = this;
 		params=params || {};
 
 		if(this[funcName]=='function'){

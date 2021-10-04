@@ -181,7 +181,7 @@ export function ResourceHub(props) {
       }
       return () => { isMounted = false };
     }, [filterUpdated])
-    console.log('collection: ', collection);
+    // console.log('collection: ', collection);
     return (
       <div>
         <RenderFilterForm 

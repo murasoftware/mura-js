@@ -772,14 +772,7 @@ function getData(el) {
 }
 
 function getProps(el) {
-	var data = {};
-	Array.prototype.forEach.call(el.attributes, function(attr) {
-		if (/^data-/.test(attr.name)) {
-			data[attr.name.substr(5)] = parseString(attr.value);
-		}
-	});
-
-	return data;
+	return getData(el);
 }
 
 
@@ -2163,28 +2156,35 @@ function firstToLowerCase(str) {
 	return str.substr(0, 1).toLowerCase() + str.substr(1);
 }
 
+function cleanModuleProps(obj){
+	if(obj){
+		var dataTargets=['runtime','perm','startrow','pagenum','pageidx','nextnid','purgecache','origininstanceid'];
+		
+		if(typeof obj.removeAttr == 'function'){
+			dataTargets.forEach(function(item){
+				obj.removeAttr('data-' + item);
+			});
+
+			if(obj.hasAttr('data-cachedwithin') && !obj.attr('data-cachedwithin')){
+				obj.removeAttr('data-cachedwithin');
+			}
+		} else {
+			dataTargets.forEach(function(item){
+				if(typeof obj[item] != 'undefined'){
+					delete obj[item];
+				}
+			});
+
+			delete obj.inited;
+		}
+	}
+
+	return obj;
+}
+
+
 function resetAsyncObject(el,empty) {
 	var self = Mura(el);
-
-	function clearAttrs(obj){
-		obj.removeClass('mura-active');
-		obj.removeAttr('data-perm');
-		obj.removeAttr('data-runtime');
-		obj.removeAttr('draggable');
-		obj.removeAttr('style');
-		obj.removeAttr('data-inited');
-		obj.removeAttr('data-startrow');
-		obj.removeAttr('data-pagenum');
-		obj.removeAttr('data-pageidx');
-		obj.removeAttr('data-nextnid');
-		obj.removeAttr('data-purgecache');
-		obj.removeAttr('data-origininstanceid');
-
-		if(obj.hasAttr('data-cachedwithin') && !obj.attr('data-cachedwithin')){
-			obj.removeAttr('data-cachedwithin');
-		}
-
-	}
 	
 	if(self.data('transient')){
 		self.remove();
@@ -2194,8 +2194,12 @@ function resetAsyncObject(el,empty) {
 			empty=true;
 		}
 		
-		clearAttrs(self);
+		cleanModuleProps(self);
 
+		if(empty){
+			self.removeAttr('data-inited');
+		}
+		
 		var data=self.data();
 
 		for(var p in data){
@@ -4141,6 +4145,7 @@ const Mura=extend(
 		each: each,
 		parseHTML: parseHTML,
 		getData: getData,
+		cleanModuleProps:cleanModuleProps,
 		getProps: getProps,
 		isEmptyObject: isEmptyObject,
 		isScrolledIntoView: isScrolledIntoView,

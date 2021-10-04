@@ -8,7 +8,7 @@ var Mura=require('./core');
 * @extends Mura.Entity
 * @memberof Mura
 * @param	{object} properties Object containing values to set into object
-* @return {Mura.Entity}
+* @return {Mura.entities.Content}
 */
 
 Mura.entities.Content = Mura.Entity.extend(
@@ -21,11 +21,60 @@ Mura.entities.Content = Mura.Entity.extend(
 	 */
 	hasParent(){
 		var parentid=this.get('parentid');
-		if(!parentid || ['00000000000000000000000000000000END','00000000000000000000000000000000003','00000000000000000000000000000000004','00000000000000000000000000000000099'].find(function(value){return value===parentid})){
-			return false;
-		} else {
-			return true;
+		return !(!parentid || ['00000000000000000000000000000000END','00000000000000000000000000000000003','00000000000000000000000000000000004','00000000000000000000000000000000099'].find(function(value){return value===parentid}));
+	},
+
+	/**
+	 * updateFromDom - Updates editable data from what's in the DOM.
+	 *
+	 * @return {string}
+	 */
+	updateFromDom(){
+		var regions = this.get('displayregions');
+		
+		if(regions && typeof regions === 'object'){
+			Object.keys(regions).forEach(key => {
+				var region = regions[key];
+			
+				if(region){
+					var items=[];
+
+					Mura('.mura-region-local[data-regionid="' + region.regionid +'"]').forEach(function(){
+						Mura(this).children('.mura-object[data-object]').forEach(function(){
+							var obj=Mura(this);
+							
+							if(typeof Mura.displayObjectInstances[obj.data('instanceid')] != 'undefined'){
+								Mura.displayObjectInstances[obj.data('instanceid')].reset(obj,false);
+							}
+							
+							items.push(Mura.cleanModuleProps(obj.data()));
+						})
+					});
+
+					region.local.items=items;
+				}
+			});
 		}
+
+		var self=this;
+
+		Mura('div.mura-object[data-targetattr]').each(function(){
+			var obj=Mura(this);
+			
+			if(typeof Mura.displayObjectInstances[obj.data('instanceid')] != 'undefined'){
+				Mura.displayObjectInstances[obj.data('instanceid')].reset(obj,false);
+			}
+
+			self.set(obj.data('targetattr'),Mura.cleanModuleProps(Mura(this).data()));
+		});
+
+		Mura('.mura-editable-attribute.inline').forEach(function(){
+			var editable=Mura(this);
+			var attributeName=editable.data('attribute');
+			self.set(attributeName,editable.html());
+		})
+
+		return this;
 	},
 
 	/**

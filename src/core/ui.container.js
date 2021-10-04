@@ -39,9 +39,11 @@ Mura.UI.Container=Mura.UI.extend(
 		this.trigger('afterRender');
     },
     reset(self,empty){ 
-        self.find('.mura-object:not([data-object="container"])').html('');
-        self.find('.frontEndToolsModal').remove();
-        self.find('.mura-object-meta').html('');
+        if(empty){
+            self.find('.mura-object:not([data-object="container"])').html('');
+            self.find('.frontEndToolsModal').remove();
+            self.find('.mura-object-meta').html('');
+        }
         var content = self.children('div.mura-object-content');
 
         if (content.length) {
