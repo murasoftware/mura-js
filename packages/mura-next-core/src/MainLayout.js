@@ -13,7 +13,7 @@ const MainLayout = props => {
 
   useEffect(() => {
     contentDidChange(content);
-  });
+  },[content.contenthistid]);
 
   return (
     <div>

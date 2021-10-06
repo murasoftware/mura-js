@@ -1025,7 +1025,7 @@ var MainLayout = function MainLayout(props) {
   Mura.moduleStyleData = moduleStyleData;
   useEffect(function () {
     contentDidChange(content);
-  });
+  }, [content.contenthistid]);
   return /*#__PURE__*/React.createElement("div", null, children, /*#__PURE__*/React.createElement(ExternalAssets, props), /*#__PURE__*/React.createElement(Styles, props));
 };
 
