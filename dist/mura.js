@@ -2161,7 +2161,10 @@ function processMarkup(scope) {
       if (Mura('.mura__layout-manager__display-regions').length) {
         find('.mura-region').each(function (el) {
           var region = Mura(el);
-          Mura('.mura-region__item[data-regionid="' + region.data('regionid') + '"]').remove();
+
+          if (!region.closest('.mura__layout-manager__display-regions').length) {
+            Mura('.mura-region__item[data-regionid="' + region.data('regionid') + '"]').remove();
+          }
         });
 
         if (!Mura('.mura__layout-manager__display-regions .mura-region__item').length) {
