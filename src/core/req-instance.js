@@ -157,21 +157,43 @@ Mura.Request=Mura.Core.extend(
 					}
 			}
 			//console.log('pre:',params.headers)
-			const nodeProxyRedirects = (httpResponse)=>{
+			const nodeProxyHeaders = (httpResponse)=>{
 				if(typeof self.responseObject != 'undefined'){
+					self.responseObject.proxiedResponse=httpResponse;
+					if(!self.responseObject.headersSent){
 						if(httpResponse.statusCode > 300 && httpResponse.statusCode < 400){
-							const location=httpResponse.headers.raw()['location'] || httpResponse.headers.raw()['Location'];
-							if(location){
+							const header=httpResponse.headers.raw()['location'] || httpResponse.headers.raw()['Location'];
+							if(header){
 								try{
-									 //match casing of mura-next connector
-									self.responseObject.setHeader('Location',location);
+										//match casing of mura-next connector
+									self.responseObject.setHeader('Location',header);
 									self.responseObject.statusCode=httpResponse.statusCode;
 								} catch (e){
 									console.log('Error setting location header');
 								}
 							}
-						
 						}
+						let header='';
+						header=httpResponse.headers.raw()['cache-control'] || httpResponse.headers.raw()['Cache-Control'];
+						if(header){
+							try{
+								//match casing of mura-next connector
+								self.responseObject.setHeader('Cache-Control',header);
+							} catch (e){
+								console.log(e)
+								console.log('Error setting Cache-Control header');
+							}
+						}
+						header=httpResponse.headers.raw()['pragma'] || httpResponse.headers.raw()['Pragma'];
+						if(header){
+							try{
+								//match casing of mura-next connector
+								self.responseObject.setHeader('Pragma',header);
+							} catch (e){
+								console.log('Error setting Pragma header');
+							}
+						}
+					}
 				}
 			}
 
@@ -295,7 +317,7 @@ Mura.Request=Mura.Core.extend(
 			const routeNodeResponse=async (res)=>{
 				const body= await res.text();
 				nodeProxyCookies(res);
-				nodeProxyRedirects(res);
+				nodeProxyHeaders(res);
 				nodeResponseHandler(res,body);
 			}
 				

@@ -9728,18 +9728,46 @@ Mura.Request = Mura.Core.extend(
     } //console.log('pre:',params.headers)
 
 
-    var nodeProxyRedirects = function nodeProxyRedirects(httpResponse) {
+    var nodeProxyHeaders = function nodeProxyHeaders(httpResponse) {
       if (typeof self.responseObject != 'undefined') {
-        if (httpResponse.statusCode > 300 && httpResponse.statusCode < 400) {
-          var _location = httpResponse.headers.raw()['location'] || httpResponse.headers.raw()['Location'];
+        self.responseObject.proxiedResponse = httpResponse;
 
-          if (_location) {
+        if (!self.responseObject.headersSent) {
+          if (httpResponse.statusCode > 300 && httpResponse.statusCode < 400) {
+            var _header = httpResponse.headers.raw()['location'] || httpResponse.headers.raw()['Location'];
+
+            if (_header) {
+              try {
+                //match casing of mura-next connector
+                self.responseObject.setHeader('Location', _header);
+                self.responseObject.statusCode = httpResponse.statusCode;
+              } catch (e) {
+                console.log('Error setting location header');
+              }
+            }
+          }
+
+          var header = '';
+          header = httpResponse.headers.raw()['cache-control'] || httpResponse.headers.raw()['Cache-Control'];
+
+          if (header) {
             try {
               //match casing of mura-next connector
-              self.responseObject.setHeader('Location', _location);
-              self.responseObject.statusCode = httpResponse.statusCode;
+              self.responseObject.setHeader('Cache-Control', header);
             } catch (e) {
-              console.log('Error setting location header');
+              console.log(e);
+              console.log('Error setting Cache-Control header');
+            }
+          }
+
+          header = httpResponse.headers.raw()['pragma'] || httpResponse.headers.raw()['Pragma'];
+
+          if (header) {
+            try {
+              //match casing of mura-next connector
+              self.responseObject.setHeader('Pragma', header);
+            } catch (e) {
+              console.log('Error setting Pragma header');
             }
           }
         }
@@ -9925,7 +9953,7 @@ Mura.Request = Mura.Core.extend(
               case 2:
                 body = _context2.sent;
                 nodeProxyCookies(res);
-                nodeProxyRedirects(res);
+                nodeProxyHeaders(res);
                 nodeResponseHandler(res, body);
 
               case 6:
