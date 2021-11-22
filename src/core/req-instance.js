@@ -134,30 +134,16 @@ Mura.Request=Mura.Core.extend(
 			var debug=typeof Mura.debug != 'undefined' && Mura.debug;
 			var self=this;
 			if(typeof this.requestObject != 'undefined'){
-				const headers=this.requestObject.headers;
-				if(headers){
-					Object.keys(headers).forEach((header)=>{
-						params.headers[header]=headers[header];
-					})
-				}
-
-				if(headers['host']){
-					const hostArray=headers['host'].split(":");
-					const port=(hostArray.length >1) ? hostArray[1] : 0;
-					if(!headers['x-forwarded-host'] ){
-						params.headers['x-forwarded-host']=headers['host'];
-					}
-					if(!headers['x-forwarded-port'] && port){
-						params.headers['x-forwarded-port']=port;
-					}
-					if(!headers['x-forwarded-proto'] && port){
-						if(port==443){
-							params.headers['x-forwarded-proto']='https';
-						} else {
-							params.headers['x-forwarded-proto']='http';
+				['Cookie','X-client_id','X-client_secret','X-access_token','Authorization','User-Agent','Referer'].forEach((item)=>{
+					if(typeof this.requestObject.headers[item] != 'undefined'){
+						params.headers[item]=this.requestObject.headers[item];
+					} else {
+						var lcaseItem=item.toLowerCase();
+						if(typeof this.requestObject.headers[lcaseItem] != 'undefined'){
+							params.headers[item]=this.requestObject.headers[lcaseItem];
 						}
 					}
-				}
+				})
 			}	
 			
 			for(var h in Mura.requestHeaders){
