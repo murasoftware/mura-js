@@ -9692,8 +9692,6 @@ Mura.Request = Mura.Core.extend(
     return this.requestHeaders;
   },
   nodeRequest: function nodeRequest(params) {
-    var _this = this;
-
     if (typeof Mura.renderMode != 'undefined') {
       params.renderMode = Mura.renderMode;
     }
@@ -9702,17 +9700,34 @@ Mura.Request = Mura.Core.extend(
     var self = this;
 
     if (typeof this.requestObject != 'undefined') {
-      ['Cookie', 'X-client_id', 'X-client_secret', 'X-access_token', 'Authorization', 'User-Agent', 'Referer'].forEach(function (item) {
-        if (typeof _this.requestObject.headers[item] != 'undefined') {
-          params.headers[item] = _this.requestObject.headers[item];
-        } else {
-          var lcaseItem = item.toLowerCase();
+      var headers = this.requestObject.headers;
 
-          if (typeof _this.requestObject.headers[lcaseItem] != 'undefined') {
-            params.headers[item] = _this.requestObject.headers[lcaseItem];
+      if (headers) {
+        Object.keys(headers).forEach(function (header) {
+          params.headers[header] = headers[header];
+        });
+      }
+
+      if (headers['host']) {
+        var hostArray = headers['host'].split(":");
+        var port = hostArray.length > 1 ? hostArray[1] : 0;
+
+        if (!headers['x-forwarded-host']) {
+          params.headers['x-forwarded-host'] = headers['host'];
+        }
+
+        if (!headers['x-forwarded-port'] && port) {
+          params.headers['x-forwarded-port'] = port;
+        }
+
+        if (!headers['x-forwarded-proto'] && port) {
+          if (port == 443) {
+            params.headers['x-forwarded-proto'] = 'https';
+          } else {
+            params.headers['x-forwarded-proto'] = 'http';
           }
         }
-      });
+      }
     }
 
     for (var h in Mura.requestHeaders) {
