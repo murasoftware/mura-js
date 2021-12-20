@@ -3886,8 +3886,6 @@ function init(config) {
   if (existingEndpoint) {
     config.apiEndpoint = existingEndpoint;
     delete config.apiendpoint;
-  } else {
-    existingEndpoint;
   }
 
   if (config.rootpath) {
@@ -3923,12 +3921,28 @@ function init(config) {
     delete config.apiendpoint;
   }
 
+  if (typeof Mura.indexfileinapi != 'undefined') {
+    config.indexfileinapi = Mura.indexfileinapi;
+  }
+
+  if (typeof config.indexfileinapi === 'undefined') {
+    config.indexfileinapi = true;
+  }
+
   if (!config.apiEndpoint) {
-    config.apiEndpoint = config.context + '/index.cfm/_api/json/v1/' + config.siteid + '/';
+    if (config.indexfileinapi) {
+      config.apiEndpoint = config.context + '/index.cfm/_api/json/v1/' + config.siteid + '/';
+    } else {
+      config.apiEndpoint = config.context + '/_api/json/v1/' + config.siteid + '/';
+    }
   }
 
   if (config.apiEndpoint.indexOf('/_api/') == -1) {
-    config.apiEndpoint = config.apiEndpoint + '/index.cfm/_api/json/v1/' + config.siteid + '/';
+    if (config.indexfileinapi) {
+      config.apiEndpoint = config.apiEndpoint + '/index.cfm/_api/json/v1/' + config.siteid + '/';
+    } else {
+      config.apiEndpoint = config.apiEndpoint + '/_api/json/v1/' + config.siteid + '/';
+    }
   }
 
   if (!config.pluginspath) {
@@ -9778,8 +9792,18 @@ Mura.Request = Mura.Core.extend(
       var debug = typeof Mura.debug != 'undefined' && Mura.debug;
 
       if (typeof self.responseObject != 'undefined') {
-        var existingCookies = (typeof self.requestObject.headers['cookie'] != 'undefined' ? self.requestObject.headers['cookie'] : '').split("; ");
+        var existingCookies = typeof self.requestObject.headers['cookie'] != 'undefined' ? self.requestObject.headers['cookie'] : '';
         var newSetCookies = httpResponse.headers.raw()['set-cookie'];
+
+        if (Array.isArray(existingCookies)) {
+          if (existingCookies.length) {
+            existingCookies = existingCookies[0];
+          } else {
+            existingCookies = '';
+          }
+        }
+
+        existingCookies = existingCookies.split("; ");
 
         if (!Array.isArray(newSetCookies)) {
           newSetCookies = [];

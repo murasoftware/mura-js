@@ -201,9 +201,19 @@ Mura.Request=Mura.Core.extend(
 				var debug=typeof Mura.debug != 'undefined' && Mura.debug;
 				
 				if(typeof self.responseObject != 'undefined'){
-					var existingCookies=((typeof self.requestObject.headers['cookie'] != 'undefined') ? self.requestObject.headers['cookie'] : '').split("; ");
+					var existingCookies=(typeof self.requestObject.headers['cookie'] != 'undefined') ? self.requestObject.headers['cookie'] : '';
 					var newSetCookies=httpResponse.headers.raw()['set-cookie'];
-				
+					
+					if(Array.isArray(existingCookies)){
+						if(existingCookies.length){
+							existingCookies=existingCookies[0];
+						} else {
+							existingCookies='';
+						}
+					}
+					
+					existingCookies=existingCookies.split("; ");
+
 					if(!Array.isArray(newSetCookies)){
 						newSetCookies=[];
 					}

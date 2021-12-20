@@ -501,7 +501,7 @@ var getRootPath = function getRootPath() {
 var getSiteName = function getSiteName() {
   return getMura().sitename;
 };
-var getMuraProps = function getMuraProps(context, isEditMode, params) {
+var getMuraProps = function getMuraProps(context, isEditMode, params, callback) {
   try {
     var _content;
 
@@ -527,6 +527,11 @@ var getMuraProps = function getMuraProps(context, isEditMode, params) {
           } else {
             context.res.statusCode = 301;
           }
+
+          if (context.res.statusCode != 301) {
+            context.res.setHeader('Cache-Control', 'no-cache, no-store');
+            context.res.setHeader('Expires', 'Mon, 01 Jan 1990 00:00:00 GMT');
+          }
         }
       }
 
@@ -551,6 +556,10 @@ var getMuraProps = function getMuraProps(context, isEditMode, params) {
             codeblocks: codeblocks,
             queryParams: queryParams
           };
+
+          if (typeof callback == 'function') {
+            callback(callback);
+          }
 
           if (isEditMode) {
             return {

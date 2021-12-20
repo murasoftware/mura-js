@@ -3759,8 +3759,6 @@ function init(config) {
 	if(existingEndpoint){
 		config.apiEndpoint=existingEndpoint;
 		delete config.apiendpoint;
-	} else {
-		existingEndpoint
 	}
 
 	if (config.rootpath) {
@@ -3796,12 +3794,28 @@ function init(config) {
 		delete config.apiendpoint;
 	}
 
+	if(typeof Mura.indexfileinapi != 'undefined'){
+		config.indexfileinapi=Mura.indexfileinapi;
+	}
+
+	if(typeof config.indexfileinapi === 'undefined'){
+		config.indexfileinapi=true;
+	}
+
 	if (!config.apiEndpoint) {
-		config.apiEndpoint = config.context +	'/index.cfm/_api/json/v1/' + config.siteid + '/';
+		if(config.indexfileinapi){
+			config.apiEndpoint = config.context +	'/index.cfm/_api/json/v1/' + config.siteid + '/';
+		} else {
+			config.apiEndpoint = config.context +	'/_api/json/v1/' + config.siteid + '/';
+		}
 	}
 
 	if(config.apiEndpoint.indexOf('/_api/') == -1){
-		config.apiEndpoint = config.apiEndpoint + '/index.cfm/_api/json/v1/' + config.siteid + '/'
+		if(config.indexfileinapi){
+			config.apiEndpoint = config.apiEndpoint + '/index.cfm/_api/json/v1/' + config.siteid + '/'
+		} else {
+			config.apiEndpoint = config.apiEndpoint + '/_api/json/v1/' + config.siteid + '/'
+		}
 	}
 
 	if (!config.pluginspath) {

@@ -204,7 +204,7 @@ export const getSiteName = () => {
   return getMura().sitename;
 };
 
-export const getMuraProps = async (context,isEditMode,params) => {
+export const getMuraProps = async (context,isEditMode,params,callback) => {
   getMura(context);
   setIsEditMode(isEditMode);
   
@@ -284,6 +284,10 @@ export const getMuraProps = async (context,isEditMode,params) => {
       } else {
         context.res.statusCode = 301;
       }
+      if(context.res.statusCode!=301){
+        context.res.setHeader('Cache-Control','no-cache, no-store');
+        context.res.setHeader('Expires','Mon, 01 Jan 1990 00:00:00 GMT');
+      }
     }
   }
 
@@ -336,6 +340,10 @@ export const getMuraProps = async (context,isEditMode,params) => {
     codeblocks: codeblocks,
     queryParams : queryParams
   };
+
+  if(typeof callback == 'function'){
+    callback(callback);
+  }
 
   if(isEditMode){
     return {
