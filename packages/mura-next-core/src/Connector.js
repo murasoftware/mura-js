@@ -329,10 +329,6 @@ export const getMuraProps = async (context,isEditMode,params,callback) => {
     }
   } catch(e){console.error(e)}
 
-  if(Mura.isInNode()){
-    Mura.deInit();
-  }
-
   const props = {
     content: content,
     moduleStyleData: moduleStyleData,
@@ -342,7 +338,11 @@ export const getMuraProps = async (context,isEditMode,params,callback) => {
   };
 
   if(typeof callback == 'function'){
-    callback(callback);
+    await callback(callback);
+  }
+
+  if(Mura.isInNode() && (typeof callback =='undefined' || typeof callback == 'boolean' && callback)){
+    Mura.deInit();
   }
 
   if(isEditMode){
