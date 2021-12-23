@@ -3794,12 +3794,12 @@ function init(config) {
 		delete config.apiendpoint;
 	}
 
-	if(typeof config.indexfileinurls == 'undefined'){
-		config.indexfileinurls=false;
+	if(typeof config.indexfileinapi == 'undefined'){
+		config.indexfileinapi=true;
 	}
 
 	if (!config.apiEndpoint) {
-		if(config.indexfileinurls){
+		if(config.indexfileinapi){
 			config.apiEndpoint = config.context +	'/index.cfm/_api/json/v1/' + config.siteid + '/';
 		} else {
 			config.apiEndpoint = config.context +	'/_api/json/v1/' + config.siteid + '/';
@@ -3807,7 +3807,7 @@ function init(config) {
 	}
 
 	if(config.apiEndpoint.indexOf('/_api/') == -1){
-		if(config.indexfileinurls){
+		if(config.indexfileinapi){
 			config.apiEndpoint = config.apiEndpoint + '/index.cfm/_api/json/v1/' + config.siteid + '/'
 		} else {
 			config.apiEndpoint = config.apiEndpoint + '/_api/json/v1/' + config.siteid + '/'

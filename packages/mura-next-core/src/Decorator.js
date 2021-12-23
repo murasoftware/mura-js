@@ -44,9 +44,9 @@ function Decorator(props) {
       return styles;
     };
   
-    objectStyles=(props.stylesupport.objectstyles) ? getModuleTargetStyles(props.stylesupport.objectstyles) : {};
-    metaStyles=(props.stylesupport.metastyles) ? getModuleTargetStyles(props.stylesupport.metastyles) : {};
-    contentStyles=(props.stylesupport.contentstyles) ? getModuleTargetStyles(props.stylesupport.contentstyles) : {};
+    objectStyles=(props?.stylesupport?.objectstyles) ? getModuleTargetStyles(props.stylesupport.objectstyles) : {};
+    metaStyles=(props?.stylesupport?.metastyles) ? getModuleTargetStyles(props.stylesupport.metastyles) : {};
+    contentStyles=(props?.stylesupport?.contentstyles) ? getModuleTargetStyles(props.stylesupport.contentstyles) : {};
   
     if(typeof document != 'undefined'){  
 
