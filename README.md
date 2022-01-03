@@ -1,6 +1,6 @@
-# Mura
+# Mura JS
 
-Mura is a javscript utility to interact with the Mura CMS JSON/REST API
+Mura JS is a javscript utility to interact with the Mura CMS JSON/REST API
 
 Mura CMS is source content management system created by [Mura Software](http://www.murasoftware.com). Mura has been designed to be used by marketing departments, web designers and developers.
 
