@@ -3795,7 +3795,11 @@ function init(config) {
 	}
 
 	if(typeof config.indexfileinapi == 'undefined'){
-		config.indexfileinapi=true;
+		if(typeof Mura.indexfileinapi){
+			config.indexfileinapi=Mura.indexfileinapi;
+		} else {
+			config.indexfileinapi=true;
+		}	
 	}
 
 	if (!config.apiEndpoint) {

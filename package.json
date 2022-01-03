@@ -1,7 +1,7 @@
 {
-  "name": "mura.js",
+  "name": "@murasoftware/mura",
   "homepage": "http://www.murasoftware.com",
-  "version": "1.0.333",
+  "version": "1.0.334",
   "description": "Utility for interacting with the Mura JSON/REST API",
   "browserslist": "> 0.25%, not dead, ie >= 11",
   "files": [
@@ -11,13 +11,18 @@
     "src/core/",
     "src/templates/"
   ],
-  "main": "src/index.js",
+  "main": "./src/index-namespaced.js",
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
     "build": "WEBPACK_ENV=build  webpack --mode production --env production",
-    "dev": "grunt; WEBPACK_ENV=dev webpack --mode production --env production"
+    "dev": "grunt; WEBPACK_ENV=dev webpack --mode production --env production",
+    "build:mura.js": "MURA_PACKAGE=mura.js node build-package.js;",
+    "build:@murasoftware/mura": "MURA_PACKAGE=@murasoftware/mura node build-package.js;",
+    "publish:mura.js": "npm run build:mura.js && npm publish",
+    "publish:@murasoftware/mura": "npm run build:@murasoftware/mura && npm publish",
+    "publish": "npm run publish:mura.js && npm run publish:@murasoftware/mura"
   },
   "repository": {
     "type": "git",
@@ -31,7 +36,6 @@
     "@babel/preset-env": "^7.14.0",
     "babel-loader": "^8.2.2",
     "core-js": "^3.11.1",
-    "express": "^4.17.1",
     "grunt": "^1.3.0",
     "grunt-contrib-handlebars": "^2.0.0",
     "grunt-text-replace": "^0.4.0",
@@ -46,7 +50,8 @@
     "handlebars": "^4.7.6",
     "install": "^0.10.4",
     "node-fetch": "^2.6.1",
-    "npm": "^6.14.11",
-    "tough-cookie": "^2.5.0"
+    "npm": "^6.14.15",
+    "tough-cookie": "^2.5.0",
+    "url": "^0.11.0"
   }
 }

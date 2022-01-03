@@ -3,6 +3,7 @@ var webpack = require('webpack');
 var BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 var env = process.env.WEBPACK_ENV;
 var plugins = [];
+var pjson = require('./package.json');
 
 if (env === 'build') {
 	mode = 'production';
@@ -31,7 +32,7 @@ module.exports = {
 	optimization: {
     minimize: minimize
   },
-  entry: ['core-js/web','core-js/features/promise','regenerator-runtime/runtime','./index.js'],
+  entry: ['core-js/web','core-js/features/promise','regenerator-runtime/runtime',pjson.main],
   devtool: 'source-map',
   output: {
     filename: outputFile,

@@ -3922,7 +3922,11 @@ function init(config) {
   }
 
   if (typeof config.indexfileinapi == 'undefined') {
-    config.indexfileinapi = true;
+    if (_typeof(Mura.indexfileinapi)) {
+      config.indexfileinapi = Mura.indexfileinapi;
+    } else {
+      config.indexfileinapi = true;
+    }
   }
 
   if (!config.apiEndpoint) {
@@ -16667,6 +16671,16 @@ Mura.entities.User = Mura.Entity.extend(
 
 /***/ }),
 
+/***/ 3984:
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
+
+var Mura = __webpack_require__(1045);
+
+Mura.indexfileinapi = false;
+module.exports = Mura;
+
+/***/ }),
+
 /***/ 5579:
 /***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
@@ -24221,7 +24235,7 @@ try {
 /******/ 	__webpack_require__(6337);
 /******/ 	__webpack_require__(3867);
 /******/ 	__webpack_require__(5666);
-/******/ 	var __webpack_exports__ = __webpack_require__(1045);
+/******/ 	var __webpack_exports__ = __webpack_require__(3984);
 /******/ 	
 /******/ 	return __webpack_exports__;
 /******/ })()
