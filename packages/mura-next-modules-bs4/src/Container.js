@@ -1,9 +1,11 @@
-import React, {useEffect} from 'react';// eslint-disable-next-line
-import { getComponent, getMura } from '@murasoftware/next-core';
+import React, {useEffect} from 'react';
+import Mura from 'mura.js/src/core/core';
+
+// eslint-disable-next-line
+import { getComponent } from '@murasoftware/next-core';
 import { Decorator } from '@murasoftware/next-core';
 
 export const Container = function(props) {
-  const Mura=getMura();
   const { items,content,instanceid } = props;
   // console.log('Container -> items', items);
   // console.log('Container -> props', props);

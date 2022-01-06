@@ -3,7 +3,6 @@ import { getMura ,getIsEditMode, getMuraConfig } from './Connector';
 
 function Decorator(props) {
   const Mura= getMura();
-
   const muraConfig = getMuraConfig();
   const { ComponentRegistry, ExternalModules } = muraConfig;
   const { label, instanceid, labeltag, children } = props;

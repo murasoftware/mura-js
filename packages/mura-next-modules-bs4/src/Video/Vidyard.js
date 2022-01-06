@@ -1,9 +1,8 @@
 import React from 'react';
 import Head from 'next/head';
-import { getMura } from '@murasoftware/next-core';
+import Mura from 'mura.js';
 
 function Vidyard(props) {
-	const Mura=getMura();
 	const { instanceid, videoid } = props;
 	return (
 		<div

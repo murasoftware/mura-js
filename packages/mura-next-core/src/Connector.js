@@ -1,21 +1,11 @@
 /* eslint-disable */
 import React, {useEffect} from 'react';
+import Mura from 'mura.js';
 
-let muraConfig, connectorConfig, ComponentRegistry, ConnectorConfig, ExternalModules, Mura;
+require('mura.js/src/core/stylemap-static');
+
+let muraConfig, connectorConfig, ComponentRegistry, ConnectorConfig, ExternalModules;
 let isEditMode=false;
-
-try{
-  Mura = require('mura.js');
-  require('mura.js/src/core/stylemap-static');
-} catch(err){
-  if(err.code === 'MODULE_NOT_FOUND'){
-     Mura = require('@murasoftware/mura');
-     require('@murasoftware/mura/src/core/stylemap-static');
-  } else {
-    console.log("Can't find either mura.js or @murasoftware/mura modules OR and error occurred on import");
-    throw(err);
-  }
-}
 
 export const MuraJSRefPlaceholder = '"undefined"!=typeof window&&function(u){u.queuedMuraCmds=[],u.queuedMuraPreInitCmds=[],"function"!=typeof u.Mura&&(u.Mura=u.mura=u.Mura=function(e){u.queuedMuraCmds.push(e)},u.Mura.preInit=function(e){u.queuedMuraPreInitCmds.push(e)})}(window);';
 
@@ -122,7 +112,7 @@ export const getMuraExternalModules = function() {
 
 export const getMura = function(context){
   const startingsiteid=Mura.siteid;
- 
+  
   if(typeof context == 'string'
     && ConnectorConfig.siteid.find((item)=>{
       return (item===context)
@@ -193,9 +183,7 @@ export const getMura = function(context){
       }
     );
     clearMuraAPICache();
-    
     //console.log('initing', connectorConfig.siteid)
-    
     Mura.init(connectorConfig);
   } else if (startingsiteid != connectorConfig.siteid) {
     //console.log('changing siteid',startingsiteid,connectorConfig.siteid)
@@ -217,7 +205,7 @@ export const getSiteName = () => {
 };
 
 export const getMuraProps = async (context,isEditMode,params,callback) => {
-  const Mura=getMura(context);
+  getMura(context);
   setIsEditMode(isEditMode);
   
   Mura.renderMode='dynamic';
@@ -371,7 +359,7 @@ export const getMuraProps = async (context,isEditMode,params,callback) => {
 };
 
 async function renderContent(context,isEditMode,params) {
-  const Mura=getMura();
+
   let query = {};
 
   if (context.browser) {
@@ -413,7 +401,7 @@ async function renderContent(context,isEditMode,params) {
 
 
 async function getRegionProps(content,queryParams,isEditMode) {
-  const Mura=getMura();
+  getMura();
   let moduleStyleData = {};
 
   content.displayregions=content.displayregions || {};
@@ -457,7 +445,7 @@ async function getRegionProps(content,queryParams,isEditMode) {
 }
 
 async function getModuleProps(item,moduleStyleData,isEditMode,content,queryParams) {
-  const Mura=getMura();
+  getMura();
 
   try{
 

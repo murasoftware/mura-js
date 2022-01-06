@@ -1,9 +1,8 @@
 import React, {useEffect} from 'react';
 import Head from 'next/head';
-import { getMura } from '@murasoftware/next-core';
+import Mura from 'mura.js';
 
 function Wistia(props) {
-	const Mura=getMura();
 	const { instanceid, videoid, dynamicProps } = props;
 	
 	useEffect(() => {

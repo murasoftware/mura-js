@@ -3799,7 +3799,7 @@ function init(config) {
 			config.indexfileinapi=Mura.indexfileinapi;
 		} else {
 			config.indexfileinapi=true;
-		}	
+		}
 	}
 
 	if (!config.apiEndpoint) {

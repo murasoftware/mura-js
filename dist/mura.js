@@ -3915,11 +3915,7 @@ function init(config) {
   }
 
   if (typeof config.indexfileinapi == 'undefined') {
-    if (_typeof(Mura.indexfileinapi)) {
-      config.indexfileinapi = Mura.indexfileinapi;
-    } else {
-      config.indexfileinapi = true;
-    }
+    config.indexfileinapi = true;
   }
 
   if (!config.apiEndpoint) {
@@ -16715,8 +16711,6 @@ __webpack_require__(4654);
 
 __webpack_require__(1526);
 
-Mura.package = 'mura.js';
-
 if (Mura.isInNode()) {
   Mura._fetch = __webpack_require__(3300);
   Mura._formData = __webpack_require__(6230);
@@ -16735,40 +16729,6 @@ if (Mura.isInNode()) {
 }
 
 module.exports = Mura;
-
-/***/ }),
-
-/***/ 3462:
-/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
-
-__webpack_require__(6699);
-var entryUnbind = __webpack_require__(2649);
-
-module.exports = entryUnbind('Array', 'includes');
-
-
-/***/ }),
-
-/***/ 5302:
-/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
-
-__webpack_require__(9720);
-var path = __webpack_require__(857);
-
-module.exports = path.Object.entries;
-
-
-/***/ }),
-
-/***/ 454:
-/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
-
-__webpack_require__(6992);
-__webpack_require__(8559);
-var path = __webpack_require__(857);
-
-module.exports = path.Object.fromEntries;
-
 
 /***/ }),
 
@@ -17579,21 +17539,6 @@ if (v8) {
 }
 
 module.exports = version && +version;
-
-
-/***/ }),
-
-/***/ 2649:
-/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
-
-var global = __webpack_require__(7854);
-var bind = __webpack_require__(9974);
-
-var call = Function.call;
-
-module.exports = function (CONSTRUCTOR, METHOD, length) {
-  return bind(call, global[CONSTRUCTOR].prototype[METHOD], length);
-};
 
 
 /***/ }),
@@ -18761,45 +18706,6 @@ module.exports = Object.setPrototypeOf || ('__proto__' in {} ? function () {
 
 /***/ }),
 
-/***/ 4699:
-/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
-
-var DESCRIPTORS = __webpack_require__(9781);
-var objectKeys = __webpack_require__(1956);
-var toIndexedObject = __webpack_require__(5656);
-var propertyIsEnumerable = __webpack_require__(5296).f;
-
-// `Object.{ entries, values }` methods implementation
-var createMethod = function (TO_ENTRIES) {
-  return function (it) {
-    var O = toIndexedObject(it);
-    var keys = objectKeys(O);
-    var length = keys.length;
-    var i = 0;
-    var result = [];
-    var key;
-    while (length > i) {
-      key = keys[i++];
-      if (!DESCRIPTORS || propertyIsEnumerable.call(O, key)) {
-        result.push(TO_ENTRIES ? [key, O[key]] : O[key]);
-      }
-    }
-    return result;
-  };
-};
-
-module.exports = {
-  // `Object.entries` method
-  // https://tc39.es/ecma262/#sec-object.entries
-  entries: createMethod(true),
-  // `Object.values` method
-  // https://tc39.es/ecma262/#sec-object.values
-  values: createMethod(false)
-};
-
-
-/***/ }),
-
 /***/ 288:
 /***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
@@ -19612,29 +19518,6 @@ $({ global: true }, {
 
 /***/ }),
 
-/***/ 6699:
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
-
-"use strict";
-
-var $ = __webpack_require__(2109);
-var $includes = __webpack_require__(1318).includes;
-var addToUnscopables = __webpack_require__(1223);
-
-// `Array.prototype.includes` method
-// https://tc39.es/ecma262/#sec-array.prototype.includes
-$({ target: 'Array', proto: true }, {
-  includes: function includes(el /* , fromIndex = 0 */) {
-    return $includes(this, el, arguments.length > 1 ? arguments[1] : undefined);
-  }
-});
-
-// https://tc39.es/ecma262/#sec-array.prototype-@@unscopables
-addToUnscopables('includes');
-
-
-/***/ }),
-
 /***/ 6992:
 /***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
@@ -19692,45 +19575,6 @@ Iterators.Arguments = Iterators.Array;
 addToUnscopables('keys');
 addToUnscopables('values');
 addToUnscopables('entries');
-
-
-/***/ }),
-
-/***/ 9720:
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
-
-var $ = __webpack_require__(2109);
-var $entries = __webpack_require__(4699).entries;
-
-// `Object.entries` method
-// https://tc39.es/ecma262/#sec-object.entries
-$({ target: 'Object', stat: true }, {
-  entries: function entries(O) {
-    return $entries(O);
-  }
-});
-
-
-/***/ }),
-
-/***/ 8559:
-/***/ (function(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
-
-var $ = __webpack_require__(2109);
-var iterate = __webpack_require__(408);
-var createProperty = __webpack_require__(6135);
-
-// `Object.fromEntries` method
-// https://github.com/tc39/proposal-object-from-entries
-$({ target: 'Object', stat: true }, {
-  fromEntries: function fromEntries(iterable) {
-    var obj = {};
-    iterate(iterable, function (k, v) {
-      createProperty(obj, k, v);
-    }, { AS_ENTRIES: true });
-    return obj;
-  }
-});
 
 
 /***/ }),
@@ -24370,9 +24214,6 @@ try {
 /******/ 	__webpack_require__(6337);
 /******/ 	__webpack_require__(3867);
 /******/ 	__webpack_require__(5666);
-/******/ 	__webpack_require__(5302);
-/******/ 	__webpack_require__(454);
-/******/ 	__webpack_require__(3462);
 /******/ 	var __webpack_exports__ = __webpack_require__(5579);
 /******/ 	
 /******/ 	return __webpack_exports__;

@@ -1,19 +1,42 @@
-# Mura JS
+# Mura.js
 
-Mura JS is a javscript utility to interact with the Mura CMS JSON/REST API
+Mura.js is javscript utility to interact with the Mura CMS JSON/REST API
 
-Mura CMS is source content management system created by [Mura Software](http://www.murasoftware.com). Mura has been designed to be used by marketing departments, web designers and developers.
+Mura CMS is an open source content management system for CFML, created by [Blue River Interactive Group](http://www.getmura.com). Mura has been designed to be used by marketing departments, web designers and developers.
 
 ## Installation
 
-Mura is available as both @murasoftware/mura and mura.js packages
+### Browser
 
 ```
-npm install mura.js
+<script src="https://domain.com/core/modules/v1/core_assets/js/mura.min.js"></script>
 ```
+
+### Babel
+Babel is a next generation JavaScript compiler. One of the features is the ability to use ES6/ES2015 modules now, even though browsers do not yet support this feature natively.
 ```
-npm install @murasoftware/mura
+import Mura from "mura.js";
 ```
+
+### Browserify/Webpack
+
+There are several ways to use Browserify and Webpack. For more information on using these tools, please refer to the corresponding project's documention. In the script, including jQuery will usually look like this...
+
+```
+var Mura = require("mura.js");
+```
+
+### AMD (Asynchronous Module Definition)
+
+AMD is a module format built for the browser. For more information, we recommend require.js' documentation.
+
+```
+define(["mura.js"], function(Mura) {
+
+});
+```
+
+
 ## Example usage:
 
 ## In Browser

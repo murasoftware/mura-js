@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 import MuraStyles from './Styles';
 import MuraExternalAssets from './ExternalAssets';
 import { getMura } from './Connector';
+import Mura from 'mura.js';
+
 
 const MainLayout = props => {
   const Mura= getMura();
@@ -23,8 +25,9 @@ const MainLayout = props => {
 };
 
 function contentDidChange(_content) {
-  const Mura=getMura();
   const content = Mura.getEntity('content').set(_content);
+
+  getMura();
 
   if (content.get('redirect')) {
     

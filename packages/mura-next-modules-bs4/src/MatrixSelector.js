@@ -2,12 +2,11 @@ import React,{useState,useEffect} from 'react';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
-import { getMura } from '@murasoftware/next-core';
+import Mura from 'mura.js';
 import { faBolt } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 function MatrixSelector(props){
-    const Mura=getMura();
     const objectparams = Object.assign({}, props);
 
     const _personaIds = objectparams.dynamicProps ? objectparams.dynamicProps.personaProps : '';
@@ -359,7 +358,7 @@ export const getDynamicProps = async props => {
 }
 
 const getPersonas = async () => {  
-    const Mura=getMura();
+    
     const personaIds = await Mura
       .getEntity('matrix_selector')
       .invoke(
@@ -370,7 +369,7 @@ const getPersonas = async () => {
 }
 
 const getStages = async () => {  
-    const Mura=getMura();
+    
     const stageIds = await Mura
       .getEntity('matrix_selector')
       .invoke(

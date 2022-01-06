@@ -1,10 +1,9 @@
 import React from 'react';
-import { getIsEditMode, getMura } from './Connector';
+import { getIsEditMode } from './Connector';
 
 function Styles(props) {
   const { moduleStyleData } = props;
-  const Mura=getMura();
- 
+
   if (!getIsEditMode() && typeof moduleStyleData !== 'undefined') {
     return (
       <>
