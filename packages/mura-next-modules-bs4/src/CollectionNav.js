@@ -1,11 +1,11 @@
-import Mura from 'mura.js';
 import React, {useState,useEffect} from "react";
+import { getMura } from '@murasoftware/next-core';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faChevronRight } from '@fortawesome/free-solid-svg-icons'
-import { faChevronLeft } from '@fortawesome/free-solid-svg-icons'
 
 const CollectionNav = (props) => {
+	const Mura=getMura();
 	let nav = [];
 	const {collection,setCollection,pos,nextn,setPos,scrollpages,instanceid,itemsTo,setItemsTo,setPage} = props;
 

@@ -26,6 +26,8 @@ require('./core/ui.container');
 require('./core/templates');
 require('./core/stylemap');
 
+Mura.package='mura.js';
+
 if(Mura.isInNode()){
 
 	Mura._fetch=require('node-fetch');

@@ -1,5 +1,5 @@
 import React,{useState,useEffect} from 'react';
-import Mura from 'mura.js';
+import { getMura } from '@murasoftware/next-core';
 import OutputMarkup from "./OutputMarkup";
 
 function Text(props) {
@@ -43,6 +43,7 @@ function Text(props) {
 }
 
 export const getDynamicProps = async props => {
+  const Mura=getMura();
   const data = {};
   if (
     typeof props.sourcetype !== 'undefined'

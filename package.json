@@ -1,5 +1,5 @@
 {
-  "name": "@murasoftware/mura",
+  "name": "mura.js",
   "homepage": "http://www.murasoftware.com",
   "version": "1.0.334",
   "description": "Utility for interacting with the Mura JSON/REST API",
@@ -11,7 +11,7 @@
     "src/core/",
     "src/templates/"
   ],
-  "main": "./src/index-namespaced.js",
+  "main": "./src/index.js",
   "publishConfig": {
     "access": "public"
   },

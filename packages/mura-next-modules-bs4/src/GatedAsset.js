@@ -1,8 +1,9 @@
 import React, { useState,useEffect } from 'react';
-import { Decorator } from '@murasoftware/next-core';
-import Mura from 'mura.js';
+import { Decorator, getMura } from '@murasoftware/next-core';
 
 const GatedAsset =function(props) {
+    const Mura=getMura();
+    
     let objectparams = Object.assign({},props);
     
     const [gateIsOpen,setGateIsOpen]=useState(false);

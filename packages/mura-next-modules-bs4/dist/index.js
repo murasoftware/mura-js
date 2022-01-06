@@ -3,10 +3,9 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 var React = require('react');
 var React__default = _interopDefault(React);
 var Head = _interopDefault(require('next/head'));
-var Mura$1 = _interopDefault(require('mura.js'));
+var nextCore = require('@murasoftware/next-core');
 var Badge = _interopDefault(require('react-bootstrap/Badge'));
 var ReactMarkdown = _interopDefault(require('react-markdown/with-html'));
-var nextCore = require('@murasoftware/next-core');
 var gfm = _interopDefault(require('remark-gfm'));
 var slug = _interopDefault(require('remark-slug'));
 var directive = _interopDefault(require('remark-directive'));
@@ -18,7 +17,6 @@ var freeSolidSvgIcons = require('@fortawesome/free-solid-svg-icons');
 var Accordion = _interopDefault(require('react-bootstrap/Accordion'));
 var Card = _interopDefault(require('react-bootstrap/Card'));
 var Slider = _interopDefault(require('react-slick'));
-var Mura$2 = _interopDefault(require('mura.js/src/core/core'));
 var Form = _interopDefault(require('react-bootstrap/Form'));
 var Button = _interopDefault(require('react-bootstrap/Button'));
 var Alert = _interopDefault(require('react-bootstrap/Alert'));
@@ -59,12 +57,13 @@ function Vimeo(props) {
 }
 
 function Wistia(props) {
+  var Mura = nextCore.getMura();
   var instanceid = props.instanceid,
       videoid = props.videoid,
       dynamicProps = props.dynamicProps;
   React.useEffect(function () {
     if (typeof dynamicProps == 'undefined') {
-      var loader = Mura$1.loader();
+      var loader = Mura.loader();
 
       if (typeof window.Wistia == 'undefined') {
         loader.loadjs('https://fast.wistia.net/assets/external/E-v1.js', {
@@ -785,6 +784,7 @@ function _readOnlyError(name) {
 }
 
 var CollectionNav = function CollectionNav(props) {
+  var Mura = nextCore.getMura();
   var nav = [];
   var collection = props.collection,
       setCollection = props.setCollection,
@@ -796,7 +796,7 @@ var CollectionNav = function CollectionNav(props) {
       itemsTo = props.itemsTo,
       setItemsTo = props.setItemsTo;
 
-  if (Mura$1.renderMode == 'static') {
+  if (Mura.renderMode == 'static') {
     var items = collection.get('items');
     var maxItems = props.maxitems;
     var next = pos + nextn;
@@ -809,11 +809,11 @@ var CollectionNav = function CollectionNav(props) {
     }
 
     if (scrollpages) {
-      if (Mura$1.isInNode()) {
+      if (Mura.isInNode()) {
         var isEndVisible = function isEndVisible() {
-          var end = Mura$1("div.mura-collection-end[data-instanceid=\"" + instanceid + "\"]");
+          var end = Mura("div.mura-collection-end[data-instanceid=\"" + instanceid + "\"]");
 
-          if (itemsTo && maxItems && Mura$1.isScrolledIntoView(end.node)) {
+          if (itemsTo && maxItems && Mura.isScrolledIntoView(end.node)) {
             if (itemsTo < maxItems) {
               setItemsTo(itemsTo + 1);
             }
@@ -822,7 +822,7 @@ var CollectionNav = function CollectionNav(props) {
           }
         };
 
-        Mura$1(isEndVisible);
+        Mura(isEndVisible);
       }
 
       return /*#__PURE__*/React__default.createElement("div", {
@@ -865,10 +865,10 @@ var CollectionNav = function CollectionNav(props) {
           setEndindex = _useState[1];
 
       var _isEndVisible = function _isEndVisible() {
-        var end = Mura$1("div.mura-collection-end[data-instanceid=\"" + instanceid + "\"]");
+        var end = Mura("div.mura-collection-end[data-instanceid=\"" + instanceid + "\"]");
 
         if (collection.has('next')) {
-          if (Mura$1.isScrolledIntoView(end.node) && endindex != collection.get('endindex')) {
+          if (Mura.isScrolledIntoView(end.node) && endindex != collection.get('endindex')) {
             setEndindex(collection.get('endindex'));
           } else {
             setTimeout(_isEndVisible, 50);
@@ -886,7 +886,7 @@ var CollectionNav = function CollectionNav(props) {
             collection.getAll().items.reverse().forEach(function (item) {
               incoming.items.unshift(item);
             });
-            setCollection(new Mura$1.EntityCollection(incoming, Mura$1._requestcontext));
+            setCollection(new Mura.EntityCollection(incoming, Mura._requestcontext));
             setTimeout(_isEndVisible, 50);
           });
         }
@@ -896,8 +896,8 @@ var CollectionNav = function CollectionNav(props) {
         };
       }, [endindex]);
 
-      if (!Mura$1.isInNode()) {
-        Mura$1(_isEndVisible);
+      if (!Mura.isInNode()) {
+        Mura(_isEndVisible);
       }
 
       return /*#__PURE__*/React__default.createElement("div", {
@@ -2261,15 +2261,16 @@ var getQueryProps$7 = function getQueryProps() {
 };
 
 var Container = function Container(props) {
+  var Mura = nextCore.getMura();
   var items = props.items,
       content = props.content,
       instanceid = props.instanceid;
   if (!items) return '';
   React.useEffect(function () {
-    Mura$2.displayObjectInstances = Mura$2.displayObjectInstances || {};
+    Mura.displayObjectInstances = Mura.displayObjectInstances || {};
 
-    if (typeof Mura$2.displayObjectInstances[instanceid] == 'undefined') {
-      Mura$2.displayObjectInstances[instanceid] = new Mura$2.DisplayObject.Container(props);
+    if (typeof Mura.displayObjectInstances[instanceid] == 'undefined') {
+      Mura.displayObjectInstances[instanceid] = new Mura.DisplayObject.Container(props);
     }
   }, []);
   var $items = items;
@@ -2284,7 +2285,7 @@ var Container = function Container(props) {
 
   var resetInstanceIds = function resetInstanceIds(_items) {
     _items.forEach(function (item) {
-      item.instanceid = Mura$2.createUUID();
+      item.instanceid = Mura.createUUID();
 
       if (item.object == 'container' && item.items) {
         var _$items = item.items;
@@ -2304,7 +2305,7 @@ var Container = function Container(props) {
     return _items;
   };
 
-  if (Mura$2.cloning) {
+  if (Mura.cloning) {
     $items = $items.map(function (i) {
       return i;
     });
@@ -2356,11 +2357,12 @@ var CTAButton = function CTAButton(_ref) {
 };
 
 var Embed = function Embed(props) {
+  var Mura = nextCore.getMura();
   var objectparams = Object.assign({}, props);
   objectparams.source = objectparams.source || '';
   var containerid = 'source-contianer-' + objectparams.instanceid;
   React.useEffect(function () {
-    Mura$1('#' + containerid).html(objectparams.source);
+    Mura('#' + containerid).html(objectparams.source);
   }, []);
   return /*#__PURE__*/React__default.createElement("div", {
     id: containerid
@@ -2441,6 +2443,7 @@ function Login(props) {
 }
 
 function MatrixSelector(props) {
+  var Mura = nextCore.getMura();
   var objectparams = Object.assign({}, props);
 
   var _personaIds = objectparams.dynamicProps ? objectparams.dynamicProps.personaProps : '';
@@ -2559,7 +2562,7 @@ function MatrixSelector(props) {
       setButtonEnabled(false);
       var Personaid = personaid;
       var Stageid = stageid;
-      return Promise.resolve(Mura$1.getEntity('matrix_selector').invoke('updateExperience', {
+      return Promise.resolve(Mura.getEntity('matrix_selector').invoke('updateExperience', {
         personaid: personaid,
         stageid: stageid
       })).then(function (exp) {
@@ -2571,8 +2574,8 @@ function MatrixSelector(props) {
         }
 
         if (exp.personaselected) {
-          Mura$1(function () {
-            Mura$1.trackEvent({
+          Mura(function () {
+            Mura.trackEvent({
               category: 'Matrix Self ID',
               action: 'Persona',
               label: '#esapiEncode("javascript",personaName)#'
@@ -2581,8 +2584,8 @@ function MatrixSelector(props) {
         }
 
         if (exp.stageselected) {
-          Mura$1(function () {
-            Mura$1.trackEvent({
+          Mura(function () {
+            Mura.trackEvent({
               category: 'Matrix Self ID',
               action: 'Stage',
               label: '#esapiEncode("javascript",stageName)#'
@@ -2840,7 +2843,8 @@ var getDynamicProps$1 = function getDynamicProps(props) {
 
 var getPersonas = function getPersonas() {
   try {
-    return Promise.resolve(Mura$1.getEntity('matrix_selector').invoke('getPersonas'));
+    var Mura = nextCore.getMura();
+    return Promise.resolve(Mura.getEntity('matrix_selector').invoke('getPersonas'));
   } catch (e) {
     return Promise.reject(e);
   }
@@ -2848,7 +2852,8 @@ var getPersonas = function getPersonas() {
 
 var getStages = function getStages() {
   try {
-    return Promise.resolve(Mura$1.getEntity('matrix_selector').invoke('getStages'));
+    var Mura = nextCore.getMura();
+    return Promise.resolve(Mura.getEntity('matrix_selector').invoke('getStages'));
   } catch (e) {
     return Promise.reject(e);
   }
@@ -3784,6 +3789,7 @@ function Text(props) {
 
 var getDynamicProps$4 = function getDynamicProps(props) {
   try {
+    var Mura = nextCore.getMura();
     var data = {};
 
     var _temp4 = function () {
@@ -3791,15 +3797,15 @@ var getDynamicProps$4 = function getDynamicProps(props) {
         var _temp5 = function () {
           if (props.sourcetype === 'component') {
             var _temp6 = function () {
-              if (Mura$1.isUUID(props.source)) {
-                return Promise.resolve(Mura$1.getEntity('content').loadBy('contentid', props.source, {
+              if (Mura.isUUID(props.source)) {
+                return Promise.resolve(Mura.getEntity('content').loadBy('contentid', props.source, {
                   type: 'component',
                   fields: 'body'
                 })).then(function (entity) {
                   data.source = entity.get('body');
                 });
               } else {
-                return Promise.resolve(Mura$1.getEntity('content').loadBy('title', props.source, {
+                return Promise.resolve(Mura.getEntity('content').loadBy('title', props.source, {
                   type: 'component',
                   fields: 'body'
                 })).then(function (entity) {
@@ -3968,13 +3974,14 @@ var getCurrentPrivacy = function getCurrentPrivacy() {
 };
 
 var GatedAsset = function GatedAsset(props) {
+  var Mura = nextCore.getMura();
   var objectparams = Object.assign({}, props);
 
   var _useState = React.useState(false),
       gateIsOpen = _useState[0],
       setGateIsOpen = _useState[1];
 
-  var _useState2 = React.useState(Mura$1.editing),
+  var _useState2 = React.useState(Mura.editing),
       editMode = _useState2[0],
       setEditMode = _useState2[1];
 
@@ -4001,23 +4008,23 @@ var GatedAsset = function GatedAsset(props) {
 
   React.useEffect(function () {
     var isMounted = true;
-    var gatedasset = Mura$1.getEntity('gatedasset');
+    var gatedasset = Mura.getEntity('gatedasset');
 
     if (isMounted) {
-      if (typeof Mura$1.displayObjectInstances[props.instanceid] == 'undefined') {
-        Mura$1.displayObjectInstances[props.instanceid] = new Mura$1.DisplayObject.GatedAsset(props);
+      if (typeof Mura.displayObjectInstances[props.instanceid] == 'undefined') {
+        Mura.displayObjectInstances[props.instanceid] = new Mura.DisplayObject.GatedAsset(props);
       }
 
-      Mura$1(document).on('muraContentEditInit', function () {
+      Mura(document).on('muraContentEditInit', function () {
         if (isMounted) {
           setEditMode(true);
         }
       });
-      var module = Mura$1('div[data-instanceid="' + props.instanceid + '"]');
+      var module = Mura('div[data-instanceid="' + props.instanceid + '"]');
       module.on('formSubmitSuccess', function (e) {
         if (isMounted && !gateIsOpen) {
           var source = e.target || e.srcElement;
-          var formObj = Mura$1(source).closest('div.mura-object[data-object="form"]');
+          var formObj = Mura(source).closest('div.mura-object[data-object="form"]');
           gatedasset.invoke('openGate', {
             contentid: props.content.contentid,
             formid: formObj.data('objectid')
