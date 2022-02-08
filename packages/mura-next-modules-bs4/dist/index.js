@@ -529,10 +529,10 @@ var getDynamicProps = function getDynamicProps(item) {
         });
       } else return function () {
         if (item.sourcetype === 'relatedcontent') {
-          function _temp7() {
+          var _temp7 = function _temp7() {
             _exit2 = true;
             return data;
-          }
+          };
 
           var src = item.source;
 
@@ -1032,10 +1032,10 @@ var CurrentItems = function CurrentItems(props) {
   var items = collection.get('items');
 
   if (nextCore.getMura().renderMode != 'static' && scrollpages) {
-    itemsTo = (_readOnlyError("itemsTo"), items.length);
+    _readOnlyError("itemsTo");
   } else {
     if (maxItems < items.length && pos + nextn > maxItems) {
-      itemsTo = (_readOnlyError("itemsTo"), maxItems);
+      maxItems, _readOnlyError("itemsTo");
     }
   }
 
@@ -2854,6 +2854,8 @@ var getStages = function getStages() {
   }
 };
 
+var _excluded = ["items", "link"];
+
 function PrimaryNav(props) {
   var objectparams = Object.assign({}, props);
 
@@ -2889,7 +2891,7 @@ function PrimaryNav(props) {
 var Render = function Render(_ref) {
   var items = _ref.items,
       link = _ref.link,
-      props = _objectWithoutPropertiesLoose(_ref, ["items", "link"]);
+      props = _objectWithoutPropertiesLoose(_ref, _excluded);
 
   var Link = link;
   var homeNavIcon = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" focusable="false" width="1em" height="1em" style="-ms-transform: rotate(360deg); -webkit-transform: rotate(360deg); transform: rotate(360deg);" preserveAspectRatio="xMidYMid meet" viewBox="0 0 20 20"><path d="M16 8.5l1.53 1.53l-1.06 1.06L10 4.62l-6.47 6.47l-1.06-1.06L10 2.5l4 4v-2h2v4zm-6-2.46l6 5.99V18H4v-5.97zM12 17v-5H8v5h4z" fill="#626262"/></svg>';
