@@ -146,7 +146,7 @@ function _catch(body, recover) {
 
 var getModuleProps = function getModuleProps(item, moduleStyleData, isEditMode, content, queryParams) {
   try {
-    function _temp29() {
+    var _temp29 = function _temp29() {
       if (isEditMode || !Mura.isInNode()) {
         return {
           cssRules: []
@@ -157,7 +157,7 @@ var getModuleProps = function getModuleProps(item, moduleStyleData, isEditMode, 
         delete styleData.insertRule;
         return styleData;
       }
-    }
+    };
 
     getMura();
 
@@ -170,7 +170,7 @@ var getModuleProps = function getModuleProps(item, moduleStyleData, isEditMode, 
 
       var _temp26 = function () {
         if (typeof ComponentRegistry[objectkey] != 'undefined') {
-          function _temp31() {
+          var _temp31 = function _temp31() {
             var _temp23 = function () {
               if (item.object == 'container') {
                 if (typeof item.items != 'undefined' && !Array.isArray(item.items)) {
@@ -194,7 +194,7 @@ var getModuleProps = function getModuleProps(item, moduleStyleData, isEditMode, 
             }();
 
             if (_temp23 && _temp23.then) return _temp23.then(function () {});
-          }
+          };
 
           var _temp32 = function () {
             if (ComponentRegistry[objectkey].SSR) {
@@ -381,7 +381,7 @@ var getComponent = function getComponent(item) {
 };
 var getMuraPaths = function getMuraPaths() {
   try {
-    function _temp3() {
+    var _temp3 = function _temp3() {
       var paths = pathList.map(function (item) {
         var page = [];
 
@@ -400,7 +400,7 @@ var getMuraPaths = function getMuraPaths() {
         return item.params.page.length || item.params.page[0];
       });
       return paths;
-    }
+    };
 
     var siteids = ConnectorConfig.siteid;
     var pathList = [];
@@ -505,7 +505,7 @@ var getMuraProps = function getMuraProps(context, isEditMode, params, callback) 
   try {
     var _content;
 
-    function _temp12() {
+    var _temp12 = function _temp12() {
       if (content.filename == '404') {
         if (typeof context.params != 'undefined') {
           console.error('404 rendering content', context.params);
@@ -611,7 +611,7 @@ var getMuraProps = function getMuraProps(context, isEditMode, params, callback) 
 
         return _temp8 && _temp8.then ? _temp8.then(_temp9) : _temp9(_temp8);
       });
-    }
+    };
 
     getMura(context);
     setIsEditMode(isEditMode);
@@ -693,6 +693,8 @@ function Decorator(props) {
   var contentStyles = {};
 
   if (!mounted && isEditMode && typeof props.stylesupport == 'object' && Object.keys(props.stylesupport).length) {
+    var _props$stylesupport, _props$stylesupport2, _props$stylesupport3;
+
     var getModuleTargetStyles = function getModuleTargetStyles(incoming) {
       var styles = {};
       var invalid = {
@@ -710,9 +712,9 @@ function Decorator(props) {
       return styles;
     };
 
-    objectStyles = props.stylesupport.objectstyles ? getModuleTargetStyles(props.stylesupport.objectstyles) : {};
-    metaStyles = props.stylesupport.metastyles ? getModuleTargetStyles(props.stylesupport.metastyles) : {};
-    contentStyles = props.stylesupport.contentstyles ? getModuleTargetStyles(props.stylesupport.contentstyles) : {};
+    objectStyles = props !== null && props !== void 0 && (_props$stylesupport = props.stylesupport) !== null && _props$stylesupport !== void 0 && _props$stylesupport.objectstyles ? getModuleTargetStyles(props.stylesupport.objectstyles) : {};
+    metaStyles = props !== null && props !== void 0 && (_props$stylesupport2 = props.stylesupport) !== null && _props$stylesupport2 !== void 0 && _props$stylesupport2.metastyles ? getModuleTargetStyles(props.stylesupport.metastyles) : {};
+    contentStyles = props !== null && props !== void 0 && (_props$stylesupport3 = props.stylesupport) !== null && _props$stylesupport3 !== void 0 && _props$stylesupport3.contentstyles ? getModuleTargetStyles(props.stylesupport.contentstyles) : {};
 
     if (typeof document != 'undefined') {
       var params = Object.assign({}, {
