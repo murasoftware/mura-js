@@ -3795,7 +3795,7 @@ function init(config) {
 	}
 
 	if(typeof config.indexfileinapi == 'undefined'){
-		if(typeof Mura.indexfileinapi){
+		if(typeof Mura.indexfileinapi!='undefined'){
 			config.indexfileinapi=Mura.indexfileinapi;
 		} else {
 			config.indexfileinapi=true;

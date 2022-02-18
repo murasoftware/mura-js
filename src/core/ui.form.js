@@ -187,17 +187,15 @@ Mura.UI.Form=Mura.UI.extend(
 
 					context.targetEl=self.context.targetEl;
 
-					var nestedForm = new Mura.UI.Form( context );
-
 					Mura(".field-container-" + self.context.objectid,self.context.formEl).append('<div id="nested-'+field.formid+'"></div>');
 
+					var nestedForm = new Mura.UI.Form( context );
 					context.formEl = document.getElementById('nested-'+field.formid);
 
 					nestedForm.getForm();
 
-					var html = Mura.templates[template](field);
-
-					Mura(".field-container-" + self.context.objectid,self.context.formEl).append(html);
+					// var html = Mura.templates[template](field);
+					// Mura(".field-container-" + self.context.objectid,self.context.formEl).append(html);
 
 				 });
 
@@ -632,8 +630,6 @@ Mura.UI.Form=Mura.UI.extend(
 
 	getForm( entityid,backlink ) {
 		var self = this;
-		var formJSON = {};
-		var entityName = '';
 
 		if(entityid != undefined){
 			self.entityid = entityid;
@@ -647,23 +643,14 @@ Mura.UI.Form=Mura.UI.extend(
 			delete self.backlink;
 		}
 
-		/*
-		if(Mura.templateList.length) {
-			self.getTemplates( entityid );
-		}
-		else {
-		*/
-			self.loadForm();
-		//}
+		self.loadForm();
+
 	},
 
 	loadForm( data ) {
 		var self = this;
 
-		//console.log('a');
-		//console.log(self.formJSOrenderN);
-
-		formJSON = JSON.parse(self.context.def);
+		var formJSON = JSON.parse(self.context.def);
 
 		// old forms
 		if(!formJSON.form.pages) {
@@ -724,62 +711,7 @@ Mura.UI.Form=Mura.UI.extend(
 		else {
 			self.renderData();
 		}
-		/*
-		Mura.get(
-				Mura.getAPIEndpoint() + '/content/' + self.context.objectid
-				 + '?fields=body,title,filename,responsemessage&ishuman=true'
-				).then(function(data) {
-				 	formJSON = JSON.parse( data.data.body );
-
-					// old forms
-					if(!formJSON.form.pages) {
-						formJSON.form.pages = [];
-						formJSON.form.pages[0] = formJSON.form.fieldorder;
-						formJSON.form.fieldorder = [];
-					}
-
-					entityName = data.data.filename.replace(/\W+/g, "");
-					self.entity = entityName;
-				 	self.formJSON = formJSON;
-				 	self.fields = formJSON.form.fields;
-				 	self.responsemessage = data.data.responsemessage;
-					self.ishuman=data.data.ishuman;
-
-					if (formJSON.form.formattributes && formJSON.form.formattributes.Muraormentities == 1) {
-						self.ormform = true;
-					}
-
-					for(var i=0;i < self.formJSON.datasets;i++){
-						self.datasets.push(i);
-					}
-
-					if(self.ormform) {
-					 	self.entity = entityName;
-
-					 	if(self.entityid == undefined) {
-							Mura.get(
-								Mura.getAPIEndpoint() +'/'+ entityName + '/new?expand=all&ishuman=true'
-							).then(function(resp) {
-								self.data = resp.data;
-								self.renderData();
-							});
-					 	}
-					 	else {
-							Mura.get(
-								Mura.getAPIEndpoint()	+ '/'+ entityName + '/' + self.entityid + '?expand=all&ishuman=true'
-							).then(function(resp) {
-								self.data = resp.data;
-								self.renderData();
-							});
-						}
-					}
-					else {
-						self.renderData();
-					}
-				 }
-			);
-
-		*/
+		
 	},
 
 	initForm() {

@@ -16,15 +16,11 @@ if (env === 'build') {
 }
 
 plugins.push(
-  new webpack.IgnorePlugin(/(node-fetch)|(escape-html)|(form-data)/)
+  new webpack.IgnorePlugin({
+    resourceRegExp:/(node-fetch)|(escape-html)|(form-data)/
+  }),
+  //new BundleAnalyzerPlugin()
 );
-
-/*
-plugins.push(
-  new BundleAnalyzerPlugin()
-);
-*/
-
 
 module.exports = {
 	mode: mode,
