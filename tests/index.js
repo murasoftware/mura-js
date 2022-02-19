@@ -2,7 +2,7 @@ const express = require('express')
 const app = express()
 const env = {
     siteid:'default',
-    rootpath:'http://localhost:8080'
+    rootpath:'http://localhost:8888'
   }
 
 app.get('/', function (req, res) {
@@ -47,6 +47,24 @@ app.get('/content', function (req, res) {
     .then(function(items){
         res.send("<br/>content feed:<pre>" + JSON.stringify(items.getAll()) + "</pre>");
   });
+})
+
+app.get('/echo/post', function (req, res) {
+
+  let Mura=require('../index');
+
+  Mura.init(Mura.extend(
+    {
+      request:req,
+      response:res
+    },
+    env
+    )
+  );
+
+ Mura.getBean('apiHelper').invoke('echoFormData',{a:1,b:2},'post').then(function(response){
+  res.send("<br/>Echo Post:<pre>" + JSON.stringify(response) + "</pre>");
+ })
 })
 
 app.listen(3000, function () {

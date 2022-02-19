@@ -559,7 +559,7 @@ Mura.RequestContext=Mura.Core.extend(
 				config.error=reject;
 			}
 			
-			var params=Mura.extend({
+			var normalizedConfig=Mura.extend({
 					type: type,
 					url: url,
 					data: data
@@ -567,7 +567,7 @@ Mura.RequestContext=Mura.Core.extend(
 				config
 			);
 
-			return self.request(params);
+			return self.request(normalizedConfig);
 		});
 	},
 

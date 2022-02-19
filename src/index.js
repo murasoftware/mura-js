@@ -27,11 +27,8 @@ require('./core/templates');
 require('./core/stylemap');
 
 if(Mura.isInNode()){
-
-	Mura._fetch=require('node-fetch');
-	Mura._formData=require('form-data');
 	Mura._escapeHTML=require('escape-html');
-
+	
 } else if (typeof window != 'undefined'){
 
 	window.m=Mura;

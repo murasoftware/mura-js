@@ -17,10 +17,12 @@ if (env === 'build') {
 
 plugins.push(
   new webpack.IgnorePlugin({
-    resourceRegExp:/(node-fetch)|(escape-html)|(form-data)/
+    resourceRegExp:/(escape-html)/
   }),
   //new BundleAnalyzerPlugin()
 );
+
+
 
 module.exports = {
 	mode: mode,

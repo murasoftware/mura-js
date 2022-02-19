@@ -1,4 +1,3 @@
-
 var Mura=require('./core');
 
 /**
@@ -26,35 +25,42 @@ Mura.Request=Mura.Core.extend(
 		/**
 		* execute - Make ajax request
 		*
-		* @param	{object} params
+		* @param	{object} config
 		* @return {Promise}
 		*/
-		execute(params) {
+		execute(config) {
 			
-			if (!('type' in params)) {
-				params.type = 'GET';
+			if (!('type' in config)) {
+				config.type = 'GET';
 			}
-			if (!('success' in params)) {
-				params.success = function() {};
+			if (!('success' in config)) {
+				config.success = function() {};
 			}
-			if (!('data' in params)) {
-				params.data = {};
+			if (!('data' in config)) {
+				config.data = {};
 			}
-			if (!('headers' in params)) {
-				params.headers = {};
+			if (!('headers' in config)) {
+				config.headers = {};
+			}
+			if (('method' in config)) {
+				config.type = config.method;
+			}
+			if (!('dataType' in config)) {
+				config.dataType = 'default';
+			}
+			if(config.dataType=='json'){
+				config.headers['content-type']='application/json; charset=UTF-8';
 			}
 
-			if (('method' in params)) {
-				params.type = params.method;
-			}
+			config.type=config.type.toLowerCase();
 
 			try{
 				//if is in node not a FormData obj
-				if(!Mura.formdata || !(params.data instanceof FormData)){
-					if(params.type.toLowerCase() === 'get' 
-						&& !(typeof params.url === 'string' && params.url.toLowerCase().indexOf('purgecache') > -1)
-						&& typeof params.data.purgeCache === 'undefined' 
-						&& typeof params.data.purgecache === 'undefined'){
+				if(!Mura.formdata || !(config.data instanceof FormData)){
+					if(config.type === 'get' 
+						&& !(typeof config.url === 'string' && config.url.toLowerCase().indexOf('purgecache') > -1)
+						&& typeof config.data.purgeCache === 'undefined' 
+						&& typeof config.data.purgecache === 'undefined'){
 						var sourceParams={};
 
 						if(typeof XMLHttpRequest != 'undefined' 
@@ -75,9 +81,9 @@ Mura.Request=Mura.Core.extend(
 						}
 
 						if(typeof sourceParams.purgeCache != 'undefined'){
-							params.data.purgeCache=sourceParams.purgeCache;
+							config.data.purgeCache=sourceParams.purgeCache;
 						} else if(typeof sourceParams.purgecache != 'undefined'){
-							params.data.purgecache=sourceParams.purgecache;
+							config.data.purgecache=sourceParams.purgecache;
 						}
 						
 					}
@@ -86,12 +92,21 @@ Mura.Request=Mura.Core.extend(
 				console.log(e)
 			}
 
-	//console.log(params);
+			if(typeof config.data.httpmethod != 'undefined'){
+				config.type=config.data.httpmethod;
+				delete config.data.httpmethod;
+			}
+			
+			config.progress=config.progress || config.onProgress || config.onUploadProgress || function(){};
+			config.download=config.download || config.onDownload || config.onDownloadProgress || function(){};
+			config.abort=config.abort || config.onAbort|| function(){};
+			config.success=config.success || config.onSuccess || function(){};
+			config.error=config.error || config.onError || function(){};
 
 			if(typeof XMLHttpRequest === 'undefined'){
-				this.nodeRequest(params);
+				this.nodeRequest(config);
 			} else {
-				this.xhrRequest(params);
+				this.xhrRequest(config);
 			}
 		},
 		/**
@@ -102,6 +117,7 @@ Mura.Request=Mura.Core.extend(
 		 * @return {Mura.RequestContext}						Self
 		 */
 		setRequestHeader(headerName,value){
+			headerName=headerName.toLowerCase();
 			this.requestHeaders[headerName]=value;
 			return this;
 		},
@@ -112,6 +128,7 @@ Mura.Request=Mura.Core.extend(
 		 * @return {string} header Value
 		 */
 		getRequestHeader(headerName){
+			headerName=headerName.toLowerCase();
 			 if(typeof this.requestHeaders[headerName] != 'undefined'){
 				 return this.requestHeaders[headerName];
 			 } else {
@@ -126,21 +143,21 @@ Mura.Request=Mura.Core.extend(
 		getRequestHeaders(){
 			return this.requestHeaders;
 		},
-		nodeRequest(params){
+		nodeRequest(config){
 
 			if(typeof Mura.renderMode != 'undefined'){
-				params.renderMode=Mura.renderMode;
+				config.renderMode=Mura.renderMode;
 			}
-			var debug=typeof Mura.debug != 'undefined' && Mura.debug;
+		
 			var self=this;
 			if(typeof this.requestObject != 'undefined'){
-				['Cookie','X-client_id','X-client_secret','X-access_token','Authorization','User-Agent','Referer'].forEach((item)=>{
+				['Cookie','X-Client_id','X-Client_secret','X-Access_token','Access_Token','Authorization','User-Agent','Referer','X-Forwarded-For','X-Forwarded-Host','X-Forwarded-Proto'].forEach((item)=>{
 					if(typeof this.requestObject.headers[item] != 'undefined'){
-						params.headers[item]=this.requestObject.headers[item];
+						config.headers[item.toLowerCase()]=this.requestObject.headers[item];
 					} else {
 						var lcaseItem=item.toLowerCase();
 						if(typeof this.requestObject.headers[lcaseItem] != 'undefined'){
-							params.headers[item]=this.requestObject.headers[lcaseItem];
+							config.headers[lcaseItem]=this.requestObject.headers[lcaseItem];
 						}
 					}
 				})
@@ -148,25 +165,25 @@ Mura.Request=Mura.Core.extend(
 			
 			for(var h in Mura.requestHeaders){
 					if(Mura.requestHeaders.hasOwnProperty(h)){
-							params.headers[h]= Mura.requestHeaders[h];
+						config.headers[h.toLowerCase()]= config.requestHeaders[h];
 					}
 			}
 			for(var h in this.requestHeaders){
 					if(this.requestHeaders.hasOwnProperty(h)){
-							params.headers[h]= this.requestHeaders[h];
+						config.headers[h.toLowerCase()]= this.requestHeaders[h];
 					}
 			}
-			//console.log('pre:',params.headers)
-			const nodeProxyHeaders = (httpResponse)=>{
+			//console.log('pre:',config.headers)
+			const nodeProxyHeaders = (response)=>{
 				if(typeof self.responseObject != 'undefined'){
-					self.responseObject.proxiedResponse=httpResponse;
+					self.responseObject.proxiedResponse=response;
 					if(!self.responseObject.headersSent){
-						if(httpResponse.statusCode > 300 && httpResponse.statusCode < 400){
-							const header=httpResponse.headers.raw()['location'] || httpResponse.headers.raw()['Location'];
+						if(response.statusCode > 300 && response.status < 400){
+							const header=response.headers['location'];
 							if(header){
 								try{
 										//match casing of mura-next connector
-									self.responseObject.setHeader('Location',header);
+									self.responseObject.setHeader('location',header);
 									self.responseObject.statusCode=httpResponse.statusCode;
 								} catch (e){
 									console.log('Error setting location header');
@@ -174,21 +191,21 @@ Mura.Request=Mura.Core.extend(
 							}
 						}
 						let header='';
-						header=httpResponse.headers.raw()['cache-control'] || httpResponse.headers.raw()['Cache-Control'];
+						header=response.headers['cache-control'];
 						if(header){
 							try{
 								//match casing of mura-next connector
-								self.responseObject.setHeader('Cache-Control',header);
+								self.responseObject.setHeader('cache-control',header);
 							} catch (e){
 								console.log(e)
 								console.log('Error setting Cache-Control header');
 							}
 						}
-						header=httpResponse.headers.raw()['pragma'] || httpResponse.headers.raw()['Pragma'];
+						header=response.headers['pragma'];
 						if(header){
 							try{
 								//match casing of mura-next connector
-								self.responseObject.setHeader('Pragma',header);
+								self.responseObject.setHeader('pragma',header);
 							} catch (e){
 								console.log('Error setting Pragma header');
 							}
@@ -197,12 +214,12 @@ Mura.Request=Mura.Core.extend(
 				}
 			}
 
-			const nodeProxyCookies = (httpResponse)=>{
+			const nodeProxyCookies = (response)=>{
 				var debug=typeof Mura.debug != 'undefined' && Mura.debug;
 				
 				if(typeof self.responseObject != 'undefined'){
 					var existingCookies=(typeof self.requestObject.headers['cookie'] != 'undefined') ? self.requestObject.headers['cookie'] : '';
-					var newSetCookies=httpResponse.headers.raw()['set-cookie'];
+					var newSetCookies=response.headers['set-cookie'];
 					
 					if(Array.isArray(existingCookies)){
 						if(existingCookies.length){
@@ -224,7 +241,7 @@ Mura.Request=Mura.Core.extend(
 					}
 
 					try{
-						self.responseObject.setHeader('Set-Cookie',newSetCookies);
+						self.responseObject.setHeader('set-cookie',newSetCookies);
 					} catch (e){
 						//console.log('Header already sent');
 					}
@@ -302,319 +319,155 @@ Mura.Request=Mura.Core.extend(
 				}
 			}
 
-			const nodeResponseHandler = async (httpResponse, body) => {
-				if (typeof httpResponse != 'undefined' && httpResponse.ok) {
+			require('axios').default.request(
+				this.MuraToAxiosConfig(config)
+			).then(function(response){
+				nodeProxyCookies(response);
+				nodeProxyHeaders(response);
+				if(typeof config.success == 'function'){
 					try {
-						var data = JSON.parse.call(null,body);
+						var data = JSON.parse.call(null,response.data);
 					} catch (e) {
-						var data = body;
+						var data = response.data;
 					}
-					params.success(data, httpResponse);
+					config.success(data);
+				}
+			})
+			.catch(function(response){
+				nodeProxyCookies(response);
+				nodeProxyHeaders(response);
+				if(typeof config.error == 'function'){
+					try {
+						var data = JSON.parse.call(null,response.data);
+					} catch (e) {
+						var data = response.data;
+					}
+					config.error(data);	
 				} else {
-					try {
-						var data = JSON.parse.call(null,body);
-					} catch (e) {
-						var data = body;
-					}
-					if(typeof params.error == 'function'){
-						params.error(data,httpResponse);
-					} else {
-						throw data;
-					}
+					throw e;
 				}
-			}
-
-			const routeNodeResponse=async (res)=>{
-				const body= await res.text();
-				nodeProxyCookies(res);
-				nodeProxyHeaders(res);
-				nodeResponseHandler(res,body);
-			}
-				
-			if (params.type.toLowerCase() != 'get') {
-					const formData=new Mura._formData();
-
-					Object.keys(params.data).forEach((key)=>{
-						if(typeof params.data[key]==='boolean'){
-							//boolean values seem to throw error in node-fetch
-							if(params.data[key]){
-								formData.append(key, 'true');
-							} else {
-								formData.append(key, 'false');
-							}
-						} else  {
-							formData.append(key, params.data[key]);
-						}
-					})
-
-					Mura._fetch(
-						params.url,
-						{
-							method:params.type.toUpperCase(),
-							body:formData,
-							headers: params.headers
-						}
-					).then(routeNodeResponse)
-					.catch((e)=>{
-						console.log(e)
-					})
-			} else {
-				if (params.url.indexOf('?') === -1) {
-						params.url += '?';
-				}
-				var query = [];
-				for (var key in params.data) {
-					if(params.data.hasOwnProperty(key)){
-						query.push(Mura.escape(key) + '=' + Mura.escape(params.data[key]));
-					}
-				}
-				if(typeof params.data['muraPointInTime'] == 'undefined' && typeof Mura.pointInTime != 'undefined'){
-						query.push('muraPointInTime=' + Mura.escape(Mura.pointInTime));
-				}
-				query = query.join('&');
-				
-				
-				Mura._fetch(
-					params.url + "&" + query,
-					{
-						method:"GET",
-						headers: params.headers
-					}
-				).then(routeNodeResponse)
-				.catch((e)=>{
-					console.log(e)
-				})
-			}
-
+			});
 		},
-		xhrRequest(params){
-			var debug=typeof Mura.debug != 'undefined' && Mura.debug;
+		xhrRequest(config){	
 			for(var h in Mura.requestHeaders){
 				if(Mura.requestHeaders.hasOwnProperty(h)){
-					params.headers[h]= Mura.requestHeaders[h];
+					config.headers[h.toLowerCase()]= Mura.requestHeaders[h];
 				}
 			}
 			for(var h in this.requestHeaders){
 				if(this.requestHeaders.hasOwnProperty(h)){
-					params.headers[h]= this.requestHeaders[h];
+					config.headers[h.toLowerCase()]= this.requestHeaders[h];
 				}
 			}
-			if (!(Mura.formdata && params.data instanceof FormData)) {
-				params.data = Mura.deepExtend({}, params.data);
-				for (var p in params.data) {
-					if (typeof params.data[p] == 'object') {
-						params.data[p] = JSON.stringify(params.data[p]);
+			if (!(Mura.formdata && config.data instanceof FormData)) {
+				config.data = Mura.deepExtend({}, config.data);
+				for (var p in config.data) {
+					if (typeof config.data[p] == 'object') {
+						config.data[p] = JSON.stringify(config.data[p]);
 					}
 				}
 			}
-			if (!('xhrFields' in params)) {
-				params.xhrFields = {
+			if (!('xhrFields' in config)) {
+				config.xhrFields = {
 					withCredentials: true
 				};
 			}
-			if (!('crossDomain' in params)) {
-				params.crossDomain = true;
+			if (!('crossDomain' in config)) {
+				config.crossDomain = true;
 			}
-			if (!('async' in params)) {
-				params.async = true;
-			}
-			var req = new XMLHttpRequest();
-
-			if (params.crossDomain) {
-				if (!("withCredentials" in req) && typeof XDomainRequest !=
-					"undefined" && this.isXDomainRequest(params.url)) {
-					// Check if the XMLHttpRequest object has a "withCredentials" property.
-					// "withCredentials" only exists on XMLHTTPRequest2 objects.
-					// Otherwise, check if XDomainRequest.
-					// XDomainRequest only exists in IE, and is IE's way of making CORS requests.
-					req = new XDomainRequest();
-				}
+			if (!('async' in config)) {
+				config.async = true;
 			}
 
-			if(typeof params.data != 'undefined' && typeof params.data.httpmethod != 'undefined'){
-				params.type=params.data.httpmethod;
-				delete params.data.httpmethod;
-			}
-			
-			params.progress=params.progress || params.onProgress || params.onUploadProgress || function(){};
-			params.abort=params.abort || params.onAbort|| function(){};
-			params.success=params.success || params.onSuccess || function(){};
-			params.error=params.error || params.onError || function(){};
-			
-			if(typeof req.addEventListener != 'undefined'){
-				if(typeof params.progress == 'function'){
-					req.addEventListener("progress", params.progress);
+			require('axios').default.request(
+				this.MuraToAxiosConfig(config)
+			).then(function(response){
+				try {	
+					var data=JSON.parse.call(null,response.data);
+					data=data.ta;
+				} catch (e) {
+					var data = response.data;
+				}
+				config.success(data);
+			}).catch(function(response){
+				if(typeof config.error == 'function'){
+					try {
+						var data = JSON.parse.call(null,response.error);
+					} catch (e) {
+						var data = response.error;
+					}
+					config.error(data);	
+				} else {
+					throw e;
+				}
+			});
+				
+		},
+		MuraToAxiosConfig(config){
+			const parsedConfig={
+				responseType:'text',
+				method: config.type,
+				headers:config.headers,
+				url:config.url,
+				onUploadProgress: config.progress,
+				onDownloadProgress: config.download,
+				withCredentials: true
+			};
+
+			if(config.type==='get'){
+				parsedConfig.params=config.data;
+
+				if(typeof parsedConfig.params['muraPointInTime'] == 'undefined' && typeof Mura.pointInTime != 'undefined'){
+					parsedConfig.params['muraPointInTime']=Mura.pointInTime;
 				}
 
-				if(typeof params.abort == 'function'){
-					req.addEventListener("abort", params.abort);
-				}
-			}			
+			} else {
+				parsedConfig.data=config.data;
+			}
 			
-			req.onreadystatechange = function() {
-				if (req.readyState == 4) {
-					//IE9 doesn't appear to return the request status
-					if (typeof req.status == 'undefined' || (req.status >= 200 && req.status < 400)) {
-						try {	
-							var data=JSON.parse.call(null,req.responseText);
-						} catch (e) {
-							var data = req.response;
-						}
-						
-						params.success(data, req);
-					} else {
-						if(debug && typeof req.responseText != 'undefined'){
-							console.log(req.responseText);
-						}
-						if(typeof params.error == 'function'){
-							try {
-								var data = JSON.parse.call(null,req.responseText);
-							} catch (e) {
-								var data = req.responseText;
-							}
-							params.error(data);
-						} else {
-							throw req;
+			if(parsedConfig.method !='get'){
+				 if (config.dataType=='json') {
+					parsedConfig.headers['content-type']='application/json; charset=UTF-8';
+				} else if (Mura.formdata && parsedConfig.data instanceof FormData){
+					parsedConfig.headers['content-type']='multipart/form-data; charset=UTF-8';
+				} else {
+					parsedConfig.headers['content-type']='application/x-www-form-urlencoded; charset=UTF-8';
+
+					if(typeof parsedConfig.data['muraPointInTime'] == 'undefined' && typeof Mura.pointInTime != 'undefined'){
+						parsedConfig.data['muraPointInTime']=Mura.pointInTime;
+					}
+					//Use formData when in the browser
+					if(typeof XMLHttpRequest !== 'undefined' && parsedConfig.method !=='get' && config.dataType!=='json'){
+						let formData=false;
+
+						if(Mura.formdata){
+							formData=new FormData();
+						} else if (Mura.isInNode()){
+							formData=new Mura._formData();
+						}	
+
+						if(formData){
+							Object.keys(parsedConfig.data).forEach((key)=>{
+								if(typeof parsedConfig.data[key]==='boolean'){
+									//boolean values seem to throw error in node-fetch
+									if(parsedConfig.data[key]){
+										formData.append(key, 'true');
+									} else {
+										formData.append(key, 'false');
+									}
+								} else  {
+									formData.append(key, parsedConfig.data[key]);
+								}
+							})
+
+							parsedConfig.data=formData;
 						}
 					}
 				}
 			}
 		
-			if (params.type.toLowerCase() != 'get') {
-				
-				req.open(params.type.toUpperCase(), params.url, params.async);
-				for (var p in params.xhrFields) {
-					if (p in req) {
-						req[p] = params.xhrFields[p];
-					}
-				}
-				for (var h in params.headers) {
-					if(params.headers.hasOwnProperty(h)){
-						req.setRequestHeader(h, params.headers[h]);
-					}
-				}
-				if (Mura.formdata && params.data instanceof FormData) {
-					try{
-						req.send(params.data);
-					} catch(e){
-						if(typeof params.error == 'function'){
-							try {
-								var data = JSON.parse.call(null,req.responseText);
-							} catch (e) {
-								var data = req.responseText;
-							}
-							params.error(data,e);
-						} else {
-							throw e;
-						}
-					}
-				} else {
-					req.setRequestHeader('Content-Type',
-							'application/x-www-form-urlencoded; charset=UTF-8'
-					);
-					var query = [];
-					for (var key in params.data) {
-							query.push(Mura.escape(key) + '=' + Mura.escape(params.data[
-									key]));
-					}
-					if(typeof params.data['muraPointInTime'] == 'undefined' && typeof Mura.pointInTime != 'undefined'){
-							query.push('muraPointInTime=' + Mura.escape(Mura.pointInTime));
-					}
-					query = query.join('&');
-					setTimeout(function() {
-						try{
-							req.send(query);
-						} catch(e){
-							if(typeof params.error == 'function'){
-								try {
-									var data = JSON.parse.call(null,req.responseText);
-								} catch (e) {
-									var data = req.responseText;
-								}
-								params.error(data,e);
-							} else {
-								throw e;
-							}
-						}
-					}, 0);
-				}
-			} else {
-				
-				if (params.url.indexOf('?') == -1) {
-					params.url += '?';
-				}
-				var query = [];
-				for (var key in params.data) {
-					query.push(Mura.escape(key) + '=' + Mura.escape(params.data[key]));
-				}
-				if(typeof params.data['muraPointInTime'] == 'undefined' && typeof Mura.pointInTime != 'undefined'){
-					query.push('muraPointInTime=' + Mura.escape(Mura.pointInTime));
-				}
-				query = query.join('&');
-				
-				req.open(params.type.toUpperCase(), params.url + '&' + query, params.async);
-				for (var p in params.xhrFields) {
-					if (p in req) {
-						req[p] = params.xhrFields[p];
-					}
-				}
-				for (var h in params.headers) {
-					if(params.headers.hasOwnProperty(h)){
-						req.setRequestHeader(h, params.headers[h]);
-					}
-				}
-				
-				setTimeout(function() {
-					try{
-						req.send();
-					} catch(e){
-						if(typeof params.error == 'function'){
-							if(typeof req.responseText != 'undefined'){
-								try {
-									var data = JSON.parse.call(null,req.responseText);
-								} catch (e) {
-									var data = req.responseText;
-								}
-								params.error(data,e);
-							} else {
-								params.error(req,e);
-							}
-						} else {
-							throw e;
-						}
-					}
-				}, 0);
-			}
-		},
-
-		isXDomainRequest(url) {
-			function getHostName(url) {
-				var match = url.match(/:\/\/([0-9]?\.)?(.[^/:]+)/i);
-				if (match != null && match.length > 2 && typeof match[2] ===
-					'string' && match[2].length > 0) {
-					return match[2];
-				} else {
-					return null;
-				}
-			}
-
-			function getDomain(url) {
-				var hostName = getHostName(url);
-				var domain = hostName;
-				if (hostName != null) {
-					var parts = hostName.split('.').reverse();
-					if (parts != null && parts.length > 1) {
-						domain = parts[1] + '.' + parts[0];
-						if (hostName.toLowerCase().indexOf('.co.uk') != -1 &&
-							parts.length > 2) {
-							domain = parts[2] + '.' + domain;
-						}
-					}
-				}
-				return domain;
-			}
-			var requestDomain = getDomain(url);
-			return (requestDomain && requestDomain != location.host);
+			return parsedConfig;
+			
 		}
 	}
 );
