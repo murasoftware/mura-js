@@ -49,22 +49,19 @@ Mura.Request=Mura.Core.extend(
 			if (!('dataType' in config)) {
 				config.dataType = 'default';
 			}
-			if(config.dataType=='json'){
-				config.headers['content-type']='application/json; charset=UTF-8';
-			}
-
+			
 			config.type=config.type.toLowerCase();
 
 			try{
 				//if is in node not a FormData obj
-				if(!Mura.formdata || !(config.data instanceof FormData)){
+				if(this.inNode || !(config.data instanceof FormData)){
 					if(config.type === 'get' 
 						&& !(typeof config.url === 'string' && config.url.toLowerCase().indexOf('purgecache') > -1)
 						&& typeof config.data.purgeCache === 'undefined' 
 						&& typeof config.data.purgecache === 'undefined'){
 						var sourceParams={};
 
-						if(typeof XMLHttpRequest != 'undefined' 
+						if(!this.inNode
 							&& typeof location != 'undefined' 
 							&& location.search
 						){
@@ -97,13 +94,7 @@ Mura.Request=Mura.Core.extend(
 				config.type=config.data.httpmethod;
 				delete config.data.httpmethod;
 			}
-			
-			config.progress=config.progress || config.onProgress || config.onUploadProgress || function(){};
-			config.download=config.download || config.onDownload || config.onDownloadProgress || function(){};
-			config.abort=config.abort || config.onAbort|| function(){};
-			config.success=config.success || config.onSuccess || function(){};
-			config.error=config.error || config.onError || function(){};
-
+		
 			if(this.inNode){
 				this.nodeRequest(config);
 			} else {
@@ -164,12 +155,14 @@ Mura.Request=Mura.Core.extend(
 				})
 			}	
 			
-			for(var h in Mura.requestHeaders){
+			let h;
+
+			for( h in Mura.requestHeaders){
 					if(Mura.requestHeaders.hasOwnProperty(h)){
 						config.headers[h.toLowerCase()]= config.requestHeaders[h];
 					}
 			}
-			for(var h in this.requestHeaders){
+			for( h in this.requestHeaders){
 					if(this.requestHeaders.hasOwnProperty(h)){
 						config.headers[h.toLowerCase()]= this.requestHeaders[h];
 					}
@@ -248,10 +241,12 @@ Mura.Request=Mura.Core.extend(
 					}
 					var cookieMap={};
 					var setMap={};
+					var c;
+					var tempCookie;
 					// pull out existing cookies
 					if(existingCookies.length){
-						for(var c in existingCookies){
-							var tempCookie=existingCookies[c];
+						for( c in existingCookies){
+							tempCookie=existingCookies[c];
 							if(typeof tempCookie != 'undefined'){
 								tempCookie=existingCookies[c].split(" ")[0].split("=");
 								if(tempCookie.length > 1){
@@ -266,8 +261,8 @@ Mura.Request=Mura.Core.extend(
 					}
 					// pull out new cookies
 					if(newSetCookies.length){
-						for(var c in newSetCookies){
-							var tempCookie=newSetCookies[c];
+						for( c in newSetCookies){
+							tempCookie=newSetCookies[c];
 							if(typeof tempCookie != 'undefined'){
 								tempCookie=tempCookie.split(" ")[0].split("=");
 								if(tempCookie.length > 1){
@@ -283,8 +278,8 @@ Mura.Request=Mura.Core.extend(
 					var cookie='';
 					// put cookies back in in the same order that they came out
 					if(existingCookies.length){
-						for(var c in existingCookies){
-							var tempCookie=existingCookies[c];
+						for(c in existingCookies){
+							tempCookie=existingCookies[c];
 							if(typeof tempCookie != 'undefined'){
 								tempCookie=tempCookie.split(" ")[0].split("=");
 								if(tempCookie.length > 1){
@@ -298,10 +293,10 @@ Mura.Request=Mura.Core.extend(
 						}
 					}
 					if(newSetCookies.length){
-						for(var c in newSetCookies){
-							var tempCookie=newSetCookies[c];
+						for( c in newSetCookies){
+							tempCookie=newSetCookies[c];
 							if(typeof tempCookie != 'undefined'){
-								var tempCookie=tempCookie.split(" ")[0].split("=");
+								tempCookie=tempCookie.split(" ")[0].split("=");
 								if(typeof setMap[tempCookie[0]] == 'undefined' && tempCookie.length > 1){
 									if(cookie != ''){
 										cookie=cookie + "; ";
@@ -333,12 +328,14 @@ Mura.Request=Mura.Core.extend(
 			});
 		},
 		xhrRequest(config){	
-			for(var h in Mura.requestHeaders){
+			let h;
+
+			for( h in Mura.requestHeaders){
 				if(Mura.requestHeaders.hasOwnProperty(h)){
 					config.headers[h.toLowerCase()]= Mura.requestHeaders[h];
 				}
 			}
-			for(var h in this.requestHeaders){
+			for( h in this.requestHeaders){
 				if(this.requestHeaders.hasOwnProperty(h)){
 					config.headers[h.toLowerCase()]= this.requestHeaders[h];
 				}
@@ -346,7 +343,6 @@ Mura.Request=Mura.Core.extend(
 			require('axios').default.request(
 				this.MuraToAxiosConfig(config)
 			).then(function(response){
-				console.log(response.data)
 				config.success(response.data);
 			}).catch(function(response){
 				config.error(response.data);	
@@ -364,66 +360,51 @@ Mura.Request=Mura.Core.extend(
 				withCredentials: true
 			};
 
+			const sendJSON=(parsedConfig.headers['content-type'] && parsedConfig.headers['content-type'].indexOf('json') >-1);
+			const sendFormData=!this.inNode && parsedConfig.data instanceof FormData;
+
 			if(parsedConfig.method =='get'){
+				//GET send params and not data
 				parsedConfig.params=Mura.deepExtend({}, config.data)
 				if(typeof parsedConfig.params['muraPointInTime'] == 'undefined' && typeof Mura.pointInTime != 'undefined'){
 					parsedConfig.params['muraPointInTime']=Mura.pointInTime;
 				}
 			} else {
-				if(config.dataType=='json' || (!this.inNode && parsedConfig.data instanceof FormData)){
-					parsedConfig.data=config.data;
+				if(sendJSON){
+					parsedConfig.data=Mura.deepExtend({}, config.data);
 				} else {
-					parsedConfig.data=Mura.deepExtend({}, config.data)
-					if(typeof parsedConfig.data['muraPointInTime'] == 'undefined' && typeof Mura.pointInTime != 'undefined'){
-						parsedConfig.data['muraPointInTime']=Mura.pointInTime;
-					}
-				}
-
-				 if (config.dataType=='json') {
-					parsedConfig.headers['content-type']='application/json; charset=UTF-8';
-				} else if (!this.inNode && parsedConfig.data instanceof FormData){
-					parsedConfig.headers['content-type']='multipart/form-data; charset=UTF-8';
-				} else {
-					parsedConfig.headers['content-type']='application/x-www-form-urlencoded; charset=UTF-8';
-
-					for (var p in parsedConfig.data) {
-						if (typeof parsedConfig.data[p] == 'object') {
-							parsedConfig.data[p] = JSON.stringify(parsedConfig.data[p]);
+					if (sendFormData){
+						parsedConfig.data=config.data;
+					} else {
+						parsedConfig.data=Mura.deepExtend({}, config.data);
+						if(typeof parsedConfig.data['muraPointInTime'] == 'undefined' && typeof Mura.pointInTime != 'undefined'){
+							parsedConfig.data['muraPointInTime']=Mura.pointInTime;
 						}
 					}
-
-					if(typeof parsedConfig.data['muraPointInTime'] == 'undefined' && typeof Mura.pointInTime != 'undefined'){
-						parsedConfig.data['muraPointInTime']=Mura.pointInTime;
-					}
-
-					//Use formData when in the browser
-					if(!this.inNode){
-					
-						const formData=new FormData();
-					
-						Object.keys(parsedConfig.data).forEach((key)=>{
-							if(typeof parsedConfig.data[key]==='boolean'){
-								//boolean values seem to throw error in node-fetch
-								if(parsedConfig.data[key]){
-									formData.append(key, 'true');
-								} else {
-									formData.append(key, 'false');
-								}
-							} else  {
-								formData.append(key, parsedConfig.data[key]);
-							}
-						})
-
-						parsedConfig.data=formData;
-
+			
+					if (sendFormData){
+						parsedConfig.headers['content-type']='multipart/form-data; charset=UTF-8';
 					} else {
-						var query = [];
+						parsedConfig.headers['content-type']='application/x-www-form-urlencoded; charset=UTF-8';
+
+						for (let p in parsedConfig.data) {
+							if (typeof parsedConfig.data[p] == 'object') {
+								parsedConfig.data[p] = JSON.stringify(parsedConfig.data[p]);
+							}
+						}
+
+						if(typeof parsedConfig.data['muraPointInTime'] == 'undefined' && typeof Mura.pointInTime != 'undefined'){
+							parsedConfig.data['muraPointInTime']=Mura.pointInTime;
+						}
+		
+						const query = [];
 						for (var key in parsedConfig.data) {
 							if(parsedConfig.data.hasOwnProperty(key)){
 								query.push(Mura.escape(key) + '=' + Mura.escape(parsedConfig.data[key]));
 							}
 						}
 						parsedConfig.data = query.join('&');
+
 					}
 				}
 			}

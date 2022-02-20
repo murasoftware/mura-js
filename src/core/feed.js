@@ -640,6 +640,14 @@ Mura.Feed = Mura.Core.extend(
 		},
 
 		/**
+		 * Interator - Return Mura.EntityCollection fetched from JSON API
+		 * @return {Promise}
+		 */
+		getIterator(params) {
+			return this.getQuery(params);
+		},
+
+		/**
 		 * Query - Return Mura.EntityCollection fetched from JSON API
 		 * @return {Promise}
 		 */

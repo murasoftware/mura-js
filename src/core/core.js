@@ -484,8 +484,8 @@ function post(url, data, eventHandler) {
  * @return {Promise}
  * @memberof {class} Mura
  */
- function put(url, data, eventHandler) {
-	return Mura.getRequestContext().put(url, data, eventHandler);
+ function put(url, data, config) {
+	return Mura.getRequestContext().put(url, data, config);
 }
 
 /**
@@ -496,8 +496,8 @@ function post(url, data, eventHandler) {
  * @return {Promise}
  * @memberof {class} Mura
  */
- function patch(url, data, eventHandler) {
-	return Mura.getRequestContext().patch(url, data, eventHandler);
+ function patch(url, data, config) {
+	return Mura.getRequestContext().patch(url, data, config);
 }
 
 /**
@@ -508,8 +508,9 @@ function post(url, data, eventHandler) {
  * @return {Promise}
  * @memberof {class} Mura
  */
- function deleteReq(url, data, eventHandler) {
-	return Mura.getRequestContext().delete}
+ function deleteReq(url, data, config) {
+	return Mura.getRequestContext().delete(url, data, config)
+}
 
 /**
  * ajax - Make ajax request
@@ -518,8 +519,8 @@ function post(url, data, eventHandler) {
  * @return {Promise}
  * @memberof {class} Mura
  */
-function ajax(params) {
-	return Mura.getRequestContext().request(params);
+function ajax(config) {
+	return Mura.getRequestContext().request(config);
 }
 
 /**
@@ -530,6 +531,7 @@ function ajax(params) {
  */
 function normalizeRequestHandler(eventHandler) {
 	eventHandler.progress=eventHandler.progress || eventHandler.onProgress || eventHandler.onUploadProgress || function(){};
+	eventHandler.download=eventHandler.download || eventHandler.onDownload || eventHandler.onDownloadProgress || function(){};
 	eventHandler.abort=eventHandler.abort || eventHandler.onAbort|| function(){};
 	eventHandler.success=eventHandler.success || eventHandler.onSuccess || function(){};
 	eventHandler.error=eventHandler.error || eventHandler.onError || function(){};

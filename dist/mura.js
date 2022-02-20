@@ -2837,8 +2837,8 @@ function post(url, data, eventHandler) {
  */
 
 
-function put(url, data, eventHandler) {
-  return Mura.getRequestContext().put(url, data, eventHandler);
+function put(url, data, config) {
+  return Mura.getRequestContext().put(url, data, config);
 }
 /**
  * update - Make UPDATE request
@@ -2850,8 +2850,8 @@ function put(url, data, eventHandler) {
  */
 
 
-function patch(url, data, eventHandler) {
-  return Mura.getRequestContext().patch(url, data, eventHandler);
+function patch(url, data, config) {
+  return Mura.getRequestContext().patch(url, data, config);
 }
 /**
  * delete - Make Delete request
@@ -2863,8 +2863,8 @@ function patch(url, data, eventHandler) {
  */
 
 
-function deleteReq(url, data, eventHandler) {
-  return Mura.getRequestContext().delete;
+function deleteReq(url, data, config) {
+  return Mura.getRequestContext().delete(url, data, config);
 }
 /**
  * ajax - Make ajax request
@@ -2875,8 +2875,8 @@ function deleteReq(url, data, eventHandler) {
  */
 
 
-function ajax(params) {
-  return Mura.getRequestContext().request(params);
+function ajax(config) {
+  return Mura.getRequestContext().request(config);
 }
 /**
  * normalizeRequestHandler - Standardizes request handler objects
@@ -2888,6 +2888,8 @@ function ajax(params) {
 
 function normalizeRequestHandler(eventHandler) {
   eventHandler.progress = eventHandler.progress || eventHandler.onProgress || eventHandler.onUploadProgress || function () {};
+
+  eventHandler.download = eventHandler.download || eventHandler.onDownload || eventHandler.onDownloadProgress || function () {};
 
   eventHandler.abort = eventHandler.abort || eventHandler.onAbort || function () {};
 
@@ -10323,6 +10325,8 @@ Mura.Feed = Mura.Core.extend((_Mura$Core$extend = {
   this.queryString += '&leftJoin' + encodeURIComponent('[' + this.propIndex + ']') + '=' + encodeURIComponent(relatedEntity);
   this.propIndex++;
   return this;
+}), _defineProperty(_Mura$Core$extend, "getIterator", function getIterator(params) {
+  return this.getQuery(params);
 }), _defineProperty(_Mura$Core$extend, "getQuery", function getQuery(params) {
   var self = this;
 
@@ -11688,19 +11692,15 @@ Mura.Request = Mura.Core.extend(
       config.dataType = 'default';
     }
 
-    if (config.dataType == 'json') {
-      config.headers['content-type'] = 'application/json; charset=UTF-8';
-    }
-
     config.type = config.type.toLowerCase();
 
     try {
       //if is in node not a FormData obj
-      if (!Mura.formdata || !(config.data instanceof FormData)) {
+      if (this.inNode || !(config.data instanceof FormData)) {
         if (config.type === 'get' && !(typeof config.url === 'string' && config.url.toLowerCase().indexOf('purgecache') > -1) && typeof config.data.purgeCache === 'undefined' && typeof config.data.purgecache === 'undefined') {
           var sourceParams = {};
 
-          if (typeof XMLHttpRequest != 'undefined' && typeof location != 'undefined' && location.search) {
+          if (!this.inNode && typeof location != 'undefined' && location.search) {
             sourceParams = Mura.getQueryStringParams(location.search);
           } else if (typeof this.requestObject != 'undefined' && typeof this.requestObject.url === 'string' && this.requestObject.url) {
             var qa = this.requestObject.url.split("?");
@@ -11727,16 +11727,6 @@ Mura.Request = Mura.Core.extend(
       config.type = config.data.httpmethod;
       delete config.data.httpmethod;
     }
-
-    config.progress = config.progress || config.onProgress || config.onUploadProgress || function () {};
-
-    config.download = config.download || config.onDownload || config.onDownloadProgress || function () {};
-
-    config.abort = config.abort || config.onAbort || function () {};
-
-    config.success = config.success || config.onSuccess || function () {};
-
-    config.error = config.error || config.onError || function () {};
 
     if (this.inNode) {
       this.nodeRequest(config);
@@ -11805,13 +11795,15 @@ Mura.Request = Mura.Core.extend(
       });
     }
 
-    for (var h in Mura.requestHeaders) {
+    var h;
+
+    for (h in Mura.requestHeaders) {
       if (Mura.requestHeaders.hasOwnProperty(h)) {
         config.headers[h.toLowerCase()] = config.requestHeaders[h];
       }
     }
 
-    for (var h in this.requestHeaders) {
+    for (h in this.requestHeaders) {
       if (this.requestHeaders.hasOwnProperty(h)) {
         config.headers[h.toLowerCase()] = this.requestHeaders[h];
       }
@@ -11896,11 +11888,13 @@ Mura.Request = Mura.Core.extend(
         }
 
         var cookieMap = {};
-        var setMap = {}; // pull out existing cookies
+        var setMap = {};
+        var c;
+        var tempCookie; // pull out existing cookies
 
         if (existingCookies.length) {
-          for (var c in existingCookies) {
-            var tempCookie = existingCookies[c];
+          for (c in existingCookies) {
+            tempCookie = existingCookies[c];
 
             if (typeof tempCookie != 'undefined') {
               tempCookie = existingCookies[c].split(" ")[0].split("=");
@@ -11919,8 +11913,8 @@ Mura.Request = Mura.Core.extend(
 
 
         if (newSetCookies.length) {
-          for (var c in newSetCookies) {
-            var tempCookie = newSetCookies[c];
+          for (c in newSetCookies) {
+            tempCookie = newSetCookies[c];
 
             if (typeof tempCookie != 'undefined') {
               tempCookie = tempCookie.split(" ")[0].split("=");
@@ -11940,8 +11934,8 @@ Mura.Request = Mura.Core.extend(
         var cookie = ''; // put cookies back in in the same order that they came out
 
         if (existingCookies.length) {
-          for (var c in existingCookies) {
-            var tempCookie = existingCookies[c];
+          for (c in existingCookies) {
+            tempCookie = existingCookies[c];
 
             if (typeof tempCookie != 'undefined') {
               tempCookie = tempCookie.split(" ")[0].split("=");
@@ -11959,11 +11953,11 @@ Mura.Request = Mura.Core.extend(
         }
 
         if (newSetCookies.length) {
-          for (var c in newSetCookies) {
-            var tempCookie = newSetCookies[c];
+          for (c in newSetCookies) {
+            tempCookie = newSetCookies[c];
 
             if (typeof tempCookie != 'undefined') {
-              var tempCookie = tempCookie.split(" ")[0].split("=");
+              tempCookie = tempCookie.split(" ")[0].split("=");
 
               if (typeof setMap[tempCookie[0]] == 'undefined' && tempCookie.length > 1) {
                 if (cookie != '') {
@@ -11996,20 +11990,21 @@ Mura.Request = Mura.Core.extend(
     });
   },
   xhrRequest: function xhrRequest(config) {
-    for (var h in Mura.requestHeaders) {
+    var h;
+
+    for (h in Mura.requestHeaders) {
       if (Mura.requestHeaders.hasOwnProperty(h)) {
         config.headers[h.toLowerCase()] = Mura.requestHeaders[h];
       }
     }
 
-    for (var h in this.requestHeaders) {
+    for (h in this.requestHeaders) {
       if (this.requestHeaders.hasOwnProperty(h)) {
         config.headers[h.toLowerCase()] = this.requestHeaders[h];
       }
     }
 
     (__webpack_require__(9669)["default"].request)(this.MuraToAxiosConfig(config)).then(function (response) {
-      console.log(response.data);
       config.success(response.data);
     }).catch(function (response) {
       config.error(response.data);
@@ -12025,58 +12020,45 @@ Mura.Request = Mura.Core.extend(
       onDownloadProgress: config.download,
       withCredentials: true
     };
+    var sendJSON = parsedConfig.headers['content-type'] && parsedConfig.headers['content-type'].indexOf('json') > -1;
+    var sendFormData = !this.inNode && parsedConfig.data instanceof FormData;
 
     if (parsedConfig.method == 'get') {
+      //GET send params and not data
       parsedConfig.params = Mura.deepExtend({}, config.data);
 
       if (typeof parsedConfig.params['muraPointInTime'] == 'undefined' && typeof Mura.pointInTime != 'undefined') {
         parsedConfig.params['muraPointInTime'] = Mura.pointInTime;
       }
     } else {
-      if (config.dataType == 'json' || !this.inNode && parsedConfig.data instanceof FormData) {
-        parsedConfig.data = config.data;
-      } else {
+      if (sendJSON) {
         parsedConfig.data = Mura.deepExtend({}, config.data);
-
-        if (typeof parsedConfig.data['muraPointInTime'] == 'undefined' && typeof Mura.pointInTime != 'undefined') {
-          parsedConfig.data['muraPointInTime'] = Mura.pointInTime;
-        }
-      }
-
-      if (config.dataType == 'json') {
-        parsedConfig.headers['content-type'] = 'application/json; charset=UTF-8';
-      } else if (!this.inNode && parsedConfig.data instanceof FormData) {
-        parsedConfig.headers['content-type'] = 'multipart/form-data; charset=UTF-8';
       } else {
-        parsedConfig.headers['content-type'] = 'application/x-www-form-urlencoded; charset=UTF-8';
+        if (sendFormData) {
+          parsedConfig.data = config.data;
+        } else {
+          parsedConfig.data = Mura.deepExtend({}, config.data);
 
-        for (var p in parsedConfig.data) {
-          if (_typeof(parsedConfig.data[p]) == 'object') {
-            parsedConfig.data[p] = JSON.stringify(parsedConfig.data[p]);
+          if (typeof parsedConfig.data['muraPointInTime'] == 'undefined' && typeof Mura.pointInTime != 'undefined') {
+            parsedConfig.data['muraPointInTime'] = Mura.pointInTime;
           }
         }
 
-        if (typeof parsedConfig.data['muraPointInTime'] == 'undefined' && typeof Mura.pointInTime != 'undefined') {
-          parsedConfig.data['muraPointInTime'] = Mura.pointInTime;
-        } //Use formData when in the browser
-
-
-        if (!this.inNode) {
-          var formData = new FormData();
-          Object.keys(parsedConfig.data).forEach(function (key) {
-            if (typeof parsedConfig.data[key] === 'boolean') {
-              //boolean values seem to throw error in node-fetch
-              if (parsedConfig.data[key]) {
-                formData.append(key, 'true');
-              } else {
-                formData.append(key, 'false');
-              }
-            } else {
-              formData.append(key, parsedConfig.data[key]);
-            }
-          });
-          parsedConfig.data = formData;
+        if (sendFormData) {
+          parsedConfig.headers['content-type'] = 'multipart/form-data; charset=UTF-8';
         } else {
+          parsedConfig.headers['content-type'] = 'application/x-www-form-urlencoded; charset=UTF-8';
+
+          for (var p in parsedConfig.data) {
+            if (_typeof(parsedConfig.data[p]) == 'object') {
+              parsedConfig.data[p] = JSON.stringify(parsedConfig.data[p]);
+            }
+          }
+
+          if (typeof parsedConfig.data['muraPointInTime'] == 'undefined' && typeof Mura.pointInTime != 'undefined') {
+            parsedConfig.data['muraPointInTime'] = Mura.pointInTime;
+          }
+
           var query = [];
 
           for (var key in parsedConfig.data) {
