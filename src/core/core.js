@@ -2086,7 +2086,7 @@ function submitForm(frm, obj) {
 			type: 'POST',
 			data: data,
 			success(resp) {
-				//obj=Mura('div[data-instanceid="' + obj.data('instanceid') + '"]');
+				//console.log(data.object,resp)
 				setTimeout(function(){handleResponse(obj, resp)},0);
 			}
 		}
@@ -2131,7 +2131,7 @@ function submitForm(frm, obj) {
 			type: 'POST',
 			data: data,
 			success(resp) {
-				//obj=Mura('div[data-instanceid="' + obj.data('instanceid') + '"]');
+				//console.log(data.object,resp)
 				setTimeout(function(){handleResponse(obj, resp)},0);
 			}
 		}
@@ -2269,9 +2269,9 @@ function wireUpObject(obj, response, attempt) {
 
 	attempt= attempt || 0;
 	attempt++;
-
+	
 	obj = (obj.node) ? obj : Mura(obj);
-
+	
 	obj.data('inited', true);
 
 	if (response) {
@@ -2830,7 +2830,7 @@ function processDisplayObject(el, queue, rerender, resolveFn, usePreloaderMarkup
 					type: requestType,
 					data: requestData,
 					success(resp) {
-						//obj=Mura('div[data-instanceid="' + obj.data('instanceid') + '"]');
+						//console.log(data.object,resp)
 						setTimeout(function(){
 							handleResponse(obj, resp)
 							if (typeof resolve =='function') {

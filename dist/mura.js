@@ -4372,7 +4372,7 @@ function submitForm(frm, obj) {
       type: 'POST',
       data: data,
       success: function success(resp) {
-        //obj=Mura('div[data-instanceid="' + obj.data('instanceid') + '"]');
+        //console.log(data.object,resp)
         setTimeout(function () {
           handleResponse(obj, resp);
         }, 0);
@@ -4411,7 +4411,7 @@ function submitForm(frm, obj) {
       type: 'POST',
       data: data,
       success: function success(resp) {
-        //obj=Mura('div[data-instanceid="' + obj.data('instanceid') + '"]');
+        //console.log(data.object,resp)
         setTimeout(function () {
           handleResponse(obj, resp);
         }, 0);
@@ -5080,7 +5080,7 @@ function processDisplayObject(el, queue, rerender, resolveFn, usePreloaderMarkup
           type: requestType,
           data: requestData,
           success: function success(resp) {
-            //obj=Mura('div[data-instanceid="' + obj.data('instanceid') + '"]');
+            //console.log(data.object,resp)
             setTimeout(function () {
               handleResponse(obj, resp);
 
