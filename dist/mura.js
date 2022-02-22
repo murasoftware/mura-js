@@ -8783,8 +8783,6 @@ Mura.Entity = Mura.Core.extend(
           }
         },
         error: function error(resp) {
-          resp = Mura.parseString(resp.response);
-
           if (typeof eventHandler.error == 'function') {
             eventHandler.error(resp);
           }
@@ -10364,7 +10362,7 @@ Mura.Feed = Mura.Core.extend((_Mura$Core$extend = {
         }
       },
       error: function error(resp) {
-        resp = Mura.parseString(resp.response);
+        console.log(resp);
 
         if (typeof reject == 'function') {
           reject(resp);
@@ -11118,7 +11116,6 @@ Mura.RequestContext = Mura.Core.extend(
    * @return {Promise}
    */
   findText: function findText(text, params) {
-    var query = [];
     var self = this;
     params = params || {};
     params.text = text || params.text || '';
@@ -11672,10 +11669,6 @@ Mura.Request = Mura.Core.extend(
       config.type = 'GET';
     }
 
-    if (!('success' in config)) {
-      config.success = function () {};
-    }
-
     if (!('data' in config)) {
       config.data = {};
     }
@@ -11692,6 +11685,7 @@ Mura.Request = Mura.Core.extend(
       config.dataType = 'default';
     }
 
+    Mura.normalizeRequestHandler(config);
     config.type = config.type.toLowerCase();
 
     try {
@@ -11982,11 +11976,12 @@ Mura.Request = Mura.Core.extend(
 
     (__webpack_require__(9669)["default"].request)(this.MuraToAxiosConfig(config)).then(function (response) {
       nodeProxyCookies(response);
-      config.success(response.data);
-    }).catch(function (response) {
-      nodeProxyCookies(response);
       nodeProxyHeaders(response);
-      config.error(response.data);
+      config.success(response.data);
+    }).catch(function (error) {
+      nodeProxyCookies(error.response);
+      nodeProxyHeaders(error.response);
+      config.error(error.response.data);
     });
   },
   xhrRequest: function xhrRequest(config) {
@@ -12006,8 +12001,12 @@ Mura.Request = Mura.Core.extend(
 
     (__webpack_require__(9669)["default"].request)(this.MuraToAxiosConfig(config)).then(function (response) {
       config.success(response.data);
-    }).catch(function (response) {
-      config.error(response.data);
+    }, function (error) {
+      if (error.response) {
+        config.error(error.response.data);
+      } else {
+        config.error(error);
+      }
     });
   },
   MuraToAxiosConfig: function MuraToAxiosConfig(config) {

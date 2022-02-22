@@ -140,7 +140,6 @@ Mura.Entity = Mura.Core.extend(
 					}
 				},
 				error(resp) {
-					resp=Mura.parseString(resp.response);
 					if (typeof eventHandler.error == 'function'){
 						eventHandler.error(resp);
 					}

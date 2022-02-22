@@ -34,9 +34,6 @@ Mura.Request=Mura.Core.extend(
 			if (!('type' in config)) {
 				config.type = 'GET';
 			}
-			if (!('success' in config)) {
-				config.success = function() {};
-			}
 			if (!('data' in config)) {
 				config.data = {};
 			}
@@ -50,6 +47,8 @@ Mura.Request=Mura.Core.extend(
 				config.dataType = 'default';
 			}
 			
+			Mura.normalizeRequestHandler(config);
+
 			config.type=config.type.toLowerCase();
 
 			try{
@@ -319,12 +318,13 @@ Mura.Request=Mura.Core.extend(
 				this.MuraToAxiosConfig(config)
 			).then(function(response){
 				nodeProxyCookies(response);
+				nodeProxyHeaders(response);
 				config.success(response.data);
 			})
-			.catch(function(response){
-				nodeProxyCookies(response);
-				nodeProxyHeaders(response);
-				config.error(response.data);	
+			.catch(function(error){
+				nodeProxyCookies(error.response);
+				nodeProxyHeaders(error.response);
+				config.error(error.response.data);	
 			});
 		},
 		xhrRequest(config){	
@@ -342,11 +342,18 @@ Mura.Request=Mura.Core.extend(
 			}
 			require('axios').default.request(
 				this.MuraToAxiosConfig(config)
-			).then(function(response){
-				config.success(response.data);
-			}).catch(function(response){
-				config.error(response.data);	
-			});
+			).then(
+				function(response){
+					config.success(response.data);
+				},
+				function(error){
+					if(error.response){
+						config.error(error.response.data);	
+					} else {
+						config.error(error);	
+					}
+				}
+			);
 				
 		},
 		MuraToAxiosConfig(config){

@@ -687,7 +687,7 @@ Mura.Feed = Mura.Core.extend(
 						}
 					},
 					error(resp) {
-						resp=Mura.parseString(resp.response);
+						console.log(resp)
 						if (typeof reject == 'function'){
 							reject(resp);
 						}

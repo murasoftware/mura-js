@@ -124,7 +124,6 @@ Mura.RequestContext=Mura.Core.extend(
 	 * @return {Promise}
 	 */
 	findText(text, params) {
-		var query = [];
 		var self=this;
 		params = params || {};
 		params.text = text || params.text || '';
@@ -600,7 +599,7 @@ Mura.RequestContext=Mura.Core.extend(
 	 * @param	{object} data Data to send to url
 	 * @return {Promise}
 	 */
-	 put(url, data, config) {
+	put(url, data, config) {
 		return this.normalizeRequest('put',url, data, config);
 	},
 
@@ -611,7 +610,7 @@ Mura.RequestContext=Mura.Core.extend(
 	 * @param	{object} data Data to send to url
 	 * @return {Promise}
 	 */
-	 patch(url, data, config) {
+	patch(url, data, config) {
 		return this.normalizeRequest('patch',url, data, config);
 	},
 
