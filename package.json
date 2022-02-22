@@ -50,7 +50,6 @@
     "escape-html": "^1.0.3",
     "handlebars": "^4.7.6",
     "install": "^0.10.4",
-    "node-fetch": "^3.0.0",
     "npm": "^6.14.15",
     "readable-stream": "^3.6.0",
     "tough-cookie": "^2.5.0",
