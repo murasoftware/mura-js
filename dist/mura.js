@@ -12056,7 +12056,7 @@ Mura.Request = Mura.Core.extend(
       }
     } else {
       if (sendJSON) {
-        parsedConfig.data = Mura.deepExtend({}, config.data);
+        parsedConfig.data = Object.assign({}, config.data);
       } else {
         if (sendFormData) {
           parsedConfig.data = config.data;
@@ -12072,6 +12072,7 @@ Mura.Request = Mura.Core.extend(
           parsedConfig.headers['content-type'] = 'multipart/form-data; charset=UTF-8';
         } else {
           parsedConfig.headers['content-type'] = 'application/x-www-form-urlencoded; charset=UTF-8';
+          parsedConfig.data = Object.assign({}, config.data);
 
           for (var p in parsedConfig.data) {
             if (_typeof(parsedConfig.data[p]) == 'object') {
@@ -12087,7 +12088,7 @@ Mura.Request = Mura.Core.extend(
 
           for (var key in parsedConfig.data) {
             if (parsedConfig.data.hasOwnProperty(key)) {
-              query.push(Mura.escape(key) + '=' + Mura.escape(parsedConfig.data[key]));
+              query.push(encodeURIComponent(key) + '=' + encodeURIComponent(parsedConfig.data[key]));
             }
           }
 
