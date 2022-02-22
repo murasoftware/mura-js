@@ -220,7 +220,6 @@ Mura.Entity = Mura.Core.extend(
 						}
 					},
 					error(resp) {
-						resp=Mura.parseString(resp.response);
 						if (typeof eventHandler.error == 'function'){
 							eventHandler.error(resp);
 						}
@@ -297,7 +296,7 @@ Mura.Entity = Mura.Core.extend(
 							}
 						},
 						error(resp){
-							resp=Mura.parseString(resp.response);
+							console.log(resp);
 							if (typeof reject == 'function'){
 								reject(resp);
 							}
@@ -413,16 +412,23 @@ Mura.Entity = Mura.Core.extend(
 						siteid: self.get('siteid'),
 						'_cacheid': Math.random()
 					},
-					success(	resp) {
+					success(resp) {
 						if (resp.data != 'undefined'	) {
 							if (typeof resolve ==	'function') {
 								resolve(self);
 							}
 						} else {
-							self.set('errors',resp.error);
+							console.log(resp);
 							if (typeof reject == 'function') {
 								reject(self);
 							}
+						}
+					},
+					error(resp){
+						console.log(resp)
+						self.set('errors',resp.error);
+						if (typeof reject == 'function') {
+							reject(self);
 						}
 					}
 				});
@@ -455,6 +461,7 @@ Mura.Entity = Mura.Core.extend(
 										resolve(self);
 									}
 								} else {
+									console.log(resp)
 									self.set('errors',resp.error);
 									if (typeof reject == 'function') {
 										reject(self);
@@ -462,12 +469,13 @@ Mura.Entity = Mura.Core.extend(
 								}
 							},
 							error(resp) {
-								this.success(Mura.parseString(resp.response));
+								console.log(resp)
+								this.success(resp);
 							}
 						});
 					},
 					error(resp) {
-						this.success(Mura.parseString(resp.response));
+						this.success(resp);
 					}
 				});
 			}
@@ -501,6 +509,7 @@ Mura.Entity = Mura.Core.extend(
 								resolve(self);
 							}
 						} else {
+							console.log(resp)
 							self.set('errors',resp.error);
 							if (typeof reject == 'function') {
 								reject(self);
@@ -508,7 +517,7 @@ Mura.Entity = Mura.Core.extend(
 						}
 					},
 					error(resp){
-						this.success(Mura.parseString(resp.response));
+						this.success(resp);
 					}
 				});
 			} else {
@@ -548,7 +557,7 @@ Mura.Entity = Mura.Core.extend(
 						});
 					},
 					error(resp) {
-						this.success(Mura.parseString(resp.response));
+						this.success(resp);
 					}
 				});
 			}
@@ -602,7 +611,6 @@ Mura.Entity = Mura.Core.extend(
 						resolve(self);
 					}
 			},function(resp){
-				resp=Mura.parseString(resp.response);
 				if (typeof reject == 'function'){
 					reject(resp);
 				}
@@ -626,7 +634,7 @@ Mura.Entity = Mura.Core.extend(
 				type: 'post',
 				url: Mura.getAPIEndpoint() + '?method=validate',
 				data: {
-					data: Mura.escape( data),
+					data: JSON.stringify(data),
 					validations: '{}',
 					version: 4
 				},
@@ -639,6 +647,10 @@ Mura.Entity = Mura.Core.extend(
 					if (typeof resolve ==	'function') {
 						resolve(self);
 					}
+				},
+				error(resp) {
+					self.set('errors',resp.error);
+					resolve(self);
 				}
 			});
 		});
@@ -748,6 +760,12 @@ Mura.Entity = Mura.Core.extend(
 								}
 							}
 						},
+						error(resp) {
+							self.set('errors',resp.error);
+							if (typeof eventHandler.error == 'function') {
+								eventHandler.error(self);
+							}
+						},
 						progress:eventHandler.progress,
 						abort: eventHandler.abort
 					});
@@ -769,7 +787,7 @@ Mura.Entity = Mura.Core.extend(
 										'csrf_token_expires': resp.data.csrf_token_expires
 									}
 								),
-								success(	resp) {
+								success(resp) {
 									if (resp.data != 'undefined'	) {
 										self.set(resp.data)
 										self.set('isdirty',false );
@@ -791,12 +809,18 @@ Mura.Entity = Mura.Core.extend(
 										}
 									}
 								},
+								error(resp) {
+									self.set('errors',resp.error);
+									if (typeof eventHandler.error == 'function') {
+										eventHandler.error(self);
+									}
+								},
 								progress:eventHandler.progress,
 								abort: eventHandler.abort
 							});
 						},
 						error(resp) {
-							this.success(resp );
+							this.error(resp);
 						},
 						abort: eventHandler.abort
 					});
