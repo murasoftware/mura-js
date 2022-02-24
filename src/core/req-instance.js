@@ -322,9 +322,14 @@ Mura.Request=Mura.Core.extend(
 				config.success(response.data);
 			})
 			.catch(function(error){
-				nodeProxyCookies(error.response);
-				nodeProxyHeaders(error.response);
-				config.error(error.response.data);	
+				console.log(error)
+				if(error.response){
+					nodeProxyCookies(error.response);
+					nodeProxyHeaders(error.response);
+					config.error(error.response.data);	
+				} else {
+					config.error(error);	
+				}
 			});
 		},
 		xhrRequest(config){	
@@ -347,6 +352,7 @@ Mura.Request=Mura.Core.extend(
 					config.success(response.data);
 				},
 				function(error){
+					console.log(error)
 					if(error.response){
 						config.error(error.response.data);	
 					} else {

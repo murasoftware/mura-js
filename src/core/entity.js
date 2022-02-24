@@ -296,7 +296,6 @@ Mura.Entity = Mura.Core.extend(
 							}
 						},
 						error(resp){
-							console.log(resp);
 							if (typeof reject == 'function'){
 								reject(resp);
 							}
@@ -425,7 +424,6 @@ Mura.Entity = Mura.Core.extend(
 						}
 					},
 					error(resp){
-						console.log(resp)
 						self.set('errors',resp.error);
 						if (typeof reject == 'function') {
 							reject(self);
@@ -469,7 +467,6 @@ Mura.Entity = Mura.Core.extend(
 								}
 							},
 							error(resp) {
-								console.log(resp)
 								this.success(resp);
 							}
 						});

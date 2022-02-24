@@ -8930,8 +8930,6 @@ Mura.Entity = Mura.Core.extend(
               }
             },
             error: function error(resp) {
-              console.log(resp);
-
               if (typeof reject == 'function') {
                 reject(resp);
               }
@@ -9053,7 +9051,6 @@ Mura.Entity = Mura.Core.extend(
             }
           },
           error: function error(resp) {
-            console.log(resp);
             self.set('errors', resp.error);
 
             if (typeof reject == 'function') {
@@ -9097,7 +9094,6 @@ Mura.Entity = Mura.Core.extend(
                 }
               },
               error: function error(resp) {
-                console.log(resp);
                 this.success(resp);
               }
             });
@@ -10387,8 +10383,6 @@ Mura.Feed = Mura.Core.extend((_Mura$Core$extend = {
         }
       },
       error: function error(resp) {
-        console.log(resp);
-
         if (typeof reject == 'function') {
           reject(resp);
         }
@@ -12004,9 +11998,15 @@ Mura.Request = Mura.Core.extend(
       nodeProxyHeaders(response);
       config.success(response.data);
     }).catch(function (error) {
-      nodeProxyCookies(error.response);
-      nodeProxyHeaders(error.response);
-      config.error(error.response.data);
+      console.log(error);
+
+      if (error.response) {
+        nodeProxyCookies(error.response);
+        nodeProxyHeaders(error.response);
+        config.error(error.response.data);
+      } else {
+        config.error(error);
+      }
     });
   },
   xhrRequest: function xhrRequest(config) {
@@ -12027,6 +12027,8 @@ Mura.Request = Mura.Core.extend(
     (__webpack_require__(9669)["default"].request)(this.MuraToAxiosConfig(config)).then(function (response) {
       config.success(response.data);
     }, function (error) {
+      console.log(error);
+
       if (error.response) {
         config.error(error.response.data);
       } else {
