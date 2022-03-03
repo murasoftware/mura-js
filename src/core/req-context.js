@@ -186,6 +186,17 @@ Mura.RequestContext=Mura.Core.extend(
 	},
 
 	/**
+	 * getBean - Returns Mura.Entity instance
+	 *
+	 * @param	{string} entityname Entity Name
+	 * @param	{string} siteid		 Siteid
+	 * @return {Mura.Entity}
+	 */
+	 getBean(entityname, siteid) {
+		return this.getEntity(entityname, siteid);
+	},
+
+	/**
 	 * declareEntity - Declare Entity with in service factory
 	 *
 	 * @param	{object} entityConfig Entity config object
