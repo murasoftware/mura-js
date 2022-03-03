@@ -362,6 +362,15 @@ Mura.Request=Mura.Core.extend(
 			);
 				
 		},
+		serializeParams(params){
+			const query = [];
+			for (var key in params) {
+				if(params.hasOwnProperty(key)){
+					query.push(encodeURIComponent(key) + '=' + encodeURIComponent(params[key]));
+				}
+			}	
+			return query.join('&');
+		},
 		MuraToAxiosConfig(config){
 			const parsedConfig={
 				responseType:'text',
@@ -370,7 +379,8 @@ Mura.Request=Mura.Core.extend(
 				url:config.url,
 				onUploadProgress: config.progress,
 				onDownloadProgress: config.download,
-				withCredentials: true
+				withCredentials: true,
+				paramsSerializer:this.serializeParams
 			};
 
 			const sendJSON=(parsedConfig.headers['content-type'] && parsedConfig.headers['content-type'].indexOf('json') >-1);
@@ -410,15 +420,8 @@ Mura.Request=Mura.Core.extend(
 						if(typeof parsedConfig.data['muraPointInTime'] == 'undefined' && typeof Mura.pointInTime != 'undefined'){
 							parsedConfig.data['muraPointInTime']=Mura.pointInTime;
 						}
-						
-						const query = [];
-						for (var key in parsedConfig.data) {
-							if(parsedConfig.data.hasOwnProperty(key)){
-								query.push(encodeURIComponent(key) + '=' + encodeURIComponent(parsedConfig.data[key]));
-							}
-						}	
 
-						parsedConfig.data = query.join('&');
+						parsedConfig.data = this.serializeParams(parsedConfig.data);
 					
 					}
 				}

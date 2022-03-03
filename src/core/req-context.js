@@ -16,7 +16,12 @@ var Mura=require('./core');
 Mura.RequestContext=Mura.Core.extend(
 /** @lends Mura.RequestContext.prototype */
 {
-	init(request, response, requestHeaders) {
+	init(request, response, requestHeaders, siteid) {
+		if(typeof requestHeaders=='string'){
+			siteid=requestHeaders;
+			requestHeaders={}
+		}
+		this.siteid=siteid || Mura.siteid;
 		this.requestObject=request;
 		this.responseObject=response;
 		this._request=new Mura.Request(request, response, requestHeaders);
@@ -76,7 +81,7 @@ Mura.RequestContext=Mura.Core.extend(
 		var self=this;
 		params = params || {};
 		params.filename = params.filename || '';
-		params.siteid = params.siteid || Mura.siteid;
+		params.siteid = params.siteid || this.siteid;
 
 		for (var key in params) {
 			if (key != 'entityname' && key != 'filename' && key !=
@@ -127,7 +132,7 @@ Mura.RequestContext=Mura.Core.extend(
 		var self=this;
 		params = params || {};
 		params.text = text || params.text || '';
-		params.siteid = params.siteid || Mura.siteid;
+		params.siteid = params.siteid || this.siteid;
 		params.method = "findtext";
 		
 		return new Promise(function(resolve, reject) {
@@ -160,11 +165,11 @@ Mura.RequestContext=Mura.Core.extend(
 			var properties = {
 				entityname: entityname.substr(0, 1).toUpperCase() + entityname.substr(1)
 			};
-			properties.siteid = siteid || Mura.siteid;
+			properties.siteid = siteid || this.siteid;
 		} else {
 			properties = entityname;
 			properties.entityname = properties.entityname || 'Content';
-			properties.siteid = properties.siteid || Mura.siteid;
+			properties.siteid = properties.siteid || this.siteid;
 		}
 
 		properties.links={
@@ -315,7 +320,7 @@ Mura.RequestContext=Mura.Core.extend(
 	 */
 	getFeed(entityname,siteid) {
 			Mura.feeds=Mura.feeds || {};
-			siteid=siteid || Mura.siteid;
+			siteid=siteid || this.siteid;
 			if(typeof entityname==='string'){
 				entityname=entityname.substr(0, 1).toUpperCase() + entityname.substr(1);
 				if(Mura.feeds[entityname]){
@@ -377,7 +382,7 @@ Mura.RequestContext=Mura.Core.extend(
 			var self=this;
 			params = params || {};
 			params.entityname = params.entityname || 'content';
-			params.siteid = params.siteid || Mura.siteid;
+			params.siteid = params.siteid || this.siteid;
 			params.method = params.method || 'findQuery';
 			params['_cacheid'] == Math.random();
 			return new Promise(function(resolve, reject) {
@@ -407,7 +412,7 @@ Mura.RequestContext=Mura.Core.extend(
 	 * @return {Promise}
 	 */
 	login(username, password, siteid) {
-		siteid = siteid || Mura.siteid;
+		siteid = siteid || this.siteid;
 		var self=this;
 		return new Promise(function(resolve, reject) {
 			self.request({
@@ -509,7 +514,7 @@ Mura.RequestContext=Mura.Core.extend(
 	 * @return {Promise}
 	 */
 	logout(siteid) {
-		siteid = siteid || Mura.siteid;
+		siteid = siteid || this.siteid;
 		var self=this;
 		return new Promise(function(resolve, reject) {
 			self.request({

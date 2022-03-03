@@ -11027,7 +11027,13 @@ var Mura = __webpack_require__(791);
 Mura.RequestContext = Mura.Core.extend(
 /** @lends Mura.RequestContext.prototype */
 {
-  init: function init(request, response, requestHeaders) {
+  init: function init(request, response, requestHeaders, siteid) {
+    if (typeof requestHeaders == 'string') {
+      siteid = requestHeaders;
+      requestHeaders = {};
+    }
+
+    this.siteid = siteid || Mura.siteid;
     this.requestObject = request;
     this.responseObject = response;
     this._request = new Mura.Request(request, response, requestHeaders);
@@ -11088,7 +11094,7 @@ Mura.RequestContext = Mura.Core.extend(
     var self = this;
     params = params || {};
     params.filename = params.filename || '';
-    params.siteid = params.siteid || Mura.siteid;
+    params.siteid = params.siteid || this.siteid;
 
     for (var key in params) {
       if (key != 'entityname' && key != 'filename' && key != 'siteid' && key != 'method') {
@@ -11138,7 +11144,7 @@ Mura.RequestContext = Mura.Core.extend(
     var self = this;
     params = params || {};
     params.text = text || params.text || '';
-    params.siteid = params.siteid || Mura.siteid;
+    params.siteid = params.siteid || this.siteid;
     params.method = "findtext";
     return new Promise(function (resolve, reject) {
       self.request({
@@ -11171,11 +11177,11 @@ Mura.RequestContext = Mura.Core.extend(
       var properties = {
         entityname: entityname.substr(0, 1).toUpperCase() + entityname.substr(1)
       };
-      properties.siteid = siteid || Mura.siteid;
+      properties.siteid = siteid || this.siteid;
     } else {
       properties = entityname;
       properties.entityname = properties.entityname || 'Content';
-      properties.siteid = properties.siteid || Mura.siteid;
+      properties.siteid = properties.siteid || this.siteid;
     }
 
     properties.links = {
@@ -11332,7 +11338,7 @@ Mura.RequestContext = Mura.Core.extend(
    */
   getFeed: function getFeed(entityname, siteid) {
     Mura.feeds = Mura.feeds || {};
-    siteid = siteid || Mura.siteid;
+    siteid = siteid || this.siteid;
 
     if (typeof entityname === 'string') {
       entityname = entityname.substr(0, 1).toUpperCase() + entityname.substr(1);
@@ -11394,7 +11400,7 @@ Mura.RequestContext = Mura.Core.extend(
     var self = this;
     params = params || {};
     params.entityname = params.entityname || 'content';
-    params.siteid = params.siteid || Mura.siteid;
+    params.siteid = params.siteid || this.siteid;
     params.method = params.method || 'findQuery';
     params['_cacheid'] == Math.random();
     return new Promise(function (resolve, reject) {
@@ -11425,7 +11431,7 @@ Mura.RequestContext = Mura.Core.extend(
    * @return {Promise}
    */
   login: function login(username, password, siteid) {
-    siteid = siteid || Mura.siteid;
+    siteid = siteid || this.siteid;
     var self = this;
     return new Promise(function (resolve, reject) {
       self.request({
@@ -11529,7 +11535,7 @@ Mura.RequestContext = Mura.Core.extend(
    * @return {Promise}
    */
   logout: function logout(siteid) {
-    siteid = siteid || Mura.siteid;
+    siteid = siteid || this.siteid;
     var self = this;
     return new Promise(function (resolve, reject) {
       self.request({
@@ -12036,6 +12042,17 @@ Mura.Request = Mura.Core.extend(
       }
     });
   },
+  serializeParams: function serializeParams(params) {
+    var query = [];
+
+    for (var key in params) {
+      if (params.hasOwnProperty(key)) {
+        query.push(encodeURIComponent(key) + '=' + encodeURIComponent(params[key]));
+      }
+    }
+
+    return query.join('&');
+  },
   MuraToAxiosConfig: function MuraToAxiosConfig(config) {
     var parsedConfig = {
       responseType: 'text',
@@ -12044,7 +12061,8 @@ Mura.Request = Mura.Core.extend(
       url: config.url,
       onUploadProgress: config.progress,
       onDownloadProgress: config.download,
-      withCredentials: true
+      withCredentials: true,
+      paramsSerializer: this.serializeParams
     };
     var sendJSON = parsedConfig.headers['content-type'] && parsedConfig.headers['content-type'].indexOf('json') > -1;
     var sendFormData = !this.inNode && parsedConfig.data instanceof FormData;
@@ -12086,15 +12104,7 @@ Mura.Request = Mura.Core.extend(
             parsedConfig.data['muraPointInTime'] = Mura.pointInTime;
           }
 
-          var query = [];
-
-          for (var key in parsedConfig.data) {
-            if (parsedConfig.data.hasOwnProperty(key)) {
-              query.push(encodeURIComponent(key) + '=' + encodeURIComponent(parsedConfig.data[key]));
-            }
-          }
-
-          parsedConfig.data = query.join('&');
+          parsedConfig.data = this.serializeParams(parsedConfig.data);
         }
       }
     }
