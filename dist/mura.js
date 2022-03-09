@@ -3615,8 +3615,6 @@ var keyCmdCheck = function keyCmdCheck(event) {
   switch (event.which) {
     case 17: //ctrl
 
-    case 18: //alt
-
     case 27: //escape
 
     case 91:
@@ -12076,7 +12074,7 @@ Mura.Request = Mura.Core.extend(
       paramsSerializer: this.serializeParams
     };
     var sendJSON = parsedConfig.headers['content-type'] && parsedConfig.headers['content-type'].indexOf('json') > -1;
-    var sendFormData = !this.inNode && parsedConfig.data instanceof FormData;
+    var sendFormData = !this.inNode && config.data instanceof FormData;
 
     if (parsedConfig.method == 'get') {
       //GET send params and not data

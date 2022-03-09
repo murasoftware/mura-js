@@ -384,7 +384,7 @@ Mura.Request=Mura.Core.extend(
 			};
 
 			const sendJSON=(parsedConfig.headers['content-type'] && parsedConfig.headers['content-type'].indexOf('json') >-1);
-			const sendFormData=!this.inNode && parsedConfig.data instanceof FormData;
+			const sendFormData=!this.inNode && config.data instanceof FormData;
 
 			if(parsedConfig.method =='get'){
 				//GET send params and not data

@@ -1245,7 +1245,6 @@ var commandKeyActive=false;
 var keyCmdCheck = function(event) {	
 	switch(event.which){
 		case 17: //ctrl
-		case 18: //alt
 		case 27: //escape
 		case 91: //cmd
 			commandKeyActive=event.which;
