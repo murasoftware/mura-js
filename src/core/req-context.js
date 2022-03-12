@@ -16,15 +16,31 @@ var Mura=require('./core');
 Mura.RequestContext=Mura.Core.extend(
 /** @lends Mura.RequestContext.prototype */
 {
-	init(request, response, requestHeaders, siteid) {
-		if(typeof requestHeaders=='string'){
-			siteid=requestHeaders;
-			requestHeaders={}
+	init(request, response, headers, siteid) {
+		if(typeof request==='object' 
+			&& typeof  request.req ==='object'
+			&& typeof response === 'undefined'){
+				var config=request;
+				request=config.req;
+				response=config.res;
+				headers=config.headers;
+				siteid=config.siteid;
+		} else {
+			if(typeof headers=='string'){
+				var originalSiteid=siteid;
+				siteid=headers;
+				if(typeof originalSiteid==='object'){
+					headers=originalSiteid;
+				} else {
+					headers={};
+				}	
+			}
 		}
+
 		this.siteid=siteid || Mura.siteid;
 		this.requestObject=request;
 		this.responseObject=response;
-		this._request=new Mura.Request(request, response, requestHeaders);
+		this._request=new Mura.Request(request, response, headers);
 		return this;
 	},
 

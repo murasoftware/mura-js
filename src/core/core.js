@@ -547,11 +547,29 @@ function normalizeRequestHandler(eventHandler) {
  * @return {Mura.RequestContext}	 Mura.RequestContext
  * @memberof {class} Mura
  */
-function getRequestContext(request,response) {
-	if(typeof request !='undefined' || typeof Mura._requestcontext == 'undefined') {
-		Mura._requestcontext=new Mura.RequestContext(request,response);
+function getRequestContext(request,response, headers, siteid) {
+	if(typeof request==='object' 
+		&& typeof  request.req ==='object'
+		&& typeof response === 'undefined'){
+			var config=request;
+			request=config.req;
+			response=config.res;
+			headers=config.headers;
+			siteid=config.siteid;
+	} else {
+		if(typeof headers=='string'){
+			var originalSiteid=siteid;
+			siteid=headers;
+			if(typeof originalSiteid==='object'){
+				headers=originalSiteid;
+			} else {
+				headers={};
+			}	
+		}
 	}
-	return Mura._requestcontext;
+	request = request || Mura.request;
+	response = response || Mura.response;
+	return new Mura.RequestContext(request,response, headers, siteid);
 }
 
 /**
@@ -3973,15 +3991,6 @@ function init(config) {
 
 	if(Mura.mode.toLowerCase()=='rest'){
 		Mura.apiEndpoint=Mura.apiEndpoint.replace('/json/', '/rest/');
-	}
-
-	if(typeof XMLHttpRequest == 'undefined'
-		&& typeof Mura.request != 'undefined'
-		&& typeof Mura.response != 'undefined'){
-
-		Mura.getRequestContext(Mura.request,Mura.response);
-	} else {
-		Mura.getRequestContext();
 	}
 
 	if(typeof window !='undefined' &&typeof window.document != 'undefined'){

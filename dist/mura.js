@@ -2910,12 +2910,29 @@ function normalizeRequestHandler(eventHandler) {
  */
 
 
-function getRequestContext(request, response) {
-  if (typeof request != 'undefined' || typeof Mura._requestcontext == 'undefined') {
-    Mura._requestcontext = new Mura.RequestContext(request, response);
+function getRequestContext(request, response, headers, siteid) {
+  if (_typeof(request) === 'object' && _typeof(request.req) === 'object' && typeof response === 'undefined') {
+    var config = request;
+    request = config.req;
+    response = config.res;
+    headers = config.headers;
+    siteid = config.siteid;
+  } else {
+    if (typeof headers == 'string') {
+      var originalSiteid = siteid;
+      siteid = headers;
+
+      if (_typeof(originalSiteid) === 'object') {
+        headers = originalSiteid;
+      } else {
+        headers = {};
+      }
+    }
   }
 
-  return Mura._requestcontext;
+  request = request || Mura.request;
+  response = response || Mura.response;
+  return new Mura.RequestContext(request, response, headers, siteid);
 }
 /**
  * getDefaultRequestContext - Returns the default Mura.RequestContext;
@@ -6151,12 +6168,6 @@ function init(config) {
 
   if (Mura.mode.toLowerCase() == 'rest') {
     Mura.apiEndpoint = Mura.apiEndpoint.replace('/json/', '/rest/');
-  }
-
-  if (typeof XMLHttpRequest == 'undefined' && typeof Mura.request != 'undefined' && typeof Mura.response != 'undefined') {
-    Mura.getRequestContext(Mura.request, Mura.response);
-  } else {
-    Mura.getRequestContext();
   }
 
   if (typeof window != 'undefined' && typeof window.document != 'undefined') {
@@ -11025,16 +11036,30 @@ var Mura = __webpack_require__(791);
 Mura.RequestContext = Mura.Core.extend(
 /** @lends Mura.RequestContext.prototype */
 {
-  init: function init(request, response, requestHeaders, siteid) {
-    if (typeof requestHeaders == 'string') {
-      siteid = requestHeaders;
-      requestHeaders = {};
+  init: function init(request, response, headers, siteid) {
+    if (_typeof(request) === 'object' && _typeof(request.req) === 'object' && typeof response === 'undefined') {
+      var config = request;
+      request = config.req;
+      response = config.res;
+      headers = config.headers;
+      siteid = config.siteid;
+    } else {
+      if (typeof headers == 'string') {
+        var originalSiteid = siteid;
+        siteid = headers;
+
+        if (_typeof(originalSiteid) === 'object') {
+          headers = originalSiteid;
+        } else {
+          headers = {};
+        }
+      }
     }
 
     this.siteid = siteid || Mura.siteid;
     this.requestObject = request;
     this.responseObject = response;
-    this._request = new Mura.Request(request, response, requestHeaders);
+    this._request = new Mura.Request(request, response, headers);
     return this;
   },
 
