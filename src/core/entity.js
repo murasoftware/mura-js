@@ -122,7 +122,7 @@ Mura.Entity = Mura.Core.extend(
 
 			self._requestcontext.request({
 				type: method.toLowerCase(),
-				url: self._requestcontext.getAPIEndPoint() + name,
+				url: self._requestcontext.getAPIEndpoint() + name,
 				data: params,
 				success(resp) {
 					if (typeof resp.error == 'undefined') {
