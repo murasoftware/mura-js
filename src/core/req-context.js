@@ -91,7 +91,7 @@ Mura.RequestContext=Mura.Core.extend(
 	 * @return {object} All Headers
 	 */
 	 getMode(){
-		return this.getMode;
+		return this.mode;
 	},
 
 	/**

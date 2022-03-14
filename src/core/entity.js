@@ -730,7 +730,7 @@ Mura.Entity = Mura.Core.extend(
 				}
 
 				var context = self.get('id');
-				if(self._requestcontext.toLowerCase() == 'rest'){
+				if(self._requestcontext.getMode().toLowerCase() == 'rest'){
 					self._requestcontext.request({
 						type: 'post',
 						url: self._requestcontext.getAPIEndpoint() + '?method=save',
