@@ -77,7 +77,7 @@ Mura.RequestContext=Mura.Core.extend(
 	},
 
 	/**
-	 * getApiEndpoint() - Returns api endpoint
+	 * getAPIEndpoint() - Returns api endpoint
 	 *
 	 * @return {object} All Headers
 	 */
