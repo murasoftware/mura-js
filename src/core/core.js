@@ -547,7 +547,8 @@ function normalizeRequestHandler(eventHandler) {
  * @return {Mura.RequestContext}	 Mura.RequestContext
  * @memberof {class} Mura
  */
-function getRequestContext(request,response, headers, siteid) {
+function getRequestContext(request,response, headers, siteid, endpoint, mode) {
+	//Logic aded to support single config object arg
 	if(typeof request==='object' 
 		&& typeof  request.req ==='object'
 		&& typeof response === 'undefined'){
@@ -556,6 +557,8 @@ function getRequestContext(request,response, headers, siteid) {
 			response=config.res;
 			headers=config.headers;
 			siteid=config.siteid;
+			endpoint=config.endpoint;
+			mode=config.mode;
 	} else {
 		if(typeof headers=='string'){
 			var originalSiteid=siteid;
@@ -569,7 +572,9 @@ function getRequestContext(request,response, headers, siteid) {
 	}
 	request = request || Mura.request;
 	response = response || Mura.response;
-	return new Mura.RequestContext(request,response, headers, siteid);
+	endpoint = endpoint || Mura.getAPIEndpoint();
+	mode = mode || Mura.getMode()
+	return new Mura.RequestContext(request,response, headers, siteid, endpoint, mode);
 }
 
 /**

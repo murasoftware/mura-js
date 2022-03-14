@@ -667,10 +667,11 @@ Mura.Feed = Mura.Core.extend(
 			}
 
 			return new Promise(function(resolve, reject) {
-				if (Mura.getAPIEndpoint().charAt(Mura.getAPIEndpoint().length - 1) == "/") {
-					var apiEndpoint = Mura.getAPIEndpoint();
+				var rcEndpoint=self._requestcontext.getAPIEndpoint();
+				if (rcEndpoint.charAt(rcEndpoint.length - 1) == "/") {
+					var apiEndpoint = rcEndpoint;
 				} else {
-					var apiEndpoint = Mura.getAPIEndpoint() + '/';
+					var apiEndpoint = rcEndpoint + '/';
 				}
 				self._requestcontext.request({
 					type: 'get',

@@ -67,7 +67,7 @@ Mura.Entity = Mura.Core.extend(
 	 * @return {string} All Headers
 	 */
 	getApiEndPoint(){
-		return	Mura.getAPIEndpoint() + this.get('entityname') + '/';
+		return	this._requestcontext.getAPIEndpoint() + this.get('entityname') + '/';
 	},
 
 	/**
@@ -122,7 +122,7 @@ Mura.Entity = Mura.Core.extend(
 
 			self._requestcontext.request({
 				type: method.toLowerCase(),
-				url: self.getApiEndPoint() + name,
+				url: self._requestcontext.getAPIEndPoint() + name,
 				data: params,
 				success(resp) {
 					if (typeof resp.error == 'undefined') {
@@ -170,7 +170,7 @@ Mura.Entity = Mura.Core.extend(
 
 		Mura.normalizeRequestHandler(eventHandler);
 
-		if(Mura.mode.toLowerCase() == 'rest'){
+		if(self._requestcontext.getMode().toLowerCase() == 'rest'){
 
 			return new Promise(function(resolve,reject) {
 				return self.invoke(
@@ -192,7 +192,7 @@ Mura.Entity = Mura.Core.extend(
 				}
 				self._requestcontext.request({
 					type: 'post',
-					url: Mura.getAPIEndpoint() + '?method=generateCSRFTokens',
+					url: self._requestcontext.getAPIEndpoint() + '?method=generateCSRFTokens',
 					data: {
 						siteid: self.get('siteid'),
 						context: name
@@ -383,7 +383,7 @@ Mura.Entity = Mura.Core.extend(
 			},
 				params
 			);
-			Mura.get(Mura.getAPIEndpoint(), params).then(
+			self._requestcontext.get(self._requestcontext.getAPIEndpoint(), params).then(
 				function(resp) {
 					self.set(resp.data);
 					if (typeof resolve == 'function') {
@@ -401,10 +401,10 @@ Mura.Entity = Mura.Core.extend(
 	'checkSchema'() {
 		var self = this;
 		return new Promise(function(resolve, reject) {
-			if(Mura.mode.toLowerCase() == 'rest'){
+			if(self._requestcontext.getMode().toLowerCase() == 'rest'){
 				self._requestcontext.request({
 					type: 'post',
-					url: Mura.getAPIEndpoint(),
+					url: self._requestcontext.getAPIEndpoint(),
 					data:{
 						entityname: self.get('entityname'),
 						method: 'checkSchema',
@@ -433,7 +433,7 @@ Mura.Entity = Mura.Core.extend(
 			} else {
 				self._requestcontext.request({
 					type: 'post',
-					url: Mura.getAPIEndpoint() + '?method=generateCSRFTokens',
+					url: self._requestcontext.getAPIEndpoint() + '?method=generateCSRFTokens',
 					data: {
 						siteid: self.get('siteid'),
 						context: ''
@@ -441,7 +441,7 @@ Mura.Entity = Mura.Core.extend(
 					success(resp) {
 						self._requestcontext.request({
 							type: 'post',
-							url: Mura.getAPIEndpoint(),
+							url: self._requestcontext.getAPIEndpoint(),
 							data: Mura
 							.extend(
 							{
@@ -489,10 +489,10 @@ Mura.Entity = Mura.Core.extend(
 		deleteSchema=deleteSchema || false;
 		var self = this;
 		return new Promise(function(resolve, reject) {
-			if(Mura.mode.toLowerCase() == 'rest'){
+			if(self._requestcontext.getMode().toLowerCase() == 'rest'){
 				self._requestcontext.request({
 					type: 'post',
-					url: Mura.getAPIEndpoint(),
+					url: self._requestcontext.getAPIEndpoint(),
 					data: {
 						entityname: self.get('entityname'),
 						deleteSchema: deleteSchema,
@@ -520,7 +520,7 @@ Mura.Entity = Mura.Core.extend(
 			} else {
 				return self._requestcontext.request({
 					type: 'post',
-					url: Mura.getAPIEndpoint() + '?method=generateCSRFTokens',
+					url: self._requestcontext.getAPIEndpoint() + '?method=generateCSRFTokens',
 					data: {
 						siteid: self.get('siteid'),
 						context: ''
@@ -528,7 +528,7 @@ Mura.Entity = Mura.Core.extend(
 					success(resp) {
 						self._requestcontext.request({
 							type: 'post',
-							url: Mura.getAPIEndpoint(),
+							url: self._requestcontext.getAPIEndpoint(),
 							data: Mura
 							.extend(	{
 								entityname: self.get('entityname'),
@@ -599,7 +599,7 @@ Mura.Entity = Mura.Core.extend(
 				params.showExcludeSearch = 1;
 			}
 			params[propertyName] = propertyValue;
-			Mura.findQuery(params).then(
+			self._requestcontext.findQuery(params).then(
 				function(collection) {
 					if (collection.get('items').length) {
 						self.set(collection.get('items')[0].getAll());
@@ -629,7 +629,7 @@ Mura.Entity = Mura.Core.extend(
 		return new Promise(function(resolve, reject) {
 			self._requestcontext.request({
 				type: 'post',
-				url: Mura.getAPIEndpoint() + '?method=validate',
+				url: self._requestcontext.getAPIEndpoint() + '?method=validate',
 				data: {
 					data: JSON.stringify(data),
 					validations: '{}',
@@ -702,7 +702,7 @@ Mura.Entity = Mura.Core.extend(
 				var temp = Mura.deepExtend({},self.getAll());
 				self._requestcontext.request({
 					type: 'get',
-					url: Mura.getAPIEndpoint() + self.get('entityname') + '/new',
+					url: self._requestcontext.getAPIEndpoint() + self.get('entityname') + '/new',
 					success(resp) {
 						self.set(resp.data);
 						self.set(temp);
@@ -730,10 +730,10 @@ Mura.Entity = Mura.Core.extend(
 				}
 
 				var context = self.get('id');
-				if(Mura.mode.toLowerCase() == 'rest'){
+				if(self._requestcontext.toLowerCase() == 'rest'){
 					self._requestcontext.request({
 						type: 'post',
-						url: Mura.getAPIEndpoint() + '?method=save',
+						url: self._requestcontext.getAPIEndpoint() + '?method=save',
 						data:	self.getAll(),
 						success(resp) {
 							if (resp.data != 'undefined') {
@@ -769,7 +769,7 @@ Mura.Entity = Mura.Core.extend(
 				} else {
 					self._requestcontext.request({
 						type: 'post',
-						url: Mura.getAPIEndpoint() + '?method=generateCSRFTokens',
+						url: self._requestcontext.getAPIEndpoint() + '?method=generateCSRFTokens',
 						data: {
 							siteid: self.get('siteid'),
 							context: context
@@ -777,7 +777,7 @@ Mura.Entity = Mura.Core.extend(
 						success(resp) {
 							self._requestcontext.request({
 								type: 'post',
-								url: Mura.getAPIEndpoint() + '?method=save',
+								url: self._requestcontext.getAPIEndpoint() + '?method=save',
 								data: Mura
 								.extend( self.getAll(), {
 										'csrf_token': resp.data.csrf_token,
@@ -837,7 +837,7 @@ Mura.Entity = Mura.Core.extend(
 		Mura.normalizeRequestHandler(eventHandler);
 
 		var self = this;
-		if(Mura.mode.toLowerCase() == 'rest'){
+		if(self._requestcontext.getMode().toLowerCase() == 'rest'){
 			return new Promise(function(resolve, reject) {
 
 				if(typeof resolve == 'function'){
@@ -850,7 +850,7 @@ Mura.Entity = Mura.Core.extend(
 
 				self._requestcontext.request({
 					type: 'post',
-					url: Mura.getAPIEndpoint() + '?method=delete',
+					url: self._requestcontext.getAPIEndpoint() + '?method=delete',
 					data: {
 						siteid: self.get('siteid'),
 						id: self.get('id'),
@@ -880,7 +880,7 @@ Mura.Entity = Mura.Core.extend(
 
 				self._requestcontext.request({
 					type: 'post',
-					url: Mura.getAPIEndpoint() + '?method=generateCSRFTokens',
+					url: self._requestcontext.getAPIEndpoint() + '?method=generateCSRFTokens',
 					data: {
 						siteid: self.get('siteid'),
 						context: self.get('id')
@@ -888,7 +888,7 @@ Mura.Entity = Mura.Core.extend(
 					success(resp) {
 						self._requestcontext.request({
 							type: 'post',
-							url: Mura.getAPIEndpoint() + '?method=delete',
+							url: self._requestcontext.getAPIEndpoint() + '?method=delete',
 							data: {
 								siteid: self.get('siteid'),
 								id: self.get('id'),
@@ -921,9 +921,7 @@ Mura.Entity = Mura.Core.extend(
 	 * @return {object}
 	 */
 	getFeed() {
-		var siteid = get('siteid') || Mura.siteid;
-		var feed=this._requestcontext.getFeed(this.get('entityName'));
-		return feed;
+		return this._requestcontext.getFeed(this.get('entityName'));
 	},
 
 	/**
