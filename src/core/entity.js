@@ -66,7 +66,7 @@ Mura.Entity = Mura.Core.extend(
 	 *
 	 * @return {string} All Headers
 	 */
-	getApiEndPoint(){
+	 getAPIEndpoint(){
 		return	this._requestcontext.getAPIEndpoint() + this.get('entityname') + '/';
 	},
 
@@ -122,7 +122,7 @@ Mura.Entity = Mura.Core.extend(
 
 			self._requestcontext.request({
 				type: method.toLowerCase(),
-				url: self._requestcontext.getAPIEndpoint() + name,
+				url: self.getAPIEndpoint() + name,
 				data: params,
 				success(resp) {
 					if (typeof resp.error == 'undefined') {
