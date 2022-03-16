@@ -364,9 +364,13 @@ Mura.Request=Mura.Core.extend(
 		},
 		serializeParams(params){
 			const query = [];
-			for (var key in params) {
+			for (let key in params) {
 				if(params.hasOwnProperty(key)){
-					query.push(encodeURIComponent(key) + '=' + encodeURIComponent(params[key]));
+					let val=params[key];
+					if (typeof val == 'object') {
+						val = JSON.stringify(val);
+					}
+					query.push(encodeURIComponent(key) + '=' + encodeURIComponent(val));
 				}
 			}	
 			return query.join('&');
@@ -388,45 +392,60 @@ Mura.Request=Mura.Core.extend(
 
 			if(parsedConfig.method =='get'){
 				//GET send params and not data
-				parsedConfig.params=Mura.deepExtend({}, config.data)
-				if(typeof parsedConfig.params['muraPointInTime'] == 'undefined' && typeof Mura.pointInTime != 'undefined'){
-					parsedConfig.params['muraPointInTime']=Mura.pointInTime;
+				const params=Mura.deepExtend({}, config.data)
+				
+				if(typeof params['muraPointInTime'] == 'undefined' && typeof Mura.pointInTime != 'undefined'){
+					params['muraPointInTime']=Mura.pointInTime;
 				}
-			} else {
-				if(sendJSON){
-					parsedConfig.data=Object.assign({},config.data);
-				} else {
-					if (sendFormData){
-						parsedConfig.data=config.data;
-					} else {
-						parsedConfig.data=Mura.deepExtend({}, config.data);
-						if(typeof parsedConfig.data['muraPointInTime'] == 'undefined' && typeof Mura.pointInTime != 'undefined'){
-							parsedConfig.data['muraPointInTime']=Mura.pointInTime;
-						}
-					}
-			
-					if (sendFormData){
-						parsedConfig.headers['content-type']='multipart/form-data; charset=UTF-8';
-					} else {
+
+				if(config.maxQueryStringLength){
+					const queryString = this.serializeParams(params);
+
+					if(config.maxQueryStringLength && (queryString.length > config.maxQueryStringLength)){
 						parsedConfig.headers['content-type']='application/x-www-form-urlencoded; charset=UTF-8';
-						parsedConfig.data=Object.assign({},config.data);
-					
-						for (let p in parsedConfig.data) {
-							if (typeof parsedConfig.data[p] == 'object') {
-								parsedConfig.data[p] = JSON.stringify(parsedConfig.data[p]);
-							}
+						parsedConfig.data = queryString;
+						parsedConfig.method='post';
+					} else {
+						if(parsedConfig.url.indexOf('?') > -1){
+							parsedConfig.url += ('&' + queryString);
+						} else {
+							parsedConfig.url += ('?' + queryString);
 						}
+					}
+				} else {
+					parsedConfig.params=params;
+				}
+				
+				return parsedConfig;
+			} 
 
-						if(typeof parsedConfig.data['muraPointInTime'] == 'undefined' && typeof Mura.pointInTime != 'undefined'){
-							parsedConfig.data['muraPointInTime']=Mura.pointInTime;
-						}
-
-						parsedConfig.data = this.serializeParams(parsedConfig.data);
-					
+			if(sendJSON){
+				parsedConfig.data=Object.assign({},config.data);
+			} else {
+				if (sendFormData){
+					parsedConfig.data=config.data;
+				} else {
+					parsedConfig.data=Mura.deepExtend({}, config.data);
+					if(typeof parsedConfig.data['muraPointInTime'] == 'undefined' && typeof Mura.pointInTime != 'undefined'){
+						parsedConfig.data['muraPointInTime']=Mura.pointInTime;
 					}
 				}
-			}
 		
+				if (sendFormData){
+					parsedConfig.headers['content-type']='multipart/form-data; charset=UTF-8';
+				} else {
+					parsedConfig.headers['content-type']='application/x-www-form-urlencoded; charset=UTF-8';
+					parsedConfig.data=Object.assign({},config.data);
+				
+					if(typeof parsedConfig.data['muraPointInTime'] == 'undefined' && typeof Mura.pointInTime != 'undefined'){
+						parsedConfig.data['muraPointInTime']=Mura.pointInTime;
+					}
+
+					parsedConfig.data = this.serializeParams(parsedConfig.data);
+				
+				}
+			}	
+
 			return parsedConfig;
 			
 		}
