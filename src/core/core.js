@@ -45,7 +45,7 @@ function trackEvent(eventData) {
 	}
 
 	var data={};
-	var isMXP=(typeof Mura.MXP != 'undefined');
+	var isMXP=(typeof Mura.trackingVars != 'undefined');
 	var trackingVars = {
 		ga:{
 			trackingvars:{}
