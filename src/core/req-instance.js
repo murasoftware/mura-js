@@ -420,12 +420,12 @@ Mura.Request=Mura.Core.extend(
 			} 
 
 			if(sendJSON){
-				parsedConfig.data=Object.assign({},config.data);
+				parsedConfig.data=Mura.extend({},config.data);
 			} else {
 				if (sendFormData){
 					parsedConfig.data=config.data;
 				} else {
-					parsedConfig.data=Mura.deepExtend({}, config.data);
+					parsedConfig.data=Mura.extend({}, config.data);
 					if(typeof parsedConfig.data['muraPointInTime'] == 'undefined' && typeof Mura.pointInTime != 'undefined'){
 						parsedConfig.data['muraPointInTime']=Mura.pointInTime;
 					}
@@ -435,7 +435,7 @@ Mura.Request=Mura.Core.extend(
 					parsedConfig.headers['content-type']='multipart/form-data; charset=UTF-8';
 				} else {
 					parsedConfig.headers['content-type']='application/x-www-form-urlencoded; charset=UTF-8';
-					parsedConfig.data=Object.assign({},config.data);
+					parsedConfig.data=Mura.extend({},config.data);
 				
 					if(typeof parsedConfig.data['muraPointInTime'] == 'undefined' && typeof Mura.pointInTime != 'undefined'){
 						parsedConfig.data['muraPointInTime']=Mura.pointInTime;
