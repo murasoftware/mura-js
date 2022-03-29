@@ -168,10 +168,11 @@ Mura.Entity = Mura.Core.extend(
 			eventHandler=eventHandler || {};
 		}
 
+		var self = this;
+
 		Mura.normalizeRequestHandler(eventHandler);
 
 		if(self._requestcontext.getMode().toLowerCase() == 'rest'){
-
 			return new Promise(function(resolve,reject) {
 				return self.invoke(
 					name,
@@ -181,7 +182,7 @@ Mura.Entity = Mura.Core.extend(
 				).then(resolve,reject);
 			});
 		} else {
-			var self = this;
+			
 			return new Promise(function(resolve,reject) {
 				if(typeof resolve == 'function'){
 					eventHandler.success=resolve;
@@ -246,6 +247,9 @@ Mura.Entity = Mura.Core.extend(
 	 * @return {*}							Property Value
 	 */
 	get(propertyName, defaultValue) {
+		if(typeof propertyName=='undefined'){
+			return this.getAll();
+		}
 		if (typeof this.properties.links != 'undefined' &&
 			typeof this.properties.links[propertyName] != 'undefined') {
 			var self = this;

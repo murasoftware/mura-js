@@ -30,7 +30,7 @@ module.exports = {
 	optimization: {
     minimize: minimize
   },
-  entry: ['core-js/web','core-js/features/promise','regenerator-runtime/runtime',pjson.main],
+  entry: ['core-js/web','core-js/features/promise','core-js/features/array','regenerator-runtime/runtime',pjson.main],
   devtool: 'source-map',
   output: {
     filename: outputFile,
