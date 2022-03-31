@@ -142,7 +142,7 @@ Mura.Request=Mura.Core.extend(
 		
 			var self=this;
 			if(typeof this.requestObject != 'undefined'){
-				['Cookie','X-Client_id','X-Client_secret','X-Access_token','Access_Token','Authorization','User-Agent','Referer','X-Forwarded-For','X-Forwarded-Host','X-Forwarded-Proto'].forEach((item)=>{
+				['Cookie','X-Client_id','X-Client_secret','X-Access_token','Access_Token','Authorization','User-Agent','Host','Referer','X-Forwarded-For','X-Forwarded-Host','X-Forwarded-Proto'].forEach((item)=>{
 					if(typeof this.requestObject.headers[item] != 'undefined'){
 						config.headers[item.toLowerCase()]=this.requestObject.headers[item];
 					} else {
@@ -322,12 +322,12 @@ Mura.Request=Mura.Core.extend(
 				config.success(response.data);
 			})
 			.catch(function(error){
-				console.log(error)
 				if(error.response){
 					nodeProxyCookies(error.response);
 					nodeProxyHeaders(error.response);
 					config.error(error.response.data);	
 				} else {
+					console.log(error)
 					config.error(error);	
 				}
 			});
@@ -352,10 +352,10 @@ Mura.Request=Mura.Core.extend(
 					config.success(response.data);
 				},
 				function(error){
-					console.log(error)
 					if(error.response){
 						config.error(error.response.data);	
 					} else {
+						console.log(error)
 						config.error(error);	
 					}
 				}
