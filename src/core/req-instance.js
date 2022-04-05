@@ -325,7 +325,7 @@ Mura.Request=Mura.Core.extend(
 				if(error.response){
 					nodeProxyCookies(error.response);
 					nodeProxyHeaders(error.response);
-					config.error(config.url,error.response.data);	
+					config.error(error.response.data);	
 				} else {
 					console.log(error)
 					config.error(error);	
