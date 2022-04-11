@@ -414,7 +414,7 @@ var getMuraPaths = function getMuraPaths() {
 
     var _temp4 = _forTo(siteids, function (index) {
       getMura(siteids[index]);
-      return Promise.resolve(Mura.getFeed('content').maxItems(0).itemsPerPage(0).sort('orderno').getQuery({
+      return Promise.resolve(Mura.getFeed('content').maxItems(0).itemsPerPage(0).sort('orderno').where().prop('type').isNotIn('File,Link,Calendar').getQuery({
         renderMode: 'static'
       })).then(function (items) {
         pathList = pathList.concat(items.getAll().items);

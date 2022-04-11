@@ -81,6 +81,7 @@ export const getMuraPaths = async function() {
     .maxItems(0)
     .itemsPerPage(0)
     .sort('orderno')
+    .where().prop('type').isNotIn('File,Link,Calendar')
     .getQuery({renderMode:'static'});
     pathList=pathList.concat(items.getAll().items);
     pathList.push({ 

@@ -141,7 +141,7 @@ Mura.Request=Mura.Core.extend(
 			}
 		
 			var self=this;
-			if(typeof this.requestObject != 'undefined'){
+			if(typeof this.requestObject != 'undefined' && typeof this.requestObject.headers != 'undefined'){
 				['Cookie','X-Client_id','X-Client_secret','X-Access_token','Access_Token','Authorization','User-Agent','Referer','X-Forwarded-For','X-Forwarded-Host','X-Forwarded-Proto'].forEach((item)=>{
 					if(typeof this.requestObject.headers[item] != 'undefined'){
 						config.headers[item.toLowerCase()]=this.requestObject.headers[item];
@@ -158,7 +158,7 @@ Mura.Request=Mura.Core.extend(
 
 			for( h in Mura.requestHeaders){
 					if(Mura.requestHeaders.hasOwnProperty(h)){
-						config.headers[h.toLowerCase()]= config.requestHeaders[h];
+						config.headers[h.toLowerCase()]= Mura.requestHeaders[h];
 					}
 			}
 			for( h in this.requestHeaders){
