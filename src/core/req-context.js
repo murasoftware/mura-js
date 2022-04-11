@@ -399,8 +399,8 @@ Mura.RequestContext=Mura.Core.extend(
 			params=params || {};
 			params.fields=params.fields || '';
 			return new Promise(function(resolve, reject) {
-				if (Mura.currentUser) {
-					resolve(Mura.currentUser);
+				if (self.currentUser) {
+					resolve(self.currentUser);
 				} else {
 					self.request({
 						async: true,
@@ -410,16 +410,16 @@ Mura.RequestContext=Mura.Core.extend(
 							Math.random(),
 						success(resp) {
 							if (typeof resolve =='function') {
-								Mura.currentUser = self.getEntity('user');
-								Mura.currentUser.set(resp.data);
-								resolve(Mura.currentUser);
+								self.currentUser = self.getEntity('user');
+								self.currentUser.set(resp.data);
+								resolve(self.currentUser);
 							}
 						},
 						error(resp) {
 							if (typeof resolve =='function') {
-								Mura.currentUser=self.getEntity('user')
-								Mura.currentUser.set( resp.data);
-								resolve(Mura.currentUser);
+								self.self=self.getEntity('user')
+								self.currentUser.set( resp.data);
+								resolve(self.currentUser);
 							}
 						}
 					});

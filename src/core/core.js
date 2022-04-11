@@ -271,7 +271,22 @@ function getFeed(entityname,siteid) {
  * @memberof {class} Mura
  */
 function getCurrentUser(params) {
-	return Mura.getRequestContext().getCurrentUser(params);
+	return new Promise(function(resolve, reject) {
+		if(Mura.currentUser){
+			return resolve(Mura.currentUser);
+		} else {
+			Mura.getRequestContext().getCurrentUser(params).then(
+				function(currentUser){
+					Mura.currentUser=currentUser;
+					resolve(Mura.currentUser);
+				},
+				function(currentUser){
+					Mura.currentUser=currentUser;
+					resolve(Mura.currentUser);
+				}
+			);
+		}
+	});
 }
 
 /**
