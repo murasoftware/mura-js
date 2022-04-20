@@ -937,6 +937,7 @@ var DisplayRegion = function DisplayRegion(_ref2) {
       context = _ref2.context,
       queryParams = _ref2.queryParams;
   var isEditMode = getIsEditMode();
+  var requestContext = getMura().getRequestContext();
   var inherited = '';
 
   if (region.inherited && region.inherited.items.length) {
@@ -951,6 +952,7 @@ var DisplayRegion = function DisplayRegion(_ref2) {
       obj.content = content;
       obj.queryParams = queryParams;
       obj.regionContext = context;
+      obj.requestContext = requestContext;
       return /*#__PURE__*/React__default.createElement(Decorator, obj, getComponent(obj));
     }));
   }
@@ -969,6 +971,7 @@ var DisplayRegion = function DisplayRegion(_ref2) {
     obj.content = content;
     obj.queryParams = queryParams;
     obj.regionContext = context;
+    obj.requestContext = requestContext;
     return /*#__PURE__*/React__default.createElement(Decorator, obj, getComponent(obj));
   })));
 };

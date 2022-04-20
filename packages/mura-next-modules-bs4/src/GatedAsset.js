@@ -101,10 +101,10 @@ const GatedAsset =function(props) {
             }
             <div>
                 <div className="mura-gate" style={{display: !gateIsOpen ? 'block' : 'none' }}>
-                    <Decorator {...gateparams} content={props.content}/>
+                    <Decorator {...gateparams} content={props.content} requestContext={props.requestContext}/>
                 </div>
                 <div className="mura-asset" style={{display: gateIsOpen ? 'block' : 'none' }}>
-                    <Decorator {...assetparams} content={props.content}/>
+                    <Decorator {...assetparams} content={props.content} requestContext={props.requestContext}/>
                 </div>
             </div>
         </div>

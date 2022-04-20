@@ -1,5 +1,5 @@
 import React from 'react';
-import { getIsEditMode, getComponent } from './Connector';
+import { getIsEditMode, getComponent, getMura } from './Connector';
 import Decorator from './Decorator';
 
 const DisplayRegionSection = ({ children, region, section, isEditMode }) => {
@@ -44,6 +44,8 @@ const DisplayRegionSection = ({ children, region, section, isEditMode }) => {
 
 const DisplayRegion = ({ region, moduleStyleData, content, context, queryParams }) => {
   const isEditMode = getIsEditMode();
+  const requestContext=getMura().getRequestContext();
+
   let inherited = '';
 // Mura inheritance, where modules are inherited from parent content
   if (region.inherited && region.inherited.items.length) {
@@ -60,6 +62,7 @@ const DisplayRegion = ({ region, moduleStyleData, content, context, queryParams 
           obj.content = content;
           obj.queryParams = queryParams;
           obj.regionContext =  context;
+          obj.requestContext =  requestContext;
           return <Decorator {...obj}>{getComponent(obj)}</Decorator>;
         })}
       </DisplayRegionSection>
@@ -81,6 +84,7 @@ const DisplayRegion = ({ region, moduleStyleData, content, context, queryParams 
           obj.content = content;
           obj.queryParams = queryParams;
           obj.regionContext =  context;
+          obj.requestContext =  requestContext;
           return <Decorator {...obj}>{getComponent(obj)}</Decorator>;
         })}
       </DisplayRegionSection>

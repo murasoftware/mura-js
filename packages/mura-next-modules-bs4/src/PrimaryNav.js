@@ -74,12 +74,12 @@ const Render = ({ items, link, ...props }) => {
     )
 };
 
-export const getDynamicProps = async ({requestContext}) => {
+export const getDynamicProps = async () => {
   const Mura = getMura();
   
   //console.log("requesting primary nav data",props.instanceid,Date.now(),Mura.siteid);
  
-  const collection=await requestContext.getFeed('content')
+  const collection=await Mura.getFeed('content')
     .where()
     .prop('parentid')
     .isEQ(Mura.homeid)

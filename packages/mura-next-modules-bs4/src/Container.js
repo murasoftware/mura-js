@@ -6,7 +6,7 @@ import { getComponent } from '@murasoftware/next-core';
 import { Decorator } from '@murasoftware/next-core';
 
 export const Container = function(props) {
-  const { items,content,instanceid } = props;
+  const { items,content,instanceid,requestContext } = props;
   // console.log('Container -> items', items);
   // console.log('Container -> props', props);
   if (!items) return '';
@@ -58,6 +58,7 @@ export const Container = function(props) {
           obj.regionContext =  props.regionContext;
           obj.queryParams =  props.queryParams;
           obj.content = content;
+          obj.requestContext = requestContext;
           return (<Decorator {...obj}> {getComponent(obj)} </Decorator>)
       })
    
