@@ -15,11 +15,12 @@ var Mura=require('./core');
 Mura.Request=Mura.Core.extend(
 	/** @lends Mura.Request.prototype */
 	{
-		init(request, response, headers) {
+		init(request, response, headers, renderMode) {
 			this.requestObject=request;
 			this.responseObject=response;
 			this.requestHeaders=headers || {};
 			this.inNode=typeof XMLHttpRequest === 'undefined';
+			this.renderMode=(typeof renderMode != 'undefined') ? renderMode : Mura.getRenderMode();
 			return this;
 		},
 
@@ -135,10 +136,9 @@ Mura.Request=Mura.Core.extend(
 			return this.requestHeaders;
 		},
 		nodeRequest(config){
-
-			if(typeof Mura.renderMode != 'undefined'){
-				config.renderMode=Mura.renderMode;
-			}
+			if(typeof this.renderMode != 'undefined'){
+				config.renderMode=this.renderMode;
+			} 
 		
 			var self=this;
 			if(typeof this.requestObject != 'undefined' && typeof this.requestObject.headers != 'undefined'){
@@ -210,7 +210,7 @@ Mura.Request=Mura.Core.extend(
 			const nodeProxyCookies = (response)=>{
 				var debug=typeof Mura.debug != 'undefined' && Mura.debug;
 				
-				if(typeof self.responseObject != 'undefined'){
+				if(typeof self.responseObject != 'undefined' && typeof self.requestObject != 'undefined' && typeof self.requestObject.headers !='undefined'){
 					var existingCookies=(typeof self.requestObject.headers['cookie'] != 'undefined') ? self.requestObject.headers['cookie'] : '';
 					var newSetCookies=response.headers['set-cookie'];
 					

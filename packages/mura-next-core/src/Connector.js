@@ -223,6 +223,8 @@ export const getMuraProps = async (context,isEditMode,params,callback) => {
     }
   }
 
+  const requestContext=Mura.getRequestContext();
+
   let content={
     title: "We're sorry, an error occurred",
     menutitle: "We're sorry, an error occurred",
@@ -247,7 +249,7 @@ export const getMuraProps = async (context,isEditMode,params,callback) => {
   };
 
   try {
-    const muraObject = await renderContent(context,isEditMode,params);
+    const muraObject = await renderContent(context,isEditMode,params,requestContext);
     if(typeof muraObject != 'undefined' 
       && typeof muraObject.getAll != 'undefined'){
       content = muraObject.getAll();
@@ -300,7 +302,7 @@ export const getMuraProps = async (context,isEditMode,params,callback) => {
     queryParams = {...context.query};
   }
 
-  const moduleStyleData = await getRegionProps(content,queryParams,isEditMode);
+  const moduleStyleData = await getRegionProps(content,queryParams,isEditMode,requestContext);
 
   const codeblocks={
     header:[],
@@ -313,7 +315,7 @@ export const getMuraProps = async (context,isEditMode,params,callback) => {
       && (context.res || context.browser)
       && !(queryParams.codeblocks && queryParams.codeblocks==="false")  
     ){
-      const codeCollection=await Mura.getFeed('codeblock')
+      const codeCollection=await requestContext.getFeed('codeblock')
         .where().prop('active').isEQ(1).getQuery();
       
       codeCollection.forEach((item)=>{
@@ -359,7 +361,7 @@ export const getMuraProps = async (context,isEditMode,params,callback) => {
   }
 };
 
-async function renderContent(context,isEditMode,params) {
+async function renderContent(context,isEditMode,params,requestContext) {
 
   let query = {};
 
@@ -389,7 +391,7 @@ async function renderContent(context,isEditMode,params) {
   //console.log(filename,query,isEditMode)
   query=Object.assign(query,params);
 
-  return await Mura.renderFilename(filename, query).then(
+  return await requestContext.renderFilename(filename, query).then(
     async rendered => {
       return rendered;
     },
@@ -401,7 +403,7 @@ async function renderContent(context,isEditMode,params) {
 
 
 
-async function getRegionProps(content,queryParams,isEditMode) {
+async function getRegionProps(content,queryParams,isEditMode,requestContext) {
   getMura();
   let moduleStyleData = {};
 
@@ -423,7 +425,8 @@ async function getRegionProps(content,queryParams,isEditMode) {
           moduleStyleData,
           isEditMode,
           content,
-          queryParams
+          queryParams,
+          requestContext
         );
       }
     }
@@ -436,7 +439,8 @@ async function getRegionProps(content,queryParams,isEditMode) {
         moduleStyleData,
         isEditMode,
         content,
-        queryParams
+        queryParams,
+        requestContext
       );
     }
 
@@ -445,7 +449,7 @@ async function getRegionProps(content,queryParams,isEditMode) {
   return moduleStyleData;
 }
 
-async function getModuleProps(item,moduleStyleData,isEditMode,content,queryParams) {
+async function getModuleProps(item,moduleStyleData,isEditMode,content,queryParams,requestContext) {
   getMura();
 
   try{
@@ -460,7 +464,7 @@ async function getModuleProps(item,moduleStyleData,isEditMode,content,queryParam
      
       if(ComponentRegistry[objectkey].SSR){
         try {
-          item.dynamicProps = await ComponentRegistry[objectkey].getDynamicProps({...item,content,queryParams});
+          item.dynamicProps = await ComponentRegistry[objectkey].getDynamicProps({...item,content,queryParams,requestContext});
         } catch(e){
           console.error('Error getting dynamicProps',e);
           item.dynamicProps={};
@@ -486,7 +490,8 @@ async function getModuleProps(item,moduleStyleData,isEditMode,content,queryParam
             moduleStyleData,
             isEditMode,
             content,
-            queryParams
+            queryParams,
+            requestContext
           );
         }
       }

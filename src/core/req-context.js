@@ -22,12 +22,13 @@ Mura.RequestContext=Mura.Core.extend(
 			&& typeof  request.req ==='object'
 			&& typeof response === 'undefined'){
 				var config=request;
-				request=config.req;
-				response=config.res;
+				request=config.req || config.request;
+				response=config.res || config.response;
 				headers=config.headers;
 				siteid=config.siteid;
 				endpoint=config.endpoint;
 				mode=config.mode;
+				renderMode=config.renderMode;
 		} else {
 			if(typeof headers=='string'){
 				var originalSiteid=siteid;
@@ -43,9 +44,10 @@ Mura.RequestContext=Mura.Core.extend(
 		this.siteid=siteid || Mura.siteid;
 		this.apiEndpoint=endpoint || Mura.getAPIEndpoint();
 		this.mode=mode || Mura.getMode();
+		this.renderMode=(typeof renderMode != 'undefined') ? renderMode : Mura.getRenderMode();
 		this.requestObject=request;
 		this.responseObject=response;
-		this._request=new Mura.Request(request, response, headers);
+		this._request=new Mura.Request(request, response, headers, this.renderMode);
 
 		if(this.mode=='rest'){
 			this.apiEndpoint=this.apiEndpoint.replace('/json/', '/rest/');
@@ -79,19 +81,41 @@ Mura.RequestContext=Mura.Core.extend(
 	/**
 	 * getAPIEndpoint() - Returns api endpoint
 	 *
-	 * @return {object} All Headers
+	 * @return {string} api endpoint
 	 */
 	 getAPIEndpoint(){
 		return this.apiEndpoint;
 	},
 
 	/**
-	 * getMode() - Returns context's mode
+	 * setAPIEndpoint() - sets api endpoint
+	 * 
+	 * @param	{string} apiEndpoin apiEndpoint
+	 * @return {object} self
+	 */
+	 setAPIEndpoint(apiEndpoint){
+		this.apiEndpoint=apiEndpoint;
+		return this;
+	},
+
+	/**
+	 * getMode() - Returns context's mode either rest or json
 	 *
-	 * @return {object} All Headers
+	 * @return {string} mode
 	 */
 	 getMode(){
 		return this.mode;
+	},
+
+	/**
+	 * setAPIEndpoint() - sets context's mode either rest or json
+	 * 
+	 * @param	{string} mode mode
+	 * @return {object} self
+	 */
+	 setMode(mode){
+		this.mode=mode;
+		return this;
 	},
 
 	/**

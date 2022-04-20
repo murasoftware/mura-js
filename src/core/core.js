@@ -562,7 +562,7 @@ function normalizeRequestHandler(eventHandler) {
  * @return {Mura.RequestContext}	 Mura.RequestContext
  * @memberof {class} Mura
  */
-function getRequestContext(request,response, headers, siteid, endpoint, mode) {
+function getRequestContext(request,response, headers, siteid, endpoint, mode, renderMode) {
 	//Logic aded to support single config object arg
 	if(typeof request==='object' 
 		&& typeof  request.req ==='object'
@@ -574,6 +574,7 @@ function getRequestContext(request,response, headers, siteid, endpoint, mode) {
 			siteid=config.siteid;
 			endpoint=config.endpoint;
 			mode=config.mode;
+			renderMode=config.renderMode
 	} else {
 		if(typeof headers=='string'){
 			var originalSiteid=siteid;
@@ -589,7 +590,8 @@ function getRequestContext(request,response, headers, siteid, endpoint, mode) {
 	response = response || Mura.response;
 	endpoint = endpoint || Mura.getAPIEndpoint();
 	mode = mode || Mura.getMode()
-	return new Mura.RequestContext(request,response, headers, siteid, endpoint, mode);
+	renderMode = (typeof renderMode != 'undefined') ? renderMode : Mura.getRenderMode()
+	return new Mura.RequestContext(request,response, headers, siteid, endpoint, mode, renderMode);
 }
 
 /**
@@ -3713,6 +3715,14 @@ function getMode(){
 	return Mura.mode;
 }
 
+function getRenderMode(){
+	return Mura.renderMode;
+}
+
+function setRenderMode(renderMode){
+	Mura.renderMode=renderMode;
+}
+
 function startUserStateListener(interval){
 	Mura.userStateListenerInterval=interval;
 }
@@ -4255,6 +4265,8 @@ const Mura=extend(
 		setAPIEndpoint:setAPIEndpoint,
 		getMode:getMode,
 		setMode:setMode,
+		getRenderMode: getRenderMode,
+		setRenderMode: setRenderMode,
 		parseStringAsTemplate:parseStringAsTemplate,
 		findText:findText,
 		deInit:deInit,

@@ -144,7 +144,7 @@ function _catch(body, recover) {
 	return result;
 }
 
-var getModuleProps = function getModuleProps(item, moduleStyleData, isEditMode, content, queryParams) {
+var getModuleProps = function getModuleProps(item, moduleStyleData, isEditMode, content, queryParams, requestContext) {
   try {
     var _temp29 = function _temp29() {
       if (isEditMode || !Mura.isInNode()) {
@@ -184,7 +184,7 @@ var getModuleProps = function getModuleProps(item, moduleStyleData, isEditMode, 
                 var _temp33 = _forIn(item.items, function (containerIdx) {
                   var containerItem = item.items[containerIdx];
                   containerItem.instanceid = containerItem.instanceid || Mura.createUUID();
-                  return Promise.resolve(getModuleProps(containerItem, moduleStyleData, isEditMode, content, queryParams)).then(function (_getModuleProps3) {
+                  return Promise.resolve(getModuleProps(containerItem, moduleStyleData, isEditMode, content, queryParams, requestContext)).then(function (_getModuleProps3) {
                     moduleStyleData[containerItem.instanceid] = _getModuleProps3;
                   });
                 });
@@ -201,7 +201,8 @@ var getModuleProps = function getModuleProps(item, moduleStyleData, isEditMode, 
               var _temp34 = _catch(function () {
                 return Promise.resolve(ComponentRegistry[objectkey].getDynamicProps(_extends({}, item, {
                   content: content,
-                  queryParams: queryParams
+                  queryParams: queryParams,
+                  requestContext: requestContext
                 }))).then(function (_ComponentRegistry$ob) {
                   item.dynamicProps = _ComponentRegistry$ob;
                 });
@@ -229,7 +230,7 @@ var getModuleProps = function getModuleProps(item, moduleStyleData, isEditMode, 
   }
 };
 
-var getRegionProps = function getRegionProps(content, queryParams, isEditMode) {
+var getRegionProps = function getRegionProps(content, queryParams, isEditMode, requestContext) {
   try {
     getMura();
     var moduleStyleData = {};
@@ -241,7 +242,7 @@ var getRegionProps = function getRegionProps(content, queryParams, isEditMode) {
         var _temp15 = _forIn(region.local.items, function (itemIdx) {
           var item = region.local.items[itemIdx];
           item.instanceid = item.instanceid || Mura.createUUID();
-          return Promise.resolve(getModuleProps(item, moduleStyleData, isEditMode, content, queryParams)).then(function (_getModuleProps2) {
+          return Promise.resolve(getModuleProps(item, moduleStyleData, isEditMode, content, queryParams, requestContext)).then(function (_getModuleProps2) {
             moduleStyleData[item.instanceid] = _getModuleProps2;
           });
         });
@@ -256,7 +257,7 @@ var getRegionProps = function getRegionProps(content, queryParams, isEditMode) {
           var _temp20 = _forIn(region.inherited.items, function (itemdIx) {
             var item = region.inherited.items[itemdIx];
             item.instanceid = item.instanceid || Mura.createUUID();
-            return Promise.resolve(getModuleProps(item, moduleStyleData, isEditMode, content, queryParams)).then(function (_getModuleProps) {
+            return Promise.resolve(getModuleProps(item, moduleStyleData, isEditMode, content, queryParams, requestContext)).then(function (_getModuleProps) {
               moduleStyleData[item.instanceid] = _getModuleProps;
             });
           });
@@ -276,7 +277,7 @@ var getRegionProps = function getRegionProps(content, queryParams, isEditMode) {
   }
 };
 
-var renderContent = function renderContent(context, isEditMode, params) {
+var renderContent = function renderContent(context, isEditMode, params, requestContext) {
   try {
     var query = {};
 
@@ -305,7 +306,7 @@ var renderContent = function renderContent(context, isEditMode, params) {
     }
 
     query = Object.assign(query, params);
-    return Promise.resolve(Mura.renderFilename(filename, query).then(function (rendered) {
+    return Promise.resolve(requestContext.renderFilename(filename, query).then(function (rendered) {
       return Promise.resolve(rendered);
     }, function (rendered) {
       return Promise.resolve(rendered);
@@ -543,7 +544,7 @@ var getMuraProps = function getMuraProps(context, isEditMode, params, callback) 
         queryParams = _extends({}, context.query);
       }
 
-      return Promise.resolve(getRegionProps(content, queryParams, isEditMode)).then(function (moduleStyleData) {
+      return Promise.resolve(getRegionProps(content, queryParams, isEditMode, requestContext)).then(function (moduleStyleData) {
         function _temp9() {
           function _temp7() {
             if (Mura.isInNode() && (typeof callback == 'undefined' || typeof callback == 'boolean' && callback)) {
@@ -588,7 +589,7 @@ var getMuraProps = function getMuraProps(context, isEditMode, params, callback) 
         var _temp8 = _catch(function () {
           var _temp5 = function () {
             if (connectorConfig.codeblocks && (context.res || context.browser) && !(queryParams.codeblocks && queryParams.codeblocks === "false")) {
-              return Promise.resolve(Mura.getFeed('codeblock').where().prop('active').isEQ(1).getQuery()).then(function (codeCollection) {
+              return Promise.resolve(requestContext.getFeed('codeblock').where().prop('active').isEQ(1).getQuery()).then(function (codeCollection) {
                 codeCollection.forEach(function (item) {
                   var placement = item.get('placement').toLowerCase();
 
@@ -627,6 +628,7 @@ var getMuraProps = function getMuraProps(context, isEditMode, params, callback) 
       }
     }
 
+    var requestContext = Mura.getRequestContext();
     var content = (_content = {
       title: "We're sorry, an error occurred",
       menutitle: "We're sorry, an error occurred",
@@ -645,7 +647,7 @@ var getMuraProps = function getMuraProps(context, isEditMode, params, callback) 
     }, _content);
 
     var _temp13 = _catch(function () {
-      return Promise.resolve(renderContent(context, isEditMode, params)).then(function (muraObject) {
+      return Promise.resolve(renderContent(context, isEditMode, params, requestContext)).then(function (muraObject) {
         if (typeof muraObject != 'undefined' && typeof muraObject.getAll != 'undefined') {
           content = muraObject.getAll();
         } else {
@@ -763,7 +765,7 @@ function Decorator(props) {
 
   if (isEditMode || isExternalModule || !isSSR) {
     Object.keys(props).forEach(function (key) {
-      if (!['queryParams', 'Router', 'Link', 'html', 'content', 'children', 'isEditMode', 'dynamicProps', 'moduleStyleData', 'regionContext'].find(function (restrictedkey) {
+      if (!['queryParams', 'Router', 'Link', 'html', 'content', 'children', 'isEditMode', 'dynamicProps', 'moduleStyleData', 'regionContext', 'requestContext'].find(function (restrictedkey) {
         return restrictedkey === key;
       })) {
         if (typeof props[key] === 'object') {
