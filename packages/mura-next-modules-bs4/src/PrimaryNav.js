@@ -36,6 +36,14 @@ function PrimaryNav(props) {
 }
 
 const Render = ({ items, link, ...props }) => {
+   /* 
+    In new development you should use this. 
+    const { Mura } = props; 
+
+    This pattern is for legacy support 
+    const Mura = props.Mura || getMura();
+  */
+    const Mura = props.Mura || getMura();
     const Link=link;
     const homeNavIcon = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" focusable="false" width="1em" height="1em" style="-ms-transform: rotate(360deg); -webkit-transform: rotate(360deg); transform: rotate(360deg);" preserveAspectRatio="xMidYMid meet" viewBox="0 0 20 20"><path d="M16 8.5l1.53 1.53l-1.06 1.06L10 4.62l-6.47 6.47l-1.06-1.06L10 2.5l4 4v-2h2v4zm-6-2.46l6 5.99V18H4v-5.97zM12 17v-5H8v5h4z" fill="#626262"/></svg>';
    
@@ -51,7 +59,7 @@ const Render = ({ items, link, ...props }) => {
         <Navbar.Collapse id="primary-nav">
           <Nav className="ml-auto">
 
-            <Homelink displayhome={props.props.displayhome} link={Link} navicon={homeNavIcon} />
+            <Homelink displayhome={props.props.displayhome} link={Link} navicon={homeNavIcon} Mura={Mura} />
             
             {
               items.map(item => {
@@ -74,9 +82,15 @@ const Render = ({ items, link, ...props }) => {
     )
 };
 
-export const getDynamicProps = async () => {
-  const Mura = getMura();
-  
+export const getDynamicProps = async (props) => {
+   /* 
+    In new development you should use this. 
+    const { Mura } = props; 
+
+    This pattern is for legacy support 
+    const Mura = props.Mura || getMura();
+  */
+  const Mura = props.Mura || getMura();
   //console.log("requesting primary nav data",props.instanceid,Date.now(),Mura.siteid);
  
   const collection=await Mura.getFeed('content')
@@ -160,7 +174,7 @@ const RouterLink = ({href,className,type,menutitle,navlogo})=>{
 const Homelink = (props) => {
   const Link=props.link;
   const homeTitle = 'Home';
-  const Mura = getMura();
+  const Mura = props.Mura || getMura();
 
   function createIcon() { 
     return {__html: props.navicon};
@@ -173,7 +187,6 @@ const Homelink = (props) => {
           key={Mura.homeid}
           href="/"
           className="nav-link"
-          type="navitem"
           menutitle={<><span dangerouslySetInnerHTML={createIcon()} /> {homeTitle}</>}
           type="navlink" />
       </li>
@@ -212,10 +225,10 @@ const NavLinkDropdown = props => {
        
     return (
       <>
-      <NavDropdown key={props.contentid} title={<div style={{display: "inline-block"}}><span dangerouslySetInnerHTML={createIcon()} /> {props.menutitle} </div>} id={`dropdown-${props.contentid}`} href={`/${props.filename}`} renderMenuOnMount={true}>
+      <NavDropdown key={props.contentid + 'navdropdown'} title={<div style={{display: "inline-block"}}><span dangerouslySetInnerHTML={createIcon()} /> {props.menutitle} </div>} id={`dropdown-${props.contentid}`} href={`/${props.filename}`} renderMenuOnMount={true}>
         {/* placing the main nav item in the dropdown for now since the parent nav item is not a clickable link */}
         <Link
-          key={props.contentid}
+          key={props.contentid + 'topitem'}
           href={`/${props.filename}`}
           type="navdropdownitem"
           menutitle={props.menutitle} />

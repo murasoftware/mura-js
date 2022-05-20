@@ -1,7 +1,7 @@
-import Mura from 'mura.js';
 import React,{ useEffect } from 'react';
 
 const Embed = function(props) {
+  const Mura = props.Mura || getMura();
   let objectparams=Object.assign({},props);
   objectparams.source=objectparams.source || '';
   const containerid='source-contianer-' + objectparams.instanceid;

@@ -26,6 +26,7 @@ const SearchResultsLayout = ({props,collection,setCollection,link}) => {
 }
 
 const CurrentItems = (props) => {
+  const Mura = props.Mura || getMura();
   const {collection,nextn,link,pos,fields,scrollpages} = props;
   let itemsList = [];
   let item = '';
@@ -36,7 +37,7 @@ const CurrentItems = (props) => {
   const maxItems = props.maxitems;
   const startIndex = collection.get('startindex');
 
-  if(getMura().renderMode != 'static' && scrollpages){
+  if(Mura.renderMode != 'static' && scrollpages){
     itemsTo=items.length;
   } else {
     if (maxItems < items.length && pos+nextn > maxItems){

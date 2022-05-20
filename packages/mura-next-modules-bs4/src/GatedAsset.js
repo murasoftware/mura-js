@@ -1,8 +1,9 @@
 import React, { useState,useEffect } from 'react';
-import { Decorator } from '@murasoftware/next-core';
-import Mura from 'mura.js';
+import { Decorator, getMura } from '@murasoftware/next-core';
 
 const GatedAsset =function(props) {
+    const Mura=props.Mura || getMura();
+    
     let objectparams = Object.assign({},props);
     
     const [gateIsOpen,setGateIsOpen]=useState(false);
@@ -101,10 +102,10 @@ const GatedAsset =function(props) {
             }
             <div>
                 <div className="mura-gate" style={{display: !gateIsOpen ? 'block' : 'none' }}>
-                    <Decorator {...gateparams} content={props.content} requestContext={props.requestContext}/>
+                    <Decorator {...gateparams} content={props.content} Mura={props.Mura}/>
                 </div>
                 <div className="mura-asset" style={{display: gateIsOpen ? 'block' : 'none' }}>
-                    <Decorator {...assetparams} content={props.content} requestContext={props.requestContext}/>
+                    <Decorator {...assetparams} content={props.content} Mura={props.Mura}/>
                 </div>
             </div>
         </div>

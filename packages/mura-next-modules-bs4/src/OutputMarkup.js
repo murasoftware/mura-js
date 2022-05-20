@@ -69,8 +69,35 @@ const renderers = {
     
 }
 
+function parseStringAsTemplate(stringValue){
+    const errors={};
+    let parsedString=stringValue;
+    let doLoop=true;
+
+    do {
+        const finder=/(\${)(.+?)(})/.exec(parsedString)
+        if(finder){
+            let template;
+            try {
+                template=eval('`${' + finder[2] + '}`');
+            } catch(e){
+                console.log('error parsing string template: ' + '${' + finder[2] + '}',e);
+                template='[error]' + finder[2] + '[/error]';
+            }
+            parsedString=parsedString.replace(finder[0],template);
+        } else {
+            doLoop=false;
+        }
+    } while (doLoop)
+
+    parsedString=parsedString.replace('[error]','${');
+    parsedString=parsedString.replace('[/error]','}');
+
+    return parsedString;
+}
+
 function OutputMarkup({source,className}){
-    const parsedSource=getMura().parseStringAsTemplate(source);
+    const parsedSource=parseStringAsTemplate(source);
   
     if(getMuraConfig().ConnectorConfig.htmleditortype == 'markdown'){
         return(

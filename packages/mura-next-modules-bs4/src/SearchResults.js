@@ -13,7 +13,7 @@ function getDefaultQueryPropsFromLayout(layout,item){
 }
 
 function SearchResults(props) {
-  const Mura = getMura();
+  const Mura = props.Mura || getMura();
   const objectparams = Object.assign({}, props);
   const DynamicCollectionLayout = getLayout('SearchResultsLayout').component;
 
@@ -71,7 +71,7 @@ function SearchResults(props) {
 }
 
 export const getDynamicProps = async function(queryText,props) {
-    const Mura = getMura();
+    const Mura = props.Mura || getMura();
     const data = {};
     const feed = Mura.getFeed('content');
 

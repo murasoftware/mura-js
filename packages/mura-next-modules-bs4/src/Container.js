@@ -1,12 +1,13 @@
 import React, {useEffect} from 'react';
-import Mura from 'mura.js/src/core/core';
 
 // eslint-disable-next-line
 import { getComponent } from '@murasoftware/next-core';
-import { Decorator } from '@murasoftware/next-core';
+import { Decorator, getMura } from '@murasoftware/next-core';
 
 export const Container = function(props) {
-  const { items,content,instanceid,requestContext } = props;
+  const { items,content,instanceid } = props;
+  const Mura = props.Mura || getMura();
+
   // console.log('Container -> items', items);
   // console.log('Container -> props', props);
   if (!items) return '';
@@ -58,7 +59,7 @@ export const Container = function(props) {
           obj.regionContext =  props.regionContext;
           obj.queryParams =  props.queryParams;
           obj.content = content;
-          obj.requestContext = requestContext;
+          obj.Mura = Mura;
           return (<Decorator {...obj}> {getComponent(obj)} </Decorator>)
       })
    

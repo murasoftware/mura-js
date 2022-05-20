@@ -35,6 +35,7 @@ import { default as SearchResults, getDynamicProps as getSearchResultsDynamicPro
 import SearchResultsLayout from "./SearchResultsLayout";
 import SearchForm from "./SearchForm";
 import UtilityNav from "./UtilityNav";
+import { default as MuraClassicWrapper, getDynamicProps as getClassicDynamicProps } from "./MuraClassicWrapper";
 
 export {
     Video,
@@ -90,5 +91,8 @@ export {
     getSearchResultsDynamicProps,
     SearchResultsLayout,
     SearchForm,
-    UtilityNav
+    UtilityNav,
+    MuraClassicWrapper,
+    getClassicDynamicProps
+
 };

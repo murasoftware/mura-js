@@ -25,7 +25,14 @@ function getDefaultQueryPropsFromLayout(layout,item){
 }
 
 function Collection(props) {
-  const Mura = getMura();
+   /* 
+    In new development you should use this. 
+    const { Mura } = props; 
+
+    This pattern is for legacy support 
+    const Mura = props.Mura || getMura();
+  */
+  const Mura=props.Mura || getMura();
   const objectparams = Object.assign({}, props);
   const DynamicCollectionLayout = getLayout(objectparams.layout).component;
 
@@ -84,14 +91,22 @@ export const RouterLink = function({href,children,className}) {
   );
 }
 
-export const getDynamicProps = async function(item){
-  const Mura = getMura();
-  const getItemsPerPage = function(item){
+export const getDynamicProps = async function(props){
+   /* 
+    In new development you should use this. 
+    const { Mura } = props; 
+
+    This pattern is for legacy support 
+    const Mura = props.Mura || getMura();
+  */
+  const Mura=props.Mura || getMura();
+  
+  const getItemsPerPage = function(props){
     if(Mura.renderMode !='static'){
-      if(typeof item.nextn != 'undefined'){
-       return item.nextn
-      } else if(typeof item.itemsperpage != 'undefined'){
-       return item.itemsperpage;
+      if(typeof props.nextn != 'undefined'){
+       return props.nextn
+      } else if(typeof props.itemsperpage != 'undefined'){
+       return props.itemsperpage;
       } else {
         return 0;
       }
@@ -101,9 +116,9 @@ export const getDynamicProps = async function(item){
   }
   const data = {};
   let cdata = {};
-  let {content} = item;
+  let {content} = props;
 
-  if(item.sourcetype === 'children') {
+  if(props.sourcetype === 'children') {
     const feed = Mura.getFeed('content');
 
     if(content.getAll) {
@@ -114,40 +129,40 @@ export const getDynamicProps = async function(item){
     }
 
     feed.andProp('parentid').isEQ(cdata.contentid);
-    feed.fields(getSelectFields(item));
-    feed.expand(getExpandFields(item));
-    feed.maxItems(item.maxitems);;
-    feed.itemsPerPage(getItemsPerPage(item))
+    feed.fields(getSelectFields(props));
+    feed.expand(getExpandFields(props));
+    feed.maxItems(props.maxitems);;
+    feed.itemsPerPage(getItemsPerPage(props))
     feed.sort(cdata.sortby,cdata.sortdirection);
     
     const query = await feed.getQuery();
     data.collection = query.getAll();
   }
-  else if(item.sourcetype === 'relatedcontent') {
-    const src = item.source;
+  else if(props.sourcetype === 'relatedcontent') {
+    const src = props.source;
    
     if(src==='custom'){
-      if(typeof item.items !='undefined'){
-        if(!Array.isArray(item.items)){
+      if(typeof props.items !='undefined'){
+        if(!Array.isArray(props.items)){
           try{
-            JSON.parse(item.items);
+            JSON.parse(props.items);
           } catch(e){
             console.log(e)
-            item.items=[];
+            props.items=[];
           }
         }
       } else {
-        item.items=[];
+        props.items=[];
       }
 
-      if(item.items.length){
+      if(props.items.length){
         const related = await Mura.getFeed('content')
         .where()
-        .fields(getSelectFields(item))
-        .expand(getExpandFields(item))
-        .itemsPerPage(getItemsPerPage(item))
-        .maxItems(item.maxitems)
-        .findMany(item.items)
+        .fields(getSelectFields(props))
+        .expand(getExpandFields(props))
+        .itemsPerPage(getItemsPerPage(props))
+        .maxItems(props.maxitems)
+        .findMany(props.items)
         .getQuery();
         
         data.collection=related.getAll();
@@ -164,37 +179,38 @@ export const getDynamicProps = async function(item){
       const related = await content.getRelatedContent(
         src,
         {
-          fields:getSelectFields(item),
-          expand:getExpandFields(item),
-          imagesizes:getImageSizes(item),
-          itemsPerPage:getItemsPerPage(item),
-          maxitems:item.maxitems
+          fields:getSelectFields(props),
+          expand:getExpandFields(props),
+          imagesizes:getImageSizes(props),
+          itemsPerPage:getItemsPerPage(props),
+          maxitems:props.maxitems
         }
       );
       data.collection = related.getAll(); 
     }
+  
     return data;
   }
   else if ((
-    typeof item.sourcetype === 'undefined'
-    || item.sourcetype === ''
+    typeof props.sourcetype === 'undefined'
+    || props.sourcetype === ''
     ) 
     ||  (
-      typeof item.sourcetype !== 'undefined' &&
-      item.sourcetype === 'localindex' &&
-      Mura.isUUID(item.source)
+      typeof props.sourcetype !== 'undefined' &&
+      props.sourcetype === 'localindex' &&
+      Mura.isUUID(props.source)
     )
   ) {
     const feed = Mura.getFeed('content');
 
-    if(item.source) {
-      feed.andProp('feedid').isEQ(item.source);
+    if(props.source) {
+      feed.andProp('feedid').isEQ(props.source);
     }
-    feed.fields(getSelectFields(item));
-    feed.expand(getExpandFields(item));
-    feed.imageSizes(getImageSizes(item));
-    feed.maxItems(item.maxitems);
-    feed.itemsPerPage(getItemsPerPage(item));
+    feed.fields(getSelectFields(props));
+    feed.expand(getExpandFields(props));
+    feed.imageSizes(getImageSizes(props));
+    feed.maxItems(props.maxitems);
+    feed.itemsPerPage(getItemsPerPage(props));
 
     //Add stuff like maxitems, nextn
       
@@ -202,13 +218,13 @@ export const getDynamicProps = async function(item){
 
     data.collection = query.getAll();
   }
-
+  
   return data;
 };
 
-const getExpandFields = function(item) {
+const getExpandFields = function(props) {
 
-  const data = getLayout(item.layout).getQueryProps();
+  const data = getLayout(props.layout).getQueryProps();
 
   if(data.expand){
     return data.expand;
@@ -218,9 +234,9 @@ const getExpandFields = function(item) {
 
 }
 
-const getImageSizes = function(item) {
+const getImageSizes = function(props) {
 
-  const data = getLayout(item.layout).getQueryProps();
+  const data = getLayout(props.layout).getQueryProps();
 
   if(data.imagesizes){
     return data.imagesizes;
@@ -230,9 +246,9 @@ const getImageSizes = function(item) {
 
 }
 
-export const getSelectFields = function(item) {
+export const getSelectFields = function(props) {
 
-  const data = getLayout(item.layout).getQueryProps(item);
+  const data = getLayout(props.layout).getQueryProps(props);
 
   let fieldlist = '';
 

@@ -1,4 +1,4 @@
-import Mura from 'mura.js';
+import { getMura} from '@murasoftware/next-core';
 import React, {useState,useEffect} from "react";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -6,6 +6,14 @@ import { faChevronRight } from '@fortawesome/free-solid-svg-icons'
 import { faChevronLeft } from '@fortawesome/free-solid-svg-icons'
 
 const CollectionNav = (props) => {
+	 /* 
+    In new development you should use this. 
+    const { Mura } = props; 
+
+    This pattern is for legacy support 
+    const Mura = props.Mura || getMura();
+  */
+	const Mura=props.Mura || getMura();
 	let nav = [];
 	const {collection,setCollection,pos,nextn,setPos,scrollpages,instanceid,itemsTo,setItemsTo,setPage} = props;
 

@@ -268,6 +268,9 @@ Mura.Feed = Mura.Core.extend(
 		 * @return {Mura.Feed}          Self
 		 */
 		isIn(criteria) {
+			if(Array.isArray(criteria)){
+				criteria=criteria.join();
+			}
 			this.queryString += encodeURIComponent('in^' + criteria);
 			return this;
 		},
@@ -279,6 +282,9 @@ Mura.Feed = Mura.Core.extend(
 		 * @return {Mura.Feed}          Self
 		 */
 		isNotIn(criteria) {
+			if(Array.isArray(criteria)){
+				criteria=criteria.join();
+			}
 			this.queryString += encodeURIComponent('notin^' + criteria);
 			return this;
 		},

@@ -242,7 +242,7 @@ export const getDynamicProps = async props => {
 }
 
 const getCollection = async (props,filterProps,curSearchText,tags,author) => {
-  const Mura = getMura();
+  const Mura = props.Mura || getMura();
     
   let filterCategories = filterProps.categoryid;
 
