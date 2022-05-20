@@ -52,6 +52,7 @@ function trackEvent(eventData) {
 		}
 	};
 	var gaFound = false;
+	var gtagFound = false;
 	var trackingComplete = false;
 	var attempt=0;
 
@@ -72,7 +73,6 @@ function trackEvent(eventData) {
 
 	function track() {
 		if(!attempt){
-			
 			trackingVars.ga.trackingvars.eventCategory = data.category;
 			trackingVars.ga.trackingvars.eventAction = data.action;
 			trackingVars.ga.trackingvars.nonInteraction = data.nonInteraction;
@@ -147,7 +147,7 @@ function trackEvent(eventData) {
 
 		if(typeof Mura.trackingMetadata[trackingID] != 'undefined'){
 			Mura.deepExtend(trackingVars,Mura.trackingMetadata[trackingID]);
-			// trackingVars.eventData=data;
+			trackingVars.eventData=data;
 			track();
 		} else {
 			Mura.get(Mura.getAPIEndpoint(), {
@@ -157,13 +157,13 @@ function trackEvent(eventData) {
 				objectid: data.objectid
 			}).then(function(response) {
 				Mura.deepExtend(trackingVars,response.data);
-				// trackingVars.eventData=data;
+				trackingVars.eventData=data;
 
-				for(var p in trackingVars.ga.trackingprops){
+					for(var p in trackingVars.ga.trackingprops){
 					if(trackingVars.ga.trackingprops.hasOwnProperty(p) && p.substring(0,1)=='d' && typeof trackingVars.ga.trackingprops[p] != 'string'){
 						trackingVars.ga.trackingprops[p]=new String(trackingVars.ga[p]);
 					}
-				}
+					}
 
 				Mura.trackingMetadata[trackingID]={};
 				Mura.deepExtend(Mura.trackingMetadata[trackingID],response.data);

@@ -17,7 +17,6 @@ var freeSolidSvgIcons = require('@fortawesome/free-solid-svg-icons');
 var Accordion = _interopDefault(require('react-bootstrap/Accordion'));
 var Card = _interopDefault(require('react-bootstrap/Card'));
 var Slider = _interopDefault(require('react-slick'));
-var Mura$1 = _interopDefault(require('mura.js'));
 var Form = _interopDefault(require('react-bootstrap/Form'));
 var Button = _interopDefault(require('react-bootstrap/Button'));
 var Alert = _interopDefault(require('react-bootstrap/Alert'));
@@ -2387,11 +2386,12 @@ var CTAButton = function CTAButton(_ref) {
 };
 
 var Embed = function Embed(props) {
+  var Mura = props.Mura || getMura();
   var objectparams = Object.assign({}, props);
   objectparams.source = objectparams.source || '';
   var containerid = 'source-contianer-' + objectparams.instanceid;
   React.useEffect(function () {
-    Mura$1('#' + containerid).html(objectparams.source);
+    Mura('#' + containerid).html(objectparams.source);
   }, []);
   return /*#__PURE__*/React__default.createElement("div", {
     id: containerid
@@ -4568,6 +4568,49 @@ var UtilityLinks = function UtilityLinks(props) {
   return null;
 };
 
+var MuraClassicWrapper = function MuraClassicWrapper(props) {
+  var Mura = props.Mura;
+  var objectparams = Object.assign({}, props);
+  objectparams.html = objectparams.html || '';
+  var containerid = 'mc-container-' + objectparams.instanceid;
+  React.useEffect(function () {
+    if (!objectparams.dynamicProps || !objectparams.dynamicProps.html) {
+      getDynamicProps$6(objectparams).then(function (dynamicProps) {
+        Mura('#' + containerid).html(objectparams.dynamicProps.html);
+      });
+    } else {
+      Mura('#' + containerid).html(objectparams.dynamicProps.html);
+    }
+  }, []);
+  return /*#__PURE__*/React__default.createElement("div", {
+    id: containerid
+  });
+};
+var getDynamicProps$6 = function getDynamicProps(props) {
+  try {
+    var Mura = props.Mura;
+    var objectparams = Object.assign({}, props);
+    delete props.moduleStyleData;
+    delete props.content;
+    delete props.queryParams;
+    delete props.dynamicProps;
+    delete props.queryParams;
+    delete props.regionContext;
+    delete props.objectname;
+    delete props.objecticon;
+    delete props.objecticonclass;
+    delete props.Mura;
+    objectparams.render = "server";
+    objectparams.method = 'processAsyncObject';
+    objectparams.decoupled = false;
+    return Promise.resolve(Mura.get(Mura.getAPIEndpoint(), objectparams)).then(function (result) {
+      return result.data;
+    });
+  } catch (e) {
+    return Promise.reject(e);
+  }
+};
+
 exports.ArticleMeta = ArticleMeta;
 exports.CTAButton = CTAButton;
 exports.Collection = Collection;
@@ -4594,6 +4637,7 @@ exports.ItemImage = ItemImage;
 exports.ItemTags = ItemTags;
 exports.Login = Login;
 exports.MatrixSelector = MatrixSelector;
+exports.MuraClassicWrapper = MuraClassicWrapper;
 exports.NoItemsMessage = CheckForItems;
 exports.OutputMarkup = OutputMarkup;
 exports.PrimaryNav = PrimaryNav;
@@ -4607,6 +4651,7 @@ exports.SearchResultsLayout = SearchResultsLayout;
 exports.Text = Text;
 exports.UtilityNav = UtilityNav;
 exports.Video = Video;
+exports.getClassicDynamicProps = getDynamicProps$6;
 exports.getCollectionDynamicProps = getDynamicProps;
 exports.getCollectionLayout = getLayout;
 exports.getCollectionLayoutAccordionQueryProps = getQueryProps$1;

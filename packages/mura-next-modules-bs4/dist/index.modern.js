@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
-import { getMura, getMuraConfig, Decorator, getHref, getComponent } from '@murasoftware/next-core';
+import { getMura as getMura$1, getMuraConfig, Decorator, getHref, getComponent } from '@murasoftware/next-core';
 import Badge from 'react-bootstrap/Badge';
 import ReactMarkdown from 'react-markdown/with-html';
 import gfm from 'remark-gfm';
@@ -14,7 +14,6 @@ import { faChevronRight, faChevronLeft, faBolt, faSearch } from '@fortawesome/fr
 import Accordion from 'react-bootstrap/Accordion';
 import Card from 'react-bootstrap/Card';
 import Slider from 'react-slick';
-import Mura$1 from 'mura.js';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
@@ -55,7 +54,7 @@ function Vimeo(props) {
 }
 
 function Wistia(props) {
-  var Mura = props.Mura || getMura();
+  var Mura = props.Mura || getMura$1();
   var instanceid = props.instanceid,
       videoid = props.videoid,
       dynamicProps = props.dynamicProps;
@@ -438,7 +437,7 @@ function getDefaultQueryPropsFromLayout(layout, item) {
 }
 
 function Collection(props) {
-  var Mura = props.Mura || getMura();
+  var Mura = props.Mura || getMura$1();
   var objectparams = Object.assign({}, props);
   var DynamicCollectionLayout = getLayout(objectparams.layout).component;
   objectparams.fields = getDefaultQueryPropsFromLayout(DynamicCollectionLayout, objectparams).fields || objectparams.fields || 'Image,Date,Title,Summary,Credits,Tags';
@@ -513,7 +512,7 @@ var RouterLink = function RouterLink(_ref2) {
 var getDynamicProps = function getDynamicProps(props) {
   try {
     var _exit2 = false;
-    var Mura = props.Mura || getMura();
+    var Mura = props.Mura || getMura$1();
 
     var getItemsPerPage = function getItemsPerPage(props) {
       if (Mura.renderMode != 'static') {
@@ -810,7 +809,7 @@ function _readOnlyError(name) {
 }
 
 var CollectionNav = function CollectionNav(props) {
-  var Mura = props.Mura || getMura();
+  var Mura = props.Mura || getMura$1();
   var nav = [];
   var collection = props.collection,
       setCollection = props.setCollection,
@@ -1057,7 +1056,7 @@ var CurrentItems = function CurrentItems(props) {
   var Link = link;
   var items = collection.get('items');
 
-  if (getMura().renderMode != 'static' && scrollpages) {
+  if (getMura$1().renderMode != 'static' && scrollpages) {
     _readOnlyError("itemsTo");
   } else {
     if (maxItems < items.length && pos + nextn > maxItems) {
@@ -1157,7 +1156,7 @@ var CurrentItems$1 = function CurrentItems(props) {
   var fieldlist = fields ? fields.toLowerCase().split(",") : [];
   var maxItems = props.maxitems;
 
-  if (getMura().renderMode != 'static' && scrollpages) {
+  if (getMura$1().renderMode != 'static' && scrollpages) {
     itemsTo = items.length;
   } else {
     if (maxItems < items.length && pos + nextn > maxItems) {
@@ -1313,7 +1312,7 @@ var CurrentItems$2 = function CurrentItems(props) {
   var fieldlist = fields ? fields.toLowerCase().split(",") : [];
   var maxItems = props.maxitems;
 
-  if (getMura().renderMode != 'static' && scrollpages) {
+  if (getMura$1().renderMode != 'static' && scrollpages) {
     itemsTo = items.length;
   } else {
     if (maxItems < items.length && pos + nextn > maxItems) {
@@ -1457,7 +1456,7 @@ var CurrentItems$3 = function CurrentItems(props) {
   var fieldlist = fields ? fields.toLowerCase().split(",") : [];
   var maxItems = props.maxitems;
 
-  if (getMura().renderMode != 'static' && scrollpages) {
+  if (getMura$1().renderMode != 'static' && scrollpages) {
     itemsTo = items.length;
   } else {
     if (maxItems < items.length && pos + nextn > maxItems) {
@@ -1652,7 +1651,7 @@ var CurrentItems$4 = function CurrentItems(props) {
   var maxItems = props.maxitems;
   var catAssignments = [];
 
-  if (getMura().renderMode != 'static' && scrollpages) {
+  if (getMura$1().renderMode != 'static' && scrollpages) {
     itemsTo = items.length;
   } else {
     if (maxItems < items.length && pos + nextn > maxItems) {
@@ -1782,7 +1781,7 @@ var CurrentItems$5 = function CurrentItems(props) {
   console.log('itemsTo', itemsTo);
   console.log('pos', pos);
 
-  if (getMura().renderMode != 'static' && scrollpages) {
+  if (getMura$1().renderMode != 'static' && scrollpages) {
     itemsTo = items.length;
   } else {
     if (maxItems < items.length && pos + nextn > maxItems) {
@@ -1967,7 +1966,7 @@ var CurrentItems$6 = function CurrentItems(props) {
   var fieldlist = fields ? fields.toLowerCase().split(",") : [];
   var maxItems = props.maxitems;
 
-  if (getMura().renderMode != 'static' && scrollpages) {
+  if (getMura$1().renderMode != 'static' && scrollpages) {
     itemsTo = items.length;
   } else {
     if (maxItems < items.length && pos + nextn > maxItems) {
@@ -2290,7 +2289,7 @@ var Container = function Container(props) {
   var items = props.items,
       content = props.content,
       instanceid = props.instanceid;
-  var Mura = props.Mura || getMura();
+  var Mura = props.Mura || getMura$1();
   if (!items) return '';
   useEffect(function () {
     Mura.displayObjectInstances = Mura.displayObjectInstances || {};
@@ -2384,11 +2383,12 @@ var CTAButton = function CTAButton(_ref) {
 };
 
 var Embed = function Embed(props) {
+  var Mura = props.Mura || getMura();
   var objectparams = Object.assign({}, props);
   objectparams.source = objectparams.source || '';
   var containerid = 'source-contianer-' + objectparams.instanceid;
   useEffect(function () {
-    Mura$1('#' + containerid).html(objectparams.source);
+    Mura('#' + containerid).html(objectparams.source);
   }, []);
   return /*#__PURE__*/React.createElement("div", {
     id: containerid
@@ -2921,7 +2921,7 @@ var Render = function Render(_ref) {
       link = _ref.link,
       props = _objectWithoutPropertiesLoose(_ref, _excluded);
 
-  var Mura = props.Mura || getMura();
+  var Mura = props.Mura || getMura$1();
   var Link = link;
   var homeNavIcon = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" focusable="false" width="1em" height="1em" style="-ms-transform: rotate(360deg); -webkit-transform: rotate(360deg); transform: rotate(360deg);" preserveAspectRatio="xMidYMid meet" viewBox="0 0 20 20"><path d="M16 8.5l1.53 1.53l-1.06 1.06L10 4.62l-6.47 6.47l-1.06-1.06L10 2.5l4 4v-2h2v4zm-6-2.46l6 5.99V18H4v-5.97zM12 17v-5H8v5h4z" fill="#626262"/></svg>';
   return /*#__PURE__*/React.createElement(Navbar, {
@@ -2965,7 +2965,7 @@ var Render = function Render(_ref) {
 
 var getDynamicProps$2 = function getDynamicProps(props) {
   try {
-    var Mura = props.Mura || getMura();
+    var Mura = props.Mura || getMura$1();
     return Promise.resolve(Mura.getFeed('content').where().prop('parentid').isEQ(Mura.homeid).sort('orderno').expand("kids").fields('navicon,menutitle,url,filename').getQuery()).then(function (collection) {
       return {
         items: collection.getAll().items
@@ -3051,7 +3051,7 @@ var RouterLink$1 = function RouterLink(_ref3) {
 var Homelink = function Homelink(props) {
   var Link = props.link;
   var homeTitle = 'Home';
-  var Mura = props.Mura || getMura();
+  var Mura = props.Mura || getMura$1();
 
   function createIcon() {
     return {
@@ -3174,7 +3174,7 @@ function getDefaultQueryPropsFromLayout$1(layout, item) {
 }
 
 function ResourceHub(props) {
-  var Mura = getMura();
+  var Mura = getMura$1();
   var objectparams = Object.assign({}, props);
   var DynamicCollectionLayout = getLayout(objectparams.layout).component;
   objectparams.fields = objectparams.fields || getDefaultQueryPropsFromLayout$1(DynamicCollectionLayout, objectparams).fields || 'Image,Date,Title,Summary,Credits,Tags';
@@ -3440,7 +3440,7 @@ var getDynamicProps$3 = function getDynamicProps(props) {
 
 var getCollection = function getCollection(props, filterProps, curSearchText, tags, author) {
   try {
-    var Mura = props.Mura || getMura();
+    var Mura = props.Mura || getMura$1();
     var filterCategories = filterProps.categoryid;
 
     if (typeof props.content.getAll != 'undefined') {
@@ -3538,7 +3538,7 @@ var getCollection = function getCollection(props, filterProps, curSearchText, ta
 
 var getFilterProps = function getFilterProps(subtype, categoryid, personaid, selectedcategories, newfilter) {
   try {
-    var Mura = getMura();
+    var Mura = getMura$1();
     var Subtype = subtype;
     var Categoryid = categoryid;
     var Personaid = personaid;
@@ -3709,7 +3709,7 @@ var CategorySelect = function CategorySelect(props) {
 
 var getCategoriesInfo = function getCategoriesInfo(categoryIds) {
   try {
-    var Mura = getMura();
+    var Mura = getMura$1();
     var feed = Mura.getFeed('category');
     feed.findMany(categoryIds);
     return Promise.resolve(feed.getQuery()).then(function (query) {
@@ -3723,7 +3723,7 @@ var getCategoriesInfo = function getCategoriesInfo(categoryIds) {
 
 var getPersonasInfo = function getPersonasInfo(personaIds) {
   try {
-    var Mura = getMura();
+    var Mura = getMura$1();
     var feed = Mura.getFeed('persona');
     feed.findMany(personaIds);
     return Promise.resolve(feed.getQuery()).then(function (query) {
@@ -3737,7 +3737,7 @@ var getPersonasInfo = function getPersonasInfo(personaIds) {
 
 var getCategoryKidsInfo = function getCategoryKidsInfo(categoryId) {
   try {
-    var Mura = getMura();
+    var Mura = getMura$1();
     var feed = Mura.getFeed('category');
     feed.prop('parentid').isEQ(categoryId);
     return Promise.resolve(feed.getQuery()).then(function (query) {
@@ -3814,7 +3814,7 @@ function Text(props) {
 
 var getDynamicProps$4 = function getDynamicProps(props) {
   try {
-    var Mura = props.Mura || getMura();
+    var Mura = props.Mura || getMura$1();
     var data = {};
 
     var _temp4 = function () {
@@ -3999,7 +3999,7 @@ var getCurrentPrivacy = function getCurrentPrivacy() {
 };
 
 var GatedAsset = function GatedAsset(props) {
-  var Mura = props.Mura || getMura();
+  var Mura = props.Mura || getMura$1();
   var objectparams = Object.assign({}, props);
 
   var _useState = useState(false),
@@ -4215,7 +4215,7 @@ function getDefaultQueryPropsFromLayout$2(layout, item) {
 }
 
 function SearchResults(props) {
-  var Mura = props.Mura || getMura();
+  var Mura = props.Mura || getMura$1();
   var objectparams = Object.assign({}, props);
   var DynamicCollectionLayout = getLayout('SearchResultsLayout').component;
   objectparams.fields = objectparams.fields || getDefaultQueryPropsFromLayout$2(DynamicCollectionLayout, objectparams).fields || 'Image,Date,Title,Summary,Credits,Tags';
@@ -4283,7 +4283,7 @@ function SearchResults(props) {
 
 var getDynamicProps$5 = function getDynamicProps(queryText, props) {
   try {
-    var Mura = props.Mura || getMura();
+    var Mura = props.Mura || getMura$1();
     var data = {};
     var feed = Mura.getFeed('content');
     feed.prop('subtype').isNEQ('Author');
@@ -4349,7 +4349,7 @@ var SearchResultsLayout = function SearchResultsLayout(_ref) {
 };
 
 var CurrentItems$7 = function CurrentItems(props) {
-  var Mura = props.Mura || getMura();
+  var Mura = props.Mura || getMura$1();
   var collection = props.collection,
       nextn = props.nextn,
       link = props.link,
@@ -4565,5 +4565,48 @@ var UtilityLinks = function UtilityLinks(props) {
   return null;
 };
 
-export { ArticleMeta, CTAButton, Collection, CollectionLayout, CollectionLayoutAccordian as CollectionLayoutAccordion, AlternatingBoxes as CollectionLayoutAlternatingBoxes, AlternatingRows as CollectionLayoutAlternatingRows, Cards as CollectionLayoutCards, List as CollectionLayoutList, Masonry as CollectionLayoutMasonry, SlickSlider as CollectionLayoutSlickSlider, CollectionNav, CollectionReadMoreBtn, Container, Embed, GatedAsset, render as Gist, Hr, Image, ItemCategories$1 as ItemCategories, ItemCredits, ItemDate, ItemImage, ItemTags, Login, MatrixSelector, CheckForItems as NoItemsMessage, OutputMarkup, PrimaryNav, PrivacyTools, ResourceHub, RouterLink, RouterlessLink, SearchForm, SearchResults, SearchResultsLayout, Text, UtilityNav, Video, getDynamicProps as getCollectionDynamicProps, getLayout as getCollectionLayout, getQueryProps$1 as getCollectionLayoutAccordionQueryProps, getQueryProps$2 as getCollectionLayoutAlternatingBoxesQueryProps, getQueryProps$3 as getCollectionLayoutAlternatingRowsQueryProps, getQueryProps$4 as getCollectionLayoutCardsQueryProps, getQueryProps$5 as getCollectionLayoutListQueryProps, getQueryProps$6 as getCollectionLayoutMasonryQueryProps, getQueryProps as getCollectionLayoutQueryProps, getQueryProps$7 as getCollectionLayoutSlickSliderQueryProps, getDynamicProps$1 as getMatrixSelectorDynamicProps, getDynamicProps$2 as getPrimaryNavDynamicProps, getDynamicProps$3 as getResourceHubDynamicProps, getDynamicProps$5 as getSearchResultsDynamicProps, getDynamicProps$4 as getTextDynamicProps };
+var MuraClassicWrapper = function MuraClassicWrapper(props) {
+  var Mura = props.Mura;
+  var objectparams = Object.assign({}, props);
+  objectparams.html = objectparams.html || '';
+  var containerid = 'mc-container-' + objectparams.instanceid;
+  useEffect(function () {
+    if (!objectparams.dynamicProps || !objectparams.dynamicProps.html) {
+      getDynamicProps$6(objectparams).then(function (dynamicProps) {
+        Mura('#' + containerid).html(objectparams.dynamicProps.html);
+      });
+    } else {
+      Mura('#' + containerid).html(objectparams.dynamicProps.html);
+    }
+  }, []);
+  return /*#__PURE__*/React.createElement("div", {
+    id: containerid
+  });
+};
+var getDynamicProps$6 = function getDynamicProps(props) {
+  try {
+    var Mura = props.Mura;
+    var objectparams = Object.assign({}, props);
+    delete props.moduleStyleData;
+    delete props.content;
+    delete props.queryParams;
+    delete props.dynamicProps;
+    delete props.queryParams;
+    delete props.regionContext;
+    delete props.objectname;
+    delete props.objecticon;
+    delete props.objecticonclass;
+    delete props.Mura;
+    objectparams.render = "server";
+    objectparams.method = 'processAsyncObject';
+    objectparams.decoupled = false;
+    return Promise.resolve(Mura.get(Mura.getAPIEndpoint(), objectparams)).then(function (result) {
+      return result.data;
+    });
+  } catch (e) {
+    return Promise.reject(e);
+  }
+};
+
+export { ArticleMeta, CTAButton, Collection, CollectionLayout, CollectionLayoutAccordian as CollectionLayoutAccordion, AlternatingBoxes as CollectionLayoutAlternatingBoxes, AlternatingRows as CollectionLayoutAlternatingRows, Cards as CollectionLayoutCards, List as CollectionLayoutList, Masonry as CollectionLayoutMasonry, SlickSlider as CollectionLayoutSlickSlider, CollectionNav, CollectionReadMoreBtn, Container, Embed, GatedAsset, render as Gist, Hr, Image, ItemCategories$1 as ItemCategories, ItemCredits, ItemDate, ItemImage, ItemTags, Login, MatrixSelector, MuraClassicWrapper, CheckForItems as NoItemsMessage, OutputMarkup, PrimaryNav, PrivacyTools, ResourceHub, RouterLink, RouterlessLink, SearchForm, SearchResults, SearchResultsLayout, Text, UtilityNav, Video, getDynamicProps$6 as getClassicDynamicProps, getDynamicProps as getCollectionDynamicProps, getLayout as getCollectionLayout, getQueryProps$1 as getCollectionLayoutAccordionQueryProps, getQueryProps$2 as getCollectionLayoutAlternatingBoxesQueryProps, getQueryProps$3 as getCollectionLayoutAlternatingRowsQueryProps, getQueryProps$4 as getCollectionLayoutCardsQueryProps, getQueryProps$5 as getCollectionLayoutListQueryProps, getQueryProps$6 as getCollectionLayoutMasonryQueryProps, getQueryProps as getCollectionLayoutQueryProps, getQueryProps$7 as getCollectionLayoutSlickSliderQueryProps, getDynamicProps$1 as getMatrixSelectorDynamicProps, getDynamicProps$2 as getPrimaryNavDynamicProps, getDynamicProps$3 as getResourceHubDynamicProps, getDynamicProps$5 as getSearchResultsDynamicProps, getDynamicProps$4 as getTextDynamicProps };
 //# sourceMappingURL=index.modern.js.map

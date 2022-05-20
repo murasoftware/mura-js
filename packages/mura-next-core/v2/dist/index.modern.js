@@ -415,19 +415,19 @@ var getHref = function getHref(filename) {
     return '/' + path.join('/');
   }
 };
-var getComponent = function getComponent(item) {
-  var Mura = item.Mura || getMura();
-  var objectkey = item.object;
+var getComponent = function getComponent(props) {
+  var Mura = props.Mura;
+  var objectkey = props.object;
 
   if (typeof ComponentRegistry[objectkey] == 'undefined') {
-    objectkey = Mura.firstToUpperCase(item.object);
+    objectkey = Mura.firstToUpperCase(props.object);
   }
 
   if (typeof ComponentRegistry[objectkey] != 'undefined') {
     var ComponentVariable = ComponentRegistry[objectkey].component;
     return /*#__PURE__*/React.createElement(ComponentVariable, _extends({
       key: item.instanceid
-    }, item));
+    }, props));
   }
 
   return /*#__PURE__*/React.createElement("p", {
@@ -838,7 +838,7 @@ var getMuraProps = function getMuraProps(context, isEditMode, params) {
 };
 
 function Decorator(props) {
-  var Mura = props.Mura || getMura();
+  var Mura = props.Mura;
   Mura.renderMode = Mura.renderMode || 'dynamic';
   var muraConfig = getMuraConfig();
   var ComponentRegistry = muraConfig.ComponentRegistry,
@@ -997,7 +997,7 @@ function Decorator(props) {
       /*#__PURE__*/
       React.createElement("div", _extends({
         style: objectStyles
-      }, domObject), label ? /*#__PURE__*/React.createElement("eta", {
+      }, domObject), label ? /*#__PURE__*/React.createElement(Meta, {
         styles: metaStyles,
         label: label,
         labeltag: labeltag,
@@ -1100,14 +1100,13 @@ var DisplayRegion = function DisplayRegion(_ref2) {
       context = _ref2.context,
       queryParams = _ref2.queryParams,
       Mura = _ref2.Mura;
-  var MuraInstance = Mura || getMura();
-  MuraInstance.renderMode = MuraInstance.renderMode || 'dynamic';
+  Mura.renderMode = Mura.renderMode || 'dynamic';
   var inherited = '';
 
   if (region.inherited && region.inherited.items.length) {
     inherited = /*#__PURE__*/React.createElement(DisplayRegionSection, {
       region: region,
-      renderMode: MuraInstance.renderMode,
+      renderMode: Mura.renderMode,
       section: "inherited"
     }, region.inherited.items.map(function (item) {
       var obj = Object.assign({}, item);
@@ -1116,7 +1115,7 @@ var DisplayRegion = function DisplayRegion(_ref2) {
       obj.content = content;
       obj.queryParams = queryParams;
       obj.regionContext = context;
-      obj.Mura = MuraInstance;
+      obj.Mura = Mura;
       return /*#__PURE__*/React.createElement(Decorator, obj, getComponent(obj));
     }));
   }
@@ -1126,7 +1125,7 @@ var DisplayRegion = function DisplayRegion(_ref2) {
     "data-regionid": region.regionid
   }, inherited, /*#__PURE__*/React.createElement(DisplayRegionSection, {
     region: region,
-    renderMode: MuraInstance.renderMode,
+    renderMode: Mura.renderMode,
     section: "local"
   }, region.local.items.map(function (item) {
     var obj = Object.assign({}, item);
@@ -1135,7 +1134,7 @@ var DisplayRegion = function DisplayRegion(_ref2) {
     obj.content = content;
     obj.queryParams = queryParams;
     obj.regionContext = context;
-    obj.Mura = MuraInstance;
+    obj.Mura = Mura;
     return /*#__PURE__*/React.createElement(Decorator, obj, getComponent(obj));
   })));
 };
@@ -1208,8 +1207,8 @@ function Styles(props) {
 }
 
 var MainLayout = function MainLayout(props) {
-  var Mura = props.Mura || getMura();
-  var content = props.content,
+  var Mura = props.Mura,
+      content = props.content,
       moduleStyleData = props.moduleStyleData,
       children = props.children;
   Mura.moduleStyleData = moduleStyleData;
