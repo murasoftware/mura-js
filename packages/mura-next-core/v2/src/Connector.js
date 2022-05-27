@@ -62,10 +62,10 @@ export const getComponent = function(props) {
 
   if (typeof ComponentRegistry[objectkey] != 'undefined') {
     const ComponentVariable = ComponentRegistry[objectkey].component;
-    return <ComponentVariable key={item.instanceid} {...props} />;
+    return <ComponentVariable key={props.instanceid} {...props} />;
   }
 
-  return <p key={item.instanceid}>DisplayRegion: {item.objectname}</p>;
+  return <p key={props.instanceid}>DisplayRegion: {props.objectname}</p>;
 };
 
 export const getMuraPaths = async function() {
@@ -495,7 +495,7 @@ async function renderContent(context,renderMode,params,Mura) {
   }
 
 
-  query.isEditRoute=(renderMode=='dynamic') ? true : false;
+  query.renderMode=renderMode;
  
 
   let filename = '';

@@ -429,13 +429,13 @@ var getComponent = function getComponent(props) {
   if (typeof ComponentRegistry[objectkey] != 'undefined') {
     var ComponentVariable = ComponentRegistry[objectkey].component;
     return /*#__PURE__*/React__default.createElement(ComponentVariable, _extends({
-      key: item.instanceid
+      key: props.instanceid
     }, props));
   }
 
   return /*#__PURE__*/React__default.createElement("p", {
-    key: item.instanceid
-  }, "DisplayRegion: ", item.objectname);
+    key: props.instanceid
+  }, "DisplayRegion: ", props.objectname);
 };
 var getMuraPaths = function getMuraPaths() {
   try {

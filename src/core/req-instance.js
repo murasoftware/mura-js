@@ -233,11 +233,33 @@ Mura.Request=Mura.Core.extend(
 						console.log(newSetCookies);
 					}
 
-					try{
-						self.responseObject.setHeader('set-cookie',newSetCookies);
-					} catch (e){
-						//console.log('Header already sent');
+					if(newSetCookies.length){
+						try{
+							var setCookieAccumulator=[];
+							var existingSetCookie = self.responseObject.getHeader('set-cookie');
+					
+							if(!Array.isArray(existingSetCookie)){
+								if(!existingSetCookie){
+									existingSetCookie=[];
+								} else if(typeof existingSetCookie=='string'){
+									existingSetCookie=[existingSetCookie];
+								} else {
+									existingSetCookie=[];
+								}
+							}
+							for (var i = 0; i < existingSetCookie.length; i++) {
+								setCookieAccumulator[i] = existingSetCookie[i];
+							}
+							for (var i = 0; i < newSetCookies.length; i++) {
+								setCookieAccumulator[i] = newSetCookies[i];
+							}
+
+							self.responseObject.setHeader('set-cookie',setCookieAccumulator);
+						} catch (e){
+							console.log(e);
+						}
 					}
+
 					var cookieMap={};
 					var setMap={};
 					var c;
