@@ -1,6 +1,6 @@
 {
   "name": "@murasoftware/next-modules-bs4",
-  "version": "1.0.91",
+  "version": "1.0.93",
   "description": "UI Modules for Mura.js and Next.js and Bootstrap4",
   "author": "Mura Software",
   "license": "MIT",
@@ -20,13 +20,13 @@
   "peerDependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.34",
     "@fortawesome/free-solid-svg-icons": "^5.15.2",
-    "@fortawesome/react-fontawesome": "^0.1.14",
+    "@fortawesome/react-fontawesome": "^0.1.18",
     "@murasoftware/next-core": "^1.0.14",
     "mura.js": "^1.0.289",
-    "next": ">11.0.1",
-    "react": ">17.0.2",
+    "next": ">=10",
+    "react": ">=17.0.2",
     "react-bootstrap": ">1.4.3",
-    "react-dom": ">17.0.2",
+    "react-dom": ">=17.0.2",
     "react-slick": "^0.28.0"
   },
   "devDependencies": {

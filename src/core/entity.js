@@ -78,17 +78,17 @@ Mura.Entity = Mura.Core.extend(
 	 * @param	{string} method GET or POST
 	 * @return {any}
 	 */
-	invoke(name,params,method,eventHandler){
+	invoke(name,params,method,config){
 		if(typeof name == 'object'){
 			params=name.params || {};
 			method=name.method || 'get';
-			eventHandler=name;
+			config=name;
 			name=name.name;
 		} else {
-			eventHandler=eventHandler || {};
+			config=config || {};
 		}
 
-		Mura.normalizeRequestHandler(eventHandler);
+		Mura.normalizeRequestConfig(config);
 
 		var self = this;
 
@@ -107,11 +107,11 @@ Mura.Entity = Mura.Core.extend(
 		return new Promise(function(resolve,reject) {
 
 			if(typeof resolve == 'function'){
-				eventHandler.success=resolve;
+				config.success=resolve;
 			}
 
 			if(typeof reject == 'function'){
-				eventHandler.error=reject;
+				config.error=reject;
 			}
 
 			if(Mura.formdata && params instanceof FormData){
@@ -126,26 +126,26 @@ Mura.Entity = Mura.Core.extend(
 				data: params,
 				success(resp) {
 					if (typeof resp.error == 'undefined') {
-						if (typeof 	eventHandler.success ==	'function') {
+						if (typeof 	config.success ==	'function') {
 							if(typeof resp.data != 'undefined'){
-								eventHandler.success(resp.data);
+								config.success(resp.data);
 							} else {
-								eventHandler.success(resp);
+								config.success(resp);
 							}
 						}
 					} else {
-						if (typeof eventHandler.error == 'function') {
-							eventHandler.error(resp);
+						if (typeof config.error == 'function') {
+							config.error(resp);
 						}
 					}
 				},
 				error(resp) {
-					if (typeof eventHandler.error == 'function'){
-						eventHandler.error(resp);
+					if (typeof config.error == 'function'){
+						config.error(resp);
 					}
 				},
-				progress:eventHandler.progress,
-				abort: eventHandler.abort
+				progress:config.progress,
+				abort: config.abort
 			});
 		});
 	},
@@ -158,19 +158,19 @@ Mura.Entity = Mura.Core.extend(
 	 * @param	{string} method GET or POST
 	 * @return {Promise} All Headers
 	 */
-	invokeWithCSRF(name,params,method,eventHandler){
+	invokeWithCSRF(name,params,method,config){
 		if(typeof name == 'object'){
 			params=name.params || {};
 			method=name.method || 'get';
-			eventHandler=name;
+			config=name;
 			name=name.name;
 		} else {
-			eventHandler=eventHandler || {};
+			config=config || {};
 		}
 
 		var self = this;
 
-		Mura.normalizeRequestHandler(eventHandler);
+		Mura.normalizeRequestConfig(config);
 
 		if(self._requestcontext.getMode().toLowerCase() == 'rest'){
 			return new Promise(function(resolve,reject) {
@@ -178,18 +178,18 @@ Mura.Entity = Mura.Core.extend(
 					name,
 					params,
 					method,
-					eventHandler
+					config
 				).then(resolve,reject);
 			});
 		} else {
 			
 			return new Promise(function(resolve,reject) {
 				if(typeof resolve == 'function'){
-					eventHandler.success=resolve;
+					config.success=resolve;
 				}
 
 				if(typeof reject == 'function'){
-					eventHandler.error=reject;
+					config.error=reject;
 				}
 				self._requestcontext.request({
 					type: 'post',
@@ -212,17 +212,17 @@ Mura.Entity = Mura.Core.extend(
 								name,
 								params,
 								method,
-								eventHandler
+								config
 							).then(resolve,reject);
 						} else {
-							if (typeof eventHandler.error == 'function'){
-								eventHandler.error(resp);
+							if (typeof config.error == 'function'){
+								config.error(resp);
 							}
 						}
 					},
 					error(resp) {
-						if (typeof eventHandler.error == 'function'){
-							eventHandler.error(resp);
+						if (typeof config.error == 'function'){
+							config.error(resp);
 						}
 					}
 				});
@@ -684,20 +684,20 @@ Mura.Entity = Mura.Core.extend(
 	 *
 	 * @return {Promise}
 	 */
-	save(eventHandler) {
-		eventHandler=eventHandler || {};
+	save(config) {
+		config=config || {};
 
-		Mura.normalizeRequestHandler(eventHandler);
+		Mura.normalizeRequestConfig(config);
 
 		var self = this;
 
 		if (!this.get('isdirty')) {
 			return new Promise(function(resolve, reject) {
 				if(typeof resolve == 'function'){
-					eventHandler.success=resolve;
+					config.success=resolve;
 				}
-				if (typeof eventHandler.success =='function') {
-					eventHandler.success(self);
+				if (typeof config.success =='function') {
+					config.success(self);
 				}
 			});
 		}
@@ -713,24 +713,24 @@ Mura.Entity = Mura.Core.extend(
 						self.set('id',resp.data.id);
 						self.set('isdirty',true);
 						self.cachePut();
-						self.save(eventHandler).then(
+						self.save(config).then(
 							resolve,
 							reject
 						);
 					},
-					error: eventHandler.error,
-					abort: eventHandler.abort
+					error: config.error,
+					abort: config.abort
 				});
 			});
 		} else {
 			return new Promise(function(resolve, reject) {
 
 				if(typeof resolve == 'function'){
-					eventHandler.success=resolve;
+					config.success=resolve;
 				}
 
 				if(typeof reject == 'function'){
-					eventHandler.error=reject;
+					config.error=reject;
 				}
 
 				var context = self.get('id');
@@ -746,29 +746,29 @@ Mura.Entity = Mura.Core.extend(
 								if (self.get('saveerrors') ||
 									Mura.isEmptyObject(self.getErrors())
 								) {
-									if (typeof eventHandler.success ==	'function') {
-											eventHandler.success(self);
+									if (typeof config.success ==	'function') {
+										config.success(self);
 									}
 								} else {
-									if (typeof eventHandler.error == 'function') {
-											eventHandler.error(self);
+									if (typeof config.error == 'function') {
+										config.error(self);
 									}
 								}
 							} else {
 								self.set('errors',resp.error);
-								if (typeof eventHandler.error == 'function') {
-									eventHandler.error(self);
+								if (typeof config.error == 'function') {
+									config.error(self);
 								}
 							}
 						},
 						error(resp) {
 							self.set('errors',resp.error);
-							if (typeof eventHandler.error == 'function') {
-								eventHandler.error(self);
+							if (typeof config.error == 'function') {
+								config.error(self);
 							}
 						},
-						progress:eventHandler.progress,
-						abort: eventHandler.abort
+						progress:config.progress,
+						abort: config.abort
 					});
 				} else {
 					self._requestcontext.request({
@@ -795,35 +795,35 @@ Mura.Entity = Mura.Core.extend(
 										if (self.get('saveerrors') ||
 											Mura.isEmptyObject(self.getErrors())
 										) {
-											if (typeof eventHandler.success ==	'function') {
-												eventHandler.success(self);
+											if (typeof config.success ==	'function') {
+												config.success(self);
 											}
 										} else {
-											if (typeof eventHandler.error == 'function') {
-												eventHandler.error(self);
+											if (typeof config.error == 'function') {
+												config.error(self);
 											}
 										}
 									} else {
 										self.set('errors',resp.error);
-										if (typeof eventHandler.error == 'function') {
-											eventHandler.error(self);
+										if (typeof config.error == 'function') {
+											config.error(self);
 										}
 									}
 								},
 								error(resp) {
 									self.set('errors',resp.error);
-									if (typeof eventHandler.error == 'function') {
-										eventHandler.error(self);
+									if (typeof config.error == 'function') {
+										config.error(self);
 									}
 								},
-								progress:eventHandler.progress,
-								abort: eventHandler.abort
+								progress:config.progress,
+								abort: config.abort
 							});
 						},
 						error(resp) {
 							this.error(resp);
 						},
-						abort: eventHandler.abort
+						abort: config.abort
 					});
 				}
 			});
@@ -835,21 +835,21 @@ Mura.Entity = Mura.Core.extend(
 	 *
 	 * @return {Promise}
 	 */
-	'delete'(eventHandler) {
-		eventHandler=eventHandler || {};
+	'delete'(config) {
+		config=config || {};
 
-		Mura.normalizeRequestHandler(eventHandler);
+		Mura.normalizeRequestConfig(config);
 
 		var self = this;
 		if(self._requestcontext.getMode().toLowerCase() == 'rest'){
 			return new Promise(function(resolve, reject) {
 
 				if(typeof resolve == 'function'){
-					eventHandler.success=resolve;
+					config.success=resolve;
 				}
 
 				if(typeof reject == 'function'){
-					eventHandler.error=reject;
+					config.error=reject;
 				}
 
 				self._requestcontext.request({
@@ -863,23 +863,23 @@ Mura.Entity = Mura.Core.extend(
 					success() {
 						self.set('isdeleted',true);
 						self.cachePurge();
-						if (typeof eventHandler.success == 'function') {
-							eventHandler.success(self);
+						if (typeof config.success == 'function') {
+							config.success(self);
 						}
 					},
-					error: eventHandler.error,
-					progress:eventHandler.progress,
-					abort: eventHandler.abort
+					error: config.error,
+					progress:config.progress,
+					abort: config.abort
 				});
 			});
 		} else {
 			return new Promise(function(resolve, reject) {
 				if(typeof resolve == 'function'){
-					eventHandler.success=resolve;
+					config.success=resolve;
 				}
 
 				if(typeof reject == 'function'){
-					eventHandler.error=reject;
+					config.error=reject;
 				}
 
 				self._requestcontext.request({
@@ -903,17 +903,17 @@ Mura.Entity = Mura.Core.extend(
 							success() {
 								self.set('isdeleted',true);
 								self.cachePurge();
-								if (typeof eventHandler.success == 'function') {
-									eventHandler.success(self);
+								if (typeof config.success == 'function') {
+									config.success(self);
 								}
 							},
-							error: eventHandler.error,
-							progress:eventHandler.progress,
-							abort: eventHandler.abort
+							error: config.error,
+							progress:config.progress,
+							abort: config.abort
 						});
 					},
-					error: eventHandler.error,
-					abort: eventHandler.abort
+					error: config.error,
+					abort: config.abort
 				});
 			});
 		}

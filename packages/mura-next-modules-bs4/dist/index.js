@@ -759,7 +759,7 @@ var getSelectFields = function getSelectFields(props) {
 };
 
 function _extends() {
-  _extends = Object.assign || function (target) {
+  _extends = Object.assign ? Object.assign.bind() : function (target) {
     for (var i = 1; i < arguments.length; i++) {
       var source = arguments[i];
 
@@ -772,7 +772,6 @@ function _extends() {
 
     return target;
   };
-
   return _extends.apply(this, arguments);
 }
 
@@ -784,11 +783,10 @@ function _inheritsLoose(subClass, superClass) {
 }
 
 function _setPrototypeOf(o, p) {
-  _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+  _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) {
     o.__proto__ = p;
     return o;
   };
-
   return _setPrototypeOf(o, p);
 }
 
@@ -2855,18 +2853,14 @@ var MatrixForm = function MatrixForm(props) {
 };
 
 var getDynamicProps$1 = function getDynamicProps(props) {
-  try {
-    return Promise.resolve(getPersonas()).then(function (personaIds) {
-      return Promise.resolve(getStages()).then(function (stageIds) {
-        return {
-          personaProps: personaIds,
-          stageProps: stageIds
-        };
-      });
+  return Promise.resolve(getPersonas()).then(function (personaIds) {
+    return Promise.resolve(getStages()).then(function (stageIds) {
+      return {
+        personaProps: personaIds,
+        stageProps: stageIds
+      };
     });
-  } catch (e) {
-    return Promise.reject(e);
-  }
+  });
 };
 
 var getPersonas = function getPersonas() {
@@ -3419,26 +3413,22 @@ var getCategoryIds = function getCategoryIds(categories) {
 };
 
 var getDynamicProps$3 = function getDynamicProps(props) {
-  try {
-    return Promise.resolve(getFilterProps('', '', '', '', false)).then(function (filterProps) {
-      return Promise.resolve(getCollection(props, filterProps)).then(function (collection) {
-        if (!Array.isArray(filterProps.selectedcats)) {
-          try {
-            filterProps.selectedcats = JSON.parse(filterProps.selectedcats);
-          } catch (e) {
-            filterProps.selectedcats = [];
-          }
+  return Promise.resolve(getFilterProps('', '', '', '', false)).then(function (filterProps) {
+    return Promise.resolve(getCollection(props, filterProps)).then(function (collection) {
+      if (!Array.isArray(filterProps.selectedcats)) {
+        try {
+          filterProps.selectedcats = JSON.parse(filterProps.selectedcats);
+        } catch (e) {
+          filterProps.selectedcats = [];
         }
+      }
 
-        return {
-          collection: collection.getAll(),
-          filterprops: filterProps
-        };
-      });
+      return {
+        collection: collection.getAll(),
+        filterprops: filterProps
+      };
     });
-  } catch (e) {
-    return Promise.reject(e);
-  }
+  });
 };
 
 var getCollection = function getCollection(props, filterProps, curSearchText, tags, author) {

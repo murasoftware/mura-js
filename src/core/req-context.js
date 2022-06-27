@@ -627,7 +627,7 @@ Mura.RequestContext=Mura.Core.extend(
 			config=config || {};
 		}
 	
-		Mura.normalizeRequestHandler(config);
+		Mura.normalizeRequestConfig(config);
 	
 		var self=this;
 		data = data || {};

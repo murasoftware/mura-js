@@ -14,7 +14,7 @@ export const setIsEditMode = function (value) {
   isEditMode=value;
 }
 
-//deprecateds
+//deprecated
 export const getIsEditMode = function() {
   return isEditMode;
 }

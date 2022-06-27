@@ -475,8 +475,8 @@ function readyInternal(fn) {
  * @return {Promise}
  * @memberof {class} Mura
  */
-function get(url, data, eventHandler) {
-	return Mura.getRequestContext().get(url, data, eventHandler);
+function get(url, data, config) {
+	return Mura.getRequestContext().get(url, data, config);
 }
 
 /**
@@ -487,8 +487,8 @@ function get(url, data, eventHandler) {
  * @return {Promise}
  * @memberof {class} Mura
  */
-function post(url, data, eventHandler) {
-	return Mura.getRequestContext().post(url, data, eventHandler);
+function post(url, data, config) {
+	return Mura.getRequestContext().post(url, data, config);
 }
 
 /**
@@ -539,18 +539,23 @@ function ajax(config) {
 }
 
 /**
- * normalizeRequestHandler - Standardizes request handler objects
+ * normalizeRequesConfig - Standardizes request handler objects
  *
- * @param	{object} eventHandler
- * @memberof {object} eventHandler
+ * @param	{object} config
+ * @memberof {object} config
  */
-function normalizeRequestHandler(eventHandler) {
-	eventHandler.progress=eventHandler.progress || eventHandler.onProgress || eventHandler.onUploadProgress || function(){};
-	eventHandler.download=eventHandler.download || eventHandler.onDownload || eventHandler.onDownloadProgress || function(){};
-	eventHandler.abort=eventHandler.abort || eventHandler.onAbort|| function(){};
-	eventHandler.success=eventHandler.success || eventHandler.onSuccess || function(){};
-	eventHandler.error=eventHandler.error || eventHandler.onError || function(){};
-	return eventHandler;
+function normalizeRequestConfig(config) {
+	config.progress=config.progress || config.onProgress || config.onUploadProgress || function(){};
+	config.download=config.download || config.onDownload || config.onDownloadProgress || function(){};
+	config.abort=config.abort || config.onAbort|| function(){};
+	config.success=config.success || config.onSuccess || function(){};
+	config.error=config.error || config.onError || function(){};
+
+	if(typeof Mura.maxQueryStringLength){
+		config.maxQueryStringLength=config.maxQueryStringLength || Mura.maxQueryStringLength;
+	}
+
+	return config;
 }
 
 /**
@@ -4255,7 +4260,7 @@ const Mura=extend(
 		openGate:openGate,
 		firstToUpperCase:firstToUpperCase,
 		firstToLowerCase:firstToLowerCase,
-		normalizeRequestHandler:normalizeRequestHandler,
+		normalizeRequestConfig:normalizeRequestConfig,
 		getStyleSheet:getStyleSheet,
 		getStyleSheetPlaceHolder:getStyleSheetPlaceHolder,
 		applyModuleStyles:applyModuleStyles,

@@ -48,7 +48,7 @@ Mura.Request=Mura.Core.extend(
 				config.dataType = 'default';
 			}
 			
-			Mura.normalizeRequestHandler(config);
+			Mura.normalizeRequestConfig(config);
 
 			config.type=config.type.toLowerCase();
 
