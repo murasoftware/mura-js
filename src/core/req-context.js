@@ -19,7 +19,6 @@ Mura.RequestContext=Mura.Core.extend(
 	init(request, response, headers, siteid, endpoint ,mode) {
 		//Logic aded to support single config object arg
 		if(typeof request==='object' 
-			&& typeof  request.req ==='object'
 			&& typeof response === 'undefined'){
 				var config=request;
 				request=config.req || config.request;
@@ -115,6 +114,11 @@ Mura.RequestContext=Mura.Core.extend(
 	 */
 	 setMode(mode){
 		this.mode=mode;
+		if(this.mode=='rest'){
+			this.apiEndpoint=this.apiEndpoint.replace('/json/', '/rest/');
+		} else {
+			this.apiEndpoint=this.apiEndpoint.replace('/rest/', '/json/');
+		}
 		return this;
 	},
 

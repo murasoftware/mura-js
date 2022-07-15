@@ -36,7 +36,10 @@ function logout(siteid) {
  * @return {Promise}
  * @memberof {class} Mura
  */
-function trackEvent(eventData) {
+function trackEvent(data) {
+	//This all needs to be cleaned up
+
+	//Turn off metric when editing content, perhaps should be removed
 	if(typeof Mura.editing != 'undefined' && Mura.editing){
 		return new Promise(function(resolve, reject) {
 			resolve = resolve || function() {};
@@ -44,89 +47,99 @@ function trackEvent(eventData) {
 		});
 	}
 
-	var data={};
 	var isMXP=(typeof Mura.trackingVars != 'undefined');
-	var trackingVars = {
+	var instanceVars = {
 		ga:{
 			trackingvars:{}
 		}
 	};
 	var gaFound = false;
-	var gtagFound = false;
 	var trackingComplete = false;
 	var attempt=0;
+	var eventData={};
+	
+	eventData.category = data.event_category || data.eventCategory || data.category || '';
+	eventData.name = data.event_action || data.eventAction || data.action || data.eventName || data.name || '';
+	eventData.label = data.event_label || data.eventLabel || data.label || '';
+	eventData.type =	data.hit_type || data.hitType || data.type || 'event';
+	eventData.value = data.event_value || data.eventValue || data.value || undefined;
 
-	data.category = eventData.event_category || eventData.eventCategory || eventData.category || '';
-	data.action = eventData.event_action || eventData.eventAction || eventData.action || '';
-	data.label = eventData.event_label || eventData.eventLabel || eventData.label || '';
-	data.type =	eventData.hit_ype || eventData.hitType || eventData.type || 'event';
-	data.value = eventData.event_value || eventData.eventValue || eventData.value || undefined;
-
-	if (typeof eventData.nonInteraction == 'undefined') {
-		data.nonInteraction = false;
+	if (typeof data.nonInteraction == 'undefined') {
+		eventData.nonInteraction = false;
 	} else {
-		data.nonInteraction = eventData.nonInteraction;
+		eventData.nonInteraction = data.nonInteraction;
 	}
 
-	data.contentid = eventData.contentid || Mura.contentid;
-	data.objectid = eventData.objectid || '';
+	eventData.contentid = data.contentid || Mura.contentid;
+	eventData.objectid = data.objectid || '';
 
 	function track() {
+		//Only happen the first time to coral data announce tracking event
+		//Subsequent calls are ignored, as the tracking is already complete
 		if(!attempt){
-			trackingVars.ga.trackingvars.eventCategory = data.category;
-			trackingVars.ga.trackingvars.eventAction = data.action;
-			trackingVars.ga.trackingvars.nonInteraction = data.nonInteraction;
-			trackingVars.ga.trackingvars.hitType = data.type;
+		
+			instanceVars.ga.trackingvars.eventCategory = eventData.category;
+			instanceVars.ga.trackingvars.eventAction = eventData.name;
+			instanceVars.ga.trackingvars.nonInteraction = eventData.nonInteraction;
+			instanceVars.ga.trackingvars.hitType = eventData.type;
 
-			if (typeof data.value != 'undefined' && Mura.isNumeric(data.value)) {
-				trackingVars.ga.trackingvars.eventValue = data.value;
+			if (typeof eventData.value != 'undefined' && Mura.isNumeric(eventData.value)) {
+				instanceVars.ga.trackingvars.eventValue = eventData.value;
 			}
 
-			if (data.label) {
-				trackingVars.ga.trackingvars.eventLabel = data.label;
+			if (eventData.label) {
+				instanceVars.ga.trackingvars.eventLabel = eventData.label;
 			} else if(isMXP) {
-				if(typeof trackingVars.object != 'undefined'){
-					trackingVars.ga.trackingvars.eventLabel = trackingVars.object.title;
+				if(typeof instanceVars.object != 'undefined'){
+					instanceVars.ga.trackingvars.eventLabel = instanceVars.object.title;
 				} else {
-					trackingVars.ga.trackingvars.eventLabel = trackingVars.content.title;
+					instanceVars.ga.trackingvars.eventLabel = instanceVars.content.title;
 				}
 
-				data.label=trackingVars.object.title;
+				eventData.label=instanceVars.ga.trackingvars.eventLabel;
 			}
 
-			Mura(document).trigger('muraTrackEvent',trackingVars);
-			Mura(document).trigger('muraRecordEvent',trackingVars);
+			Mura(document).trigger('muraTrackEvent',instanceVars);
+			Mura(document).trigger('muraRecordEvent',instanceVars);
+
 		}
 
+		//The method will keep trying to track until ga, gtag are found
 		if (typeof gtag != 'undefined') {
-			trackingVars.ga.trackingvars.event_category = trackingVars.ga.trackingvars.eventCategory;
-			trackingVars.ga.trackingvars.event_action = trackingVars.ga.trackingvars.eventAction;
-			trackingVars.ga.trackingvars.non_interaction = trackingVars.ga.trackingvars.nonInteraction;
-			trackingVars.ga.trackingvars.hit_type = trackingVars.ga.trackingvars.hitType;
-			trackingVars.ga.trackingvars.event_value = trackingVars.ga.trackingvars.eventValue;
-			trackingVars.ga.trackingvars.event_label = trackingVars.ga.trackingvars.eventLabel;
+			//swap out ga for gtag variables
+			instanceVars.ga.trackingvars.event_category = instanceVars.ga.trackingvars.eventCategory;
+			instanceVars.ga.trackingvars.event_action = instanceVars.ga.trackingvars.eventAction;
+			instanceVars.ga.trackingvars.non_interaction = instanceVars.ga.trackingvars.nonInteraction;
+			instanceVars.ga.trackingvars.hit_type = instanceVars.ga.trackingvars.hitType;
+			instanceVars.ga.trackingvars.event_value = instanceVars.ga.trackingvars.eventValue;
+			instanceVars.ga.trackingvars.event_label = instanceVars.ga.trackingvars.eventLabel;
 
-			delete trackingVars.ga.trackingvars.eventCategory;
-			delete trackingVars.ga.trackingvars.eventAction;
-			delete trackingVars.ga.trackingvars.nonInteraction;
-			delete trackingVars.ga.trackingvars.hitType;
-			delete trackingVars.ga.trackingvars.eventValue;
-			delete trackingVars.ga.trackingvars.eventLabel;
+			delete instanceVars.ga.trackingvars.eventCategory;
+			delete instanceVars.ga.trackingvars.eventAction;
+			delete instanceVars.ga.trackingvars.eventName;
+			delete instanceVars.ga.trackingvars.nonInteraction;
+			delete instanceVars.ga.trackingvars.hitType;
+			delete instanceVars.ga.trackingvars.eventValue;
+			delete instanceVars.ga.trackingvars.eventLabel;
 
-			if(isMXP){
-				trackingVars.ga.trackingvars.send_to=Mura.trackingVars.ga.trackingid;
+			if(Mura.trackingVars.ga.trackingid){
+				instanceVars.ga.trackingvars.send_to=Mura.trackingVars.ga.trackingid;
+				gtag('event', instanceVars.ga.trackingvars.event_action, instanceVars.ga.trackingvars);
+			} else if (Mura.trackingVars.ga.measurementid) {
+				instanceVars.ga.trackingvars.send_to=Mura.trackingVars.ga.measurementid
+				instanceVars.ga.trackingvars.event_name=instanceVars.ga.trackingvars.event_action;
+				delete instanceVars.ga.trackingvars.event_action;
+				gtag('event', instanceVars.ga.trackingvars.event_name, instanceVars.ga.trackingvars);	
 			}
-
-			gtag('event', data.type, trackingVars.ga.trackingvars);
-
+			
 			gaFound = true;
 			trackingComplete = true;
 		} else if (typeof ga != 'undefined') {
 			if(isMXP){
-				ga('mxpGATracker.send', data.type, trackingVars.ga.trackingvars);
+				ga('mxpGATracker.send', eventData.type, instanceVars.ga.trackingvars);
 			} else {
-				ga('send', data.type, trackingVars.ga.trackingvars);
-				}
+				ga('send', eventData.type, instanceVars.ga.trackingvars);
+			}
 
 			gaFound = true;
 			trackingComplete = true;
@@ -146,24 +159,24 @@ function trackEvent(eventData) {
 		var trackingID = data.contentid + data.objectid;
 
 		if(typeof Mura.trackingMetadata[trackingID] != 'undefined'){
-			Mura.deepExtend(trackingVars,Mura.trackingMetadata[trackingID]);
-			trackingVars.eventData=data;
+			Mura.deepExtend(instanceVars,Mura.trackingMetadata[trackingID]);
+			instanceVars.eventData=eventData;
 			track();
 		} else {
 			Mura.get(Mura.getAPIEndpoint(), {
 				method: 'findTrackingProps',
 				siteid: Mura.siteid,
-				contentid: data.contentid,
-				objectid: data.objectid
+				contentid: eventData.contentid,
+				objectid: eventData.objectid
 			}).then(function(response) {
-				Mura.deepExtend(trackingVars,response.data);
-				trackingVars.eventData=data;
+				Mura.deepExtend(instanceVars,response.data);
+				instanceVars.eventData=data;
 
-					for(var p in trackingVars.ga.trackingprops){
-					if(trackingVars.ga.trackingprops.hasOwnProperty(p) && p.substring(0,1)=='d' && typeof trackingVars.ga.trackingprops[p] != 'string'){
-						trackingVars.ga.trackingprops[p]=new String(trackingVars.ga[p]);
+				for(var p in instanceVars.ga.trackingvars){
+					if(instanceVars.ga.trackingvars.hasOwnProperty(p) && p.substring(0,1)=='d' && typeof instanceVars.ga.trackingvars[p] != 'string'){
+						instanceVars.ga.trackingvars[p]=new String( instanceVars.ga.trackingvars[p]);
 					}
-					}
+				}
 
 				Mura.trackingMetadata[trackingID]={};
 				Mura.deepExtend(Mura.trackingMetadata[trackingID],response.data);
@@ -570,7 +583,6 @@ function normalizeRequestConfig(config) {
 function getRequestContext(request,response, headers, siteid, endpoint, mode, renderMode) {
 	//Logic aded to support single config object arg
 	if(typeof request==='object' 
-		&& typeof  request.req ==='object'
 		&& typeof response === 'undefined'){
 			var config=request;
 			request=config.req;

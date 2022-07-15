@@ -1,7 +1,7 @@
-this["Mura"]=require("./core");
-this["Mura"]["templates"] = this["Mura"]["templates"] || {};
+const Mura=require("./core");
+Mura["templates"] = Mura["templates"] || {};
 
-this["Mura"]["templates"]["checkbox_static"] = this.Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
+Mura["templates"]["checkbox_static"] = Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
     var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
           return parent[propertyName];
@@ -85,7 +85,7 @@ this["Mura"]["templates"]["checkbox_static"] = this.Mura.Handlebars.template({"1
     + "	</div>\r\n</div>\r\n";
 },"useData":true,"useDepths":true});
 
-this["Mura"]["templates"]["checkbox"] = this.Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
+Mura["templates"]["checkbox"] = Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
     var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
           return parent[propertyName];
@@ -171,7 +171,7 @@ this["Mura"]["templates"]["checkbox"] = this.Mura.Handlebars.template({"1":funct
     + "	</div>\r\n</div>\r\n";
 },"useData":true,"useDepths":true});
 
-this["Mura"]["templates"]["dropdown_static"] = this.Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
+Mura["templates"]["dropdown_static"] = Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
     var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
           return parent[propertyName];
@@ -254,7 +254,7 @@ this["Mura"]["templates"]["dropdown_static"] = this.Mura.Handlebars.template({"1
     + "		</select>\n	</div>\n";
 },"useData":true});
 
-this["Mura"]["templates"]["dropdown"] = this.Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
+Mura["templates"]["dropdown"] = Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
     return " aria-required=\"true\"";
 },"3":function(container,depth0,helpers,partials,data) {
     var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
@@ -338,7 +338,7 @@ this["Mura"]["templates"]["dropdown"] = this.Mura.Handlebars.template({"1":funct
     + "			</select>\n	</div>\n";
 },"useData":true});
 
-this["Mura"]["templates"]["error"] = this.Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
+Mura["templates"]["error"] = Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
     var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
           return parent[propertyName];
@@ -368,7 +368,7 @@ this["Mura"]["templates"]["error"] = this.Mura.Handlebars.template({"1":function
     + "</div>\r\n";
 },"useData":true});
 
-this["Mura"]["templates"]["file"] = this.Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
+Mura["templates"]["file"] = Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
     var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
           return parent[propertyName];
@@ -417,7 +417,7 @@ this["Mura"]["templates"]["file"] = this.Mura.Handlebars.template({"1":function(
     + "_attachment\" src=\"\" onerror=\"this.onerror=null;this.src='';this.style.display='none';\">\r\n	</div>\r\n</div>\r\n";
 },"useData":true});
 
-this["Mura"]["templates"]["form"] = this.Mura.Handlebars.template({"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
+Mura["templates"]["form"] = Mura.Handlebars.template({"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
     var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
           return parent[propertyName];
@@ -440,7 +440,7 @@ this["Mura"]["templates"]["form"] = this.Mura.Handlebars.template({"compiler":[8
     + "\">\n</form>\n";
 },"useData":true});
 
-this["Mura"]["templates"]["hidden"] = this.Mura.Handlebars.template({"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
+Mura["templates"]["hidden"] = Mura.Handlebars.template({"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
     var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
           return parent[propertyName];
@@ -457,7 +457,7 @@ this["Mura"]["templates"]["hidden"] = this.Mura.Handlebars.template({"compiler":
     + "\" />			\n";
 },"useData":true});
 
-this["Mura"]["templates"]["list"] = this.Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
+Mura["templates"]["list"] = Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
     var helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
           return parent[propertyName];
@@ -483,7 +483,7 @@ this["Mura"]["templates"]["list"] = this.Mura.Handlebars.template({"1":function(
     + "			</select>\n		</div>\n	</div>\n	<div class=\"mura-control-group\">\n		<button type=\"button\" id=\"select-bean\">Go</button>\n	</div>\n</form>";
 },"useData":true});
 
-this["Mura"]["templates"]["nested"] = this.Mura.Handlebars.template({"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
+Mura["templates"]["nested"] = Mura.Handlebars.template({"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
     var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
           return parent[propertyName];
@@ -496,7 +496,7 @@ this["Mura"]["templates"]["nested"] = this.Mura.Handlebars.template({"compiler":
     + "\">\r\n\r\n</div>\r\n";
 },"useData":true});
 
-this["Mura"]["templates"]["paging"] = this.Mura.Handlebars.template({"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
+Mura["templates"]["paging"] = Mura.Handlebars.template({"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
     var helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
           return parent[propertyName];
@@ -513,7 +513,7 @@ this["Mura"]["templates"]["paging"] = this.Mura.Handlebars.template({"compiler":
     + "</button> ";
 },"useData":true});
 
-this["Mura"]["templates"]["radio_static"] = this.Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
+Mura["templates"]["radio_static"] = Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
     var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
           return parent[propertyName];
@@ -597,7 +597,7 @@ this["Mura"]["templates"]["radio_static"] = this.Mura.Handlebars.template({"1":f
     + "		</div>\n	</div>\n";
 },"useData":true,"useDepths":true});
 
-this["Mura"]["templates"]["radio"] = this.Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
+Mura["templates"]["radio"] = Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
     var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
           return parent[propertyName];
@@ -681,7 +681,7 @@ this["Mura"]["templates"]["radio"] = this.Mura.Handlebars.template({"1":function
     + "		</div>\n	</div>\n";
 },"useData":true,"useDepths":true});
 
-this["Mura"]["templates"]["section"] = this.Mura.Handlebars.template({"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
+Mura["templates"]["section"] = Mura.Handlebars.template({"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
     var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
           return parent[propertyName];
@@ -698,7 +698,7 @@ this["Mura"]["templates"]["section"] = this.Mura.Handlebars.template({"compiler"
     + "</div>\r\n<div class=\"mura-divide\"></div>\r\n</div>";
 },"useData":true});
 
-this["Mura"]["templates"]["success"] = this.Mura.Handlebars.template({"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
+Mura["templates"]["success"] = Mura.Handlebars.template({"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
     var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
           return parent[propertyName];
@@ -713,7 +713,7 @@ this["Mura"]["templates"]["success"] = this.Mura.Handlebars.template({"compiler"
     + "</div>\n";
 },"useData":true});
 
-this["Mura"]["templates"]["table"] = this.Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
+Mura["templates"]["table"] = Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
     var helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
           return parent[propertyName];
@@ -872,7 +872,7 @@ this["Mura"]["templates"]["table"] = this.Mura.Handlebars.template({"1":function
     + "			</td>\n		</tfoot>\n	</table>\n</div>";
 },"useData":true,"useDepths":true});
 
-this["Mura"]["templates"]["textarea"] = this.Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
+Mura["templates"]["textarea"] = Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
     var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
           return parent[propertyName];
@@ -946,7 +946,7 @@ this["Mura"]["templates"]["textarea"] = this.Mura.Handlebars.template({"1":funct
     + "</textarea>\r\n</div>\r\n";
 },"useData":true});
 
-this["Mura"]["templates"]["textblock"] = this.Mura.Handlebars.template({"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
+Mura["templates"]["textblock"] = Mura.Handlebars.template({"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
     var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
           return parent[propertyName];
@@ -963,7 +963,7 @@ this["Mura"]["templates"]["textblock"] = this.Mura.Handlebars.template({"compile
     + "</div>\r\n</div>\r\n";
 },"useData":true});
 
-this["Mura"]["templates"]["textfield"] = this.Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
+Mura["templates"]["textfield"] = Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
     var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
           return parent[propertyName];
@@ -1040,7 +1040,7 @@ this["Mura"]["templates"]["textfield"] = this.Mura.Handlebars.template({"1":func
     + "/>\r\n</div>\r\n";
 },"useData":true});
 
-this["Mura"]["templates"]["view"] = this.Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
+Mura["templates"]["view"] = Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
     var helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
           return parent[propertyName];

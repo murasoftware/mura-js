@@ -29,13 +29,19 @@ module.exports = function(grunt) {
                 {
                       from: 'this["Mura"] = this["Mura"] || {};',
                       to: function () {
-                        return 'this["Mura"]=require("./core");';
+                        return 'const Mura=require("./core");';
                       }
                 },
                 {
+                  from: 'this["Mura"]',
+                  to: function () {
+                    return 'Mura';
+                  }
+            },
+                {
                       from: 'Handlebars',
                       to: function () {
-                        return "this.Mura.Handlebars";
+                        return "Mura.Handlebars";
                       }
                 }]
             }
