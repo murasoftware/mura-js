@@ -1338,7 +1338,7 @@ var keyCmdCheck = function(event) {
 			break;
 
 		case 76:
-			if (commandKeyActive && commandKeyActive != 91 && commandKeyActive != 17) {
+			if (commandKeyActive) {
 				event.preventDefault();
 				var params=getQueryStringParams(location.search);
 				if(params.display != 'login'){
