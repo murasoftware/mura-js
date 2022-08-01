@@ -122,16 +122,20 @@ function trackEvent(data) {
 			delete instanceVars.ga.trackingvars.eventValue;
 			delete instanceVars.ga.trackingvars.eventLabel;
 
-			if(Mura.trackingVars.ga.trackingid){
-				instanceVars.ga.trackingvars.send_to=Mura.trackingVars.ga.trackingid;
-				gtag('event', instanceVars.ga.trackingvars.event_action, instanceVars.ga.trackingvars);
-			} else if (Mura.trackingVars.ga.measurementid) {
-				instanceVars.ga.trackingvars.send_to=Mura.trackingVars.ga.measurementid
+			if(typeof Mura.trackingVars != 'undefined'){
+				if(Mura.trackingVars.ga.trackingid){
+					instanceVars.ga.trackingvars.send_to=Mura.trackingVars.ga.trackingid;
+					gtag('event', instanceVars.ga.trackingvars.event_action, instanceVars.ga.trackingvars);
+				} else if (Mura.trackingVars.ga.measurementid) {
+					instanceVars.ga.trackingvars.send_to=Mura.trackingVars.ga.measurementid
+					instanceVars.ga.trackingvars.event_name=instanceVars.ga.trackingvars.event_action;
+					delete instanceVars.ga.trackingvars.event_action;
+					gtag('event', instanceVars.ga.trackingvars.event_name, instanceVars.ga.trackingvars);	
+				}
+			} else {
 				instanceVars.ga.trackingvars.event_name=instanceVars.ga.trackingvars.event_action;
-				delete instanceVars.ga.trackingvars.event_action;
 				gtag('event', instanceVars.ga.trackingvars.event_name, instanceVars.ga.trackingvars);	
 			}
-			
 			gaFound = true;
 			trackingComplete = true;
 		} else if (typeof ga != 'undefined') {
