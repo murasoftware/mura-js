@@ -4620,10 +4620,10 @@ var UtilityLinks = function UtilityLinks(props) {
   var CustomLinks = props.customlinks ? Array.from(props.customlinks) : [];
 
   if (CustomLinks && CustomLinks.length) {
-    var _UtilityLinks = CustomLinks.map(function (link) {
+    var _UtilityLinks = CustomLinks.map(function (link, index) {
       return /*#__PURE__*/React.createElement("li", {
         className: "list-inline-item",
-        key: link.name
+        key: index
       }, /*#__PURE__*/React.createElement("a", {
         href: link.value,
         target: props.linktarget && props.linktarget != "_self" ? props.linktarget : ''

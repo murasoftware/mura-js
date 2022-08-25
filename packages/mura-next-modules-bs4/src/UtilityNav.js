@@ -20,8 +20,8 @@ const UtilityLinks = (props) => {
 	const CustomLinks = props.customlinks ? Array.from(props.customlinks) : [];
 	// console.log('props: ', props);
 	if (CustomLinks && CustomLinks.length){
-		const UtilityLinks = CustomLinks.map((link) => 
-		<li className="list-inline-item" key={link.name}>
+		const UtilityLinks = CustomLinks.map((link,index) => 
+		<li className="list-inline-item" key={index}>
 			<a href={link.value} target={props.linktarget && props.linktarget != "_self" ? props.linktarget : ''}>{link.name}</a>
 		</li>
 		);
