@@ -107,7 +107,7 @@ function Decorator(props) {
   if (isEditMode || isExternalModule || !isSSR) {
     Object.keys(props).forEach(key => {
       if (
-        !['queryParams','Router', 'Link','html', 'content', 'children', 'isEditMode', 'dynamicProps', 'moduleStyleData', 'regionContext', 'requestContext'].find(
+        !['queryParams','Router', 'Link','html', 'content', 'children', 'isEditMode', 'renderMode','dynamicProps', 'moduleStyleData', 'regionContext', 'requestContext', 'Mura'].find(
           restrictedkey => restrictedkey === key,
         )
       ) {
