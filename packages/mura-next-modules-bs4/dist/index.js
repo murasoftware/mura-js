@@ -4606,17 +4606,9 @@ function SearchForm(props) {
 }
 
 function UtilityNav(props) {
-  var objectparams = Object.assign({}, props);
-
-  if (!objectparams.dynamicProps) {
-    return /*#__PURE__*/React__default.createElement("div", {
-      className: "mura-utility-links"
-    }, /*#__PURE__*/React__default.createElement(UtilityLinks, props));
-  } else {
-    return /*#__PURE__*/React__default.createElement("div", {
-      className: "mura-utility-links"
-    });
-  }
+  return /*#__PURE__*/React__default.createElement("div", {
+    className: "mura-utility-links"
+  }, /*#__PURE__*/React__default.createElement(UtilityLinks, props));
 }
 
 var UtilityLinks = function UtilityLinks(props) {

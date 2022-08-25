@@ -1,24 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
 export function UtilityNav(props) {
-	const objectparams = Object.assign({}, props);
-
-	if (!objectparams.dynamicProps) {
-		return (
-			<div className="mura-utility-links">
-				<UtilityLinks {...props} />
-			</div>
-		) 
-	} else {
-		return (
-			<div className="mura-utility-links"></div>
-		)
-	}
+	return (
+		<div className="mura-utility-links">
+			<UtilityLinks {...props} />
+		</div>
+	) 
+	
 }
 
 const UtilityLinks = (props) => {
 	const CustomLinks = props.customlinks ? Array.from(props.customlinks) : [];
-	// console.log('props: ', props);
+
 	if (CustomLinks && CustomLinks.length){
 		const UtilityLinks = CustomLinks.map((link,index) => 
 		<li className="list-inline-item" key={index}>
