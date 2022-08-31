@@ -8,7 +8,7 @@ import CollectionReadMoreBtn from "./CollectionReadMoreBtn";
 import ItemCredits from './ItemCredits';
 import ItemTags from './ItemTags';
 import ItemImage from './ItemImage';
-import { getMura } from '@murasoftware/next-core';
+import { getMura, getHref } from '@murasoftware/next-core';
 /*
   The link component throws an error when rerending after being 
   reconfigured in edit mode. Hence CollectionLink
@@ -91,7 +91,7 @@ const CurrentItems = (props) => {
                     case "readmore":
                           return (
                             <CollectionReadMoreBtn
-                              href={`/${item.get('filename')}`}
+                              href={getHref(item.get('filename'))}
                               ctatext="Read More"
                               link={Link}
                               key={field}

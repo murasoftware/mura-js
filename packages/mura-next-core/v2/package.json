@@ -15,7 +15,7 @@
     "build": "microbundle-crl --jsxFragment React.Fragment --no-compress --format modern,cjs"
   },
   "peerDependencies": {
-    "mura.js": "^1.0.370",
+    "mura.js": "^1.0.379",
     "react": "^17.0.1",
     "react-dom": "^17.0.1"
   },

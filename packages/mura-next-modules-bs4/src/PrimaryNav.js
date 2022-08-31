@@ -4,7 +4,7 @@ import Navbar from 'react-bootstrap/Navbar'
 import Nav from 'react-bootstrap/Nav'
 import NavDropdown from 'react-bootstrap/NavDropdown'
 import { getMura, getHref } from '@murasoftware/next-core';
-import { SearchForm } from './';
+import { SearchForm } from '@murasoftware/next-modules-bs4';
 
 function PrimaryNav(props) {
   const objectparams = Object.assign({}, props);
@@ -225,11 +225,11 @@ const NavLinkDropdown = props => {
        
     return (
       <>
-      <NavDropdown key={props.contentid + 'navdropdown'} title={<div style={{display: "inline-block"}}><span dangerouslySetInnerHTML={createIcon()} /> {props.menutitle} </div>} id={`dropdown-${props.contentid}`} href={`/${props.filename}`} renderMenuOnMount={true}>
+      <NavDropdown key={props.contentid + 'navdropdown'} title={<div style={{display: "inline-block"}}><span dangerouslySetInnerHTML={createIcon()} /> {props.menutitle} </div>} id={`dropdown-${props.contentid}`} href={getHref(props.filename)} renderMenuOnMount={true}>
         {/* placing the main nav item in the dropdown for now since the parent nav item is not a clickable link */}
         <Link
           key={props.contentid + 'topitem'}
-          href={`/${props.filename}`}
+          href={getHref(props.filename)}
           type="navdropdownitem"
           menutitle={props.menutitle} />
 
@@ -238,7 +238,7 @@ const NavLinkDropdown = props => {
           return(
             <Link
               key={child.contentid}
-              href={`/${child.filename}`}
+              href={getHref(child.filename)}
               type="navdropdownitem"
               menutitle={child.menutitle} />
           )
@@ -253,7 +253,7 @@ const NavLinkDropdown = props => {
     <li className="nav-item">
       <Link 
         key={props.contentid}
-        href={`/${props.filename}`}
+        href={getHref(props.filename)}
         type="navlink"
         menutitle={<><span dangerouslySetInnerHTML={createIcon()} /> {props.menutitle} </>} />
     </li>    

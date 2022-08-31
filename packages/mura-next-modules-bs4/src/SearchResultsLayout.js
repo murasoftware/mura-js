@@ -6,7 +6,7 @@ import CollectionReadMoreBtn from './CollectionReadMoreBtn';
 import ItemCredits from './ItemCredits';
 import ItemTags from './ItemTags';
 import ItemImage from './ItemImage';
-import { getMura } from '@murasoftware/next-core';
+import { getMura, getHref } from '@murasoftware/next-core';
 
 const SearchResultsLayout = ({props,collection,setCollection,link}) => {
   const [pos, setPos] = useState(0);
@@ -101,14 +101,14 @@ const ListMeta = (props) => {
               switch(field) {
                 case "title":
                   return (
-                    <div className="mura-item-meta__title" key={item.get('field')}>                        
-                        <h3><Link href={`/${item.get('filename')}`} className="text-dark">{currentIndex}. {item.get('title')}</Link></h3>                        
+                    <div className="mura-item-meta__title"key={field}>                        
+                        <h3><Link href={getHref(item.get('filename'))} className="text-dark">{currentIndex}. {item.get('title')}</Link></h3>                        
                     </div>
                   )
                 case "date":
                 case "releasedate":
                     return (
-                      <div className="mura-item-meta__date" key="date">
+                      <div className="mura-item-meta__date" key={field}>
                         <ItemDate releasedate={item.get('releasedate')} lastupdate={item.get('lastupdate')}></ItemDate>
                       </div>
                     );
@@ -118,7 +118,7 @@ const ListMeta = (props) => {
                       return (
                         <div className="mura-item-meta__readmore" key={field}>
                           <CollectionReadMoreBtn
-                            href={`/${item.get('filename')}`}
+                            href={getHref(item.get('filename'))}
                             ctatext="Read More"
                             link={Link}
                             key={item.get('contentid')}
@@ -128,15 +128,15 @@ const ListMeta = (props) => {
                 case "credits":
                     if(item.get('credits').length){
                       return (
-                        <div className="mura-item-meta__credits">
-                          <ItemCredits credits={item.get('credits')} key="credits" />
+                        <div className="mura-item-meta__credits" key={field}>
+                          <ItemCredits credits={item.get('credits')} />
                         </div>
                       );
                     }
                     return null;
                 case "tags":
                     return (
-                        <div className="mura-item-meta__tags pb-2" key="tags">
+                        <div className="mura-item-meta__tags pb-2" key={field}>
                           <ItemTags tags={item.get('tags')} />
                         </div>
                     );

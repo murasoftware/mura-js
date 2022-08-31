@@ -1,7 +1,7 @@
 import React,{ useEffect,useState } from "react";
 import OutputMarkup from "./OutputMarkup";
 import CollectionNav from './CollectionNav';
-import { getMura } from '@murasoftware/next-core';
+import { getMura, getHref } from '@murasoftware/next-core';
 
 const CollectionLayout = ({props,collection,setCollection,link}) => {
   const {nextn} = props;
@@ -43,7 +43,7 @@ const CurrentItems = (props) => {
     itemsList.push(
     <li key={item.get('contentid')}>
         <h1>
-          <Link href={`/${item.get('filename')}`}>
+          <Link href={getHref(item.get('filename'))}>
             {item.get('title')}
           </Link>
         </h1>

@@ -43,9 +43,17 @@ export const getHref = function(filename) {
   let path=filename.split('/').filter(item => item.length);
   
   if(connectorConfig.siteidinurls){
-    return '/' + Mura.siteid + '/' + path.join('/');
+    if(path.length){
+      return '/' + Mura.siteid + '/' + path.join('/') + '/';
+    } else {
+      return '/' + Mura.siteid + '/';
+    }
   } else {
-    return '/' + path.join('/');
+    if(path.length){
+      return '/' + path.join('/') + '/';
+    } else {
+      return '/';
+    }
   }
 }
 

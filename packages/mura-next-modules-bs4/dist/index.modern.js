@@ -20,6 +20,7 @@ import Alert from 'react-bootstrap/Alert';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import NavDropdown from 'react-bootstrap/NavDropdown';
+import { SearchForm as SearchForm$1 } from '@murasoftware/next-modules-bs4';
 import InputGroup from 'react-bootstrap/InputGroup';
 import { useRouter } from 'next/router';
 
@@ -339,8 +340,6 @@ var ArticleMeta = function ArticleMeta(props) {
   return /*#__PURE__*/React.createElement("div", {
     className: "mura-article-meta"
   }, fieldlist.map(function (field) {
-    var _React$createElement, _React$createElement2;
-
     switch (field) {
       case "category":
         return /*#__PURE__*/React.createElement("div", {
@@ -352,14 +351,16 @@ var ArticleMeta = function ArticleMeta(props) {
         }));
 
       case "title":
-        return /*#__PURE__*/React.createElement("h1", (_React$createElement = {
-          key: "title"
-        }, _React$createElement["key"] = field, _React$createElement.className = titleclass, _React$createElement), item.title);
+        return /*#__PURE__*/React.createElement("h1", {
+          key: "title",
+          className: titleclass
+        }, item.title);
 
       case "menutitle":
-        return /*#__PURE__*/React.createElement("p", (_React$createElement2 = {
-          key: "menutitle"
-        }, _React$createElement2["key"] = field, _React$createElement2.className = "mura-item-meta__menutitle", _React$createElement2), item.menutitle);
+        return /*#__PURE__*/React.createElement("p", {
+          key: "menutitle",
+          className: "mura-item-meta__menutitle"
+        }, item.menutitle);
 
       case "summary":
         return /*#__PURE__*/React.createElement(OutputMarkup, {
@@ -394,7 +395,7 @@ var ArticleMeta = function ArticleMeta(props) {
             className: "mura-item-meta__tags",
             key: field
           }, /*#__PURE__*/React.createElement(ItemTags, {
-            tagshref: "/blog",
+            tagshref: "/blog/",
             tags: item.tags
           }));
         }
@@ -1067,7 +1068,7 @@ var CurrentItems = function CurrentItems(props) {
     itemsList.push( /*#__PURE__*/React.createElement("li", {
       key: item.get('contentid')
     }, /*#__PURE__*/React.createElement("h1", null, /*#__PURE__*/React.createElement(Link, {
-      href: "/" + item.get('filename')
+      href: getHref(item.get('filename'))
     }, item.get('title'))), /*#__PURE__*/React.createElement(OutputMarkup, {
       source: item.get('summary')
     })));
@@ -1217,7 +1218,7 @@ var CurrentItems$1 = function CurrentItems(props) {
 
         case "readmore":
           return /*#__PURE__*/React.createElement(CollectionReadMoreBtn, {
-            href: "/" + item.get('filename'),
+            href: getHref(item.get('filename')),
             ctatext: "Read More",
             link: Link,
             key: field
@@ -1362,7 +1363,7 @@ var CurrentItems$2 = function CurrentItems(props) {
 
         case "readmore":
           return /*#__PURE__*/React.createElement(CollectionReadMoreBtn, {
-            href: "/" + item.get('filename'),
+            href: getHref(item.get('filename')),
             ctatext: "Read More",
             link: Link,
             key: item.get('contentid')
@@ -1396,7 +1397,7 @@ var CurrentItems$2 = function CurrentItems(props) {
           }, item.get(field));
       }
     }), !fieldlist.includes('readmore') && /*#__PURE__*/React.createElement(Link, {
-      href: "/" + item.get('filename'),
+      href: getHref(item.get('filename')),
       className: "stretched-link"
     })))))));
   }
@@ -1507,7 +1508,7 @@ var CurrentItems$3 = function CurrentItems(props) {
 
         case "readmore":
           return /*#__PURE__*/React.createElement(CollectionReadMoreBtn, {
-            href: "/" + item.get('filename'),
+            href: getHref(item.get('filename')),
             ctatext: "Read More",
             link: Link,
             key: item.get('contentid')
@@ -1541,7 +1542,7 @@ var CurrentItems$3 = function CurrentItems(props) {
           }, item.get(field));
       }
     }), !fieldlist.includes('readmore') && /*#__PURE__*/React.createElement(Link, {
-      href: "/" + item.get('filename'),
+      href: getHref(item.get('filename')),
       className: "stretched-link"
     }))))))));
   }
@@ -1709,10 +1710,10 @@ var CurrentItems$4 = function CurrentItems(props) {
           }, item.get(field));
       }
     })), !fieldlist.includes('readmore') && /*#__PURE__*/React.createElement(Link, {
-      href: "/" + item.get('filename'),
+      href: getHref(item.get('filename')),
       className: "stretched-link"
     })), (fieldlist.includes('readmore') || catAssignments && props.showcategories) && /*#__PURE__*/React.createElement(Card.Footer, null, fieldlist.includes('readmore') && /*#__PURE__*/React.createElement(CollectionReadMoreBtn, {
-      href: "/" + item.get('filename'),
+      href: getHref(item.get('filename')),
       ctatext: "Read More",
       link: Link,
       key: item.get('contentid')
@@ -1851,14 +1852,14 @@ var ListMeta = function ListMeta(props) {
       case "title":
         return /*#__PURE__*/React.createElement("div", {
           className: "mura-item-meta__title",
-          key: item.get('field')
+          key: field
         }, /*#__PURE__*/React.createElement("h3", null, item.get('title')));
 
       case "date":
       case "releasedate":
         return /*#__PURE__*/React.createElement("div", {
           className: "mura-item-meta__date",
-          key: "date"
+          key: field
         }, /*#__PURE__*/React.createElement(ItemDate, {
           releasedate: item.get('releasedate'),
           lastupdate: item.get('lastupdate')
@@ -1875,7 +1876,7 @@ var ListMeta = function ListMeta(props) {
           className: "mura-item-meta__readmore",
           key: field
         }, /*#__PURE__*/React.createElement(CollectionReadMoreBtn, {
-          href: "/" + item.get('filename'),
+          href: getHref(item.get('filename')),
           ctatext: "Read More",
           link: Link,
           key: item.get('contentid')
@@ -1884,7 +1885,8 @@ var ListMeta = function ListMeta(props) {
       case "credits":
         if (item.get('credits').length) {
           return /*#__PURE__*/React.createElement("div", {
-            className: "mura-item-meta__credits"
+            className: "mura-item-meta__credits",
+            key: field
           }, /*#__PURE__*/React.createElement(ItemCredits, {
             credits: item.get('credits'),
             key: "credits"
@@ -1896,7 +1898,7 @@ var ListMeta = function ListMeta(props) {
       case "tags":
         return /*#__PURE__*/React.createElement("div", {
           className: "mura-item-meta__tags pb-2",
-          key: "tags"
+          key: field
         }, /*#__PURE__*/React.createElement(ItemTags, {
           tags: item.get('tags')
         }));
@@ -1909,7 +1911,7 @@ var ListMeta = function ListMeta(props) {
         }, item.get(field));
     }
   }), !fieldlist.includes('readmore') && /*#__PURE__*/React.createElement(Link, {
-    href: "/" + item.get('filename'),
+    href: getHref(item.get('filename')),
     className: "stretched-link"
   })));
 };
@@ -2038,10 +2040,11 @@ var CurrentItems$6 = function CurrentItems(props) {
           }, item.get(field));
       }
     })), !fieldlist.includes('readmore') && /*#__PURE__*/React.createElement(Link, {
-      href: "/" + item.get('filename'),
-      className: "stretched-link"
+      href: getHref(item.get('filename')),
+      className: "stretched-link",
+      key: "readmorelink"
     })), fieldlist.includes('readmore') && /*#__PURE__*/React.createElement(Card.Footer, null, /*#__PURE__*/React.createElement(CollectionReadMoreBtn, {
-      href: "/" + item.get('filename'),
+      href: getHref(item.get('filename')),
       ctatext: "Read More",
       link: Link,
       key: item.get('contentid')
@@ -2147,7 +2150,7 @@ var SliderItem = function SliderItem(props) {
       key: item.get('contentid'),
       className: "h-100 position-relative"
     }, /*#__PURE__*/React.createElement(Link, {
-      href: "/" + item.get('filename'),
+      href: getHref(item.get('filename')),
       passHref: true
     }, /*#__PURE__*/React.createElement("img", {
       src: props.sliderimage
@@ -2183,7 +2186,7 @@ var SliderItem = function SliderItem(props) {
             className: "mura-item-meta__readmore",
             key: item.get('contentid')
           }, /*#__PURE__*/React.createElement(CollectionReadMoreBtn, {
-            href: "/" + item.get('filename'),
+            href: getHref(item.get('filename')),
             ctatext: "Read More",
             link: Link,
             key: item.get('contentid')
@@ -2260,7 +2263,7 @@ var SliderItem = function SliderItem(props) {
 
         case "readmore":
           return /*#__PURE__*/React.createElement(CollectionReadMoreBtn, {
-            href: "/" + item.get('filename'),
+            href: getHref(item.get('filename')),
             ctatext: "Read More",
             link: Link,
             key: item.get('contentid')
@@ -2686,49 +2689,43 @@ var MatrixSelector = function MatrixSelector(props) {
 
   if (!(objectparams !== null && objectparams !== void 0 && (_objectparams$dynamic3 = objectparams.dynamicProps) !== null && _objectparams$dynamic3 !== void 0 && _objectparams$dynamic3.personas) || !(objectparams !== null && objectparams !== void 0 && (_objectparams$dynamic4 = objectparams.dynamicProps) !== null && _objectparams$dynamic4 !== void 0 && _objectparams$dynamic4.stages)) {
     useEffect(function () {
-      try {
-        var _temp3 = function _temp3() {
-          return function () {
-            isMounted = false;
-          };
-        };
+      var isMounted = true;
 
-        var isMounted = true;
-
-        var _temp4 = function () {
+      var fetchData = function fetchData() {
+        return Promise.resolve(getDynamicProps$1()).then(function (dynamicProps) {
           if (isMounted) {
-            return Promise.resolve(getDynamicProps$1()).then(function (dynamicProps) {
+            setPersonas(dynamicProps.personas);
+
+            if (!personas.length) {
               if (isMounted) {
-                setPersonas(dynamicProps.personas);
-
-                if (!personas.length) {
-                  if (isMounted) {
-                    setSelPersonaValidated(true);
-                  }
-                }
-
-                setStages(dynamicProps.stages);
-
-                if (!dynamicProps.stages.length) {
-                  if (isMounted) {
-                    setSelStageValidated(true);
-                  }
-                }
-
-                setCurrentStageId(dynamicProps.currentstageid);
-                setCurrentPersonaId(dynamicProps.currentpersonaid);
-                setCurSelPersona(dynamicProps.currentpersonaid);
-                setCurSelStage(dynamicProps.currentstageid);
-                setIsPreview(dynamicProps.ispreview);
+                setSelPersonaValidated(true);
               }
-            });
-          }
-        }();
+            }
 
-        return Promise.resolve(_temp4 && _temp4.then ? _temp4.then(_temp3) : _temp3(_temp4));
-      } catch (e) {
-        return Promise.reject(e);
+            setStages(dynamicProps.stages);
+
+            if (!dynamicProps.stages.length) {
+              if (isMounted) {
+                setSelStageValidated(true);
+              }
+            }
+
+            setCurrentStageId(dynamicProps.currentstageid);
+            setCurrentPersonaId(dynamicProps.currentpersonaid);
+            setCurSelPersona(dynamicProps.currentpersonaid);
+            setCurSelStage(dynamicProps.currentstageid);
+            setIsPreview(dynamicProps.ispreview);
+          }
+        });
+      };
+
+      if (isMounted) {
+        fetchData();
       }
+
+      return function () {
+        isMounted = false;
+      };
     }, []);
 
     var _useState22 = useState(''),
@@ -2741,7 +2738,7 @@ var MatrixSelector = function MatrixSelector(props) {
           variant: "info matrix-selector-edit-alert"
         }, /*#__PURE__*/React.createElement("p", {
           className: "mb-0"
-        }, "Matrix Selector")), /*#__PURE__*/React.createElement("div", {
+        }, "Experience Selector")), /*#__PURE__*/React.createElement("div", {
           className: (open ? 'open' : '') + " mura-matrix-selector__widget " + props.widgetposition
         }, /*#__PURE__*/React.createElement(Button, {
           variant: "light",
@@ -2950,10 +2947,7 @@ var MatrixForm = function MatrixForm(props) {
 
 var getDynamicProps$1 = function getDynamicProps() {
   try {
-    return Promise.resolve(Mura.getEntity('matrix_selector').invoke('getDynamicProps')).then(function (dynamicProps) {
-      console.log(dynamicProps);
-      return dynamicProps;
-    });
+    return Promise.resolve(Mura.getEntity('matrix_selector').invoke('getDynamicProps'));
   } catch (e) {
     return Promise.reject(e);
   }
@@ -3037,7 +3031,7 @@ var Render = function Render(_ref) {
     });
   }), props.props.content && props.props.content.translations && /*#__PURE__*/React.createElement(LangOptions, {
     translations: props.props.content.translations
-  })), props.props.displaysearch && /*#__PURE__*/React.createElement(SearchForm, null))));
+  })), props.props.displaysearch && /*#__PURE__*/React.createElement(SearchForm$1, null))));
 };
 
 var getDynamicProps$2 = function getDynamicProps(props) {
@@ -3190,17 +3184,17 @@ var NavLinkDropdown = function NavLinkDropdown(props) {
         dangerouslySetInnerHTML: createIcon()
       }), " ", props.menutitle, " "),
       id: "dropdown-" + props.contentid,
-      href: "/" + props.filename,
+      href: getHref(props.filename),
       renderMenuOnMount: true
     }, /*#__PURE__*/React.createElement(Link, {
       key: props.contentid + 'topitem',
-      href: "/" + props.filename,
+      href: getHref(props.filename),
       type: "navdropdownitem",
       menutitle: props.menutitle
     }), props.kids.items.map(function (child) {
       return /*#__PURE__*/React.createElement(Link, {
         key: child.contentid,
-        href: "/" + child.filename,
+        href: getHref(child.filename),
         type: "navdropdownitem",
         menutitle: child.menutitle
       });
@@ -3211,7 +3205,7 @@ var NavLinkDropdown = function NavLinkDropdown(props) {
     className: "nav-item"
   }, /*#__PURE__*/React.createElement(Link, {
     key: props.contentid,
-    href: "/" + props.filename,
+    href: getHref(props.filename),
     type: "navlink",
     menutitle: /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", {
       dangerouslySetInnerHTML: createIcon()
@@ -4514,9 +4508,9 @@ var ListMeta$1 = function ListMeta(props) {
       case "title":
         return /*#__PURE__*/React.createElement("div", {
           className: "mura-item-meta__title",
-          key: item.get('field')
+          key: field
         }, /*#__PURE__*/React.createElement("h3", null, /*#__PURE__*/React.createElement(Link, {
-          href: "/" + item.get('filename'),
+          href: getHref(item.get('filename')),
           className: "text-dark"
         }, currentIndex, ". ", item.get('title'))));
 
@@ -4524,7 +4518,7 @@ var ListMeta$1 = function ListMeta(props) {
       case "releasedate":
         return /*#__PURE__*/React.createElement("div", {
           className: "mura-item-meta__date",
-          key: "date"
+          key: field
         }, /*#__PURE__*/React.createElement(ItemDate, {
           releasedate: item.get('releasedate'),
           lastupdate: item.get('lastupdate')
@@ -4541,7 +4535,7 @@ var ListMeta$1 = function ListMeta(props) {
           className: "mura-item-meta__readmore",
           key: field
         }, /*#__PURE__*/React.createElement(CollectionReadMoreBtn, {
-          href: "/" + item.get('filename'),
+          href: getHref(item.get('filename')),
           ctatext: "Read More",
           link: Link,
           key: item.get('contentid')
@@ -4550,10 +4544,10 @@ var ListMeta$1 = function ListMeta(props) {
       case "credits":
         if (item.get('credits').length) {
           return /*#__PURE__*/React.createElement("div", {
-            className: "mura-item-meta__credits"
+            className: "mura-item-meta__credits",
+            key: field
           }, /*#__PURE__*/React.createElement(ItemCredits, {
-            credits: item.get('credits'),
-            key: "credits"
+            credits: item.get('credits')
           }));
         }
 
@@ -4562,7 +4556,7 @@ var ListMeta$1 = function ListMeta(props) {
       case "tags":
         return /*#__PURE__*/React.createElement("div", {
           className: "mura-item-meta__tags pb-2",
-          key: "tags"
+          key: field
         }, /*#__PURE__*/React.createElement(ItemTags, {
           tags: item.get('tags')
         }));

@@ -6,7 +6,7 @@ import ItemDate from './ItemDate';
 import CollectionReadMoreBtn from './CollectionReadMoreBtn';
 import ItemCredits from './ItemCredits';
 import ItemTags from './ItemTags';
-import { getMura } from '@murasoftware/next-core';
+import { getMura, getHref } from '@murasoftware/next-core';
 
 /*
   The link component throws an error when rerending after being 
@@ -98,13 +98,13 @@ const CurrentItems = (props) => {
           </div>
           {
             !fieldlist.includes('readmore') &&
-              <Link href={`/${item.get('filename')}`} className="stretched-link"></Link>
+              <Link href={getHref(item.get('filename'))} className="stretched-link" key="readmorelink"></Link>
           }
         </Card.Body>
         { fieldlist.includes('readmore') &&
           <Card.Footer>
             <CollectionReadMoreBtn
-              href={`/${item.get('filename')}`}
+              href={getHref(item.get('filename'))}
               ctatext="Read More"
               link={Link}
               key={item.get('contentid')}

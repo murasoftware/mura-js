@@ -359,9 +359,17 @@ var getHref = function getHref(filename) {
   });
 
   if (connectorConfig.siteidinurls) {
-    return '/' + Mura.siteid + '/' + path.join('/');
+    if (path.length) {
+      return '/' + Mura.siteid + '/' + path.join('/') + '/';
+    } else {
+      return '/' + Mura.siteid + '/';
+    }
   } else {
-    return '/' + path.join('/');
+    if (path.length) {
+      return '/' + path.join('/') + '/';
+    } else {
+      return '/';
+    }
   }
 };
 var getComponent = function getComponent(item) {

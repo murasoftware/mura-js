@@ -182,9 +182,9 @@ export const MatrixSelector=function(props){
     }, [seconds]);
 
     if(!objectparams?.dynamicProps?.personas || !objectparams?.dynamicProps?.stages){
-        useEffect(async () => {
+        useEffect(() => {
             let isMounted = true;
-            if (isMounted) {
+            const fetchData= async () => {
                 const dynamicProps = await getDynamicProps();
              
                 if (isMounted) {
@@ -210,10 +210,13 @@ export const MatrixSelector=function(props){
                     setCurSelStage(dynamicProps.currentstageid);
                     setIsPreview(dynamicProps.ispreview);
                 }
-          
+            }
+            if (isMounted) {
+                fetchData();
             }
             return () => { isMounted = false };
         }, []);
+
         //todo do we need to add hidden form fields if personas or stages EQ 1?
         const [open, setOpen] = useState('');
 
@@ -223,7 +226,7 @@ export const MatrixSelector=function(props){
                     <>
                     {/* Mura.editing doesn't seem to work here */}
                     <Alert variant="info matrix-selector-edit-alert" >
-                        <p className="mb-0">Matrix Selector</p>
+                        <p className="mb-0">Experience Selector</p>
                     </Alert>
                     <div className={`${open ? 'open' : ''} mura-matrix-selector__widget ${props.widgetposition}`}>
                         <Button 
@@ -436,7 +439,7 @@ const MatrixForm = (props) => {
 }
 export const getDynamicProps = async () => {
     const dynamicProps = await Mura.getEntity('matrix_selector').invoke('getDynamicProps');
-    console.log(dynamicProps)
+    //console.log(dynamicProps)
     return dynamicProps;
 }
 

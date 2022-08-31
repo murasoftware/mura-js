@@ -6,7 +6,7 @@ import ItemDate from './ItemDate';
 import CollectionReadMoreBtn from './CollectionReadMoreBtn';
 import ItemCredits from './ItemCredits';
 import ItemTags from './ItemTags';
-import { getMura } from '@murasoftware/next-core';
+import { getMura, getHref } from '@murasoftware/next-core';
 /*
   The link component throws an error when rerending after being 
   reconfigured in edit mode. Hence CollectionLink
@@ -78,7 +78,7 @@ const CurrentItems = (props) => {
                     case "readmore":
                       return(
                         <CollectionReadMoreBtn
-                          href={`/${item.get('filename')}`}
+                          href={getHref(item.get('filename'))}
                           ctatext="Read More"
                           link={Link}
                           key={item.get('contentid')}
@@ -106,7 +106,7 @@ const CurrentItems = (props) => {
                 }
                 {
                   !fieldlist.includes('readmore') &&
-                    <Link href={`/${item.get('filename')}`} className="stretched-link"></Link>
+                    <Link href={getHref(item.get('filename'))} className="stretched-link"></Link>
                 }
               </div>
             </Card.Body>

@@ -10,6 +10,7 @@ import Slider from "react-slick";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronRight, faChevronLeft } from '@fortawesome/free-solid-svg-icons'
+import { getHref } from '@murasoftware/next-core'
 /*
   The link component throws an error when rerending after being 
   reconfigured in edit mode. Hence CollectionLink
@@ -153,7 +154,7 @@ const SliderItem = (props) => {
   if (props.sliderlayout === 'banner') {//swith to props.layout
     return(
       <div key={item.get('contentid')} className="h-100 position-relative">
-        <Link href={`/${item.get('filename')}`} passHref>
+        <Link href={getHref(item.get('filename'))} passHref>
           <img src={props.sliderimage} />
         </Link>
         <div className="mura-item-meta">
@@ -177,7 +178,7 @@ const SliderItem = (props) => {
                       return(
                         <div className="mura-item-meta__readmore" key={item.get('contentid')}>
                           <CollectionReadMoreBtn
-                            href={`/${item.get('filename')}`}
+                            href={getHref(item.get('filename'))}
                             ctatext="Read More"
                             link={Link}
                             key={item.get('contentid')}
@@ -237,7 +238,7 @@ const SliderItem = (props) => {
                     case "readmore":
                       return(
                         <CollectionReadMoreBtn
-                          href={`/${item.get('filename')}`}
+                          href={getHref(item.get('filename'))}
                           ctatext="Read More"
                           link={Link}
                           key={item.get('contentid')}

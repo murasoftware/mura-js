@@ -1,6 +1,6 @@
 {
   "name": "@murasoftware/next-modules-bs4",
-  "version": "1.0.96",
+  "version": "1.0.98",
   "description": "UI Modules for Mura.js and Next.js and Bootstrap4",
   "author": "Mura Software",
   "license": "MIT",
@@ -22,7 +22,7 @@
     "@fortawesome/free-solid-svg-icons": "^5.15.2",
     "@fortawesome/react-fontawesome": "^0.1.18",
     "@murasoftware/next-core": "^1.0.14",
-    "mura.js": "^1.0.289",
+    "mura.js": "^1.0.379",
     "next": ">=10",
     "react": ">=17.0.2",
     "react-bootstrap": ">1.4.3",

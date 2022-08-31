@@ -30,11 +30,11 @@ export const ArticleMeta = (props) => {
                         );
                     case "title":
                         return (
-                            <h1 key="title" key={field} className={titleclass}>{item.title}</h1>
+                            <h1 key="title" className={titleclass}>{item.title}</h1>
                         );
                     case "menutitle":
                         return (
-                            <p key="menutitle" key={field} className="mura-item-meta__menutitle">{item.menutitle}</p>
+                            <p key="menutitle" className="mura-item-meta__menutitle">{item.menutitle}</p>
                         );
                     case "summary":
                         return (
@@ -58,7 +58,7 @@ export const ArticleMeta = (props) => {
                         if(item.tags){
                             return (
                                 <div className="mura-item-meta__tags" key={field}>
-                                    <ItemTags tagshref="/blog" tags={item.tags} />
+                                    <ItemTags tagshref="/blog/" tags={item.tags} />
                                 </div>
                             );
                         }
