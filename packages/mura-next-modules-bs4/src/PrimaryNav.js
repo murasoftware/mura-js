@@ -4,7 +4,7 @@ import Navbar from 'react-bootstrap/Navbar'
 import Nav from 'react-bootstrap/Nav'
 import NavDropdown from 'react-bootstrap/NavDropdown'
 import { getMura, getHref } from '@murasoftware/next-core';
-import { SearchForm } from '@murasoftware/next-modules-bs4';
+import SearchForm from './SearchForm';
 
 function PrimaryNav(props) {
   const objectparams = Object.assign({}, props);

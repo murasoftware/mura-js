@@ -219,7 +219,7 @@ export const MatrixSelector=function(props){
 
         //todo do we need to add hidden form fields if personas or stages EQ 1?
         const [open, setOpen] = useState('');
-
+        const hasPersonaOrStage=(currentPersonaId || currentStageId);
         switch(displayType){
             case "widget" :
                 return (
@@ -232,7 +232,8 @@ export const MatrixSelector=function(props){
                         <Button 
                             variant="light"
                             onClick={() => { setOpen(!open); }}>
-                            <FontAwesomeIcon icon={faBolt} /> Optimize Your Experience
+                            {!hasPersonaOrStage && <><FontAwesomeIcon icon={faBolt}/> Optimize Your Experience</>}
+                            {hasPersonaOrStage &&  <><FontAwesomeIcon icon={faBolt} className='text-success'/> Experience Optimized</>}
                         </Button>
                         <div className="mura-matrix-selector__widget__inner">
                             <MatrixForm 
@@ -280,7 +281,8 @@ export const MatrixSelector=function(props){
                         <div className="mura-matrix-selector__eyebrow__inner">
                             {!showingAlert &&
                                 <div className="mura-matrix-selector__eyebrow__inner__heading">
-                                    <h4><FontAwesomeIcon icon={faBolt} /> Optimize Your Experience</h4>
+                                    {!hasPersonaOrStage && <h4><FontAwesomeIcon icon={faBolt}/> Optimize Your Experience</h4>}
+                                    {hasPersonaOrStage &&  <h4><FontAwesomeIcon icon={faBolt} className='text-success'/> Experience Optimized</h4>}
                                 </div>
                             }
                             <MatrixForm 
@@ -422,13 +424,13 @@ const MatrixForm = (props) => {
             }
             {props.personas && props.stages && <p>{props.selfIdEnd}</p>}
           
-            {!props.isClearing && props.selHasChanged &&  props.curSelPersona &&  props.curSelStage && <Button className="ml-2" size="sm" type="button" onClick={props.handlePreview}>
+            {!props.isClearing && props.selHasChanged &&  props.curSelPersona &&  props.curSelStage && <Button className="ml-2" size="sm" variant="dark" type="button" onClick={props.handlePreview}>
                 {props.isPreviewing ? 'Preview...' : 'Preview'}
             </Button>}
-            {!props.isPreviewing && !props.isClearing && props.mode != 'preview only' && !props.selHasChanged && props.isPreview && <Button className="ml-2" size="sm" type="submit">
+            {!props.isPreviewing && !props.isClearing && props.mode != 'preview only' && !props.selHasChanged && props.isPreview && <Button className="ml-2" size="sm" variant="dark" type="submit">
                 {props.isSaving ? 'Saving...' : 'Save'}
             </Button>}
-            {!props.isSaving && !props.isPreviewing && (props.currentPersonaId || props.currentStageId) && <Button className="ml-2" size="sm" type="button" onClick={props.handleClear}>
+            {!props.isSaving && !props.isPreviewing && (props.currentPersonaId || props.currentStageId) && <Button className="ml-2" size="sm" variant="outline-dark" type="button" onClick={props.handleClear}>
                 {props.isClearing ? 'Clearing...' : 'Clear'}
             </Button>}
             </div>
