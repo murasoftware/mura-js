@@ -2,7 +2,9 @@
 import React, {useEffect} from 'react';
 import Mura from 'mura.js';
 
-require('mura.js/src/core/stylemap-static');
+import styleMap from 'mura.js/src/core/stylemap-static';
+
+Mura.styleMap=styleMap;
 
 let muraConfig, connectorConfig, ComponentRegistry, ConnectorConfig, ExternalModules;
 let isEditMode=false;
