@@ -5,14 +5,15 @@
   "author": "Mura Software",
   "license": "MIT",
   "repository": "https://github.com/murasoftware/mura-js.git",
-  "main": "dist/index.js",
+  "type": "module",
+  "main": "dist/index.cjs",
   "module": "dist/index.modern.js",
   "source": "src/index.js",
   "engines": {
-    "node": ">=10"
+    "node": ">=12"
   },
   "scripts": {
-    "build": "microbundle-crl --jsxFragment React.Fragment --no-compress --format modern,cjs"
+    "build": "microbundle  --no-compress --jsx React.createElement --jsxFragment React.Fragment --jsxImportSource react --globals react/jsx-runtime=jsx"
   },
   "peerDependencies": {
     "mura.js": "^1.0.379",
@@ -37,7 +38,11 @@
     "microbundle-crl": "^0.13.11",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.2.1",
-    "react-scripts": "^5.0.0"
+    "react-scripts": "^5.0.1"
+  },
+  "overrides" :{
+    "nth-check":"2.0.1",
+    "postcss":"7.0.36"
   },
   "files": [
     "dist"
