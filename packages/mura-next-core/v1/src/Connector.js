@@ -387,8 +387,16 @@ async function renderContent(context,isEditMode,params,requestContext) {
 
   let filename = '';
 
+  if (query.page) {
+    if(Array.isArray(query.page)){
+      filename=query.page[query.page.length-1].split("/");
+    } else {
+      filename=query.page.split("/");
+    }
+  }
+  
   if (context.params && context.params.page) {
-    filename = [...context.params.page];
+    filename = [...context.params.page]; 
   }
 
   if(Array.isArray(filename)){
@@ -399,9 +407,13 @@ async function renderContent(context,isEditMode,params,requestContext) {
   }
   
   //console.log(filename,query,isEditMode)
-  query=Object.assign(query,params);
+  if(params){
+    query=Object.assign(query,params);
+  }
 
-  return await requestContext.renderFilename(filename, query).then(
+  //console.log('request params',filename, query);
+
+  return requestContext.renderFilename(filename, query).then(
     async rendered => {
       return rendered;
     },

@@ -16,9 +16,9 @@
     "build": "microbundle  --no-compress --jsx React.createElement --jsxFragment React.Fragment --jsxImportSource react --globals react/jsx-runtime=jsx"
   },
   "peerDependencies": {
-    "mura.js": "^1.0.379",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1"
+    "mura.js": ">=1.0.379",
+    "react": ">=17.0.1",
+    "react-dom": ">=17.0.1"
   },
   "devDependencies": {
     "babel-eslint": "^10.1.0",

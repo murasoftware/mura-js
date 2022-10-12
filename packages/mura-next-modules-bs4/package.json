@@ -1,6 +1,6 @@
 {
   "name": "@murasoftware/next-modules-bs4",
-  "version": "1.0.99",
+  "version": "1.0.101",
   "description": "UI Modules for Mura.js and Next.js and Bootstrap4",
   "author": "Mura Software",
   "license": "MIT",
@@ -16,23 +16,18 @@
     "build": "microbundle  --no-compress --jsx React.createElement --jsxFragment React.Fragment --jsxImportSource react --globals react/jsx-runtime=jsx"
   },
   "overrides": {
-    "postcss": "8.2.13"
+    "nth-check": "2.0.1",
+    "postcss": "7.0.36"
   },
   "peerDependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.34",
     "@fortawesome/free-solid-svg-icons": "^5.15.2",
-    "@fortawesome/react-fontawesome": "^0.1.18",
-    "@murasoftware/next-core": "^1.0.14",
+    "@murasoftware/next-core": ">=1.0.14",
     "mura.js": "^1.0.379",
     "next": ">=10",
     "react": ">=17.0.2",
     "react-bootstrap": ">1.4.3",
-    "react-dom": ">=17.0.2",
-    "react-slick": "^0.28.0"
-  },
-  "overrides" :{
-    "nth-check":"2.0.1",
-    "postcss":"7.0.36"
+    "react-dom": ">=17.0.2"
   },
   "devDependencies": {
     "babel-eslint": "^10.1.0",
@@ -59,8 +54,10 @@
     "dist"
   ],
   "dependencies": {
+    "@fortawesome/react-fontawesome": "^0.2.0",
     "hastscript": "^6.0.0",
     "react-markdown": "^5.0.3",
+    "react-slick": "^0.29.0",
     "remark-directive": "^1.0.1",
     "remark-gfm": "^1.0.0",
     "remark-slug": "^6.0.0",
