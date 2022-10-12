@@ -124,8 +124,9 @@ export const getMuraExternalModules = function() {
 export const getMuraInstance = function(context){
 
   //If not in node, just return the global instance;
-
-  if(!(typeof process !== 'undefined' && {}.toString.call(process) === '[object process]' || typeof document =='undefined')){
+  const isInNode=(!(typeof process !== 'undefined' && {}.toString.call(process) === '[object process]' || typeof document =='undefined'));
+  
+  if(isInNode){
     return getMura(context);
   }
 
@@ -534,7 +535,7 @@ async function renderContent(context,renderMode,params,Mura) {
     query=Object.assign(query,params);
   }
 
-  return requestContext.renderFilename(filename, query).then(
+  return Mura.renderFilename(filename, query).then(
     async rendered => {
       return rendered;
     },

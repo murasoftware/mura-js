@@ -16,7 +16,7 @@
     "build": "microbundle  --no-compress --jsx React.createElement --jsxFragment React.Fragment --jsxImportSource react --globals react/jsx-runtime=jsx"
   },
   "peerDependencies": {
-    "mura.js": ">=1.0.379",
+    "mura.js": "^1.0.379",
     "react": ">=17.0.1",
     "react-dom": ">=17.0.1"
   },
@@ -35,14 +35,15 @@
     "eslint-plugin-react": "^7.22.0",
     "eslint-plugin-standard": "^5.0.0",
     "gh-pages": "^3.1.0",
+    "microbundle": "^0.15.1",
     "microbundle-crl": "^0.13.11",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.2.1",
     "react-scripts": "^5.0.1"
   },
-  "overrides" :{
-    "nth-check":"2.0.1",
-    "postcss":"7.0.36"
+  "overrides": {
+    "nth-check": "2.0.1",
+    "postcss": "7.0.36"
   },
   "files": [
     "dist"

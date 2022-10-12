@@ -93,7 +93,7 @@ function Decorator(props) {
 
   //Proxied module are modules that will always be server side rendered
   const isExternalModule=ExternalModules[props.object];
-  console.log('isExternalModule ' + props.object,isExternalModule)
+  
   let objectKey = props.object;
 
   if (typeof ComponentRegistry[objectKey] == 'undefined'){
