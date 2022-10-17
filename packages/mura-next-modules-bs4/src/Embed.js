@@ -1,4 +1,5 @@
 import React,{ useEffect } from 'react';
+import { getMura } from '@murasoftware/next-core';
 
 const Embed = function(props) {
   const Mura = props.Mura || getMura();
