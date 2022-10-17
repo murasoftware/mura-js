@@ -8,8 +8,6 @@ export const Container = function(props) {
   const { items,content,instanceid } = props;
   const Mura = props.Mura || getMura();
 
-  // console.log('Container -> items', items);
-  // console.log('Container -> props', props);
   if (!items) return '';
 
   useEffect(() => {
@@ -17,7 +15,17 @@ export const Container = function(props) {
     if(typeof Mura.displayObjectInstances[instanceid]=='undefined'){
       Mura.displayObjectInstances[instanceid]= new Mura.DisplayObject.Container(props);
     }
-  }, []);
+    if(Mura.editing || Mura.cloning){
+        const item=Mura(`[data-instanceid="${props.instanceid}"]`);
+        if(item.is('.mura-active')){
+          item.find('div.mura-object')
+          .each(function(){
+          Mura.initEditableObject.call(this);
+          Mura.initDraggableObject(this);
+         })
+        } 
+      }
+  });
 
   let $items=items;
 
@@ -47,7 +55,7 @@ export const Container = function(props) {
     return _items;
   }
 
-  if(Mura.cloning){
+  if(Mura.editing || Mura.cloning){
     $items=$items.map(function(i){return i;});
     resetInstanceIds($items);
   }

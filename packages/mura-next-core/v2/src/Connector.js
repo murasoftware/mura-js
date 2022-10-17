@@ -95,7 +95,7 @@ export const getMuraPaths = async function() {
     .getQuery({renderMode:'static'});
     pathList=pathList.concat(items.getAll().items);
     pathList.push({ 
-      siteid:siteids[index],
+      siteid:siteid,
       filename: "" 
     });
   }

@@ -2692,7 +2692,7 @@ function handleResponse(obj, resp) {
 function processDisplayObject(el, queue, rerender, resolveFn, usePreloaderMarkup) {
 
 	try{
-
+		console.log('processDisplayObject');
 		var obj = (el.node) ? el : Mura(el);
 
 		if(!obj.data('object')){
@@ -2720,6 +2720,8 @@ function processDisplayObject(el, queue, rerender, resolveFn, usePreloaderMarkup
 		}
 
 		var rendered = (rerender && !obj.data('async')) ? false : (obj.children('.mura-object-content').length)
+		console.log('rerender',rerender);
+		console.log('rendered',rendered);
 
 		queue = (queue == null || rendered) ? false : queue;
 		
@@ -2756,7 +2758,7 @@ function processDisplayObject(el, queue, rerender, resolveFn, usePreloaderMarkup
 		//if(obj.data('async')){
 		obj.addClass("mura-async-object");
 		//}
-		
+
 		if (rendered && !obj.data('async')) {
 			
 			return new Promise(function(resolve, reject) {
