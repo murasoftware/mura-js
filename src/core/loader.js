@@ -1,5 +1,5 @@
 
-var Mura=require('./core');
+function attach(Mura){
 
 //https://github.com/malko/l.js
 /*
@@ -328,3 +328,6 @@ if(typeof window !='undefined' && typeof window.document != 'undefined'){
 	}
 	scriptTag.src && script && appendElmt('script', {innerHTML: script});
 }
+}
+
+module.exports=attach;

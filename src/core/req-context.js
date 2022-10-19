@@ -1,5 +1,5 @@
 
-var Mura=require('./core');
+function attach(Mura){
 
 /**
 * Creates a new Mura.RequestContext
@@ -719,3 +719,7 @@ Mura.RequestContext=Mura.Core.extend(
 	requestHeaders:{}
 
 });
+
+}
+
+module.exports=attach;

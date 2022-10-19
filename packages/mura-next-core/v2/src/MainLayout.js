@@ -35,23 +35,23 @@ function contentDidChange(_content) {
           return true;
         }
       });
-      let isEditMode=(pathArray.length && '/' + pathArray[0]==Mura.editroute);
-      //console.log(isEditMode, pathArray,Mura.editroute, content.get('redirect').indexOf('lockdown'))
+    
       /*
         If site is returning a lockdown redirect check if it's 
         and edit route first.  If it's not then redirect to the dynamic edit
         route so that it can get the dynamic content
       */
-
-      if(!isEditMode && content.get('redirect').indexOf('lockdown')){
+      Mura.renderMode= Mura.renderMode || 'dynamic'
+      
+      if(Mura.editroute && Mura.renderMode=='static' && content.get('redirect').indexOf('lockdown')){
         let editroute="";
 
         if(pathArray.length){
-          editroute="/edit/" +  pathArray.join("/") + "/";
+          editroute=Mura.editroute + "/" +  pathArray.join("/") + "/";
           console.log('Redirecting to edit route',editroute)
           location.href = editroute;
         } else {
-          editroute="/edit/";
+          editroute=Mura.editroute + "/";
           console.log('Redirecting to edit route',editroute)
           location.href = editroute;
         }   

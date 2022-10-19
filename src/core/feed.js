@@ -1,5 +1,5 @@
 
-var Mura=require('./core');
+function attach(Mura){
 
 /**
  * Creates a new Mura.Feed
@@ -702,3 +702,7 @@ Mura.Feed = Mura.Core.extend(
 			});
 		}
 	});
+
+}
+
+module.exports=attach;

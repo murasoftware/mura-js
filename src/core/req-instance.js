@@ -1,4 +1,4 @@
-var Mura=require('./core');
+function attach(Mura){
 
 /**
 * Creates a new Mura.Request
@@ -473,3 +473,7 @@ Mura.Request=Mura.Core.extend(
 		}
 	}
 );
+
+}
+
+module.exports=attach;

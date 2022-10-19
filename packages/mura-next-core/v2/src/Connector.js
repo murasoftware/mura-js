@@ -1,23 +1,11 @@
 /* eslint-disable */
 import React, {useEffect} from 'react';
 import GlobalMura from './GlobalMura.js'
-
-const MuraClass=Object.create(GlobalMura);
+import MuraFactory from 'mura.js/src/core/factory.js'
 
 let muraConfig, connectorConfig, ComponentRegistry, ConnectorConfig, ExternalModules;
-let isEditMode=false;
 
 export const MuraJSRefPlaceholder = '"undefined"!=typeof window&&function(u){u.queuedMuraCmds=[],u.queuedMuraPreInitCmds=[],"function"!=typeof u.Mura&&(u.Mura=u.mura=u.Mura=function(e){u.queuedMuraCmds.push(e)},u.Mura.preInit=function(e){u.queuedMuraPreInitCmds.push(e)})}(window);';
-
-//deprecated
-export const setIsEditMode = function (value) {
-  isEditMode=value;
-}
-
-//deprecated
-export const getIsEditMode = function() {
-  return isEditMode;
-}
 
 export const setMuraConfig = function(config) {
   muraConfig = config;
@@ -124,14 +112,17 @@ export const getMuraExternalModules = function() {
 export const getMuraInstance = function(context){
 
   //If not in node, just return the global instance;
-  const isInNode=(!(typeof process !== 'undefined' && {}.toString.call(process) === '[object process]' || typeof document =='undefined'));
+  const isNotInNode=!(typeof process !== 'undefined' && {}.toString.call(process) === '[object process]' || typeof document =='undefined');
   
-  if(isInNode){
+  if(isNotInNode){
     return getMura(context);
   }
 
   const startingsiteid='';
-  const Mura=Object.create(MuraClass);
+  let Mura=MuraFactory();
+  
+  Mura.styleMap=GlobalMura.styleMap;
+
   const instanceConfig=Object.assign({},ConnectorConfig);
   
   if(typeof Mura.deInit=='function'){
@@ -316,28 +307,20 @@ export const getSiteName = () => {
   return getMura().sitename;
 };
 
-export const getMuraProps = async function(context,isEditMode,params) {
+export const getMuraProps = async function(params) {
   let Mura;
-  let renderMode='dynamic';
+  let renderMode=(typeof params.renderMode == 'undefined') ? 'dynamic' : params.renderMode;
+  const context=params.context;
 
-  if(typeof context === 'object' && context.context){
-    params=context.params || {};
-    renderMode=(typeof context.renderMode == 'undefined') ? 'dynamic' : context.renderMode;
-
-    if(typeof context.context === 'object'){
-      context=context.context;
-    }
-    if(typeof context.Mura != 'undefined'){
-      Mura=context.Mura;
-    } else {
-      Mura=getMura(context);
-    }
+  if(typeof params.Mura != 'undefined'){
+    Mura=params.Mura;
   } else {
-    renderMode=(typeof isEditMode == 'undefined' || isEditMode) ? 'dynamic' : 'static';
-    Mura=getMura(context)
+    Mura=getMura(params.context);
   }
 
   Mura.renderMode=renderMode;
+
+  params.params = params.params || {};
 
   if( Mura.renderMode==='static' && Mura.isInNode()
       && process 
@@ -379,7 +362,7 @@ export const getMuraProps = async function(context,isEditMode,params) {
   };
 
   try {
-    const muraObject = await renderContent(context,renderMode,params,Mura);
+    const muraObject = await renderContent(context,renderMode,params.params,Mura);
     if(typeof muraObject != 'undefined' 
       && typeof muraObject.getAll != 'undefined'){
       content = muraObject.getAll();
@@ -530,7 +513,7 @@ async function renderContent(context,renderMode,params,Mura) {
     filename=filename.join("/");
   }
   
-  //console.log(filename,query,isEditMode)
+
   if(params){
     query=Object.assign(query,params);
   }

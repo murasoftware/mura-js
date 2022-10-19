@@ -1,4 +1,4 @@
-import { getIsEditMode, setIsEditMode, getMuraConfig, setMuraConfig, MuraJSRefPlaceholder, getMuraProps, getRootPath, getMuraPaths, getSiteName, getComponent, getMura, getMuraInstance, getHref, useAsync } from "./Connector";
+import { getMuraConfig, setMuraConfig, MuraJSRefPlaceholder, getMuraProps, getRootPath, getMuraPaths, getSiteName, getComponent, getMura, getMuraInstance, getHref, useAsync } from "./Connector";
 import { default as Decorator} from "./Decorator";
 import {  EditContext, MuraContext } from "./GlobalContext";
 import { default as DisplayRegion} from "./DisplayRegion";
@@ -27,7 +27,5 @@ export {
     MainLayout,
     Styles,
     setMuraConfig,
-    getMuraConfig,
-    getIsEditMode,
-    setIsEditMode
+    getMuraConfig
 }

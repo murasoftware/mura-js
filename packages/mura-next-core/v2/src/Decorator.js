@@ -109,7 +109,7 @@ function Decorator(props) {
   if (Mura.renderMode !='static' || isExternalModule || !isSSR) {
     Object.keys(props).forEach(key => {
       if (
-        !['queryParams','Router', 'Link','html', 'content', 'children', 'isEditMode', 'renderMode','dynamicProps', 'moduleStyleData', 'regionContext', 'requestContext', 'Mura'].find(
+        !['queryParams','Router', 'Link','html', 'content', 'children', 'renderMode','dynamicProps', 'moduleStyleData', 'regionContext', 'requestContext', 'Mura'].find(
           restrictedkey => restrictedkey === key,
         )
       ) {
@@ -124,7 +124,7 @@ function Decorator(props) {
       }
       if(typeof props[key] != 'undefined' && props[key]){
         if (key === 'class') {
-          domObject.className += (domObject.className) ? ` ${props[key]}` : props[key];;
+          domObject.className += (domObject.className) ? ` ${props[key]}` : props[key];
         } else if (key === 'cssclass') {
           domObject.className += (domObject.className) ? ` ${props[key]}` : props[key];
         } else if (key === 'cssid') {
@@ -147,7 +147,7 @@ function Decorator(props) {
   } else {
     domObject['data-instanceid'] = instanceid;
     
-    domObject.className = `mura-object-${props.object}`;
+    domObject.className = `mura-object-${props.object.toLowerCase()}`;
 
     if(typeof props.moduleStyleData != 'undefined' && typeof props.moduleStyleData[instanceid] != 'undefined'){
       domObject.className +=
