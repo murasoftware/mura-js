@@ -125,6 +125,10 @@ export const getMuraInstance = function(context){
 
   const instanceConfig=Object.assign({},ConnectorConfig);
   
+  if (!Array.isArray(instanceConfig.siteid)) {
+    instanceConfig.siteid = instanceConfig.siteid.split();
+  }
+
   if(typeof Mura.deInit=='function'){
     try{
       Mura.deInit();
@@ -214,6 +218,10 @@ export const getMura = function(context){
   const Mura=GlobalMura;
   const startingsiteid=Mura.siteid;
   
+  if (!Array.isArray(ConnectorConfig.siteid)) {
+    ConnectorConfig.siteid = v.siteid.split();
+  }
+
   if(typeof context == 'string'
     && ConnectorConfig.siteid.find((item)=>{
       return (item===context)
