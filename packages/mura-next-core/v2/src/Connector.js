@@ -397,20 +397,22 @@ export const getMuraProps = async function(params) {
     }
   }
 
-  if (typeof content.isondisplay != 'undefined' && !content.isondisplay){
-    context.res.statusCode = 404;
-  } else {
-    if(content.redirect){
-      //match casing of nodeProxyRedirectCasing in mura.js
-      context.res.setHeader('Location',content.redirect);
-      if(content.statuscode){
-        context.res.statusCode = content.statuscode;
-      } else {
-        context.res.statusCode = 301;
-      }
-      if(context.res.statusCode!=301){
-        context.res.setHeader('Cache-Control','no-cache, no-store');
-        context.res.setHeader('Expires','Mon, 01 Jan 1990 00:00:00 GMT');
+  if(typeof context.res != 'undefined'){
+    if (typeof content.isondisplay != 'undefined' && !content.isondisplay){
+      context.res.statusCode = 404;
+    } else {
+      if(content.redirect){
+        //match casing of nodeProxyRedirectCasing in mura.js
+        context.res.setHeader('Location',content.redirect);
+        if(content.statuscode){
+          context.res.statusCode = content.statuscode;
+        } else {
+          context.res.statusCode = 301;
+        }
+        if(context.res.statusCode!=301){
+          context.res.setHeader('Cache-Control','no-cache, no-store');
+          context.res.setHeader('Expires','Mon, 01 Jan 1990 00:00:00 GMT');
+        }
       }
     }
   }
