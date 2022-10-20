@@ -105,7 +105,7 @@ const CollectionNav = (props) => {
 							incoming.items.unshift(item);
 						});
 
-						setCollection(new Mura.EntityCollection(incoming,Mura._requestcontext));
+						setCollection(new Mura.EntityCollection(incoming,Mura.getRequestContext()));
 						setTimeout(isEndVisible,50);
 					});	
 				}

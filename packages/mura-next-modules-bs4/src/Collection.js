@@ -39,7 +39,7 @@ function Collection(props) {
   objectparams.fields= getDefaultQueryPropsFromLayout(DynamicCollectionLayout,objectparams).fields || objectparams.fields || 'Image,Date,Title,Summary,Credits,Tags';
   objectparams.dynamicProps=objectparams.dynamicProps ||  {};
 
-  const _collection=objectparams.dynamicProps.collection ? new Mura.EntityCollection(objectparams.dynamicProps.collection,Mura._requestcontext) : false;
+  const _collection=objectparams.dynamicProps.collection ? new Mura.EntityCollection(objectparams.dynamicProps.collection,Mura.getRequestContext()) : false;
 
   if(!_collection){
     const [collection,setCollection]=useState(_collection);
@@ -49,7 +49,7 @@ function Collection(props) {
       if(isMounted){
         getDynamicProps(objectparams).then((_dynamicProps)=>{
           if(isMounted){
-            setCollection(new Mura.EntityCollection(_dynamicProps.collection,Mura._requestcontext));
+            setCollection(new Mura.EntityCollection(_dynamicProps.collection,Mura.getRequestContext()));
           }
         });   
       }

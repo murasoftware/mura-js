@@ -28,7 +28,7 @@ function SearchResults(props) {
   
   objectparams.dynamicProps=objectparams.dynamicProps ||  {something:'new'};
 
-  const _collection=objectparams.dynamicProps.collection ? new Mura.EntityCollection(objectparams.dynamicProps.collection,Mura._requestcontext) : false;
+  const _collection=objectparams.dynamicProps.collection ? new Mura.EntityCollection(objectparams.dynamicProps.collection,Mura.getRequestContext()) : false;
   
   if(!_collection){
     const [collection,setCollection]=useState(_collection);
@@ -38,7 +38,7 @@ function SearchResults(props) {
       if (isMounted) {
         getDynamicProps(queryText,props).then((_dynamicProps) => {
           if(isMounted){
-            setCollection(new Mura.EntityCollection(_dynamicProps.collection,Mura._requestcontext));
+            setCollection(new Mura.EntityCollection(_dynamicProps.collection,Mura.getRequestContext()));
           }
         });
       }

@@ -41,7 +41,7 @@ export function ResourceHub(props) {
   let _hasMXP = false;
 
   if(objectparams.dynamicProps){
-    _collection=new Mura.EntityCollection(objectparams.dynamicProps.collection,Mura._requestcontext);
+    _collection=new Mura.EntityCollection(objectparams.dynamicProps.collection,Mura.getRequestContext());
     _curSubtype = objectparams.dynamicProps.filterprops.subtype;
     _curCategoryIds = objectparams.dynamicProps.filterprops.selectedcats.filter(sc => sc.instanceid == props.instanceid).map((item)=>item.value).join();
     _curPersonaId = objectparams.dynamicProps.filterprops.personaid;
