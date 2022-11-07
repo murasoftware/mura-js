@@ -109,6 +109,7 @@ export const getDynamicProps = async (props) => {
 }
 
 const RouterlessLink = ({href,className,type,menutitle,navlogo})=>{
+
   switch(type) {
     case "navdropdownitem":
       return (
@@ -138,21 +139,27 @@ const RouterLink = ({href,className,type,menutitle,navlogo})=>{
     case "navdropdownitem":
       return (
         <Link 
-        href={getHref(href)} passHref>
+        legacyBehavior
+        href={getHref(href)} 
+        passHref>
           <NavDropdown.Item>{menutitle}</NavDropdown.Item>
         </Link>
       )
     case "navlink":
       return (
         <Link 
-        href={getHref(href)} passHref>
+        legacyBehavior
+        href={getHref(href)} 
+        passHref>
           <Nav.Link>{menutitle}</Nav.Link>
         </Link>
       )
     case "navbarbrand":
       return(
         <Link 
-        href={getHref(href)} passHref>
+        legacyBehavior
+        href={getHref(href)} 
+        passHref>
           <Navbar.Brand>
             <img src={navlogo} loading="lazy" />
           </Navbar.Brand>
@@ -161,6 +168,7 @@ const RouterLink = ({href,className,type,menutitle,navlogo})=>{
     default:
       return (
         <Link 
+          legacyBehavior
           href={getHref(href)}>      
             <a 
               className={className}>

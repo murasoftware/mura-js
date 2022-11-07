@@ -85,7 +85,7 @@ export const RouterlessLink = function({href,children,className}) {
 
 export const RouterLink = function({href,children,className}) {
   return (
-    <Link href={getHref(href)}>
+    <Link legacyBehavior href={getHref(href)}>
       <a className={className}>{children}</a>
     </Link>
   );

@@ -15,9 +15,9 @@ const MainLayout = props => {
 
   return (
     <div>
+      <MuraStyles {...props} />
       {children}  
       <MuraExternalAssets {...props}/>
-      <MuraStyles {...props} />
     </div>
   );
 };
