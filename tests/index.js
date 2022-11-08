@@ -17,7 +17,7 @@ app.get('/', function (req, res) {
     )
   );
 
-  Mura.renderFilename('about').then(
+  Mura.renderFilename('').then(
     function(content){
       let str="<br/>rendered content:<pre>" + JSON.stringify(content.getAll()) + "</pre>";
 

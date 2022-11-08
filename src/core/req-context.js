@@ -303,6 +303,9 @@ Mura.RequestContext=Mura.Core.extend(
 					type: 'POST',
 					url: self.apiEndpoint + '?method=generateCSRFTokens',
 					data: {context: ''},
+					headers: {
+						'cache-control':'no-cache'
+					},
 					success(resp) {
 						self.request({
 							async: true,
@@ -367,6 +370,9 @@ Mura.RequestContext=Mura.Core.extend(
 					type: 'POST',
 					url: self.apiEndpoint + '?method=generateCSRFTokens',
 					data: {context: ''},
+					headers: {
+						'cache-control':'no-cache'
+					},
 					success(resp) {
 						self.request({
 							async: true,
@@ -434,8 +440,10 @@ Mura.RequestContext=Mura.Core.extend(
 						async: true,
 						type: 'get',
 						url: self.apiEndpoint +
-							'findCurrentUser?fields=' + params.fields + '&_cacheid=' +
-							Math.random(),
+							'findCurrentUser?fields=' + params.fields,
+						headers:{
+							'cache-control':'no-cache'
+						},
 						success(resp) {
 							if (typeof resolve =='function') {
 								self.currentUser = self.getEntity('user');
@@ -467,7 +475,6 @@ Mura.RequestContext=Mura.Core.extend(
 			params.entityname = params.entityname || 'content';
 			params.siteid = params.siteid || this.siteid;
 			params.method = params.method || 'findQuery';
-			params['_cacheid'] == Math.random();
 			return new Promise(function(resolve, reject) {
 				self.request({
 					type: 'get',
@@ -505,6 +512,9 @@ Mura.RequestContext=Mura.Core.extend(
 				data: {
 						siteid: siteid,
 						context: 'login'
+				},
+				headers: {
+					'cache-control':'no-cache'
 				},
 				success(resp) {
 					self.request({
@@ -565,6 +575,9 @@ Mura.RequestContext=Mura.Core.extend(
 						type: 'POST',
 						url: self.apiEndpoint + '?method=generateCSRFTokens',
 						data: {context: contentid},
+						headers: {
+							'cache-control':'no-cache'
+						},
 						success(resp) {
 							self.request({
 								async: true,

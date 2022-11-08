@@ -20,7 +20,7 @@ Mura.Feed = Mura.Core.extend(
 	/** @lends Mura.Feed.prototype */
 	{
 		init(siteid, entityname, requestcontext) {
-			this.queryString = entityname + '/?_cacheid=' + Math.random();
+			this.queryString = entityname + '/?';
 			this.propIndex = 0;
 
 			this._requestcontext=requestcontext || Mura.getRequestContext();

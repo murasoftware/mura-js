@@ -486,6 +486,9 @@ function attach(Mura){
 							siteid: data.siteid,
 							context: data.formid
 						},
+						headers: {
+							'cache-control':'no-cache'
+						},
 						success(resp) {
 							data['csrf_token_expires']=resp.data['csrf_token_expires'];
 							data['csrf_token']=resp.data['csrf_token'];
@@ -866,6 +869,9 @@ function attach(Mura){
 					url: Mura.getAPIEndpoint() +
 						'?method=generateCSRFTokens',
 					data: tokenArgs,
+					headers: {
+						'cache-control':'no-cache'
+					},
 					success(resp) {
 
 						if(!Mura.formdata){

@@ -114,15 +114,12 @@ function attach(Mura){
 					config.error=reject;
 				}
 
-				if(Mura.formdata && params instanceof FormData){
-					params.append('_cacheid',Math.random());
-				} else {
-					params._cacheid=Math.random();
-				}
-
 				self._requestcontext.request({
 					type: method.toLowerCase(),
 					url: self.getAPIEndpoint() + name,
+					headers:{
+						'cache-control':'no-cache'
+					},
 					data: params,
 					success(resp) {
 						if (typeof resp.error == 'undefined') {
@@ -197,6 +194,9 @@ function attach(Mura){
 						data: {
 							siteid: self.get('siteid'),
 							context: name
+						},
+						headers: {
+							'cache-control':'no-cache'
 						},
 						success(resp) {
 
@@ -382,12 +382,18 @@ function attach(Mura){
 				params = Mura.extend({
 					entityname: self.get('entityname'),
 					method: 'findNew',
-					siteid: self.get('siteid'),
-					'_cacheid': Math.random()
+					siteid: self.get('siteid')
 				},
 					params
 				);
-				self._requestcontext.get(self._requestcontext.getAPIEndpoint(), params).then(
+				self._requestcontext.get(
+					self._requestcontext.getAPIEndpoint(), 
+					params,
+					{
+						headers:{
+							'cache-control':'no-cache'
+						}
+					}).then(
 					function(resp) {
 						self.set(resp.data);
 						if (typeof resolve == 'function') {
@@ -409,11 +415,13 @@ function attach(Mura){
 					self._requestcontext.request({
 						type: 'post',
 						url: self._requestcontext.getAPIEndpoint(),
+						headers:{
+							'cache-control':'no-cache'
+						},
 						data:{
 							entityname: self.get('entityname'),
 							method: 'checkSchema',
-							siteid: self.get('siteid'),
-							'_cacheid': Math.random()
+							siteid: self.get('siteid')
 						},
 						success(resp) {
 							if (resp.data != 'undefined'	) {
@@ -442,17 +450,22 @@ function attach(Mura){
 							siteid: self.get('siteid'),
 							context: ''
 						},
+						headers: {
+							'cache-control':'no-cache'
+						},
 						success(resp) {
 							self._requestcontext.request({
 								type: 'post',
 								url: self._requestcontext.getAPIEndpoint(),
+								headers:{
+									'cache-control':'no-cache'
+								},
 								data: Mura
 								.extend(
 								{
 									entityname: self.get('entityname'),
 									method: 'checkSchema',
-									siteid: self.get('siteid'),
-									'_cacheid': Math.random()
+									siteid: self.get('siteid')
 								}, {
 									'csrf_token': resp.data.csrf_token,
 									'csrf_token_expires': resp.data.csrf_token_expires
@@ -497,12 +510,14 @@ function attach(Mura){
 					self._requestcontext.request({
 						type: 'post',
 						url: self._requestcontext.getAPIEndpoint(),
+						headers:{
+							'cache-control':'no-cache'
+						},
 						data: {
 							entityname: self.get('entityname'),
 							deleteSchema: deleteSchema,
 							method: 'undeclareEntity',
-							siteid: self.get('siteid'),
-							'_cacheid': Math.random()
+							siteid: self.get('siteid')
 						},
 						success(	resp) {
 							if (resp.data != 'undefined'	) {
@@ -529,16 +544,20 @@ function attach(Mura){
 							siteid: self.get('siteid'),
 							context: ''
 						},
+						headers: {
+							'cache-control':'no-cache'
+						},
 						success(resp) {
 							self._requestcontext.request({
 								type: 'post',
 								url: self._requestcontext.getAPIEndpoint(),
-								data: Mura
-								.extend(	{
+								headers:{
+									'cache-control':'no-cache'
+								},
+								data: Mura.extend(	{
 									entityname: self.get('entityname'),
 									method: 'undeclareEntity',
-									siteid: self.get('siteid'),
-									'_cacheid': Math.random()
+									siteid: self.get('siteid')
 								}, {
 									'csrf_token': resp.data.csrf_token,
 									'csrf_token_expires': resp.data.csrf_token_expires
@@ -592,8 +611,7 @@ function attach(Mura){
 				params = Mura.extend({
 					entityname: self.get('entityname').toLowerCase(),
 					method: 'findQuery',
-					siteid: self.get( 'siteid'),
-					'_cacheid': Math.random(),
+					siteid: self.get( 'siteid')
 				},
 					params
 				);
@@ -603,7 +621,13 @@ function attach(Mura){
 					params.showExcludeSearch = 1;
 				}
 				params[propertyName] = propertyValue;
-				self._requestcontext.findQuery(params).then(
+				self._requestcontext.findQuery(
+					params,
+					{	
+						headers:{
+							'cache-control':'no-cache'
+						}
+					}).then(
 					function(collection) {
 						if (collection.get('items').length) {
 							self.set(collection.get('items')[0].getAll());
@@ -888,6 +912,9 @@ function attach(Mura){
 						data: {
 							siteid: self.get('siteid'),
 							context: self.get('id')
+						},
+						headers: {
+							'cache-control':'no-cache'
 						},
 						success(resp) {
 							self._requestcontext.request({

@@ -19,7 +19,7 @@ Mura.Request=Mura.Core.extend(
 			this.requestObject=request;
 			this.responseObject=response;
 			this.requestHeaders=headers || {};
-			this.inNode=typeof XMLHttpRequest === 'undefined';
+			this.inNode=Mura.isInNode();
 			this.renderMode=(typeof renderMode != 'undefined') ? renderMode : Mura.getRenderMode();
 			return this;
 		},
@@ -98,7 +98,7 @@ Mura.Request=Mura.Core.extend(
 			if(this.inNode){
 				this.nodeRequest(config);
 			} else {
-				this.xhrRequest(config);
+				this.browserRequest(config);
 			}
 		},
 		/**
@@ -140,7 +140,7 @@ Mura.Request=Mura.Core.extend(
 				config.renderMode=this.renderMode;
 			} 
 		
-			var self=this;
+			const self=this;
 			if(typeof this.requestObject != 'undefined' && typeof this.requestObject.headers != 'undefined'){
 				['Cookie','X-Client_id','X-Client_secret','X-Access_token','Access_Token','Authorization','User-Agent','Referer','X-Forwarded-For','X-Forwarded-Host','X-Forwarded-Proto'].forEach((item)=>{
 					if(typeof this.requestObject.headers[item] != 'undefined'){
@@ -166,25 +166,30 @@ Mura.Request=Mura.Core.extend(
 						config.headers[h.toLowerCase()]= this.requestHeaders[h];
 					}
 			}
-			//console.log('pre:',config.headers)
+	
 			const nodeProxyHeaders = (response)=>{
 				if(typeof self.responseObject != 'undefined'){
 					self.responseObject.proxiedResponse=response;
 					if(!self.responseObject.headersSent){
+						let incomingHeaders={};
+
+						response.headers.forEach((value,key)=>{
+							incomingHeaders[key.toLowerCase()]=value;
+						})
 						if(response.statusCode > 300 && response.status < 400){
-							const header=response.headers['location'];
+							const header=incomingHeaders['location'];
 							if(header){
 								try{
 										//match casing of mura-next connector
 									self.responseObject.setHeader('location',header);
-									self.responseObject.statusCode=httpResponse.statusCode;
+									self.responseObject.statusCode=response.statusCode;
 								} catch (e){
 									console.log('Error setting location header');
 								}
 							}
 						}
 						let header='';
-						header=response.headers['cache-control'];
+						header=incomingHeaders['cache-control'];
 						if(header){
 							try{
 								//match casing of mura-next connector
@@ -194,7 +199,7 @@ Mura.Request=Mura.Core.extend(
 								console.log('Error setting Cache-Control header');
 							}
 						}
-						header=response.headers['pragma'];
+						header=incomingHeaders['pragma'];
 						if(header){
 							try{
 								//match casing of mura-next connector
@@ -205,15 +210,22 @@ Mura.Request=Mura.Core.extend(
 						}
 					}
 				}
+
 			}
 
 			const nodeProxyCookies = (response)=>{
-				var debug=typeof Mura.debug != 'undefined' && Mura.debug;
+				let debug=typeof Mura.debug != 'undefined' && Mura.debug;
 				
 				if(typeof self.responseObject != 'undefined' && typeof self.requestObject != 'undefined' && typeof self.requestObject.headers !='undefined'){
-					var existingCookies=(typeof self.requestObject.headers['cookie'] != 'undefined') ? self.requestObject.headers['cookie'] : '';
-					var newSetCookies=response.headers['set-cookie'];
+					let existingCookies=(typeof self.requestObject.headers['cookie'] != 'undefined') ? self.requestObject.headers['cookie'] : '';
+					let incomingHeaders={};
+
+					response.headers.forEach((value,key)=>{
+						incomingHeaders[key.toLowerCase()]=value;
+					})
 					
+					let newSetCookies=incomingHeaders['set-cookie'];
+
 					if(Array.isArray(existingCookies)){
 						if(existingCookies.length){
 							existingCookies=existingCookies[0];
@@ -225,18 +237,22 @@ Mura.Request=Mura.Core.extend(
 					existingCookies=existingCookies.split("; ");
 
 					if(!Array.isArray(newSetCookies)){
-						newSetCookies=[];
+						if(typeof newSetCookies==='string'){
+							newSetCookies=newSetCookies.split("; ");
+						} else {
+							newSetCookies=[];
+						}
 					}
 
 					if(debug){
 						console.log('response cookies:');
 						console.log(newSetCookies);
 					}
-
+					
 					if(newSetCookies.length){
 						try{
-							var setCookieAccumulator=[];
-							var existingSetCookie = self.responseObject.getHeader('set-cookie');
+							let setCookieAccumulator=[];
+							let existingSetCookie = self.responseObject.getHeader('set-cookie');
 					
 							if(!Array.isArray(existingSetCookie)){
 								if(!existingSetCookie){
@@ -247,10 +263,10 @@ Mura.Request=Mura.Core.extend(
 									existingSetCookie=[];
 								}
 							}
-							for (var i = 0; i < existingSetCookie.length; i++) {
+							for (let i = 0; i < existingSetCookie.length; i++) {
 								setCookieAccumulator[i] = existingSetCookie[i];
 							}
-							for (var i = 0; i < newSetCookies.length; i++) {
+							for (let i = 0; i < newSetCookies.length; i++) {
 								setCookieAccumulator[i] = newSetCookies[i];
 							}
 
@@ -260,10 +276,10 @@ Mura.Request=Mura.Core.extend(
 						}
 					}
 
-					var cookieMap={};
-					var setMap={};
-					var c;
-					var tempCookie;
+					let cookieMap={};
+					let setMap={};
+					let c;
+					let tempCookie;
 					// pull out existing cookies
 					if(existingCookies.length){
 						for( c in existingCookies){
@@ -296,7 +312,7 @@ Mura.Request=Mura.Core.extend(
 						console.log('existing 2:');
 						console.log(cookieMap);
 					}
-					var cookie='';
+					let cookie='';
 					// put cookies back in in the same order that they came out
 					if(existingCookies.length){
 						for(c in existingCookies){
@@ -335,26 +351,38 @@ Mura.Request=Mura.Core.extend(
 					}
 				}
 			}
+			
+			const parsedConfig=this.parseRequestConfig(config);
 
-			require('axios').default.request(
-				this.MuraToAxiosConfig(config)
-			).then(function(response){
-				nodeProxyCookies(response);
-				nodeProxyHeaders(response);
-				config.success(response.data);
-			})
-			.catch(function(error){
-				if(error.response){
-					nodeProxyCookies(error.response);
-					nodeProxyHeaders(error.response);
-					config.error(error.response.data);	
-				} else {
-					console.log(error)
-					config.error(error);	
+			fetch(parsedConfig.url,parsedConfig).then(
+				function(response){
+					nodeProxyCookies(response);
+					nodeProxyHeaders(response);
+					response.text().then((body)=>{
+						let result='';
+						try{
+							result=JSON.parse.call(null,body);
+						} catch(e){
+							result=body;
+						}
+						config.success(result,response);
+					}).catch((error)=>{
+						if (response.status >= 500) {
+							console.log(error)
+							config.error(error);
+						} else {
+							config.success('',response);
+						}
+					})
+				},
+				function(response){
+					console.log(response)
+					throw new Error(response.statusText)
 				}
-			});
+			);
+
 		},
-		xhrRequest(config){	
+		browserRequest(config){	
 			let h;
 
 			for( h in Mura.requestHeaders){
@@ -367,22 +395,31 @@ Mura.Request=Mura.Core.extend(
 					config.headers[h.toLowerCase()]= this.requestHeaders[h];
 				}
 			}
-			require('axios').default.request(
-				this.MuraToAxiosConfig(config)
-			).then(
+			const parsedConfig=this.parseRequestConfig(config);
+			fetch(parsedConfig.url,parsedConfig).then(
 				function(response){
-					config.success(response.data);
+					response.text().then((body)=>{
+						let result='';
+						try{
+							result=JSON.parse.call(null,body);
+						} catch(e){
+							result=body;
+						}
+						config.success(result,response);
+					}).catch((error)=>{
+						if (response.status >= 500) {
+							console.log(error)
+							config.error(error);
+						} else {
+							config.success('',response);
+						}
+					})
 				},
-				function(error){
-					if(error.response){
-						config.error(config.url,error.response.data);	
-					} else {
-						console.log(error)
-						config.error(error);	
-					}
+				function(response){
+					console.log(response)
+					throw new Error(response.statusText)
 				}
 			);
-				
 		},
 		serializeParams(params){
 			const query = [];
@@ -397,22 +434,22 @@ Mura.Request=Mura.Core.extend(
 			}	
 			return query.join('&');
 		},
-		MuraToAxiosConfig(config){
+	
+		parseRequestConfig(config){
 			const parsedConfig={
-				responseType:'text',
 				method: config.type,
 				headers:config.headers,
 				url:config.url,
 				onUploadProgress: config.progress,
 				onDownloadProgress: config.download,
-				withCredentials: true,
-				paramsSerializer:this.serializeParams
+				credentials: "include",
+				mode: "cors"
 			};
 
 			const sendJSON=(parsedConfig.headers['content-type'] && parsedConfig.headers['content-type'].indexOf('json') >-1);
 			const sendFormData=!this.inNode && config.data instanceof FormData;
 			
-			if(parsedConfig.method =='get'){
+			if(parsedConfig.method.toLowerCase() =='get'){
 				//GET send params and not data
 				const params=Mura.deepExtend({}, config.data)
 				

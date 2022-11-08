@@ -560,6 +560,10 @@ function attach(Mura){
 	 * @memberof {object} config
 	 */
 	function normalizeRequestConfig(config) {
+		/* 
+			Moving to native fetch whenever possible for beter next support
+			At this point we still use axios for file uploads
+		*/
 		config.progress=config.progress || config.onProgress || config.onUploadProgress || function(){};
 		config.download=config.download || config.onDownload || config.onDownloadProgress || function(){};
 		config.abort=config.abort || config.onAbort|| function(){};
@@ -605,6 +609,15 @@ function attach(Mura){
 				}	
 			}
 		}
+
+		if(typeof headers==='object'){
+			for( let h in headers){
+				if(headers.hasOwnProperty(h)){
+					headers[h.toLowerCase()]= headers[h];
+				}
+			}
+		}
+
 		request = request || Mura.request;
 		response = response || Mura.response;
 		endpoint = endpoint || Mura.getAPIEndpoint();
@@ -637,7 +650,12 @@ function attach(Mura){
 			return new Promise(function(resolve, reject) {
 				get(Mura.getAPIEndpoint().replace('/json/', '/rest/') + 'oauth?grant_type=' +
 					encodeURIComponent(grant_type) + '&client_id=' + encodeURIComponent(client_id) + '&client_secret=' +
-					encodeURIComponent(client_secret) + '&_cacheid=' + Math.random()).then(
+					encodeURIComponent(client_secret),
+					{
+						headers:{
+							'cache-control':'no-cache'
+						}
+					}).then(
 					function(resp) {
 						if (resp.data != 'undefined') {
 							resolve(resp.data);
