@@ -18,11 +18,8 @@ if (env === 'build') {
 plugins.push(
   new webpack.IgnorePlugin({
     resourceRegExp:/(escape-html)/
-  }),
-  //new BundleAnalyzerPlugin()
+  })
 );
-
-
 
 module.exports = {
 	mode: mode,

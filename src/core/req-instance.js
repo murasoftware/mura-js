@@ -396,31 +396,198 @@ Mura.Request=Mura.Core.extend(
 				}
 			}
 			const parsedConfig=this.parseRequestConfig(config);
-			fetch(parsedConfig.url,parsedConfig).then(
-				function(response){
-					response.text().then((body)=>{
-						let result='';
-						try{
-							result=JSON.parse.call(null,body);
-						} catch(e){
-							result=body;
-						}
-						config.success(result,response);
-					}).catch((error)=>{
-						if (response.status >= 500) {
-							console.log(error)
-							config.error(error);
-						} else {
-							config.success('',response);
-						}
-					})
-				},
-				function(response){
-					console.log(response)
-					throw new Error(response.statusText)
-				}
-			);
+
+			if(
+				typeof parsedConfig.onUploadProgress == 'function'
+				|| typeof parsedConfig.onDownloadProgress == 'function'
+			){
+				//Fetch doesn't support progress events
+				this.xhrRequest(config);
+			} else {
+				fetch(parsedConfig.url,parsedConfig).then(
+					function(response){
+						response.text().then((body)=>{
+							let result='';
+							try{
+								result=JSON.parse.call(null,body);
+							} catch(e){
+								result=body;
+							}
+							config.success(result,response);
+						}).catch((error)=>{
+							if (response.status >= 500) {
+								console.log(error)
+								config.error(error);
+							} else {
+								config.success('',response);
+							}
+						})
+					},
+					function(response){
+						console.log(response)
+						throw new Error(response.statusText)
+					}
+				);
+			}
 		},
+		xhrRequest(params){
+			var debug=typeof Mura.debug != 'undefined' && Mura.debug;
+			for(var h in Mura.requestHeaders){
+				if(Mura.requestHeaders.hasOwnProperty(h)){
+					params.headers[h]= Mura.requestHeaders[h];
+				}
+			}
+			for(var h in this.requestHeaders){
+				if(this.requestHeaders.hasOwnProperty(h)){
+					params.headers[h]= this.requestHeaders[h];
+				}
+			}
+		
+			if (!('xhrFields' in params)) {
+				params.xhrFields = {
+					withCredentials: true
+				};
+			}
+			if (!('crossDomain' in params)) {
+				params.crossDomain = true;
+			}
+			if (!('async' in params)) {
+				params.async = true;
+			}
+			var req = new XMLHttpRequest();
+
+			if(typeof params.data != 'undefined' && typeof params.data.httpmethod != 'undefined'){
+				params.method=params.data.httpmethod;
+				delete params.data.httpmethod;
+			}
+	
+			if(typeof req.addEventListener != 'undefined'){
+				if(typeof params.progress == 'function'){
+					req.addEventListener("progress", params.progress);
+				}
+
+				if(typeof params.abort == 'function'){
+					req.addEventListener("abort", params.abort);
+				}
+			}			
+			
+			req.onreadystatechange = function() {
+				if (req.readyState == 4) {
+					//IE9 doesn't appear to return the request status
+					if (typeof req.status == 'undefined' || (req.status >= 200 && req.status < 400)) {
+						try {	
+							var data=JSON.parse.call(null,req.responseText);
+						} catch (e) {
+							var data = req.response;
+						}
+						
+						params.success(data, req);
+					} else {
+						if(debug && typeof req.responseText != 'undefined'){
+							console.log(req.responseText);
+						}
+						if(typeof params.error == 'function'){
+							try {
+								var data = JSON.parse.call(null,req.responseText);
+							} catch (e) {
+								var data = req.responseText;
+							}
+							params.error(data);
+						} else {
+							throw req;
+						}
+					}
+				}
+			}
+		
+			if (params.method.toLowerCase() != 'get') {
+				
+				req.open(params.method.toUpperCase(), params.url, params.async);
+				for (var p in params.xhrFields) {
+					if (p in req) {
+						req[p] = params.xhrFields[p];
+					}
+				}
+				for (var h in params.headers) {
+					if(params.headers.hasOwnProperty(h)){
+						req.setRequestHeader(h, params.headers[h]);
+					}
+				}
+				if (params.data instanceof FormData) {
+					try{
+						req.send(params.data);
+					} catch(e){
+						if(typeof params.error == 'function'){
+							try {
+								var data = JSON.parse.call(null,req.responseText);
+							} catch (e) {
+								var data = req.responseText;
+							}
+							params.error(data,e);
+						} else {
+							throw e;
+						}
+					}
+				} else {
+					req.setRequestHeader('Content-Type',
+							'application/x-www-form-urlencoded; charset=UTF-8'
+					);
+
+					setTimeout(()=>{
+						try{
+							req.send(this.serializeParams(params.data));
+						} catch(e){
+							if(typeof params.error == 'function'){
+								try {
+									var data = JSON.parse.call(null,req.responseText);
+								} catch (e) {
+									var data = req.responseText;
+								}
+								params.error(data,e);
+							} else {
+								throw e;
+							}
+						}
+					}, 0);
+				}
+			} else {
+				req.open(params.method.toUpperCase(), params.url, params.async);
+				for (var p in params.xhrFields) {
+					if (p in req) {
+						req[p] = params.xhrFields[p];
+					}
+				}
+				for (var h in params.headers) {
+					if(params.headers.hasOwnProperty(h)){
+						req.setRequestHeader(h, params.headers[h]);
+					}
+				}
+				
+				setTimeout(function() {
+					try{
+						req.send();
+					} catch(e){
+						if(typeof params.error == 'function'){
+							if(typeof req.responseText != 'undefined'){
+								try {
+									var data = JSON.parse.call(null,req.responseText);
+								} catch (e) {
+									var data = req.responseText;
+								}
+								params.error(data,e);
+							} else {
+								params.error(req,e);
+							}
+						} else {
+							throw e;
+						}
+					}
+				}, 0);
+			}
+		},
+
+		
+	
 		serializeParams(params){
 			const query = [];
 			for (let key in params) {
@@ -434,7 +601,6 @@ Mura.Request=Mura.Core.extend(
 			}	
 			return query.join('&');
 		},
-	
 		parseRequestConfig(config){
 			const parsedConfig={
 				method: config.type,
