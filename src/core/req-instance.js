@@ -585,9 +585,6 @@ Mura.Request=Mura.Core.extend(
 				}, 0);
 			}
 		},
-
-		
-	
 		serializeParams(params){
 			const query = [];
 			for (let key in params) {
