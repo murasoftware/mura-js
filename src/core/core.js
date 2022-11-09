@@ -569,8 +569,21 @@ function attach(Mura){
 		config.abort=config.abort || config.onAbort|| function(){};
 		config.success=config.success || config.onSuccess || function(){};
 		config.error=config.error || config.onError || function(){};
+		config.headers=config.headers || {};
 
-		if(typeof Mura.maxQueryStringLength){
+		const transformedHeaders = {};
+
+		config.headers.entries().forEach(([key, value]) => {
+			transformedHeaders[key.toLowerCase()] = value;
+		});
+
+		config.headers=transformedHeaders;
+
+		if(config.cache != 'undefined' ){
+			config.headers['cache-control']=config.cache;
+		}
+		
+		if(typeof Mura.maxQueryStringLength != 'undefined'){
 			config.maxQueryStringLength=config.maxQueryStringLength || Mura.maxQueryStringLength;
 		}
 
