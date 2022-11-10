@@ -1,5 +1,4 @@
 function attach(Mura){
-
 Mura["templates"] = Mura["templates"] || {};
 
 Mura["templates"]["checkbox_static"] = Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
@@ -1065,8 +1064,6 @@ Mura["templates"]["view"] = Mura.Handlebars.template({"1":function(container,dep
   return "<div class=\"mura-control-group\">\n<ul>\n"
     + ((stack1 = (lookupProperty(helpers,"eachProp")||(depth0 && lookupProperty(depth0,"eachProp"))||container.hooks.helperMissing).call(depth0 != null ? depth0 : (container.nullContext || {}),depth0,{"name":"eachProp","hash":{},"fn":container.program(1, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":3,"column":0},"end":{"line":7,"column":13}}})) != null ? stack1 : "")
     + "</ul>\n<button type=\"button\" class=\"nav-back\">Back</button>\n</div>";
-},"useData":true});
-}
-
+},"useData":true});}
 
 module.exports=attach;
