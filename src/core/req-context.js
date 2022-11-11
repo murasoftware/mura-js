@@ -137,8 +137,8 @@ Mura.RequestContext=Mura.Core.extend(
 	 * @param	{object} params		 Object
 	 * @return {Promise}						Self
 	 */
-	request(params){
-		return this._request.execute(params);
+	request(config){
+		return this._request.execute(config);
 	},
 
 	/**
@@ -155,6 +155,12 @@ Mura.RequestContext=Mura.Core.extend(
 		params.filename = params.filename || '';
 		params.siteid = params.siteid || this.siteid;
 
+		const cache=params.cache || 'default';
+		delete params.cache;
+
+		const next=params.next || {};
+		delete params.next;
+
 		for (var key in params) {
 			if (key != 'entityname' && key != 'filename' && key !=
 				'siteid' && key != 'method') {
@@ -166,6 +172,8 @@ Mura.RequestContext=Mura.Core.extend(
 			self.request({
 				async: true,
 				type: 'get',
+				cache: cache,
+				next: next,
 				url: self.apiEndpoint + '/content/_path/' + filename + '?' + query.join('&'),
 				success(resp) {
 					if (resp != null && typeof location != 'undefined' && typeof resp.data != 'undefined' && typeof resp.data.redirect != 'undefined' && typeof resp.data.contentid == 'undefined') {
@@ -207,10 +215,18 @@ Mura.RequestContext=Mura.Core.extend(
 		params.siteid = params.siteid || this.siteid;
 		params.method = "findtext";
 		
+		const cache=params.cache || 'default';
+		delete params.cache;
+
+		const next=params.next || {};
+		delete params.next;
+
 		return new Promise(function(resolve, reject) {
 			self.request({
 				type: 'get',
 				url: self.apiEndpoint,
+				cache: cache,
+				next: next,
 				data: params,
 				success(resp) {
 					var collection = new Mura.EntityCollection(resp.data,self)
@@ -435,9 +451,7 @@ Mura.RequestContext=Mura.Core.extend(
 						type: 'get',
 						url: self.apiEndpoint +
 							'findCurrentUser?fields=' + params.fields,
-						headers:{
-							'cache-control':'no-cache'
-						},
+						cache: 'no-cache',
 						success(resp) {
 							if (typeof resolve =='function') {
 								self.currentUser = self.getEntity('user');
@@ -469,10 +483,19 @@ Mura.RequestContext=Mura.Core.extend(
 			params.entityname = params.entityname || 'content';
 			params.siteid = params.siteid || this.siteid;
 			params.method = params.method || 'findQuery';
+
+			const cache=params.cache || 'default';
+			delete params.cache;
+	
+			const next=params.next || {};
+			delete params.next;
+
 			return new Promise(function(resolve, reject) {
 				self.request({
 					type: 'get',
 					url: self.apiEndpoint,
+					cache: cache,
+					next: next,
 					data: params,
 					success(resp) {
 						var collection = new Mura.EntityCollection(resp.data,self)

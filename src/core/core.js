@@ -571,6 +571,8 @@ function attach(Mura){
 		config.error=config.error || config.onError || function(){};
 		config.headers=config.headers || {};
 		config.type=config.type || 'get';
+		config.next=config.next || {};
+		config.cache=config.cache || 'default';
 
 		const transformedHeaders = {};
 	
@@ -579,10 +581,6 @@ function attach(Mura){
 		});
 
 		config.headers=transformedHeaders;
-
-		if(config.type.toLowerCase() ==='get' && typeof config.cache != 'undefined' ){
-			config.headers['cache-control']=config.cache;
-		}
 		
 		if(typeof Mura.maxQueryStringLength != 'undefined'){
 			config.maxQueryStringLength=config.maxQueryStringLength || Mura.maxQueryStringLength;
@@ -666,9 +664,7 @@ function attach(Mura){
 					encodeURIComponent(grant_type) + '&client_id=' + encodeURIComponent(client_id) + '&client_secret=' +
 					encodeURIComponent(client_secret),
 					{
-						headers:{
-							'cache-control':'no-cache'
-						}
+						cache: 'no-cache'
 					}).then(
 					function(resp) {
 						if (resp.data != 'undefined') {

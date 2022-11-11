@@ -594,6 +594,8 @@ function attach(Mura){
 					url:config.url,
 					onUploadProgress: config.progress,
 					onDownloadProgress: config.download,
+					next: config.next,
+					cache: config.cache,
 					credentials: "include",
 					mode: "cors"
 				};

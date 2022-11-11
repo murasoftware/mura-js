@@ -22,10 +22,33 @@ Mura.Feed = Mura.Core.extend(
 		init(siteid, entityname, requestcontext) {
 			this.queryString = entityname + '/?';
 			this.propIndex = 0;
-
+			this.cache='default';
+			this.next={};
 			this._requestcontext=requestcontext || Mura.getRequestContext();
 
 			return this;
+		},
+
+		/**
+		 * cache - Sets the cache policy for the  feed to use
+		 *
+		 * @param  {string} name Name of feed as defined in admin
+		 * @return {Mura.Feed}              Self
+		 */
+		 cache(cache) {
+			this.cache=cache;
+			return this;
+		},
+
+		/**
+		 * next - Sets the next config for the  feed to use
+		 *
+		 * @param  {object} next next config for the  feed to use
+		 * @return {Mura.Feed}              Self
+		 */
+		 next(next) {
+			this.next=next;
+			return next;
 		},
 
 		/**
@@ -681,6 +704,8 @@ Mura.Feed = Mura.Core.extend(
 				}
 				self._requestcontext.request({
 					type: 'get',
+					cache: self.cache,
+					next: self.next,
 					url: apiEndpoint + self.queryString,
 					success(resp) {
 						if (resp.data != 'undefined'  ) {

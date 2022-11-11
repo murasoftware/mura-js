@@ -80,8 +80,8 @@ function attach(Mura){
 		 */
 		invoke(name,params,method,config){
 			if(typeof name == 'object'){
-				params=name.params || {};
-				method=name.method || 'get';
+				params=name.params || name.data || {};
+				method=name.method || name.type || 'get';
 				config=name;
 				name=name.name;
 			} else {
@@ -115,11 +115,12 @@ function attach(Mura){
 				}
 
 				method=method.toLowerCase();
-
+				
 				self._requestcontext.request({
 					type: method,
 					url: self.getAPIEndpoint() + name,
-					headers:method=='get' ? {'cache-control':'no-cache'} : {},
+					cache: method=='get' ? config.cache : 'default',
+					next: config.next,
 					data: params,
 					success(resp) {
 						if (typeof resp.error == 'undefined') {
@@ -387,9 +388,7 @@ function attach(Mura){
 					self._requestcontext.getAPIEndpoint(), 
 					params,
 					{
-						headers:{
-							'cache-control':'no-cache'
-						}
+						cache: 'no-cache'
 					}).then(
 					function(resp) {
 						self.set(resp.data);
@@ -443,9 +442,6 @@ function attach(Mura){
 						data: {
 							siteid: self.get('siteid'),
 							context: ''
-						},
-						headers: {
-							'cache-control':'no-cache'
 						},
 						success(resp) {
 							self._requestcontext.request({
@@ -532,9 +528,6 @@ function attach(Mura){
 							siteid: self.get('siteid'),
 							context: ''
 						},
-						headers: {
-							'cache-control':'no-cache'
-						},
 						success(resp) {
 							self._requestcontext.request({
 								type: 'post',
@@ -605,13 +598,19 @@ function attach(Mura){
 					params.showNavOnly = 0;
 					params.showExcludeSearch = 1;
 				}
+
+				const cache=params.cache || 'default';
+				delete params.cache;
+
+				const next=params.next || {};
+				delete params.next;
+
 				params[propertyName] = propertyValue;
 				self._requestcontext.findQuery(
 					params,
 					{	
-						headers:{
-							'cache-control':'no-cache'
-						}
+						cache: cache,
+						next: next
 					}).then(
 					function(collection) {
 						if (collection.get('items').length) {
