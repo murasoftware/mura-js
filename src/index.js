@@ -1,9 +1,8 @@
 if(!(typeof process !== 'undefined' && {}.toString.call(process) === '[object process]' || typeof document =='undefined')){
 	require("./core/polyfill-browser");
-} else {
-	require("./core/polyfill-node");
 }
 
+require('cross-fetch/polyfill')
 
 const Mura=require("./core/factory")();
 

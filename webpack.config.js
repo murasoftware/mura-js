@@ -17,7 +17,7 @@ if (env === 'build') {
 
 plugins.push(
   new webpack.IgnorePlugin({
-    resourceRegExp:/(escape-html)/
+    resourceRegExp:/(escape-html)|(node-fetch)/
   })
 );
 

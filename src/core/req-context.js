@@ -303,9 +303,6 @@ Mura.RequestContext=Mura.Core.extend(
 					type: 'POST',
 					url: self.apiEndpoint + '?method=generateCSRFTokens',
 					data: {context: ''},
-					headers: {
-						'cache-control':'no-cache'
-					},
 					success(resp) {
 						self.request({
 							async: true,
@@ -370,9 +367,6 @@ Mura.RequestContext=Mura.Core.extend(
 					type: 'POST',
 					url: self.apiEndpoint + '?method=generateCSRFTokens',
 					data: {context: ''},
-					headers: {
-						'cache-control':'no-cache'
-					},
 					success(resp) {
 						self.request({
 							async: true,
@@ -513,9 +507,6 @@ Mura.RequestContext=Mura.Core.extend(
 						siteid: siteid,
 						context: 'login'
 				},
-				headers: {
-					'cache-control':'no-cache'
-				},
 				success(resp) {
 					self.request({
 						async: true,
@@ -575,9 +566,6 @@ Mura.RequestContext=Mura.Core.extend(
 						type: 'POST',
 						url: self.apiEndpoint + '?method=generateCSRFTokens',
 						data: {context: contentid},
-						headers: {
-							'cache-control':'no-cache'
-						},
 						success(resp) {
 							self.request({
 								async: true,
@@ -643,7 +631,11 @@ Mura.RequestContext=Mura.Core.extend(
 		} else {
 			config=config || {};
 		}
-	
+		
+		config.type=type;
+		config.url=url;
+		config.data=data;
+
 		Mura.normalizeRequestConfig(config);
 	
 		var self=this;
@@ -659,13 +651,7 @@ Mura.RequestContext=Mura.Core.extend(
 				config.error=reject;
 			}
 			
-			var normalizedConfig=Mura.extend({
-					type: type,
-					url: url,
-					data: data
-				},
-				config
-			);
+			var normalizedConfig=Mura.extend({},config);
 
 			return self.request(normalizedConfig);
 		});

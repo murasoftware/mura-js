@@ -564,22 +564,23 @@ function attach(Mura){
 			Moving to native fetch whenever possible for beter next support
 			At this point we still use axios for file uploads
 		*/
-		config.progress=config.progress || config.onProgress || config.onUploadProgress || function(){};
-		config.download=config.download || config.onDownload || config.onDownloadProgress || function(){};
+		config.progress=config.progress || config.onProgress || config.onUploadProgress || false;
+		config.download=config.download || config.onDownload || config.onDownloadProgress || false;
 		config.abort=config.abort || config.onAbort|| function(){};
 		config.success=config.success || config.onSuccess || function(){};
 		config.error=config.error || config.onError || function(){};
 		config.headers=config.headers || {};
+		config.type=config.type || 'get';
 
 		const transformedHeaders = {};
-
-		config.headers.entries().forEach(([key, value]) => {
+	
+		Object.entries(config.headers).forEach(([key, value]) => {
 			transformedHeaders[key.toLowerCase()] = value;
 		});
 
 		config.headers=transformedHeaders;
 
-		if(config.cache != 'undefined' ){
+		if(config.type.toLowerCase() ==='get' && typeof config.cache != 'undefined' ){
 			config.headers['cache-control']=config.cache;
 		}
 		
@@ -2135,7 +2136,7 @@ function attach(Mura){
 			frm.submit();
 		}
 
-		if (Mura.formdata	&& frm.getAttribute('enctype') == 'multipart/form-data') {
+		if (frm.getAttribute('enctype') == 'multipart/form-data') {
 
 			var data = new FormData(frm);
 			var checkdata = setLowerCaseKeys(formToObject(frm));

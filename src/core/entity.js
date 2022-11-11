@@ -114,12 +114,12 @@ function attach(Mura){
 					config.error=reject;
 				}
 
+				method=method.toLowerCase();
+
 				self._requestcontext.request({
-					type: method.toLowerCase(),
+					type: method,
 					url: self.getAPIEndpoint() + name,
-					headers:{
-						'cache-control':'no-cache'
-					},
+					headers:method=='get' ? {'cache-control':'no-cache'} : {},
 					data: params,
 					success(resp) {
 						if (typeof resp.error == 'undefined') {
@@ -195,12 +195,9 @@ function attach(Mura){
 							siteid: self.get('siteid'),
 							context: name
 						},
-						headers: {
-							'cache-control':'no-cache'
-						},
 						success(resp) {
 
-							if(Mura.formdata && params instanceof FormData){
+							if(params instanceof FormData){
 								params.append('csrf_token',resp.data.csrf_token);
 								params.append('csrf_token_expires',resp.data.csrf_token_expires);
 							} else {
@@ -415,9 +412,6 @@ function attach(Mura){
 					self._requestcontext.request({
 						type: 'post',
 						url: self._requestcontext.getAPIEndpoint(),
-						headers:{
-							'cache-control':'no-cache'
-						},
 						data:{
 							entityname: self.get('entityname'),
 							method: 'checkSchema',
@@ -457,9 +451,6 @@ function attach(Mura){
 							self._requestcontext.request({
 								type: 'post',
 								url: self._requestcontext.getAPIEndpoint(),
-								headers:{
-									'cache-control':'no-cache'
-								},
 								data: Mura
 								.extend(
 								{
@@ -510,9 +501,6 @@ function attach(Mura){
 					self._requestcontext.request({
 						type: 'post',
 						url: self._requestcontext.getAPIEndpoint(),
-						headers:{
-							'cache-control':'no-cache'
-						},
 						data: {
 							entityname: self.get('entityname'),
 							deleteSchema: deleteSchema,
@@ -551,9 +539,6 @@ function attach(Mura){
 							self._requestcontext.request({
 								type: 'post',
 								url: self._requestcontext.getAPIEndpoint(),
-								headers:{
-									'cache-control':'no-cache'
-								},
 								data: Mura.extend(	{
 									entityname: self.get('entityname'),
 									method: 'undeclareEntity',
@@ -912,9 +897,6 @@ function attach(Mura){
 						data: {
 							siteid: self.get('siteid'),
 							context: self.get('id')
-						},
-						headers: {
-							'cache-control':'no-cache'
 						},
 						success(resp) {
 							self._requestcontext.request({
