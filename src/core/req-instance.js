@@ -651,7 +651,13 @@ function attach(Mura){
 					}
 			
 					if (sendFormData){
-						delete parsedConfig.headers['content-type'];
+						//We use xhr to send form data when progress handlers are present
+						if(!parsedConfig.progress && !parsedConfig.download){
+							delete parsedConfig.headers['content-type'];
+						} else {
+							parsedConfig.headers['content-type']='multipart/form-data; charset=UTF-8';
+						}
+					
 					} else {
 						parsedConfig.headers['content-type']='application/x-www-form-urlencoded; charset=UTF-8';
 						parsedConfig.data=Mura.extend({},config.data);
