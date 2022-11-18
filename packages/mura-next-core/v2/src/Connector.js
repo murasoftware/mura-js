@@ -167,7 +167,7 @@ export const getMuraInstance = function(context){
       instanceConfig.siteid=context;
     
     } else {
-
+  
       const ishomepage=(
         (context && !(context.params && context.params.page)) 
         || (typeof location != 'undefined' 
@@ -177,37 +177,37 @@ export const getMuraInstance = function(context){
           )
         )
       );
-    
-      if(Array.isArray(instanceConfig.siteid)){
-        if(ishomepage){
-          instanceConfig.siteid=instanceConfig.siteid[0];
+
+      if(ishomepage){
+        instanceConfig.siteid=instanceConfig.siteid[0];
+      } else {
+        let page=[];
+        if(context && context.params && context.params.page){
+          page=[...context.params.page];
+          page=page.filter(item => item.length);
+        } else if (typeof location != 'undefined'){
+          page=location.pathname.split("/");
+          page=page.filter(item => item.length);
+          if(page.length 
+            && instanceConfig.editroute
+            && page[0]===instanceConfig.editroute.split("/")[1]
+          ){
+            page.shift();
+          }
+        } 
+      
+        if(page.length){
+          if(instanceConfig.siteid.find((item)=>{
+            return (item===page[0])
+            })
+          ){
+            instanceConfig.siteid=page[0];
+            instanceConfig.siteidinurls=true;
+          } else {
+            instanceConfig.siteid=instanceConfig.siteid[0];
+          }
         } else {
-          let page=[];
-          if(context && context.params && context.params.page){
-            page=[...context.params.page];
-            page=page.filter(item => item.length);
-          } else if (typeof location != 'undefined'){
-            page=location.pathname.split("/");
-            page=page.filter(item => item.length);
-            if(page.length 
-              && instanceConfig.editroute
-              && page[0]===instanceConfig.editroute.split("/")[1]
-            ){
-              page.shift();
-            }
-          } 
-        
-          if(page.length){
-            if(instanceConfig.siteid.find((item)=>{
-              return (item===page[0])
-              })
-            ){
-              instanceConfig.siteid=page[0];
-              instanceConfig.siteidinurls=true;
-            } else {
-              instanceConfig.siteid=instanceConfig.siteid[0];
-            }
-          } 
+          instanceConfig.siteid=instanceConfig.siteid[0];
         }
       }
     
@@ -241,15 +241,6 @@ export const getMura = function(context){
   }
   const Mura=GlobalMura;
   const startingsiteid=Mura.siteid;
-  const ishomepage=(
-    (context && !(context.params && context.params.page)) 
-    || (typeof location != 'undefined' 
-      && (
-        location.pathname=="/"
-        || location.pathname==(ConnectorConfig.editroute + "/")
-      )
-    )
-  );
   const instanceConfig=Object.assign({},ConnectorConfig);
 
   if(instanceConfig.multitenant){
@@ -286,37 +277,47 @@ export const getMura = function(context){
       instanceConfig.siteid=context;
     
     } else {
-    
-      if(Array.isArray(instanceConfig.siteid)){
-        if(ishomepage){
-          instanceConfig.siteid=instanceConfig.siteid[0];
+      
+      const ishomepage=(
+        (context && !(context.params && context.params.page)) 
+        || (typeof location != 'undefined' 
+          && (
+            location.pathname=="/"
+            || location.pathname==(ConnectorConfig.editroute + "/")
+          )
+        )
+      );
+
+      if(ishomepage){
+        instanceConfig.siteid=instanceConfig.siteid[0];
+      } else {
+        let page=[];
+        if(context && context.params && context.params.page){
+          page=[...context.params.page];
+          page=page.filter(item => item.length);
+        } else if (typeof location != 'undefined'){
+          page=location.pathname.split("/");
+          page=page.filter(item => item.length);
+          if(page.length 
+            && instanceConfig.editroute
+            && page[0]===instanceConfig.editroute.split("/")[1]
+          ){
+            page.shift();
+          }
+        } 
+      
+        if(page.length){
+          if(instanceConfig.siteid.find((item)=>{
+            return (item===page[0])
+            })
+          ){
+            instanceConfig.siteid=page[0];
+            instanceConfig.siteidinurls=true;
+          } else {
+            instanceConfig.siteid=instanceConfig.siteid[0];
+          }
         } else {
-          let page=[];
-          if(context && context.params && context.params.page){
-            page=[...context.params.page];
-            page=page.filter(item => item.length);
-          } else if (typeof location != 'undefined'){
-            page=location.pathname.split("/");
-            page=page.filter(item => item.length);
-            if(page.length 
-              && instanceConfig.editroute
-              && page[0]===instanceConfig.editroute.split("/")[1]
-            ){
-              page.shift();
-            }
-          } 
-        
-          if(page.length){
-            if(instanceConfig.siteid.find((item)=>{
-              return (item===page[0])
-              })
-            ){
-              instanceConfig.siteid=page[0];
-              instanceConfig.siteidinurls=true;
-            } else {
-              instanceConfig.siteid=instanceConfig.siteid[0];
-            }
-          } 
+          instanceConfig.siteid=instanceConfig.siteid[0];
         }
       }
     
@@ -562,18 +563,21 @@ async function renderContent(context,renderMode,params,Mura) {
     filename = [...context.params.page]; 
   }
 
-  if(Array.isArray(filename)){
-    if(filename.length && filename[0]==connectorConfig.siteid){
-      filename.shift();
-    }
-    filename=filename.join("/");
+  if(!Array.isArray(filename)){
+    filename=filename.split("/")
   }
   
+  if(filename.length && (filename[0]==Mura.siteid)){
+    filename.shift();
+  }
+  filename=filename.join("/");
 
+  
   if(params){
     query=Object.assign(query,params);
   }
-
+  console.log('filename',filename);
+  
   return Mura.renderFilename(filename, query).then(
     async rendered => {
       return rendered;
