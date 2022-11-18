@@ -576,7 +576,8 @@ async function renderContent(context,renderMode,params,Mura) {
   if(params){
     query=Object.assign(query,params);
   }
-  console.log('filename',filename);
+  
+  //console.log('filename',filename);
   
   return Mura.renderFilename(filename, query).then(
     async rendered => {
