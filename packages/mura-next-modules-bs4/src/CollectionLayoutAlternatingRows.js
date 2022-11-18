@@ -36,9 +36,9 @@ const CurrentItems = (props) => {
   let itemsTo = pos+nextn > items.length ? items.length : pos+nextn;
   const fieldlist = fields ? fields.toLowerCase().split(",") : [];
   const maxItems = props.maxitems;
-  // console.log('fieldlist: ' + fieldlist);
+  const Mura = props.Mura || getMura();
 
-  if(getMura().renderMode != 'static' && scrollpages){
+  if(Mura.renderMode != 'static' && scrollpages){
     itemsTo=items.length;
   } else {
     if (maxItems < items.length && pos+nextn > maxItems){

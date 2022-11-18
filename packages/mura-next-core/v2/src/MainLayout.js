@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import MuraStyles from './Styles';
 import MuraExternalAssets from './ExternalAssets';
 import { getMura } from './Connector';
+import { MuraContext } from './GlobalContext';
 
 const MainLayout = props => {
   

@@ -29,8 +29,9 @@ const CurrentItems = (props) => {
   let item = '';
   const Link = link;
   const items = collection.get('items');
-
-  if(getMura().renderMode != 'static' && scrollpages){
+  const Mura = props.Mura || getMura();
+  
+  if(Mura.renderMode != 'static' && scrollpages){
     itemsTo=items.length;
   } else {
     if (maxItems < items.length && pos+nextn > maxItems){

@@ -33,6 +33,7 @@ export const useAsync =  (asyncFn, onSuccess) => {
 export const getHref = function(filename) {
   let path=filename.split('/').filter(item => item.length);
   
+  //This shouldn't happen
   if(connectorConfig.siteidinurls){
     if(path.length){
       return '/' + Mura.siteid + '/' + path.join('/') + '/';
@@ -66,6 +67,10 @@ export const getComponent = function(props) {
 
 export const getMuraPaths = async function() {
   
+  if(ConnectorConfig.multitenant){
+    return [];
+  }
+
   let siteids=ConnectorConfig.siteid;
   let pathList=[];
 
@@ -123,71 +128,90 @@ export const getMuraInstance = function(context){
   
   Mura.styleMap=GlobalMura.styleMap;
 
-  const instanceConfig=Object.assign({},ConnectorConfig);
-  
-  if (!Array.isArray(instanceConfig.siteid)) {
-    instanceConfig.siteid = instanceConfig.siteid.split();
-  }
-
   if(typeof Mura.deInit=='function'){
     try{
       Mura.deInit();
     }catch(e){}
   }
-  
-  if(typeof context == 'string'
-    && instanceConfig.siteid.find((item)=>{
-      return (item===context)
-      })
-  ){
-   
-    instanceConfig.siteid=context;
-  
-  } else {
 
-    const ishomepage=(
-      (context && !(context.params && context.params.page)) 
-      || (typeof location != 'undefined' 
-        && (
-          location.pathname=="/"
-          || location.pathname==(ConnectorConfig.editroute + "/")
-        )
-      )
-    );
+  const instanceConfig=Object.assign({},ConnectorConfig);
   
-    if(Array.isArray(ConnectorConfig.siteid)){
-      if(ishomepage){
-        instanceConfig.siteid=ConnectorConfig.siteid[0];
+  if(instanceConfig.multitenant){
+    
+    if(typeof context == 'string'){
+
+      instanceConfig.siteid=context;
+    
+    } else {
+
+      if(context?.params?.page?.length){
+        instanceConfig.siteid=context.params.page[0];
       } else {
-        let page=[];
-        if(context && context.params && context.params.page){
-          page=[...context.params.page];
-          page=page.filter(item => item.length);
-        } else if (typeof location != 'undefined'){
-          page=location.pathname.split("/");
-          page=page.filter(item => item.length);
-          if(page.length 
-            && ConnectorConfig.editroute
-            && page[0]===ConnectorConfig.editroute.split("/")[1]
-          ){
-            page.shift();
-          }
-        } 
-      
-        if(page.length){
-          if(ConnectorConfig.siteid.find((item)=>{
-            return (item===page[0])
-            })
-          ){
-            instanceConfig.siteid=page[0];
-            instanceConfig.siteidinurls=true;
-          } else {
-            instanceConfig.siteid=ConnectorConfig.siteid[0];
-          }
-        } 
+        instanceConfig.siteid='default';
       }
+
     }
-   
+
+  } else {
+    
+    if (!Array.isArray(instanceConfig.siteid)) {
+      instanceConfig.siteid = instanceConfig.siteid.split();
+    }
+
+    if(typeof context == 'string'
+      && instanceConfig.siteid.find((item)=>{
+        return (item===context)
+        })
+    ){
+    
+      instanceConfig.siteid=context;
+    
+    } else {
+
+      const ishomepage=(
+        (context && !(context.params && context.params.page)) 
+        || (typeof location != 'undefined' 
+          && (
+            location.pathname=="/"
+            || location.pathname==(instanceConfig.editroute + "/")
+          )
+        )
+      );
+    
+      if(Array.isArray(instanceConfig.siteid)){
+        if(ishomepage){
+          instanceConfig.siteid=instanceConfig.siteid[0];
+        } else {
+          let page=[];
+          if(context && context.params && context.params.page){
+            page=[...context.params.page];
+            page=page.filter(item => item.length);
+          } else if (typeof location != 'undefined'){
+            page=location.pathname.split("/");
+            page=page.filter(item => item.length);
+            if(page.length 
+              && instanceConfig.editroute
+              && page[0]===instanceConfig.editroute.split("/")[1]
+            ){
+              page.shift();
+            }
+          } 
+        
+          if(page.length){
+            if(instanceConfig.siteid.find((item)=>{
+              return (item===page[0])
+              })
+            ){
+              instanceConfig.siteid=page[0];
+              instanceConfig.siteidinurls=true;
+            } else {
+              instanceConfig.siteid=instanceConfig.siteid[0];
+            }
+          } 
+        }
+      }
+    
+    }
   }
 
   if (context && context.res) {
@@ -197,10 +221,10 @@ export const getMuraInstance = function(context){
         request: context.req
       }
     );
-    //console.log('initing', connectorConfig.siteid)
+
     Mura.init(instanceConfig);
   } else if (startingsiteid != instanceConfig.siteid) {
-    //console.log('changing siteid',startingsiteid,connectorConfig.siteid)
+    
     Mura.init(instanceConfig);
   }
  
@@ -217,87 +241,109 @@ export const getMura = function(context){
   }
   const Mura=GlobalMura;
   const startingsiteid=Mura.siteid;
-  
-  if (!Array.isArray(ConnectorConfig.siteid)) {
-    ConnectorConfig.siteid = v.siteid.split();
-  }
-
-  if(typeof context == 'string'
-    && ConnectorConfig.siteid.find((item)=>{
-      return (item===context)
-      })
-  ){
-   
-    connectorConfig.siteid=context;
-  
-  } else {
-
-    const ishomepage=(
-      (context && !(context.params && context.params.page)) 
-      || (typeof location != 'undefined' 
-        && (
-          location.pathname=="/"
-          || location.pathname==(ConnectorConfig.editroute + "/")
-        )
+  const ishomepage=(
+    (context && !(context.params && context.params.page)) 
+    || (typeof location != 'undefined' 
+      && (
+        location.pathname=="/"
+        || location.pathname==(ConnectorConfig.editroute + "/")
       )
-    );
-  
-    if(Array.isArray(ConnectorConfig.siteid)){
-      if(ishomepage){
-        connectorConfig.siteid=ConnectorConfig.siteid[0];
+    )
+  );
+  const instanceConfig=Object.assign({},ConnectorConfig);
+
+  if(instanceConfig.multitenant){
+    
+    if(typeof context == 'string'){
+
+      instanceConfig.siteid=context;
+    
+    } else {
+
+      if(context?.params?.page?.length){
+        instanceConfig.siteid=context.params.page[0];
       } else {
-        let page=[];
-        if(context && context.params && context.params.page){
-          page=[...context.params.page];
-          page=page.filter(item => item.length);
-        } else if (typeof location != 'undefined'){
-          page=location.pathname.split("/");
-          page=page.filter(item => item.length);
-          if(page.length 
-            && ConnectorConfig.editroute
-            && page[0]===ConnectorConfig.editroute.split("/")[1]
-          ){
-            page.shift();
-          }
-        } 
-      
-        if(page.length){
-          if(ConnectorConfig.siteid.find((item)=>{
-            return (item===page[0])
-            })
-          ){
-            connectorConfig.siteid=page[0];
-            connectorConfig.siteidinurls=true;
-          } else {
-            connectorConfig.siteid=ConnectorConfig.siteid[0];
-          }
-        } 
+        if(typeof Mura != 'undefined'){
+          instanceConfig.siteid=Mura.siteid;
+        } else {
+          instanceConfig.siteid='default';
+        }
       }
+
     }
-   
+
+  } else {
+    if (!Array.isArray(instanceConfig.siteid)) {
+      instanceConfig.siteid = instanceConfig.siteid.split();
+    }
+
+    if(typeof context == 'string'
+      && instanceConfig.siteid.find((item)=>{
+        return (item===context)
+        })
+    ){
+    
+      instanceConfig.siteid=context;
+    
+    } else {
+    
+      if(Array.isArray(instanceConfig.siteid)){
+        if(ishomepage){
+          instanceConfig.siteid=instanceConfig.siteid[0];
+        } else {
+          let page=[];
+          if(context && context.params && context.params.page){
+            page=[...context.params.page];
+            page=page.filter(item => item.length);
+          } else if (typeof location != 'undefined'){
+            page=location.pathname.split("/");
+            page=page.filter(item => item.length);
+            if(page.length 
+              && instanceConfig.editroute
+              && page[0]===instanceConfig.editroute.split("/")[1]
+            ){
+              page.shift();
+            }
+          } 
+        
+          if(page.length){
+            if(instanceConfig.siteid.find((item)=>{
+              return (item===page[0])
+              })
+            ){
+              instanceConfig.siteid=page[0];
+              instanceConfig.siteidinurls=true;
+            } else {
+              instanceConfig.siteid=instanceConfig.siteid[0];
+            }
+          } 
+        }
+      }
+    
+    }
   }
 
   const clearMuraAPICache = function(){
-    delete connectorConfig.apiEndpoint;
-    delete connectorConfig.apiendpoint;
+    delete instanceConfig.apiEndpoint;
+    delete instanceConfig.apiendpoint;
     delete Mura.apiEndpoint;
     delete Mura.apiendpoint;
   };
 
   if (context && context.res) {
-    Object.assign(connectorConfig,
+    Object.assign(instanceConfig,
       { 
         response: context.res,
         request: context.req
       }
     );
     clearMuraAPICache();
-    //console.log('initing', connectorConfig.siteid)
-    Mura.init(connectorConfig);
-  } else if (startingsiteid != connectorConfig.siteid) {
-    //console.log('changing siteid',startingsiteid,connectorConfig.siteid)
+   
+    Mura.init(instanceConfig);
+  } else if (startingsiteid != instanceConfig.siteid) {
+
     clearMuraAPICache();
-    Mura.init(connectorConfig);
+    Mura.init(instanceConfig);
   }
  
   Mura.holdReady(true);

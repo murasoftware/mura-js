@@ -40,8 +40,9 @@ const CurrentItems = (props) => {
   const fieldlist = fields ? fields.toLowerCase().split(",") : [];
   const maxItems = props.maxitems;
   let catAssignments = [];
+  const Mura = props.Mura || getMura();
 
-  if(getMura().renderMode != 'static' && scrollpages){
+  if(Mura.renderMode != 'static' && scrollpages){
     itemsTo=items.length;
   } else {
     if (maxItems < items.length && pos+nextn > maxItems){

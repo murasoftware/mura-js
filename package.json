@@ -1,7 +1,7 @@
 {
   "name": "mura.js",
   "homepage": "http://www.murasoftware.com",
-  "version": "2.0",
+  "version": "1.0.383",
   "description": "Utility for interacting with the Mura JSON/REST API",
   "browserslist": "> 0.25%, not dead, ie >= 11",
   "files": [
@@ -37,7 +37,6 @@
     "babel-loader": "^8.2.2",
     "core-js": "^3.11.1",
     "grunt": "^1.5.3",
-    "grunt-contrib-concat": "^2.1.0",
     "grunt-contrib-handlebars": "^3.0.0",
     "grunt-text-replace": "^0.4.0",
     "regenerator-runtime": "^0.13.7",
@@ -52,6 +51,7 @@
     "escape-html": "^1.0.3",
     "handlebars": "^4.7.7",
     "install": "^0.10.4",
+    "node-fetch": "^2.6.7",
     "npm": "^8.13.1",
     "readable-stream": "^3.6.0",
     "tough-cookie": "^2.5.0",
