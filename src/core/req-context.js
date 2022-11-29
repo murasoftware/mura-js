@@ -646,19 +646,21 @@ Mura.RequestContext=Mura.Core.extend(
 	 * @param	{object} data Data to send to url
 	 * @return {Promise}
 	 */
-	normalizeRequest(type,url,data,config){
+	 normalizeRequest(type,url,data,config){
+		
 		if(typeof url == 'object'){
-			data=url.data;
+			data=url.data || {};
 			config=url;
 			url=url.url;
 		} else {
+			data=data || {};
 			config=config || {};
 		}
 		
 		config.type=type;
 		config.url=url;
-		config.data=data;
-
+		config.data=data || {};
+		
 		Mura.normalizeRequestConfig(config);
 	
 		var self=this;

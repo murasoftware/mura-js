@@ -1,7 +1,7 @@
 {
   "name": "mura.js",
   "homepage": "http://www.murasoftware.com",
-  "version": "1.0.383",
+  "version": "1.0.385",
   "description": "Utility for interacting with the Mura JSON/REST API",
   "browserslist": "> 0.25%, not dead, ie >= 11",
   "files": [
@@ -49,6 +49,7 @@
     "buffer": "^6.0.3",
     "cross-fetch": "^3.1.5",
     "escape-html": "^1.0.3",
+    "grunt-contrib-concat": "^2.1.0",
     "handlebars": "^4.7.7",
     "install": "^0.10.4",
     "node-fetch": "^2.6.7",
