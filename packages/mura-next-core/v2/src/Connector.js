@@ -142,15 +142,17 @@ export const getMuraInstance = function(context){
 
       instanceConfig.siteid=context;
     
+    } else if(context?.siteid) {
+      
+      instanceConfig.siteid=context.siteid;
+    
+    } else if(context?.params?.page?.length){
+      
+      instanceConfig.siteid=context.params.page[0];
+    
     } else {
-
-      if(context?.params?.page?.length){
-        instanceConfig.siteid=context.params.page[0];
-      } else {
-        instanceConfig.siteid='default';
-      }
-
-    }
+      instanceConfig.siteid='default';
+    } 
 
   } else {
     
@@ -250,15 +252,22 @@ export const getMura = function(context){
       instanceConfig.siteid=context;
     
     } else {
-
-      if(context?.params?.page?.length){
+      if(context?.siteid){
+        
+        instanceConfig.siteid=context.siteid;
+      
+      } else if(context?.params?.page?.length){
+        
         instanceConfig.siteid=context.params.page[0];
+      
       } else {
+
         if(typeof Mura != 'undefined'){
           instanceConfig.siteid=Mura.siteid;
         } else {
           instanceConfig.siteid='default';
         }
+        
       }
 
     }
