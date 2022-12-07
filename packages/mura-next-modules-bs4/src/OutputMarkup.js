@@ -99,7 +99,7 @@ function parseStringAsTemplate(stringValue){
 function OutputMarkup({source,className}){
     const parsedSource=parseStringAsTemplate(source);
   
-    if(parsedSource && (!parsedSource.startsWith('<') || parsedSource.startsWith('<span') || parsedSource.startsWith('<br'))){
+    if(typeof parsedSource == 'string' && parsedSource && (!parsedSource.startsWith('<') || parsedSource.startsWith('<span') || parsedSource.startsWith('<br'))){
         return(
             <ReactMarkdown plugins={[gfm,slug,directive,htmlDirectives]} allowDangerousHtml renderers={renderers} children={parsedSource} className={className} />
         )
