@@ -1210,7 +1210,7 @@ function attach(Mura){
 				try {
 					return getComputedStyle(this.selection[0]);
 				} catch (e) {
-					console.log(e)
+					//console.log(e)
 					return {};
 				}
 			} else if (typeof ruleName == 'object') {
@@ -1219,19 +1219,25 @@ function attach(Mura){
 						for (var p in ruleName) {
 							el.style[Mura.styleMap.tojs[p.toLowerCase()]] = ruleName[p];
 						}
-					} catch (e) {console.log(e)}
+					} catch (e) {
+						//console.log(e)
+					}
 				});
 			} else if (typeof value != 'undefined') {
 				this.each(function(el) {
 					try {
 						el.style[Mura.styleMap.tojs[ruleName.toLowerCase()]] = value;
-					} catch (e) {console.log(e)}
+					} catch (e) {
+						//console.log(e)
+					}
 				});
 				return this;
 			} else {
 				try {
 					return getComputedStyle(this.selection[	0])[Mura.styleMap.tojs[ruleName.toLowerCase()]];
-				} catch (e) {console.log(e)}
+				} catch (e) {
+					//console.log(e)
+				}
 			}
 
 			return this;
@@ -1472,7 +1478,7 @@ function attach(Mura){
 					var left=obj.css('marginLeft');
 					var right=obj.css('marginRight')
 					
-					if(!obj.is('.mura-center') && !(left=='0px' && right=='0px') && !(left=='auto' || right=='auto') && left.charAt(0) != "-" && right.charAt(0) != "-"){
+					if(!obj.is('.mura-center') && !(left=='0px' && right=='0px') && !(left=='auto' || right=='auto') && left.charAt && left.charAt(0) != "-" && right.charAt && right.charAt(0) != "-"){
 						if(fullsize){
 							var width='100%';
 
@@ -1516,7 +1522,9 @@ function attach(Mura){
 				}
 				
 				function pinUIToolsToTopLeft(obj){
-					if(obj.css('paddingTop').replace(/[^0-9]/g,'') != '0' || obj.css('paddingLeft').replace(/[^0-9]/g,'') != '0'){
+					var top=obj.css('paddingTop');
+					var left=obj.css('paddingTop');
+					if(top.replace && (top.replace(/[^0-9]/g,'') != '0' || left.replace && left.replace(/[^0-9]/g,'') != '0')){
 						obj.addClass('mura-object-pin-tools');
 					} else {
 						obj.removeClass('mura-object-pin-tools');
