@@ -620,7 +620,7 @@ function attach(Mura){
 					if(config.maxQueryStringLength){
 						if(config.maxQueryStringLength && (queryString.length > config.maxQueryStringLength)){
 							parsedConfig.headers['content-type']='application/x-www-form-urlencoded; charset=UTF-8';
-							parsedConfig.data = queryString;
+							parsedConfig.data = params;
 							parsedConfig.method='post';
 						} else {
 							if(parsedConfig.url.indexOf('?') > -1){
@@ -641,7 +641,7 @@ function attach(Mura){
 				} 
 	
 				if(sendJSON){
-					parsedConfig.body=JSON.stringify.call(null.Mura.extend({},config.data));
+					parsedConfig.body=JSON.stringify.call(null,Mura.extend({},config.data));
 				} else {
 					if (sendFormData){
 						parsedConfig.body=config.data;
