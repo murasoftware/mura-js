@@ -620,7 +620,7 @@ function attach(Mura){
 					if(config.maxQueryStringLength){
 						if(config.maxQueryStringLength && (queryString.length > config.maxQueryStringLength)){
 							parsedConfig.headers['content-type']='application/x-www-form-urlencoded; charset=UTF-8';
-							parsedConfig.data = params;
+							parsedConfig.body =  queryString;
 							parsedConfig.method='post';
 						} else {
 							if(parsedConfig.url.indexOf('?') > -1){
