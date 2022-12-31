@@ -20,7 +20,7 @@ function factory(){
     require('./ui.collection')(Mura);
     require('./ui.container')(Mura);
     require('./templates')(Mura);
-    Mura.styleMap=require('./stylemap');
+    require('./stylemap')(Mura);
 
     if(Mura.isInNode()){
         Mura._escapeHTML=require('escape-html');
