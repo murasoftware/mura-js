@@ -96,8 +96,12 @@ function parseStringAsTemplate(stringValue){
     return parsedString;
 }
 
+function fixBreakTags (str){
+    return str.replace(/(<([br]+)>)/ig,"<br>\n")
+}
+
 function OutputMarkup({source,className}){
-    const parsedSource=parseStringAsTemplate(source);
+    const parsedSource=fixBreakTags(parseStringAsTemplate(source));
   
     if(getMuraConfig().ConnectorConfig.htmleditortype == 'markdown'){
         return(

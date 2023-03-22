@@ -238,7 +238,7 @@ function attach(Mura){
 	
 						if(!Array.isArray(newSetCookies)){
 							if(typeof newSetCookies==='string'){
-								newSetCookies=newSetCookies.split("; ");
+								newSetCookies=[newSetCookies];
 							} else {
 								newSetCookies=[];
 							}
@@ -368,7 +368,7 @@ function attach(Mura){
 							config.success(result,response);
 						}).catch((error)=>{
 							if (response.status >= 500) {
-								console.log(error)
+								console.log(parsedConfig.url,error)
 								config.error(error);
 							} else {
 								config.success('',response);
@@ -376,7 +376,7 @@ function attach(Mura){
 						})
 					},
 					function(response){
-						console.log(response)
+						console.log(parsedConfig.url,response)
 						throw new Error(response.statusText)
 					}
 				);
@@ -416,7 +416,7 @@ function attach(Mura){
 								config.success(result,response);
 							}).catch((error)=>{
 								if (response.status >= 500) {
-									console.log(error)
+									console.log(parsedConfig.url,error)
 									config.error(error);
 								} else {
 									config.success('',response);
@@ -424,7 +424,7 @@ function attach(Mura){
 							})
 						},
 						function(response){
-							console.log(response)
+							console.log(parsedConfig.url,response)
 							throw new Error(response.statusText)
 						}
 					);

@@ -670,7 +670,7 @@ function attach(Mura){
 				}
 			}
 
-			entityName = self.context.filename.replace(/\W+/g, "");
+			var entityName = self.context.filename.replace(/\W+/g, "");
 			self.entity = entityName;
 			self.formJSON = formJSON;
 			self.fields = formJSON.form.fields;

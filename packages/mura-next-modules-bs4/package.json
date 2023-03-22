@@ -6,6 +6,10 @@
   "license": "MIT",
   "repository": "https://github.com/murasoftware/mura-js.git",
   "type": "module",
+  "exports": {
+    "require": "./dist/index.cjs",     
+    "default": "./dist/index.modern.js"
+  },
   "main": "dist/index.cjs",
   "module": "dist/index.modern.js",
   "source": "src/index.js",
