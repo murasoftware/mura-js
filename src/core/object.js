@@ -1,13 +1,13 @@
-function attach(Mura){
+/**
+* Creates a new Mura.Core
+* @name Mura.Core
+* @class
+* @memberof Mura
+* @param  {object} properties Object containing values to set into object
+* @return {Mura.Core}
+*/
 
-	/**
-	* Creates a new Mura.Core
-	* @name Mura.Core
-	* @class
-	* @memberof Mura
-	* @param  {object} properties Object containing values to set into object
-	* @return {Mura.Core}
-	*/
+function attach(Mura){
 
 	function Core(){
 		this.init.apply(this,arguments);

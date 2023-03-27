@@ -1,17 +1,17 @@
+/**
+* Creates a new Mura.Request
+* @name	Mura.Request
+* @class
+* @extends Mura.Core
+* @memberof Mura
+* @param	{object} request		 Siteid
+* @param	{object} response Entity name
+* @param	{object} requestHeaders Optional
+* @return {Mura.Request}	Self
+*/
+
 function attach(Mura){
 
-	/**
-	* Creates a new Mura.Request
-	* @name	Mura.Request
-	* @class
-	* @extends Mura.Core
-	* @memberof Mura
-	* @param	{object} request		 Siteid
-	* @param	{object} response Entity name
-	* @param	{object} requestHeaders Optional
-	* @return {Mura.Request}	Self
-	*/
-	
 	Mura.Request=Mura.Core.extend(
 		/** @lends Mura.Request.prototype */
 		{
@@ -25,7 +25,7 @@ function attach(Mura){
 			},
 	
 			/**
-			* execute - Make ajax request
+			* execute - Make http request
 			*
 			* @param	{object} config
 			* @return {Promise}
@@ -96,9 +96,9 @@ function attach(Mura){
 				}
 			
 				if(this.inNode){
-					this.nodeRequest(config);
+					return this.nodeRequest(config);
 				} else {
-					this.browserRequest(config);
+					return this.browserRequest(config);
 				}
 			},
 			/**
@@ -358,26 +358,36 @@ function attach(Mura){
 					function(response){
 						nodeProxyCookies(response);
 						nodeProxyHeaders(response);
-						response.text().then((body)=>{
-							let result='';
-							try{
-								result=JSON.parse.call(null,body);
-							} catch(e){
-								result=body;
-							}
-							config.success(result,response);
-						}).catch((error)=>{
-							if (response.status >= 500) {
-								console.log(parsedConfig.url,error)
-								config.error(error);
-							} else {
-								config.success('',response);
-							}
-						})
+
+						if(parsedConfig.isfetch){
+							return new Promise().resolve(response);
+						} else {
+							response.text().then((body)=>{
+								let result='';
+								try{
+									result=JSON.parse.call(null,body);
+								} catch(e){
+									result=body;
+								}
+								config.success(result,response);
+							}).catch((error)=>{
+								if (response.status >= 500) {
+									console.log(parsedConfig.url,error)
+									config.error(error);
+								} else {
+									config.success('',response);
+								}
+							})
+						}
+						
 					},
 					function(response){
-						console.log(parsedConfig.url,response)
-						throw new Error(response.statusText)
+						if(parsedConfig.isfetch){
+							return new Promise().resolve(response);
+						} else {
+							console.log(parsedConfig.url,response)
+							throw new Error(response.statusText)
+						}
 					}
 				);
 	
@@ -404,30 +414,34 @@ function attach(Mura){
 					//Fetch doesn't support progress events
 					this.xhrRequest(config);
 				} else {
-					fetch(parsedConfig.url,parsedConfig).then(
-						function(response){
-							response.text().then((body)=>{
-								let result='';
-								try{
-									result=JSON.parse.call(null,body);
-								} catch(e){
-									result=body;
-								}
-								config.success(result,response);
-							}).catch((error)=>{
-								if (response.status >= 500) {
-									console.log(parsedConfig.url,error)
-									config.error(error);
-								} else {
-									config.success('',response);
-								}
-							})
-						},
-						function(response){
-							console.log(parsedConfig.url,response)
-							throw new Error(response.statusText)
-						}
-					);
+					if(parsedConfig.isfetch){	
+						return fetch(parsedConfig.url,parsedConfig);
+					} else {
+						fetch(parsedConfig.url,parsedConfig).then(
+							function(response){
+								response.text().then((body)=>{
+									let result='';
+									try{
+										result=JSON.parse.call(null,body);
+									} catch(e){
+										result=body;
+									}
+									config.success(result,response);
+								}).catch((error)=>{
+									if (response.status >= 500) {
+										console.log(parsedConfig.url,error)
+										config.error(error);
+									} else {
+										config.success('',response);
+									}
+								})
+							},
+							function(response){
+								console.log(parsedConfig.url,response)
+								throw new Error(response.statusText)
+							}
+						);
+					}
 				}
 			},
 			xhrRequest(config){
@@ -597,19 +611,31 @@ function attach(Mura){
 					next: config.next,
 					cache: config.cache,
 					credentials: "include",
-					mode: "cors"
+					mode: "cors",
+					isfetch: config.isfetch
 				};
 				
 				if(parsedConfig.method.toLowerCase() != 'get'){
 					delete parsedConfig['cache-control'];
 				}
 
+				let isJSONBody=false;
+				let parsedBody={};
+				try {
+					parsedBody=JSON.stringify.call(null,Object.assign({},config.data));
+					isJSONBody=true;
+				} catch (e) {
+					isJSONBody=false;
+				}
+				if(isJSONBody){
+					parsedConfig.headers['content-type']='application/json; charset=UTF-8';
+				}
 				const sendJSON=(parsedConfig.headers['content-type'] && parsedConfig.headers['content-type'].indexOf('json') >-1);
 				const sendFormData=!this.inNode && config.data instanceof FormData;
 				
 				if(parsedConfig.method.toLowerCase()=='get'){
 					//GET send params and not data
-					const params=Mura.deepExtend({}, config.data)
+					const params=(isJSONBody) ? Mura.deepExtend({}, parsedBody) : Mura.deepExtend({}, config.params);
 					
 					if(typeof params['muraPointInTime'] == 'undefined' && typeof Mura.pointInTime != 'undefined'){
 						params['muraPointInTime']=Mura.pointInTime;
@@ -641,12 +667,16 @@ function attach(Mura){
 				} 
 	
 				if(sendJSON){
-					parsedConfig.body=JSON.stringify.call(null,Mura.extend({},config.data));
+					if(isJSONBody){
+						parsedConfig.body=parsedBody;
+					} else {
+						parsedConfig.body=JSON.stringify.call(null,Object.assign({},config.data));
+					}
 				} else {
-					if (sendFormData){
+					if (sendFormData || isJSONBody){
 						parsedConfig.body=config.data;
 					} else {
-						parsedConfig.data=Mura.extend({}, config.data);
+						parsedConfig.data=Object.assign({}, config.data);
 						if(typeof parsedConfig.data['muraPointInTime'] == 'undefined' && typeof Mura.pointInTime != 'undefined'){
 							parsedConfig.data['muraPointInTime']=Mura.pointInTime;
 						}
@@ -660,7 +690,7 @@ function attach(Mura){
 							parsedConfig.headers['content-type']='multipart/form-data; charset=UTF-8';
 						}
 					
-					} else {
+					} else if( !isJSONBody){
 						parsedConfig.headers['content-type']='application/x-www-form-urlencoded; charset=UTF-8';
 						parsedConfig.data=Mura.extend({},config.data);
 					

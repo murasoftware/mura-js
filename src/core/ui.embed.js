@@ -1,12 +1,12 @@
-function attach(Mura){
+/**
+ * Creates a new Mura.UI.Embed
+ * @name  Mura.UI.Embed
+ * @class
+ * @extends Mura.UI
+ * @memberof  Mura
+ */
 
-	/**
-	 * Creates a new Mura.UI.Embed
-	 * @name  Mura.UI.Embed
-	 * @class
-	 * @extends Mura.UI
-	 * @memberof  Mura
-	 */
+function attach(Mura){
 
 	Mura.UI.Embed=Mura.UI.extend(
 	/** @lends Mura.DisplayObject.Embed.prototype */

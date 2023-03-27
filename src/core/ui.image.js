@@ -1,12 +1,12 @@
-function attach(Mura){
+/**
+ * Creates a new Mura.UI.Text
+ * @name  Mura.UI.Image
+ * @class
+ * @extends Mura.UI
+ * @memberof  Mura
+ */
 
-	/**
-	 * Creates a new Mura.UI.Text
-	 * @name  Mura.UI.Image
-	 * @class
-	 * @extends Mura.UI
-	 * @memberof  Mura
-	 */
+function attach(Mura){
 
 	Mura.UI.Image=Mura.UI.extend(
 	/** @lends Mura.DisplayObject.Image.prototype */

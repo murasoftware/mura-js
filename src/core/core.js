@@ -1,17 +1,15 @@
-
 function attach(Mura){
 	'use strict'
 
 	/**
-	 * login - Logs user into Mura
+	 * login - Logs user in
 	 *
 	 * @param	{string} username Username
 	 * @param	{string} password Password
-	 * @param	{string} siteid	 Siteid
+	 * @param	{string} siteid Siteid
 	 * @return {Promise}
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
-
 	function login(username, password, siteid) {
 		return Mura.getRequestContext().login(username, password, siteid);
 	}
@@ -19,9 +17,9 @@ function attach(Mura){
 	/**
 	 * logout - Logs user out
 	 *
-	 * @param	{type} siteid Siteid
+	 * @param	{string} siteid Siteid
 	 * @return {Promise}
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 	function logout(siteid) {
 		return Mura.getRequestContext().logout(siteid);
@@ -32,7 +30,7 @@ function attach(Mura){
 	 *
 	 * @param	{object} data event data
 	 * @return {Promise}
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 	function trackEvent(data) {
 		//This all needs to be cleaned up
@@ -213,7 +211,7 @@ function attach(Mura){
 	* @param	{type} filename Mura content filename
 	* @param	{type} params Object
 	* @return {Promise}
-	* @memberof {class} Mura
+	* @memberof Mura
 	*/
 	function renderFilename(filename, params) {
 		return Mura.getRequestContext().renderFilename(filename, params);
@@ -224,7 +222,7 @@ function attach(Mura){
 	 *
 	 * @param	{object} entityConfig Entity config object
 	 * @return {Promise}
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 	function declareEntity(entityConfig) {
 		return Mura.getRequestContext().declareEntity(entityConfig);
@@ -235,7 +233,7 @@ function attach(Mura){
 	 *
 	 * @param	{object} entityName
 	 * @return {Promise}
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 	function undeclareEntity(entityName,deleteSchema) {
 		deleteSchema=deleteSchema || false;
@@ -247,7 +245,7 @@ function attach(Mura){
 	 *
 	 * @param	{string} contentid Optional: default's to Mura.contentid
 	 * @return {Promise}
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 	function openGate(contentid) {
 		return Mura.getRequestContext().openGate(contentid);
@@ -255,11 +253,26 @@ function attach(Mura){
 
 	/**
 	 * getEntity - Returns Mura.Entity instance
-	 *
+	 * @example
+	 * const content= Mura.getEntity('content')
+	 * 
+	 * await content.loadBy('contentid','1234');
+	 * 
+	 * await content.set({
+	 * 		summary:'This is my summary',
+	 * 		approved:1
+	 * ).save();
+	 * 
+	 * const kids= await content.get('kids');
+	 * 
+	 * kids.forEach(function(kid){
+	 *  console.log(kid.getAll());
+	 * });
+	 * 
 	 * @param	{string} entityname Entity Name
 	 * @param	{string} siteid		 Siteid
 	 * @return {Mura.Entity}
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 	function getEntity(entityname, siteid) {
 		siteid=siteid || Mura.siteid;
@@ -268,10 +281,37 @@ function attach(Mura){
 
 	/**
 	 * getFeed - Return new instance of Mura.Feed
-	 *
+	 * @example
+	 * const collection= await Mura
+	 * 	.getFeed('content')
+	 * 	.where()
+	 * 	.prop('title').containsValue('test')
+	 * 	.orOpenGrouping()
+	 *  	.prop('title').isEQ('about')
+	 *  	.orProp('title').isEQ('contact')
+	 * 	.closeGrouping()
+	 * 	.sort('title','asc')
+	 * 	.maxItems(10)
+	 * 	.itemPerPage(5)
+	 * 	.cacheKey('mycachekey')
+	 * 	.cacheWithin(60)
+	 * 	.expand('kids')
+	 * 	.fields('title,summary,url')
+	 * 	.getQuery({	
+	 * 		headers:{
+	 *			'X-My-Header':'123'
+	 *		},
+	 *		cache:'cache',
+	 *		next:  { revalidate: 10 } 
+	 * 	}
+	 * );
+	 * 
+	 * collection.forEach(function(item){	
+	 * 	console.log(item.get('title'));
+	 * });
 	 * @param	{type} entityname Entity name
 	 * @return {Mura.Feed}
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 	function getFeed(entityname,siteid) {
 		siteid=siteid || Mura.siteid;
@@ -283,7 +323,7 @@ function attach(Mura){
 	 *
 	 * @param	{object} params Load parameters, fields:list of fields
 	 * @return {Promise}
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 	function getCurrentUser(params) {
 		return new Promise(function(resolve, reject) {
@@ -309,7 +349,7 @@ function attach(Mura){
 	 *
 	 * @param	{object} params Load parameters
 	 * @return {Promise}
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 	function findText(text,params) {
 		return Mura.getRequestContext().findText(text,params);
@@ -320,7 +360,7 @@ function attach(Mura){
 	 *
 	 * @param	{object} params Object of matching params
 	 * @return {Promise}
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 	function findQuery(params) {
 		return Mura.getRequestContext().findQuery(params);
@@ -484,11 +524,22 @@ function attach(Mura){
 
 	/**
 	 * get - Make GET request
-	 *
+	 * @example	 
+	 * const data = await Mura.get(
+	 *	Mura.getAPIEndpoint() + '/custom/endpoint?myvar=1',
+	 *	{
+	 *		headers:{
+	 *			'X-My-Header':'123'
+	 *		},
+	 *		cache:'cache',
+	 *		next:  { revalidate: 10 } 
+	 *	}
+	 * );
 	 * @param	{url} url	URL
 	 * @param	{object} data Data to send to url
+	 * @param	{object} config request config 
 	 * @return {Promise}
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 	function get(url, data, config) {
 		return Mura.getRequestContext().get(url, data, config);
@@ -496,11 +547,23 @@ function attach(Mura){
 
 	/**
 	 * post - Make POST request
-	 *
+	 * @example
+	 * const data = await Mura.update(
+	 *  Mura.getAPIEndpoint() + '/custom/endpoint',
+	 *	{
+	 *		data:{
+	 *			myvar:'123'
+	 *		},
+	 *		headers:{
+	 *			'X-My-Header':'123'
+	 *		}
+	 *	}
+	 * );
 	 * @param	{url} url	URL
 	 * @param	{object} data Data to send to url
+	 * @param	{object} config request config 
 	 * @return {Promise}
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 	function post(url, data, config) {
 		return Mura.getRequestContext().post(url, data, config);
@@ -508,11 +571,20 @@ function attach(Mura){
 
 	/**
 	 * put - Make PUT request
-	 *
+	 * @example 
+	 * const data = await Mura.put(
+	 *	Mura.getAPIEndpoint() + '/custom/endpoint?myvar=1',
+	 *	{
+	 *		headers:{
+	 *			'X-My-Header':'123'
+	 *		}
+	 *	}
+	 * );
 	 * @param	{url} url	URL
 	 * @param	{object} data Data to send to url
+	 * @param	{object} config request config 
 	 * @return {Promise}
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 	function put(url, data, config) {
 		return Mura.getRequestContext().put(url, data, config);
@@ -520,11 +592,23 @@ function attach(Mura){
 
 	/**
 	 * update - Make UPDATE request
-	 *
+	 * @example 
+	 * const data = await Mura.update(
+	 *	Mura.getAPIEndpoint() + '/custom/endpoint',
+	 *	{
+	 *		data:{
+	 *			myvar:'123'
+	 *		},
+	 *		headers:{
+	 *			'X-My-Header':'123'
+	 *		}
+	 *	}
+	 * );
 	 * @param	{url} url	URL
 	 * @param	{object} data Data to send to url
+	 * @param	{object} config request config 
 	 * @return {Promise}
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 	function patch(url, data, config) {
 		return Mura.getRequestContext().patch(url, data, config);
@@ -532,25 +616,92 @@ function attach(Mura){
 
 	/**
 	 * delete - Make Delete request
-	 *
+	 * @example 
+	 * const data = await Mura.delete(
+	 *	Mura.getAPIEndpoint() + '/custom/endpoint?myvar=1',
+	 *	{
+	 *		headers:{
+	 *			'X-My-Header':'123'
+	 *		}
+	 *	}
+	 * );
+	 * @name delete
 	 * @param	{url} url	URL
 	 * @param	{object} data Data to send to url
+	 * @param	{object} config request config 
 	 * @return {Promise}
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 	function deleteReq(url, data, config) {
 		return Mura.getRequestContext().delete(url, data, config)
 	}
 
 	/**
-	 * ajax - Make ajax request
-	 *
-	 * @param	{object} params
+	 * ajax - Make http request
+	 * @example
+	 * const data = await Mura.ajax({
+	 *	method:'get',
+	 *	url:Mura.getAPIEndpoint() + '/custom/endpoint',
+	 *	data:{
+	 *		myvar:'123'
+	 *	},
+	 *	headers:{
+	 *		'X-My-Header':'123'
+	 *	},
+	 *	cache:'cache',
+	 *	next:  { revalidate: 10 }
+	 *	onSuccess:function(response){},
+	 *	onError:function(response){},
+	 *	onUploadProgress:function(response){},
+	 *	onDownloadProgress:function(response){},
+	 *	onAbort:function(response){}
+	 * });
+	 * @param	{object} config
 	 * @return {Promise}
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 	function ajax(config) {
 		return Mura.getRequestContext().request(config);
+	}
+	
+	/**
+	 * fetch - Make fetch request's that maintian Mura's state management and cookie proxying
+	 * @example 
+	 * const resp = await Mura.fetch(
+	 * 	Mura.getAPIEndpoint() + '/custom/endpoint?myvar=123',
+	 * 	{
+	 *		method:'get',
+	 *		url:Mura.getAPIEndpoint() + '/custom/endpoint',
+	 *		headers:{
+	 *			'X-My-Header':'123'
+	 *		},
+	 *		cache:'cache',
+	 *		next:  { revalidate: 10 } 
+	 * 	}
+	 * );
+	 * 
+	 * const data = await resp.text();
+	 * @example
+	 * const resp = await Mura.fetch({
+	 *	method:'post',
+	 *	url:Mura.getAPIEndpoint() + '/custom/endpoint',
+	 *	body:JSON.stringify({
+	 *		myvar:'123'
+	 *	}),
+	 *	headers:{
+	 *		'Content-Type':'application/json:utf-8;'
+	 *	}	
+	 * });
+	 *	
+	 * const data = await resp.json();`
+	 * @name fetch
+	 * @param	{string} resource
+	 * @param	{object} options
+	 * @return {Promise}
+	 * @memberof Mura
+	 */
+	function customfetch(resource,options) {
+		return Mura.getRequestContext().fetch(resource,options);
 	}
 
 	/**
@@ -591,12 +742,26 @@ function attach(Mura){
 
 	/**
 	 * getRequestContext - Returns a new Mura.RequestContext;
-	 *
+	 * @example	
+	 * const requestContext = Mura.getRequestContext();
+	 * 		
+	 * requestContext.setHeader('X-My-Header','123');
+	 * 
+	 * const resp = await requestContext.fetch({
+	 *	method:'post',
+	 *	url:Mura.getAPIEndpoint() + '/custom/endpoint',
+	 *	body:JSON.stringify({
+	 *		myvar:'123'
+	 * 	})
+	 * }; 
+	 *	
+	 * const data = await resp.json();
+	 *	
 	 * @name getRequestContext
 	 * @param	{object} request		 Siteid
 	 * @param	{object} response Entity name
 	 * @return {Mura.RequestContext}	 Mura.RequestContext
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 	function getRequestContext(request,response, headers, siteid, endpoint, mode, renderMode) {
 		//Logic aded to support single config object arg
@@ -643,7 +808,7 @@ function attach(Mura){
 	 *
 	 * @name getDefaultRequestContext
 	 * @return {Mura.RequestContext}	 Mura.RequestContext
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 	function getDefaultRequestContext() {
 		return	Mura.getRequestContext();
@@ -656,7 +821,7 @@ function attach(Mura){
 	 * @param	{type} client_id		 Client ID
 	 * @param	{type} client_secret Secret Key
 	 * @return {Promise}
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 	function generateOAuthToken(grant_type, client_id, client_secret) {
 			return new Promise(function(resolve, reject) {
@@ -871,7 +1036,7 @@ function attach(Mura){
 	 * @name isNumeric
 	 * @param	{*} val description
 	 * @return {boolean}
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 	function isNumeric(val) {
 			return Number(parseFloat(val)) == val;
@@ -1031,7 +1196,7 @@ function attach(Mura){
 	 * @name formToObject
 	 * @param	{form} form Form to serialize
 	 * @return {object}
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 	function formToObject(form) {
 		var field, s = {};
@@ -1070,7 +1235,7 @@ function attach(Mura){
 	 *
 	 * @name extend
 	 * @return {object}
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 	function extend(out) {
 		out = out || {};
@@ -1093,7 +1258,7 @@ function attach(Mura){
 	 *
 	 * @name deepExtend
 	 * @return {object}
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 	function deepExtend(out) {
 		out = out || {};
@@ -1129,7 +1294,7 @@ function attach(Mura){
 	 * @param	{*} value Value
 	 * @param	{number} days	Days
 	 * @return {void}
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 		function createCookie(name, value, days, domain) {
 		if(days) {
@@ -1159,7 +1324,7 @@ function attach(Mura){
 	 * @name readCookie
 	 * @param	{string} name Name
 	 * @return {*}
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 	function readCookie(name) {
 		var nameEQ = name + "=";
@@ -1179,7 +1344,7 @@ function attach(Mura){
 	 * @name eraseCookie
 	 * @param	{type} name description
 	 * @return {type}			description
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 	function eraseCookie(name) {
 		createCookie(name, "", -1);
@@ -1224,7 +1389,7 @@ function attach(Mura){
 	 * @name isUUID
 	 * @param	{*} value Value
 	 * @return {boolean}
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 	function isUUID(value) {
 		if (
@@ -1250,7 +1415,7 @@ function attach(Mura){
 	 *
 	 * @name createUUID
 	 * @return {string}
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 	function createUUID() {
 		var s = [], itoh = '0123456789ABCDEF';
@@ -1278,7 +1443,7 @@ function attach(Mura){
 	 * @name setHTMLEditor
 	 * @param	{dom.element} el Dom Element
 	 * @return {void}
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 	function setHTMLEditor(el) {
 
@@ -1411,7 +1576,7 @@ function attach(Mura){
 	 * @name isInteger
 	 * @param	{*} Value to check
 	 * @return {boolean}
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 	function isInteger(s) {
 		var i;
@@ -1492,10 +1657,7 @@ function attach(Mura){
 
 	/**
 	 * generateDateFormat - dateformt for input type="date"
-	 *
-	 * @name generateDateFormat
-	 * @return {string}
-	 */
+	*/
 		function generateDateFormat(dtStr, fldName) {
 			var formatArray=['mm','dd','yyyy'];
 
@@ -1513,7 +1675,7 @@ function attach(Mura){
 	 * @name isDate
 	 * @param	{*}	Value to check
 	 * @return {boolean}
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 	function isDate(dtStr, fldName) {
 		var daysInMonth = DaysArray(12);
@@ -1569,7 +1731,7 @@ function attach(Mura){
 	 *
 	 * @param	{string} str String to parse for email
 	 * @return {boolean}
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 	function isEmail(e) {
 		return /^[a-zA-Z_0-9-'\+~]+(\.[a-zA-Z_0-9-'\+~]+)*@([a-zA-Z_0-9-]+\.)+[a-zA-Z]{2,8}$/.test(e);
@@ -1601,7 +1763,7 @@ function attach(Mura){
 	 * @param	{type} frm					Form element to validate
 	 * @param	{function} customaction Custom action (optional)
 	 * @return {boolean}
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 	function validateForm(frm, customaction) {
 
@@ -1929,7 +2091,7 @@ function attach(Mura){
 	 *
 	 * @name loader
 	 * @return {Mura.Loader}
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 	function loader() {
 		return Mura.ljs;
@@ -2988,7 +3150,7 @@ function attach(Mura){
 	 *
 	 * @param	{string} str Trims string
 	 * @return {string}		 Trimmed string
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 	function trim(str) {
 		return str.replace(/^\s+|\s+$/gm, '');
@@ -3067,7 +3229,7 @@ function attach(Mura){
 	 * @name getQueryStringParams
 	 * @param	{string} queryString Query String
 	 * @return {object}
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 	function getQueryStringParams(queryString) {
 		if(typeof queryString === 'undefined'){
@@ -3105,7 +3267,7 @@ function attach(Mura){
 	 * @name getHREFParams
 	 * @param	{string} href
 	 * @return {object}
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 	function getHREFParams(href) {
 		var a = href.split('?');
@@ -3641,7 +3803,7 @@ function attach(Mura){
 	 * @param	{string} headerName	Name of header
 	 * @param	{string} value Header value
 	 * @return {Mura.RequestContext} Self
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 	function setRequestHeader(headerName,value){
 		Mura.requestHeaders[headerName]=value;
@@ -3654,7 +3816,7 @@ function attach(Mura){
 	 * @name getRequestHeader
 	 * @param	{string} headerName	Name of header
 	 * @return {string} header Value
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 		function getRequestHeader(headerName){
 			if(typeof Mura.requestHeaders[headerName] != 'undefined'){
@@ -3669,7 +3831,7 @@ function attach(Mura){
 	 *
 	 * @name getRequestHeaders
 	 * @return {object} All Headers
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 		function getRequestHeaders(){
 			return Mura.requestHeaders;
@@ -3683,7 +3845,7 @@ function attach(Mura){
 	 * @name hashCode
 	 * @param	{string} s String to hash
 	 * @return {string}
-	 * @memberof {class} Mura
+	 * @memberof Mura
 	 */
 	function hashCode(s) {
 		var hash = 0,
@@ -4242,7 +4404,7 @@ function attach(Mura){
 			patch: patch,
 			deepExtend: deepExtend,
 			ajax: ajax,
-			request: ajax,
+			ajax: ajax,
 			changeElementType: changeElementType,
 			setHTMLEditor: setHTMLEditor,
 			each: each,
@@ -4319,6 +4481,7 @@ function attach(Mura){
 			parseStringAsTemplate:parseStringAsTemplate,
 			findText:findText,
 			deInit:deInit,
+			fetch:customfetch,
 			inAdmin:false,
 			lmv:2,
 			homeid: '00000000000000000000000000000000001',

@@ -1,17 +1,16 @@
+/**
+ * Creates a new Mura.DOMSelection
+ * @name	Mura.DOMSelection
+ * @class	
+ * @param	{object} properties Object containing values to set into object
+ * @return {Mura.DOMSelection}
+ * @extends Mura.Core
+ * @memberof Mura
+ */
 
 function attach(Mura){
 
 	'use strict'
-
-	/**
-	 * Creates a new Mura.DOMSelection
-	 * @name	Mura.DOMSelection
-	 * @class
-	 * @param	{object} properties Object containing values to set into object
-	 * @return {Mura.DOMSelection}
-	 * @extends Mura.Core
-	 * @memberof Mura
-	 */
 
 	/**
 		* @ignore
@@ -67,9 +66,9 @@ function attach(Mura){
 
 		/**
 		 * select - Returns new Mura.DomSelection
-		 *
+		 * 
 		 * @param	{string} selector Selector
-		 * @return {object}
+		 * @return {Mura.DOMSelection}
 		 */
 		select(selector) {
 			return Mura(selector);
@@ -113,7 +112,7 @@ function attach(Mura){
 		 * filter - Creates a new Mura.DomSelection instance contains selection values that pass filter function by returning true
 		 *
 		 * @param	{function} fn Filter function
-		 * @return {object}		New Mura.DOMSelection
+		 * @return {Mura.DOMSelection} New Mura.DOMSelection
 		 */
 		filter(fn) {
 			return Mura(this.selection.filter(function(el,idx, array) {
@@ -129,7 +128,7 @@ function attach(Mura){
 		 * map - Creates a new Mura.DomSelection instance contains selection values that are returned by Map function
 		 *
 		 * @param	{function} fn Map function
-		 * @return {object}		New Mura.DOMSelection
+		 * @return {Mura.DOMSelection} New Mura.DOMSelection
 		 */
 		map(fn) {
 			return Mura(this.selection.map(function(el, idx, array) {
@@ -166,7 +165,7 @@ function attach(Mura){
 		 * isNumeric - Returns if value is numeric
 		 *
 		 * @param	{*} val Value
-		 * @return {type}		 description
+		 * @return {boolean} description
 		 */
 		isNumeric(val) {
 			if (typeof val != 'undefined') {
@@ -217,8 +216,8 @@ function attach(Mura){
 		 * on - Add event handling method
 		 *
 		 * @param	{string} eventName Event name
-		 * @param	{string} selector	Selector (optional: for use with delegated events)
-		 * @param	{function} fn				description
+		 * @param	{string} selector Selector (optional: for use with delegated events)
+		 * @param	{function} fn description
 		 * @return {Mura.DOMSelection} Self
 		 */
 		on(eventName, selector, fn, EventListenerOptions) {
@@ -307,7 +306,7 @@ function attach(Mura){
 		 *
 		 * @param	{function} handlerIn	In method
 		 * @param	{function} handlerOut Out method
-		 * @return {object}						Self
+		 * @return {Mura.DOMSelection} Self
 		 */
 		hover(handlerIn, handlerOut, EventListenerOptions) {
 			if(typeof EventListenerOptions =='undefined' || EventListenerOptions == null){
@@ -376,7 +375,7 @@ function attach(Mura){
 		 * off - Removes event handler from selection
 		 *
 		 * @param	{string} eventName Event name
-		 * @param	{function} fn			Function to remove	(optional)
+		 * @param	{function} fn Function to remove	(optional)
 		 * @return {Mura.DOMSelection} Self
 		 */
 		off(eventName, fn) {
@@ -407,7 +406,7 @@ function attach(Mura){
 		 * unbind - Removes event handler from selection
 		 *
 		 * @param	{string} eventName Event name
-		 * @param	{function} fn			Function to remove	(optional)
+		 * @param	{function} fn Function to remove	(optional)
 		 * @return {Mura.DOMSelection} Self
 		 */
 		unbind(eventName, fn) {
@@ -419,9 +418,9 @@ function attach(Mura){
 		 * bind - Add event handling method
 		 *
 		 * @param	{string} eventName Event name
-		 * @param	{string} selector	Selector (optional: for use with delegated events)
-		 * @param	{function} fn				description
-		 * @return {Mura.DOMSelection}					 Self
+		 * @param	{string} selector Selector (optional: for use with delegated events)
+		 * @param	{function} fn description
+		 * @return {Mura.DOMSelection} Self
 		 */
 		bind(eventName, fn) {
 			this.on(eventName, fn);
@@ -431,9 +430,9 @@ function attach(Mura){
 		/**
 		 * trigger - Triggers event on selection
 		 *
-		 * @param	{string} eventName	 Event name
+		 * @param	{string} eventName Event name
 		 * @param	{object} eventDetail Event properties
-		 * @return {Mura.DOMSelection}						 Self
+		 * @return {Mura.DOMSelection} Self
 		 */
 		trigger(eventName, eventDetail) {
 			eventDetail = eventDetail || {};
@@ -522,7 +521,7 @@ function attach(Mura){
 		/**
 		 * last - Returns last item in selection
 		 *
-		 * @return {*}
+		 * @return {Mura.DOMSelection}
 		 */
 		last() {
 			if (this.selection.length) {
@@ -944,7 +943,7 @@ function attach(Mura){
 		/**
 		 * prepend - Prepends element to items in selection
 		 *
-		 * @param	{*} el Element to append
+		 * @param	{documentElement|string} el Element to append
 		 * @return {Mura.DOMSelection} Self
 		 */
 		prepend(el) {
@@ -965,7 +964,7 @@ function attach(Mura){
 		/**
 		 * before - Inserts element before items in selection
 		 *
-		 * @param	{*} el Element to append
+		 * @param	{documentElement|string} el Element to append
 		 * @return {Mura.DOMSelection} Self
 		 */
 		before(el) {
@@ -986,7 +985,7 @@ function attach(Mura){
 		/**
 		 * after - Inserts element after items in selection
 		 *
-		 * @param	{*} el Element to append
+		 * @param	{documentElement|string} el Element to append
 		 * @return {Mura.DOMSelection} Self
 		 */
 		after(el) {
@@ -1012,7 +1011,7 @@ function attach(Mura){
 		/**
 		 * hide - Hides elements in selection
 		 *
-		 * @return {object}	Self
+		 * @return {Mura.DOMSelection} Self
 		 */
 		hide() {
 			this.each(function(el) {
@@ -1036,7 +1035,7 @@ function attach(Mura){
 		/**
 		 * repaint - repaints elements in selection
 		 *
-		 * @return {object}	Self
+		 * @return {Mura.DOMSelection}	Self
 		 */
 		redraw() {
 			this.each(function(el) {
@@ -1054,7 +1053,7 @@ function attach(Mura){
 		/**
 		 * remove - Removes elements in selection
 		 *
-		 * @return {object}	Self
+		 * @return {Mura.DOMSelection}	Self
 		 */
 		remove() {
 			this.each(function(el) {
@@ -1066,7 +1065,7 @@ function attach(Mura){
 		/**
 		 * detach - Detaches elements in selection
 		 *
-		 * @return {object}	Self
+		 * @return {Mura.DOMSelection}	Self
 		 */
 		detach() {
 			var detached=[];
@@ -1150,7 +1149,7 @@ function attach(Mura){
 		/**
 		 * empty - Removes content from elements in selection
 		 *
-		 * @return {object}	Self
+		 * @return {Mura.DOMSelection}	Self
 		 */
 		empty() {
 			this.each(function(el) {
@@ -1162,7 +1161,7 @@ function attach(Mura){
 		/**
 		 * evalScripts - Evaluates script tags in selection elements
 		 *
-		 * @return {object}	Self
+		 * @return {Mura.DOMSelection}	Self
 		 */
 		evalScripts() {
 			if (!this.selection.length) {
@@ -1178,7 +1177,7 @@ function attach(Mura){
 		 * html - Returns or sets HTML of elements in selection
 		 *
 		 * @param	{string} htmlString description
-		 * @return {object}						Self
+		 * @return {Mura.DOMSelection|string} Self
 		 */
 		html(htmlString) {
 			if (typeof htmlString != 'undefined') {
@@ -1200,7 +1199,7 @@ function attach(Mura){
 		 *
 		 * @param	{string} ruleName Css rule name
 		 * @param	{string} value		Rule value
-		 * @return {object}					Self
+		 * @return {Mura.DOMSelection|string}	Self
 		 */
 		css(ruleName, value) {
 			if (!this.selection.length) {
@@ -1246,7 +1245,7 @@ function attach(Mura){
 		/**
 		 * calculateDisplayObjectStyles - Looks at data attrs and sets appropriate styles
 		 *
-		 * @return {object}	Self
+		 * @return {Mura.DOMSelection}	Self
 		 */
 		calculateDisplayObjectStyles(windowResponse) {
 			
@@ -1540,7 +1539,7 @@ function attach(Mura){
 		 * text - Gets or sets the text content of each element in the selection
 		 *
 		 * @param	{string} textString Text string
-		 * @return {object}						Self
+		 * @return {Mura.DOMSelection|string} Self
 		 */
 		text(textString) {
 			if (typeof textString != 'undefined') {
@@ -1606,7 +1605,7 @@ function attach(Mura){
 		/**
 		 * offsetParent - Returns first element in selection's offsetParent
 		 *
-		 * @return {object}	offsetParent
+		 * @return {Mura.DOMSelection|Element}	offsetParent
 		 */
 		offsetParent() {
 			if (!this.selection.length) {
@@ -1643,7 +1642,7 @@ function attach(Mura){
 		 * height - Returns height of first element in selection or set height for elements in selection
 		 *
 		 * @param	{number} height	Height (option)
-		 * @return {object}				Self
+		 * @return {Mura.DOMSelection|number} Self
 		 */
 		height(height) {
 			if (!this.selection.length) {
@@ -1676,7 +1675,7 @@ function attach(Mura){
 		 * width - Returns width of first element in selection or set width for elements in selection
 		 *
 		 * @param	{number} width Width (optional)
-		 * @return {object}			 Self
+		 * @return {Mura.DOMSelection|number} Self
 		 */
 		width(width) {
 			if (!this.selection.length) {
@@ -1723,7 +1722,7 @@ function attach(Mura){
 		/**
 		 * scrollTop - Returns the scrollTop of the current document
 		 *
-		 * @return {object}
+		 * @return {number}
 		 */
 		scrollTop() {
 			if (!this.selection.length) {
@@ -1759,7 +1758,7 @@ function attach(Mura){
 		 * removeAttr - Removes attribute from elements in selection
 		 *
 		 * @param	{string} attributeName Attribute name
-		 * @return {object}							 Self
+		 * @return {Mura.DOMSelection} Self
 		 */
 		removeAttr(attributeName) {
 			if (!this.selection.length) {
@@ -1793,7 +1792,7 @@ function attach(Mura){
 		 * val - Set the value of elements in selection
 		 *
 		 * @param	{*} value Value
-		 * @return {Mura.DOMSelection} Self
+		 * @return {*} Self
 		 */
 		val(value) {
 			if (!this.selection.length) {
@@ -1835,7 +1834,7 @@ function attach(Mura){
 		 *
 		 * @param	{string} attributeName Attribute name
 		 * @param	{*} value				 Value (optional)
-		 * @return {Mura.DOMSelection} Self
+		 * @return {*} Self
 		 */
 		attr(attributeName, value) {
 			if (!this.selection.length) {
@@ -1873,8 +1872,8 @@ function attach(Mura){
 		 * data - Returns data attribute value of first element in selection or set data attribute value for elements in selection
 		 *
 		 * @param	{string} attributeName Attribute name
-		 * @param	{*} value				 Value (optional)
-		 * @return {Mura.DOMSelection} Self
+		 * @param	{*} value Value (optional)
+		 * @return {*} Self
 		 */
 		data(attributeName, value) {
 			if (!this.selection.length) {
@@ -1905,8 +1904,8 @@ function attach(Mura){
 		 * prop - Returns attribute value of first element in selection or set attribute value for elements in selection
 		 *
 		 * @param	{string} attributeName Attribute name
-		 * @param	{*} value				 Value (optional)
-		 * @return {Mura.DOMSelection} Self
+		 * @param	{*} value Value (optional)
+		 * @return {*} Self
 		 */
 		prop(attributeName, value) {
 				if (!this.selection.length) {
@@ -2010,7 +2009,7 @@ function attach(Mura){
 		/**
 		 * focus - sets focus of the first select element
 		 *
-		 * @return {self}
+		 * @return {Mura.DOMSelection}
 		 */
 		focus() {
 			if (!this.selection.length) {
@@ -2024,7 +2023,7 @@ function attach(Mura){
 		 * renderEditableAttr- Returns a string with editable attriute markup markup.
 		 *
 		 * @param	{object} params Keys: name, type, required, validation, message, label
-		 * @return {self}
+		 * @return {Mura.DOMSelection}
 		 */
 		makeEditableAttr(params){
 			if (!this.selection.length) {

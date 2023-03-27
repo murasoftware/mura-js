@@ -1,14 +1,14 @@
+/**
+* Creates a new Mura.entities.Content
+* @name Mura.entities.Content
+* @class
+* @extends Mura.Entity
+* @memberof Mura
+* @param	{object} properties Object containing values to set into object
+* @return {Mura.entities.Content}
+*/
 
 function attach(Mura){
-	/**
-	* Creates a new Mura.entities.Content
-	* @name Mura.entities.Content
-	* @class
-	* @extends Mura.Entity
-	* @memberof Mura
-	* @param	{object} properties Object containing values to set into object
-	* @return {Mura.entities.Content}
-	*/
 
 	Mura.entities.Content = Mura.Entity.extend(
 	/** @lends Mura.entities.Content.prototype */

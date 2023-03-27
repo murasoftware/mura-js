@@ -5,16 +5,8 @@ const ReactDOM=require('react-dom')
 
 function attach(Mura){
 
-	/**
-	 * Creates a new Mura.UI.React
-	 * @name  Mura.UI.React
-	 * @class
-	 * @extends Mura.UI
-	 * @memberof  Mura
-	 */
-
 	Mura.UI.React=Mura.UI.extend(
-	/** @lends Mura.UI.React.prototype */
+
 	{
 		renderClient(){
 			ReactDOM.render(

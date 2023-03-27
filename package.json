@@ -1,7 +1,7 @@
 {
   "name": "mura.js",
   "homepage": "http://www.murasoftware.com",
-  "version": "1.0.393",
+  "version": "1.0.394",
   "description": "Utility for interacting with the Mura JSON/REST API",
   "browserslist": "> 0.25%, not dead, ie >= 11",
   "files": [
@@ -39,6 +39,7 @@
     "grunt": "^1.5.3",
     "grunt-contrib-handlebars": "^3.0.0",
     "grunt-text-replace": "^0.4.0",
+    "jsdoc-to-markdown": "^8.0.0",
     "regenerator-runtime": "^0.13.7",
     "webpack": "^5.36.1",
     "webpack-bundle-analyzer": "^4.4.1",

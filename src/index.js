@@ -4,6 +4,8 @@ if(!(typeof process !== 'undefined' && {}.toString.call(process) === '[object pr
 
 require('cross-fetch/polyfill')
 
+/** @namespace */
+
 const Mura=require("./core/factory")();
 
 

@@ -6,16 +6,8 @@ const ReactDOMServer = require('react-dom/server');
 require('./ui.react')
 require('./ui.serverutils')
 
-/**
- * Creates a new Mura.UI.ReactServer
- * @name  Mura.UI.ReactServer
- * @class
- * @extends Mura.UI.React
- * @memberof  Mura
- */
-
 Mura.UI.ReactServer=Mura.UI.React.extend(
-/** @lends Mura.UI.ReactServer.prototype */
+
 {
 	renderServer(){
 		return ReactDOMServer.renderToString(React.createElement(this.component, this.context))

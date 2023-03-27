@@ -1,13 +1,14 @@
 
+/**
+ * Creates a new Mura.Cache
+ * @name Mura.Cache
+ * @class
+ * @extends Mura.Core
+ * @memberof	Mura
+ * @return {Mura.Cache}
+ */
+
 function attach(Mura){
-	/**
-	 * Creates a new Mura.Cache
-	 * @name Mura.Cache
-	 * @class
-	 * @extends Mura.Core
-	 * @memberof	Mura
-	 * @return {Mura.Cache}
-	 */
 
 	Mura.Cache=Mura.Core.extend(
 		/** @lends Mura.Cache.prototype */

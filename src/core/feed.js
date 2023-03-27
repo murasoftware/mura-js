@@ -1,9 +1,35 @@
-
-function attach(Mura){
-
 /**
  * Creates a new Mura.Feed
  * @name  Mura.Feed
+ * @example
+ * const collection= await Mura
+ * 	.getFeed('content')
+ * 	.where()
+ * 	.prop('title').containsValue('test')
+ * 	.orOpenGrouping()
+ *  	.prop('title').isEQ('about')
+ *  	.orProp('title').isEQ('contact')
+ * 	.closeGrouping()
+ * 	.sort('title','asc')
+ * 	.maxItems(10)
+ * 	.itemPerPage(5)
+ * 	.cacheKey('mycachekey')
+ * 	.cacheWithin(60)
+ * 	.expand('kids')
+ * 	.fields('title,summary,url')
+ * 	.getQuery({	
+ * 		headers:{
+ *			'X-My-Header':'123'
+ *		},
+ *		cache:'cache',
+ *		next:  { revalidate: 10 } 
+ * 	}
+ * );
+ * 
+ * collection.forEach(function(item){	
+ * 	console.log(item.get('title'));
+ * });
+ * 
  * @class
  * @extends Mura.Core
  * @memberof Mura
@@ -11,6 +37,8 @@ function attach(Mura){
  * @param  {string} entityname Entity name
  * @return {Mura.Feed}            Self
  */
+
+function attach(Mura){
 
  /**
   * @ignore

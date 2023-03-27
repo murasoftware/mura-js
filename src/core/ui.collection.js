@@ -1,12 +1,12 @@
-function attach(Mura){
+/**
+ * Creates a new Mura.UI.Collection
+ * @name  Mura.UI.Collection
+ * @class
+ * @extends Mura.UI
+ * @memberof  Mura
+ */
 
-	/**
-	 * Creates a new Mura.UI.Collection
-	 * @name  Mura.UI.Collection
-	 * @class
-	 * @extends Mura.UI
-	 * @memberof  Mura
-	 */
+function attach(Mura){
 
 	Mura.UI.Collection=Mura.UI.extend(
 	/** @lends Mura.UI.Collection.prototype */

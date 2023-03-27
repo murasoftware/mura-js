@@ -1,15 +1,14 @@
+/**
+ * Creates a new Mura.EntityCollection
+ * @name	Mura.EntityCollection
+ * @class
+ * @extends Mura.Entity
+ * @memberof	Mura
+ * @param	{object} properties Object containing values to set into object
+ * @return {Mura.EntityCollection} Self
+ */
 
 function attach(Mura){
-
-	/**
-	 * Creates a new Mura.EntityCollection
-	 * @name	Mura.EntityCollection
-	 * @class
-	 * @extends Mura.Entity
-	 * @memberof	Mura
-	 * @param	{object} properties Object containing values to set into object
-	 * @return {Mura.EntityCollection} Self
-	 */
 
 	Mura.EntityCollection=Mura.Entity.extend(
 		/** @lends Mura.EntityCollection.prototype */

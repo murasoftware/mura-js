@@ -1,16 +1,8 @@
 import Vue from 'vue'
 var Mura=require('mura.js');
 
-/**
- * Creates a new Mura.UI.Vue
- * @name  Mura.UI.Vue
- * @class
- * @extends Mura.UI
- * @memberof  Mura
- */
-
 Mura.UI.Vue=Mura.UI.extend(
-/** @lends Mura.UI.Vue.prototype */
+
 {
 	vm:'',
 

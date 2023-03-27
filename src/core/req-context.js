@@ -1,6 +1,3 @@
-
-function attach(Mura){
-
 /**
 * Creates a new Mura.RequestContext
 * @name	Mura.RequestContext
@@ -12,6 +9,8 @@ function attach(Mura){
 * @param	{object} requestHeaders Optional
 * @return {Mura.RequestContext} Self
 */
+
+function attach(Mura){
 
 Mura.RequestContext=Mura.Core.extend(
 /** @lends Mura.RequestContext.prototype */
@@ -89,7 +88,7 @@ Mura.RequestContext=Mura.Core.extend(
 	/**
 	 * setAPIEndpoint() - sets api endpoint
 	 * 
-	 * @param	{string} apiEndpoin apiEndpoint
+	 * @param	{string} apiEndpoint apiEndpoint
 	 * @return {object} self
 	 */
 	 setAPIEndpoint(apiEndpoint){
@@ -649,7 +648,7 @@ Mura.RequestContext=Mura.Core.extend(
 	 normalizeRequest(type,url,data,config){
 		
 		if(typeof url == 'object'){
-			data=url.data || {};
+			data=url.body || url.data || {};
 			config=url;
 			url=url.url;
 		} else {
@@ -658,28 +657,65 @@ Mura.RequestContext=Mura.Core.extend(
 		}
 		
 		config.type=type;
-		config.url=url;
+		config.url=url || this.getAPIEndpoint();
 		config.data=data || {};
 		
+		if(config.url.substr(0,1) === '/' || config.url.toLowerCase().substr(0,4) !== 'http'){
+			config.url= this.getAPIEndpoint() + config.url;
+		}
+
+		if(config.body){
+			config.data=config.body;
+			delete config.body;	
+		}
+
+		config.isfetch=config.isfetch || false;
+
 		Mura.normalizeRequestConfig(config);
 	
 		var self=this;
 		data = data || {};
+		
+		if(config.isfetch){
+			return self.request(config);
+		} else {
+			return new Promise(function(resolve, reject) {
 	
-		return new Promise(function(resolve, reject) {
+				if(typeof resolve == 'function'){
+					config.success=resolve;
+				}
+		
+				if(typeof reject == 'function'){
+					config.error=reject;
+				}
+				
+				var normalizedConfig=Mura.extend({},config);
 	
-			if(typeof resolve == 'function'){
-				config.success=resolve;
-			}
-	
-			if(typeof reject == 'function'){
-				config.error=reject;
-			}
-			
-			var normalizedConfig=Mura.extend({},config);
+				return self.request(normalizedConfig);
+			});
+		}
+		
+	},
 
-			return self.request(normalizedConfig);
-		});
+	/**
+	 * fetch - Make fetch request's that maintian Mura's state management and cookie proxying
+	 * @param	{string} resource
+	 * @param	{object} options
+	 * @return {Promise}
+	 * @memberof {class} Mura
+	 */
+	fetch(resource,options) {
+		if(typeof resource=='object'){
+			resource.method=resource.method || 'GET';
+			resource.isfetch=true;
+			return this.normalizeRequest(resource.method,resource);
+		} else {
+			options=options || {};
+			options.method=options.method || 'GET';
+			options.url=resource;
+			options.isfetch=true;
+			return this.normalizeRequest(options.method,options);
+		}
 	},
 
 	/**
@@ -687,6 +723,7 @@ Mura.RequestContext=Mura.Core.extend(
 	 *
 	 * @param	{url} url	URL
 	 * @param	{object} data Data to send to url
+	 * @param	{object} config request config 
 	 * @return {Promise}
 	 */
 	get(url, data, config) {
@@ -698,6 +735,7 @@ Mura.RequestContext=Mura.Core.extend(
 	 *
 	 * @param	{url} url	URL
 	 * @param	{object} data Data to send to url
+	 * @param	{object} config request config 
 	 * @return {Promise}
 	 */
 	post(url, data, config) {
@@ -709,6 +747,7 @@ Mura.RequestContext=Mura.Core.extend(
 	 *
 	 * @param	{url} url	URL
 	 * @param	{object} data Data to send to url
+	 * @param	{object} config request config 
 	 * @return {Promise}
 	 */
 	put(url, data, config) {
@@ -720,6 +759,7 @@ Mura.RequestContext=Mura.Core.extend(
 	 *
 	 * @param	{url} url	URL
 	 * @param	{object} data Data to send to url
+	 * @param	{object} config request config 
 	 * @return {Promise}
 	 */
 	patch(url, data, config) {
@@ -731,6 +771,7 @@ Mura.RequestContext=Mura.Core.extend(
 	 *
 	 * @param	{url} url	URL
 	 * @param	{object} data Data to send to url
+	 * @param	{object} config request config 
 	 * @return {Promise}
 	 */
 	delete(url, data, config) {

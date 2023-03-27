@@ -1,15 +1,30 @@
+/**
+* Creates a new Mura.Entity
+* @name	Mura.Entity
+@ @example
+* const content= Mura.getEntity('content')
+* 
+* await content.loadBy('contentid','1234');
+* 
+* await content.set({
+* 		summary:'This is my summary',
+* 		approved:1
+* ).save();
+* 
+* const kids= await content.get('kids');
+* 
+* kids.forEach(function(kid){
+*  console.log(kid.getAll());
+* });
+
+* @class
+* @extends Mura.Core
+* @memberof Mura
+* @param	{object} properties Object containing values to set into object
+* @return {Mura.Entity}
+*/
 
 function attach(Mura){
-
-	/**
-	* Creates a new Mura.Entity
-	* @name	Mura.Entity
-	* @class
-	* @extends Mura.Core
-	* @memberof Mura
-	* @param	{object} properties Object containing values to set into object
-	* @return {Mura.Entity}
-	*/
 
 	Mura.Entity = Mura.Core.extend(
 	/** @lends Mura.Entity.prototype */
@@ -54,7 +69,7 @@ function attach(Mura){
 		 * setRequestContext - Sets the RequestContext
 		 *
 		 * @RequestContext	{Mura.RequestContext} Mura.RequestContext List of fields
-		 * @return {Mura.Feed}				Self
+		 * @return {Mura.Entity}				Self
 		 */
 		setRequestContext(requestcontext) {
 			this._requestcontext=requestcontext;
@@ -72,7 +87,10 @@ function attach(Mura){
 
 		/**
 		 * invoke - Invokes a method
-		 *
+		 * @example
+		 * const myservice= Mura.getEntity('myservice');
+		 * const result= await myservice.invoke('myMethod',{foo:'bar'},'get');
+		 * 
 		 * @param	{string} name Method to call
 		 * @param	{object} params Arguments to submit to method
 		 * @param	{string} method GET or POST
@@ -150,7 +168,10 @@ function attach(Mura){
 
 		/**
 		 * invokeWithCSRF - Proxies method call to remote api, but first generates CSRF tokens based on name
-		 *
+		* @example
+		 * const myservice= Mura.getEntity('myservice');
+		 * const result= await myservice.invokeWithCSRF('myMethod',{foo:'bar'},'get');
+		 * 
 		 * @param	{string} name Method to call
 		 * @param	{object} params Arguments to submit to method
 		 * @param	{string} method GET or POST

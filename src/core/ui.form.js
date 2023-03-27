@@ -1,12 +1,12 @@
-function attach(Mura){
+/**
+ * Creates a new Mura.UI.Form
+ * @name	Mura.UI.Form
+ * @class
+ * @extends Mura.UI
+ * @memberof	Mura
+ */
 
-	/**
-	 * Creates a new Mura.UI.Form
-	 * @name	Mura.UI.Form
-	 * @class
-	 * @extends Mura.UI
-	 * @memberof	Mura
-	 */
+function attach(Mura){
 
 	Mura.UI.Form=Mura.UI.extend(
 	/** @lends Mura.DisplayObject.Form.prototype */
@@ -105,7 +105,7 @@ function attach(Mura){
 			if(Mura.templatesLoaded.length){
 				var temp = Mura.templateList.pop();
 
-				Mura.ajax(
+				Mura.httpRequest(
 					{
 						url:Mura.assetpath + '/includes/display_objects/form/templates/' + temp + '.hb',
 						type:'get',
@@ -478,7 +478,7 @@ function attach(Mura){
 					delete data.html;
 
 
-					Mura.ajax({
+					Mura.httpRequest({
 						type: 'post',
 						url: Mura.getAPIEndpoint() +
 							'?method=generateCSRFTokens',
@@ -796,7 +796,7 @@ function attach(Mura){
 				}
 			}
 
-			Mura.ajax({
+			Mura.httpRequest({
 				type: 'post',
 				url: Mura.getAPIEndpoint() +
 					'?method=generateCSRFTokens',

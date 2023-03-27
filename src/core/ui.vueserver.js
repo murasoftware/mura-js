@@ -4,16 +4,10 @@ var Mura=require('mura.js');
 require('mura.js/src/core/ui.vue')
 require('mura.js/src/core/ui.serverutils')
 
-/**
- * Creates a new Mura.UI.VueServer
- * @name  Mura.UI.VueServer
- * @class
- * @extends Mura.UI.Vue
- * @memberof  Mura
- */
+
 
 Mura.UI.VueServer=Mura.UI.Vue.extend(
-/** @lends Mura.UI.VueServer.prototype */
+
 {
 	renderServer(){
 		return this.renderer.renderToString(this.$vm())

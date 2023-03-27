@@ -1,21 +1,34 @@
 
-function attach(Mura){
+/**
+ * Creates a new Mura.UI instance
+ * @name Mura.UI
+ * @class
+ * @extends  Mura.Core
+ * @memberof Mura
+ */
 
-	/**
-	 * Creates a new Mura.UI instance
-	 * @name Mura.UI
-	 * @class
-	 * @extends  Mura.Core
-	 * @memberof Mura
-	 */
+function attach(Mura){
 
 	Mura.UI=Mura.Core.extend(
 	/** @lends Mura.UI.prototype */
 	{
 		rb:{},
 		context:{},
+
+		/**
+		 * onAfterRender - function that fires after render
+		 */
 		onAfterRender(){},
+
+		/**
+		 * onBeforeRender - function that fires before render
+		 */
 		onBeforeRender(){},
+
+		/**
+		 * trigger -Trigger an event on the UI object
+		 * @param {string} eventName - The name of the event to trigger
+		 */
 		trigger(eventName){
 			var $eventName=eventName.toLowerCase();
 			if(typeof this.context.targetEl != 'undefined'){
@@ -51,48 +64,72 @@ function attach(Mura){
 			return this;
 		},
 
-		/* This method is deprecated, use renderClient and renderServer instead */
+		/**
+		 * render - Renders the UI object on the client and server
+		 */
 		render(){
 			Mura(this.context.targetEl).html(Mura.templates[context.object](this.context));
 			this.trigger('afterRender');
 			return this;
 		},
 
-		/*
-			This method's current implementation is to support backward compatibility
-
-			Typically it would look like:
-
-			Mura(this.context.targetEl).html(Mura.templates[context.object](this.context));
-			this.trigger('afterRender');
-		*/
+		/**
+		 * renderClient - Renders the UI object on the client
+		 * @example
+		 * function(){
+		 *   Mura(this.context.targetEl).html(Mura.templates[context.object](this.context));
+		 *   this.trigger('afterRender');
+		 * }
+		 */
 		renderClient(){
 			return this.render();
 		},
 
-
+		/**
+		 * renderServer - Renders the UI object on the server
+		  * @example
+		 * function(){
+		 *  return `Hello: ${this.context.name}`;
+		 * }
+		 */
 		renderServer(){
 			return '';
 		},
 
+		/**
+		 * hydrate
+		 */
 		hydrate(){
 
 		},
 
+		/**
+		 * destroy - Clean up the UI object when detroyed
+		 */
 		destroy(){
 			
 		},
 
+		/**
+		 * reset - Clean up the UI object when reset
+		 */
 		reset(self,empty){
 			
 		},
 
+		/**
+		 * init - Initializes the UI object
+		 * @param {object} args - The arguments to initialize the object with
+		 */
 		init(args){
 			this.context=args;
 			this.registerHelpers();
 			return this;
 		},
 
+		/**
+		 * registerHelpers
+		 */
 		registerHelpers(){
 
 		}
