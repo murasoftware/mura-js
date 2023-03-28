@@ -4404,7 +4404,6 @@ function attach(Mura){
 			patch: patch,
 			deepExtend: deepExtend,
 			ajax: ajax,
-			ajax: ajax,
 			changeElementType: changeElementType,
 			setHTMLEditor: setHTMLEditor,
 			each: each,

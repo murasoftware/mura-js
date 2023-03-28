@@ -105,7 +105,7 @@ function attach(Mura){
 			if(Mura.templatesLoaded.length){
 				var temp = Mura.templateList.pop();
 
-				Mura.httpRequest(
+				Mura.ajax(
 					{
 						url:Mura.assetpath + '/includes/display_objects/form/templates/' + temp + '.hb',
 						type:'get',
@@ -478,7 +478,7 @@ function attach(Mura){
 					delete data.html;
 
 
-					Mura.httpRequest({
+					Mura.ajax({
 						type: 'post',
 						url: Mura.getAPIEndpoint() +
 							'?method=generateCSRFTokens',
@@ -796,7 +796,7 @@ function attach(Mura){
 				}
 			}
 
-			Mura.httpRequest({
+			Mura.ajax({
 				type: 'post',
 				url: Mura.getAPIEndpoint() +
 					'?method=generateCSRFTokens',

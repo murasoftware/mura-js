@@ -659,11 +659,11 @@ Mura.RequestContext=Mura.Core.extend(
 		config.type=type;
 		config.url=url || this.getAPIEndpoint();
 		config.data=data || {};
-		
-		if(config.url.substr(0,1) === '/' || config.url.toLowerCase().substr(0,4) !== 'http'){
+	
+		if(!(config.url.substr(0,1) === '/' || config.url.toLowerCase().substr(0,4) === 'http')){
 			config.url= this.getAPIEndpoint() + config.url;
 		}
-
+	
 		if(config.body){
 			config.data=config.body;
 			delete config.body;	
