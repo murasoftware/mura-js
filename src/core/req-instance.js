@@ -622,7 +622,7 @@ function attach(Mura){
 				let isJSONBody=false;
 				let parsedBody={};
 				try {
-					parsedBody=JSON.stringify.call(null,Object.assign({},config.data));
+					parsedBody=JSON.parse.call(null,config.data);
 					isJSONBody=true;
 				} catch (e) {
 					isJSONBody=false;
@@ -635,7 +635,7 @@ function attach(Mura){
 				
 				if(parsedConfig.method.toLowerCase()=='get'){
 					//GET send params and not data
-					const params=(isJSONBody) ? Mura.deepExtend({}, parsedBody) : Mura.deepExtend({}, config.params);
+					const params=(isJSONBody) ? Mura.deepExtend({}, parsedBody) : Mura.deepExtend({}, config.data);
 					
 					if(typeof params['muraPointInTime'] == 'undefined' && typeof Mura.pointInTime != 'undefined'){
 						params['muraPointInTime']=Mura.pointInTime;
