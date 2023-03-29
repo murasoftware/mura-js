@@ -612,6 +612,7 @@ function attach(Mura){
 					cache: config.cache,
 					credentials: "include",
 					mode: "cors",
+					redirect: config.redirect || "follow",
 					isfetch: config.isfetch
 				};
 				
