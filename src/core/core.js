@@ -3797,7 +3797,7 @@ function attach(Mura){
 
 
 	/**
-	 * setRequestHeader - Initialiazes feed
+	 * setRequestHeader - Sets request header value
 	 *
 	 * @name setRequestHeader
 	 * @param	{string} headerName	Name of header
