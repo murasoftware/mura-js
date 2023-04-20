@@ -1,7 +1,7 @@
 /**
 * Creates a new Mura.Entity
 * @name	Mura.Entity
-@ @example
+* @example
 * const content= Mura.getEntity('content')
 * 
 * await content.loadBy('contentid','1234');
