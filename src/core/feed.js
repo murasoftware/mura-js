@@ -341,6 +341,34 @@ Mura.Feed = Mura.Core.extend(
 		},
 
 		/**
+		 * All - Checks if preceding property value ALL to list of criterias
+		 *
+		 * @param  {*} criteria Criteria List
+		 * @return {Mura.Feed}          Self
+		 */
+		All(criteria) {
+			if(Array.isArray(criteria)){
+				criteria=criteria.join();
+			}
+			this.queryString += encodeURIComponent('all^' + criteria);
+			return this;
+		},
+
+		/**
+		 * Any - Checks if preceding property value has ANY on list of criterias
+		 *
+		 * @param  {*} criteria Criteria List
+		 * @return {Mura.Feed}          Self
+		 */
+		Any(criteria) {
+			if(Array.isArray(criteria)){
+				criteria=criteria.join();
+			}
+			this.queryString += encodeURIComponent('any^' + criteria);
+			return this;
+		},
+
+		/**
 		 * containsValue - Checks if preceding property value is CONTAINS the value of criteria
 		 *
 		 * @param  {*} criteria Criteria
