@@ -55,7 +55,7 @@ Mura.RequestContext=Mura.Core.extend(
 	},
 
 	/**
-	 * setRequestHeader - Initialiazes feed
+	 * setRequestHeader - Initializes feed
 	 *
 	 * @param	{string} headerName	Name of header
 	 * @param	{string} value Header value
