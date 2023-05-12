@@ -31,7 +31,7 @@ Mura.UI.Vue=Mura.UI.extend(
 
 	destroy(){
 		const container=Mura(this.context.targetEl)
-		if(container.length && container.node.innerHTML){
+		if(container.length && container.node.innerHTML && container.node.firstChild){
 			container.node.firstChild.setAttribute('id','mc' + this.context.instanceid)
 			this.$vm().$destroy();
 		}

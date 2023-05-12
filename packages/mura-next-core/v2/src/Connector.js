@@ -459,13 +459,20 @@ export const getMuraProps = async function(params) {
     } else {
       if(content.redirect){
         //match casing of nodeProxyRedirectCasing in mura.js
-        context.res.setHeader('Location',content.redirect);
-        if(content.statuscode){
-          context.res.statusCode = content.statuscode;
-        } else {
-          context.res.statusCode = 301;
+        //Don't set status code is cookies are coming. 30X will cause them to be ignored
+        //The browser will handle the redirect
+        const hasSetCookie=(Object.keys(context.res.getHeaders()).findIndex((key)=>{
+          return key.toLowerCase()=='set-cookie';
+        })>-1);
+        if(!hasSetCookie){
+          context.res.setHeader('Location',content.redirect);
+          if(content.statuscode){
+            context.res.statusCode = content.statuscode;
+          } else {
+            context.res.statusCode = 301;
+          }
         }
-        if(context.res.statusCode!=301){
+        if(content.statuscode!=301){
           context.res.setHeader('Cache-Control','no-cache, no-store');
           context.res.setHeader('Expires','Mon, 01 Jan 1990 00:00:00 GMT');
         }
