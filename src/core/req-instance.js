@@ -174,8 +174,18 @@ function attach(Mura){
 							let incomingHeaders={};
 	
 							response.headers.forEach((value,key)=>{
-								incomingHeaders[key.toLowerCase()]=value;
-							})
+								const lcaseKey=key.toLowerCase();
+								if(incomingHeaders[lcaseKey]){
+									incomingHeaders[lcaseKey].push(value);
+								} else {
+									if(Array.isArray(value)){
+										incomingHeaders[lcaseKey]=value;
+									} else {
+										incomingHeaders[lcaseKey]=[value];
+									}
+								}
+							});
+							
 							if(response.statusCode > 300 && response.status < 400){
 								const header=incomingHeaders['location'];
 								if(header){
