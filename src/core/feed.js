@@ -384,6 +384,21 @@ Mura.Feed = Mura.Core.extend(
 		},
 
 		/**
+		 * notcontainValue - Checks if preceding property value is DOES NOT CONTAIN the value of criteria
+		 *
+		 * @param  {*} criteria Criteria
+		 * @return {Mura.Feed}          Self
+		 */
+		notContainsValue(criteria) {
+			this.queryString += encodeURIComponent('notContainsValue^' + criteria);
+			return this;
+		},
+		notContains(criteria) {
+			this.queryString += encodeURIComponent('notContainsValue^' + criteria);
+			return this;
+		},
+
+		/**
 		 * beginsWith - Checks if preceding property value BEGINS WITH criteria
 		 *
 		 * @param  {*} criteria Criteria
@@ -391,6 +406,17 @@ Mura.Feed = Mura.Core.extend(
 		 */
 		beginsWith(criteria) {
 			this.queryString += encodeURIComponent('begins^' + criteria);
+			return this;
+		},
+
+		/**
+		 * notBeginWith - Checks if preceding property value DOES NOT BEGIN WITH criteria
+		 *
+		 * @param  {*} criteria Criteria
+		 * @return {Mura.Feed}          Self
+		 */
+		notBeginsWith(criteria) {
+			this.queryString += encodeURIComponent('notBeginsWith^' + criteria);
 			return this;
 		},
 
@@ -405,6 +431,16 @@ Mura.Feed = Mura.Core.extend(
 			return this;
 		},
 
+		/**
+		 * notEndWith - Checks if preceding property value DOES NOT END WITH criteria
+		 *
+		 * @param  {*} criteria Criteria
+		 * @return {Mura.Feed}          Self
+		 */
+		notEndsWith(criteria) {
+			this.queryString += encodeURIComponent('notEndsWith^' + criteria);
+			return this;
+		},
 
 		/**
 		 * openGrouping - Start new logical condition grouping
