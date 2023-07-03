@@ -3066,12 +3066,16 @@ function attach(Mura){
 					var postCheck=new RegExp(/<\/?[a-z][\s\S]*>/i);
 
 					for(var p in requestData){
-						if(requestData.hasOwnProperty(p) 
-							&& requestData[p]
-							&& postCheck.test(requestData[p])
-						){
-							requestType='post';
-							break;
+						if(requestData.hasOwnProperty(p)){
+							let val=requestData[p];
+							if(typeof val == 'object'){
+								val=JSON.stringify(val);
+							}
+							if(val && postCheck.test(val)
+							){
+								requestType='post';
+								break;
+							}
 						}
 					}
 				
