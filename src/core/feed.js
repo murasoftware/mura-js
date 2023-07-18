@@ -761,6 +761,15 @@ Mura.Feed = Mura.Core.extend(
 		},
 
 		/**
+		 * facet - faceted fetched from JSON API
+		 * @return {Mura.feed}
+		 */
+		facet(facet) {
+			this.queryString += '&facet=' + encodeURIComponent(facet);
+			return this;
+		},
+
+		/**
 		 * Interator - Return Mura.EntityCollection fetched from JSON API
 		 * @return {Promise}
 		 */
