@@ -475,7 +475,7 @@ export const getMuraProps = async function(params) {
             context.res.statusCode = 302;
           }
         }
-        if(hasResponseHeaders && content.statuscode!=302){
+        if(hasResponseHeaders && content.statuscode!=301){
           context.res.setHeader('Cache-Control','no-cache, no-store');
           context.res.setHeader('Expires','Mon, 01 Jan 1990 00:00:00 GMT');
         }
