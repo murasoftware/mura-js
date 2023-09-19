@@ -660,7 +660,7 @@ Mura.RequestContext=Mura.Core.extend(
 		config.url=url || this.getAPIEndpoint();
 		config.data=data || {};
 	
-		if(!(config.url.substr(0,1) === '/' || config.url.toLowerCase().substr(0,4) === 'http')){
+		if(!(config.url.substr(0,1) === '/' || config.url.substr(0,1) === '.' || config.url.toLowerCase().substr(0,4) === 'http')){
 			config.url= this.getAPIEndpoint() + config.url;
 		}
 	

@@ -472,10 +472,10 @@ export const getMuraProps = async function(params) {
           if(content.statuscode){
             context.res.statusCode = content.statuscode;
           } else {
-            context.res.statusCode = 301;
+            context.res.statusCode = 302;
           }
         }
-        if(hasResponseHeaders && content.statuscode!=301){
+        if(hasResponseHeaders && content.statuscode!=302){
           context.res.setHeader('Cache-Control','no-cache, no-store');
           context.res.setHeader('Expires','Mon, 01 Jan 1990 00:00:00 GMT');
         }
@@ -490,37 +490,40 @@ export const getMuraProps = async function(params) {
   } else if (context.query) {
     queryParams = {...context.query};
   }
-
-  const moduleStyleData = await getRegionProps(content,queryParams,renderMode,Mura);
-
+  
   const codeblocks={
     header:[],
     bodystart:[],
     footer:[]
   };
 
-  try {
-    if(connectorConfig.codeblocks 
-      && (context.res || context.browser)
-      && !(queryParams.codeblocks && queryParams.codeblocks==="false")  
-    ){
-      const codeCollection=await Mura.getFeed('codeblock')
-        .where().prop('active').isEQ(1).getQuery();
-      
-      codeCollection.forEach((item)=>{
-        const placement=item.get('placement').toLowerCase();
-      
-        if(placement=='header'){
-          codeblocks.header.push(item.get('code'));
-        } else if (placement=='footer'){
-          codeblocks.footer.push(item.get('code'));
-        } else if (placement=='bodystart'){
-          codeblocks.bodystart.push(item.get('code'));
-        }
-      });
-    }
-  } catch(e){console.error(e)}
+  let moduleStyleData = {};
 
+  if(!content.redirect){
+    moduleStyleData = await getRegionProps(content,queryParams,renderMode,Mura);
+
+    try {
+      if(connectorConfig.codeblocks 
+        && (context.res || context.browser)
+        && !(queryParams.codeblocks && queryParams.codeblocks==="false")  
+      ){
+        const codeCollection=await Mura.getFeed('codeblock')
+          .where().prop('active').isEQ(1).getQuery();
+        
+        codeCollection.forEach((item)=>{
+          const placement=item.get('placement').toLowerCase();
+        
+          if(placement=='header'){
+            codeblocks.header.push(item.get('code'));
+          } else if (placement=='footer'){
+            codeblocks.footer.push(item.get('code'));
+          } else if (placement=='bodystart'){
+            codeblocks.bodystart.push(item.get('code'));
+          }
+        });
+      }
+    } catch(e){console.error(e)}
+  }
   const props = {
     content: content,
     moduleStyleData: moduleStyleData,
