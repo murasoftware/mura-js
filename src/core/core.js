@@ -1495,6 +1495,11 @@ function attach(Mura){
 	var commandKeyActive=false;
 
 	var keyCmdCheck = function(event) {	
+
+		if(typeof Mura.keycmdcheck != 'undefined' && !Mura.keycmdcheck){
+			return;
+		}
+
 		switch(event.which){
 			case 17: //ctrl
 			case 27: //escape
@@ -1540,7 +1545,7 @@ function attach(Mura){
 					var lu=Mura.loginurl || Mura.loginURL || '?display=login';
 					var ru=Mura.returnURL || Mura.returnurl || location.href;
 					
-					if(lu != 'none' && params.display != 'login'){
+					if(params.display != 'login'){
 						lu = new String(lu);
 						if (lu.indexOf('?') != -1) {
 							location.href = lu + "&returnUrl=" + encodeURIComponent(ru);
