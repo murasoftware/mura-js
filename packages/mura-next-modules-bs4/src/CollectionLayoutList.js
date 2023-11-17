@@ -165,3 +165,17 @@ export const getQueryProps = (item) => {
 };
 
 export default List;
+
+export const ModuleConfig={
+  key: 'List',
+  name: 'List',
+  component: List,
+  getQueryProps: getQueryProps,
+  contentypes:"",
+  configurator:[
+    {"type":"fieldlist","name":"fields","label":"Display List"},
+    {"type":"select","name":"imagesize","label":"Image Size","labels":["Small","Medium","Large","Portrait","Landscape","Hero"],"options":["small","medium","large","portrait","landscape","hero"],"value":"medium"}
+  ],
+  excludeFromClient: true,
+  isCollectionLayout: true,
+}

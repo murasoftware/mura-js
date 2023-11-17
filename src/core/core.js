@@ -1536,24 +1536,11 @@ function attach(Mura){
 				if (commandKeyActive) {
 					event.preventDefault();
 					var params=getQueryStringParams(location.search);
-					if(params.display != 'login'){
-						var lu = '';
-						var ru = '';
-			
-						if (typeof(Mura.loginURL) != "undefined") {
-							lu = Mura.loginURL;
-						} else if (typeof(Mura.loginurl) != "undefined") {
-							lu = Mura.loginurl;
-						} else {
-							lu = "?display=login";
-						}
-						if (typeof(Mura.returnURL) != "undefined") {
-							ru = Mura.returnURL;
-						} else if (typeof(Mura.returnurl) != "undefined") {
-							ru = Mura.returnurl;
-						} else {
-							ru = location.href;
-						}
+
+					var lu=Mura.loginurl || Mura.loginURL || '?display=login';
+					var ru=Mura.returnURL || Mura.returnurl || location.href;
+					
+					if(lu != 'none' && params.display != 'login'){
 						lu = new String(lu);
 						if (lu.indexOf('?') != -1) {
 							location.href = lu + "&returnUrl=" + encodeURIComponent(ru);

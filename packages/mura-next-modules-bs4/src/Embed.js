@@ -17,3 +17,16 @@ const Embed = function(props) {
 }
 
 export default Embed;
+
+export const ModuleConfig={
+  key: 'Embed',
+  name: 'Embed',
+  component: Embed,
+  getDynamicProps:  function(){},
+  excludeFromClient: false,
+  isCollectionLayout: false,
+  contentypes:"*",
+  external:false,
+  iconclass:"mi-code",
+  external:false
+}

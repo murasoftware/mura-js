@@ -139,3 +139,13 @@ const getCurrentPrivacy = async () => {
 }
 
 export default PrivacyTools
+
+export const ModuleConfig={
+    key: 'privacy_tools',
+    name: 'Privacy Tools',
+    component: PrivacyTools,
+    getDynamicProps: function(){},
+    excludeFromClient: false,
+    isCollectionLayout: false,
+    SSR: false
+  }

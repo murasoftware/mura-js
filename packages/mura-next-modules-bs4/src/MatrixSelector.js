@@ -447,3 +447,63 @@ export const getDynamicProps = async () => {
 
 
 export default MatrixSelector;
+
+export const ModuleConfig={
+    key: 'MatrixSelector',
+    name:"Experience Selector",
+    component: MatrixSelector,
+    getDynamicProps:  getDynamicProps,
+    excludeFromClient: false,
+    isCollectionLayout: false,
+    contenttypes:"*",
+    iconclass:"mi-road",
+    external:true,
+    configurator:[
+        {
+            "type":"text",
+            "name":"selfidstart",
+            "label":"Self ID Start"
+        },
+        {
+            "type":"text",
+            "name":"selfidmiddle",
+            "label":"Self ID Middle"
+        },
+        {
+            "type":"text",
+            "name":"selfidend",
+            "label":"Self ID End"
+        },
+        {
+            "type":"select",
+            "name":"mode",
+            "label":"Mode",
+            "labels":["Preview Only","Preview and Save"],
+            "options":["preview only","preview and save"],
+            "value":"preview only"
+        },
+        {
+            "type":"select",
+            "name":"displaytype",
+            "label":"Display Type",
+            "labels":["Inline","Widget","Eyebrow"],
+            "options":["inline","widget","eyebrow"],
+            "value":"inline"
+        },
+        {
+            "type":"select",
+            "name":"widgetposition",
+            "label":"Widget Position",
+            "labels":["Top / Right","Bottom / Right","Bottom / Left","Top / Left"],
+            "options":["top_right","bottom_right","bottom_left","top_left"],
+            "value":"top_right",
+            "condition":"this.displaytype==='widget'"
+
+        },
+        {
+            "type":"name_value_array",
+            "name":"customlinks",
+            "label":"Links"
+        }
+    ]
+  }

@@ -269,3 +269,19 @@ const NavLinkDropdown = props => {
 
 }
 export default PrimaryNav;
+
+export const ModuleConfig={
+  key: 'PrimaryNav',
+  name: 'Primary Nav',
+  component: PrimaryNav,
+  getDynamicProps: getDynamicProps,
+  excludeFromClient: false,
+  isCollectionLayout: false,
+  contenttypes:"*",
+  iconclass:"mi-navicon",
+  configurator:[
+    {"type":"radio","name":"displayhome","label":"Display Home?","labels":["Yes","No"],"options":["true","false"],"value":"false"},
+    {"type":"file","name":"navlogo","label":"Navbar Logo"},
+    {"type":"radio","name":"displaysearch","label":"Display Search?","labels":["Yes","No"],"options":["true","false"],"value":"false"}
+  ]
+}

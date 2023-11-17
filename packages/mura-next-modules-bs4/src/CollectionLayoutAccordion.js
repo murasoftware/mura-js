@@ -137,3 +137,20 @@ export const getQueryProps = () => {
 };
 
 export default CollectionLayoutAccordian;
+
+export const ModuleConfig={
+  key: 'CollectionLayoutAccordian',
+  name: 'Accordian',
+  component: CollectionLayoutAccordian,
+  getQueryProps: getQueryProps,
+  contentypes:"",
+  configurator:[
+    {"type":"fieldlist","name":"fields","label":"Display List"},
+    {"type":"select","name":"imagesize","label":"Image Size","labels":["Small","Medium","Large","Portrait","Landscape","Hero"],"options":["small","medium","large","portrait","landscape","hero"],"value":"medium"},
+    {"type":"select","name":"accordionpadding","label":"Padding","labels":["Tight","Normal","Loose"],"options":["tight","normal","loose"],"value":"nomral"},
+    {"type":"select","name":"collapseindicators","label":"Indicator Type","labels":["Chevrons","Plus-Min"],"options":["chevrons","plus-min"],"value":"chevrons"},
+    {"type":"select","name":"collapseindicatorslocation","label":"Indicator Location","labels":["Left","Right"],"options":["left","right"],"value":"right"}
+  ],
+  excludeFromClient: true,
+  isCollectionLayout: true,
+}

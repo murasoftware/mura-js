@@ -533,3 +533,13 @@ const replacerFunc = () => {
 };
 
 export default ResourceHub;
+
+export const ModuleConfig={
+  key: 'resource_hub',
+  name: 'resource_hub',
+  component: ResourceHub,
+  getDynamicProps:getDynamicProps,
+  excludeFromClient: false,
+  isCollectionLayout: false,
+  SSR: false
+}

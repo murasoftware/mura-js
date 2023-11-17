@@ -30,16 +30,16 @@ const CurrentItems = (props) => {
   const Link = link;
   const items = collection.get('items');
   const Mura = props.Mura || getMura();
-  
+  let _itemsTo=itemsTo;
   if(Mura.renderMode != 'static' && scrollpages){
-    itemsTo=items.length;
+    _itemsTo=items.length;
   } else {
     if (maxItems < items.length && pos+nextn > maxItems){
-      itemsTo = maxItems;
+      _itemsTo = maxItems;
     }
   }
 
-  for(let i = pos;i < itemsTo;i++) {
+  for(let i = pos;i < _itemsTo;i++) {
     item = items[i];
     itemsList.push(
     <li key={item.get('contentid')}>
@@ -72,3 +72,13 @@ export const getQueryProps = () => {
 };
 
 export default CollectionLayout;
+
+export const ModuleConfig={
+  key: 'CollectionLayout',
+  name: 'Collection Layout',
+  component: CollectionLayout,
+  getQueryProps: getQueryProps,
+  contentypes:"",
+  excludeFromClient: true,
+  isCollectionLayout: true,
+}

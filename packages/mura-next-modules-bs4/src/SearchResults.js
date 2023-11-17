@@ -107,3 +107,43 @@ const SearchMessage = (props) => {
   )
 }
 export default SearchResults;
+
+export const ModuleConfig={
+  key: "SearchResults",
+  name: "Search Results",
+  component: SearchResults,
+  getDynamicProps: getDynamicProps,
+  excludeFromClient: false,
+  isCollectionLayout: false,
+  contenttypes:"*",
+  iconclass:"mi-search",
+  configurator:[
+    {
+      "type":"fieldlist","name":"fields","label":"Display List"
+    },
+    {
+      "type":"select",
+      "name":"nextn",
+      "label":"Items Per Page",
+      "labels":["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","25","50","100","ALL"],
+      "options":["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","25","50","100","1000000"],
+      "value":"0"
+    },
+    {
+      "type":"select",
+      "name":"maxitems",
+      "label":"Max Items",
+      "labels":["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","25","50","100","ALL"],
+      "options":["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","25","50","100","100000"],
+      "value":"0"
+    },
+    {
+      "type":"select",
+      "name":"scrollpages",
+      "label":"Auto Scroll Pages",
+      "labels":["True","False"],
+      "options":["true","false"],
+      "value":"false"
+    }
+  ]
+}

@@ -47,3 +47,13 @@ export const getDynamicProps = async props => {
   }
 
   export default MuraClassicWrapper;
+
+  export const ModuleConfig={
+    key: 'MuraClassicWrapper',
+    name: 'Mura Classic Wrapper',
+    component: MuraClassicWrapper,
+    getDynamicProps: getDynamicProps,
+    excludeFromClient: false,
+    isCollectionLayout: false,
+    contenttypes:""
+  }

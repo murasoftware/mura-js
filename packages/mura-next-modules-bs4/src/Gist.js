@@ -71,3 +71,26 @@ const render =function(props) {
 }
 
 export default render;
+
+export const ModuleConfig={
+  key: 'Gist',
+  name: 'Gist',
+  component: render,
+  getDynamicProps:  function(){},
+  excludeFromClient: false,
+  isCollectionLayout: false,
+  contentypes:"*",
+  iconclass:"mi-github",
+  configurator:[
+    {
+      "type":"text",
+      "name":"gistid",
+      "label":"Gist ID"
+    },
+    {
+      "type":"text",
+      "name":"file",
+      "label":"File"
+    }
+  ]
+}

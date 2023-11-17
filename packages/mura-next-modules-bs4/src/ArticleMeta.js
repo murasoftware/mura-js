@@ -73,3 +73,18 @@ export const ArticleMeta = (props) => {
 }
 
 export default ArticleMeta;
+
+export const ModuleConfig={
+    key: 'ArticleMeta',
+    name: 'Article Meta',
+    component: ArticleMeta,
+    getQueryProps: function(){},
+    getDynamicProps: function(){},
+    contentypes:"*",
+    excludeFromClient: false,
+    isCollectionLayout: false,
+    iconclass:"mi-info-circle",
+    configurator:[
+        {"type":"fieldlist","name":"fields","label":"Display List","value":"Date,Credits,Tags"}
+    ]
+  }

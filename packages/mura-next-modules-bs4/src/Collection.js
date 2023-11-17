@@ -332,5 +332,16 @@ export const getSelectFields = function(props) {
   return fieldarray.join(',').toLowerCase();
 }
 
-
 export default Collection;
+
+export const ModuleConfig={
+  key: 'Collection',
+  name: 'Collection',
+  component: Collection,
+  getQueryProps: function(){},
+  getDynamicProps: getDynamicProps,
+  contentypes:"*",
+  excludeFromClient: false,
+  isCollectionLayout: false,
+  external:false
+}

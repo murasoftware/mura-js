@@ -130,3 +130,17 @@ export const getQueryProps = () => {
 };
 
 export default Masonry;
+
+export const ModuleConfig={
+  key: 'Masonry',
+  name: 'Masonry',
+  component: Masonry,
+  getQueryProps: getQueryProps,
+  contentypes:"",
+  configurator:[
+    {"type":"fieldlist","name":"fields","label":"Display List"},
+    {"type":"select","name":"imagesize","label":"Image Size","labels":["Small","Medium","Large","Portrait","Landscape","Hero"],"options":["small","medium","large","portrait","landscape","hero"],"value":"landscape"}
+  ],
+  excludeFromClient: true,
+  isCollectionLayout: true,
+}

@@ -114,3 +114,23 @@ const GatedAsset =function(props) {
 
 
 export default GatedAsset;
+
+export const ModuleConfig={
+    key: 'GatedAsset',
+    name: 'Gated Asset',
+    component: GatedAsset,
+    getDynamicProps:  function(){},
+    excludeFromClient: false,
+    isCollectionLayout: false,
+    contentypes:"*",
+    iconclass:"mi-lock",
+    configurator:[{
+        "type":"select",
+        "name":"isgatelocked",
+        "label":"Is Gate Locked?",
+        "options":[
+            {"name":"Yes","value":1},
+            {"name":"No","value":0}
+        ]
+    }]
+}

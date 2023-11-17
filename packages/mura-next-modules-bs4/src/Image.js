@@ -64,3 +64,14 @@ const Img = (props) => {
 
 
 export default Image;
+
+export const ModuleConfig={
+  key: 'Image',
+  name: 'Image',
+  component: Image,
+  getDynamicProps: function(){},
+  excludeFromClient: false,
+  isCollectionLayout: false,
+  contentypes:"*",
+  external:false
+}

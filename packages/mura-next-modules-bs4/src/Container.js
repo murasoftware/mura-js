@@ -75,3 +75,14 @@ export const Container = function(props) {
 }
 
 export default Container;
+
+export const ModuleConfig={
+  key: 'Container',
+  name: 'Container',
+  component: Container,
+  getDynamicProps:  function(){},
+  contentypes:"*",
+  excludeFromClient: false,
+  isCollectionLayout: false,
+  external:false
+}

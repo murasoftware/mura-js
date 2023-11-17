@@ -160,3 +160,12 @@ export const getQueryProps = (item) => {
 };
 
 export default SearchResultsLayout;
+
+export const ModuleConfig={
+  name: 'SearchResultsLayout',
+  component: SearchResultsLayout,
+  getQueryProps: getQueryProps,
+  excludeFromClient: true,
+  isCollectionLayout: true,
+  contenttypes:"",
+}

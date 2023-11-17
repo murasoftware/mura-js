@@ -23,3 +23,17 @@ function Login(props) {
 }
 
 export default Login;
+
+export const ModuleConfig={
+  key: 'Login',
+  name: 'Login',
+  component: Login,
+  getDynamicProps:  function(){},
+  external:false,
+  excludeFromClient: false,
+  isCollectionLayout: false,
+  contentypes:"*",
+  external:false,
+  iconclass:"mi-keyboard-o",
+  external:false
+}

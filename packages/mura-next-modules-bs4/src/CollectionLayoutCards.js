@@ -136,3 +136,23 @@ export const getQueryProps = () => {
 };
 
 export default Cards;
+
+export const ModuleConfig={
+  key: 'Cards',
+  name: 'Cards',
+  component: Cards,
+  getQueryProps: getQueryProps,
+  contentypes:"",
+  configurator:[
+    {"type":"fieldlist","name":"fields","label":"Display List"},
+    {"type":"select","name":"rowcolsxl","label":"Columns > 1199px","labels":["6","5","4","3","2","1"],"options":["6","5","4","3","2","1"],"value":"4"},
+    {"type":"select","name":"rowcolslg","label":"Columns > 991px","labels":["6","5","4","3","2","1"],"options":["6","5","4","3","2","1"],"value":"3"},
+    {"type":"select","name":"rowcolsmd","label":"Columns > 767px","labels":["6","5","4","3","2","1"],"options":["6","5","4","3","2","1"],"value":"3"},
+    {"type":"select","name":"rowcolssm","label":"Columns > 575px","labels":["6","5","4","3","2","1"],"options":["6","5","4","3","2","1"],"value":"2"},
+    {"type":"select","name":"imagesize","label":"Image Size","labels":["Small","Medium","Large","Portrait","Landscape","Hero"],"options":["small","medium","large","portrait","landscape","hero"],"value":"landscape"},
+    {"type":"radio","name":"showcategories","label":"Show Categories","labels":["Yes","No"],"options":["true","false"],"value":"false"},
+    {"type":"radio","name":"featuredcategoriesonly","label":"Featured Categories Only","labels":["Yes","No"],"options":["yes","no"],"value":"no","condition":"this.showcategories==='true'"}
+  ],
+  excludeFromClient: true,
+  isCollectionLayout: true,
+}

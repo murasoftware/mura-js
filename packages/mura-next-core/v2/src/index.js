@@ -6,6 +6,7 @@ import { default as ExternalAssets} from "./ExternalAssets";
 import { default as EditLayout} from "./EditLayout";
 import { default as MainLayout} from "./MainLayout";
 import { default as Styles} from "./Styles";
+import ConfigBuilder from "./ConfigBuilder";
 
 export {
     MuraJSRefPlaceholder, 
@@ -27,5 +28,6 @@ export {
     MainLayout,
     Styles,
     setMuraConfig,
-    getMuraConfig
+    getMuraConfig,
+    ConfigBuilder
 }

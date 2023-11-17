@@ -271,3 +271,34 @@ export const getQueryProps = () => {
 };
 
 export default SlickSlider;
+
+export const ModuleConfig={
+  key: 'SlickSlider',
+  name: 'Slick Slider',
+  component: SlickSlider,
+  getQueryProps: getQueryProps,
+  contentypes:"",
+  configurator:[
+      {"type":"fieldlist","name":"fields","label":"Display List"},
+      {"type":"select","name":"imagesize","label":"Image Size","labels":["Small","Medium","Large","Portrait","Landscape","Hero"],"options":["small","medium","large","portrait","landscape","hero"],"value":"hero"},
+      {"type":"select","name":"sliderLayout","label":"Slider Layout","labels":["Banner","Cards"],"options":["banner","cards"],"value":"cards"},
+      {"type":"select","name":"slidesToShow","label":"Slides to Show","labels":["6","5","4","3","2","1"],"options":["6","5","4","3","2","1"],"value":"3"},
+      {"type":"select","name":"slidesToScroll","label":"Slides to Scroll","labels":["6","5","4","3","2","1"],"options":["6","5","4","3","2","1"],"value":"3"},
+      {"type":"radio","name":"dots","label":"Show Dots","labels":["Yes","No"],"options":["true","false"],"value":"true"},
+      {"type":"radio","name":"arrows","label":"Show Arrows","labels":["Yes","No"],"options":["true","false"],"value":"true"},
+      {"type":"radio","name":"infinite","label":"Inifinte","labels":["Yes","No"],"options":["true","false"],"value":"true"},
+      {"type":"text","name":"speed","label":"Transition Speed","value":"500"},
+      {"type":"text","name":"autoplayspeed","label":"Autoplay Speed","value":"2000"},
+      {"type":"radio","name":"autoplay","label":"Autoplay","labels":["Yes","No"],"options":["true","false"],"value":"false"},
+      {"type":"radio","name":"centermode","label":"Center Mode","labels":["Yes","No"],"options":["true","false"],"value":"false"},
+      {"type":"text","name":"centerpadding","label":"Center Padding","value":"50"},
+      {"type":"radio","name":"fade","label":"Fade","labels":["Yes","No"],"options":["true","false"],"value":"false"},
+      {"type":"radio","name":"lazyload","label":"Lazy Load","labels":["Yes","No"],"options":["true","false"],"value":"false"},
+      {"type":"select","name":"rows","label":"Rows","labels":["6","5","4","3","2","1"],"options":["6","5","4","3","2","1"],"value":"1"},
+      {"type":"select","name":"slidesperrow","label":"Slides Per Row","labels":["6","5","4","3","2","1"],"options":["6","5","4","3","2","1"],"value":"3"},
+      {"type":"radio","name":"vertical","label":"Vertical","labels":["Yes","No"],"options":["true","false"],"value":"false"},
+      {"type":"radio","name":"verticalswiping","label":"Vertical Swiping","labels":["Yes","No"],"options":["true","false"],"value":"false"}
+    ],
+  excludeFromClient: true,
+  isCollectionLayout: true,
+}

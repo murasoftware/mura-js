@@ -79,3 +79,13 @@ export const getDynamicProps = async props => {
 };
 
 export default Text;
+
+export const ModuleConfig={
+  name: 'Text',
+  component: Text,
+  getDynamicProps: getDynamicProps,
+  excludeFromClient: false,
+  isCollectionLayout: false,
+  contenttypes:"*",
+  external:false
+}

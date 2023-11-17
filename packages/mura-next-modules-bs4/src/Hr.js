@@ -8,3 +8,14 @@ const Hr = function(props) {
 }
 
 export default Hr;
+
+export const ModuleConfig={
+  key: 'Hr',
+  name: 'Hr',
+  component: Hr,
+  getDynamicProps:  function(){},
+  excludeFromClient: false,
+  isCollectionLayout: false,
+  contentypes:"*",
+  external: false
+}

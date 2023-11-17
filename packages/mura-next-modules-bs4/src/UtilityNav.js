@@ -28,3 +28,31 @@ const UtilityLinks = (props) => {
 }
 
 export default UtilityNav;
+
+export const ModuleConfig={
+	name: "UtilityNav",
+	label: "Utility Nav",
+	component: UtilityNav,
+	excludeFromClient: false,
+	isCollectionLayout: false,
+	contenttypes:"*",
+	iconclass:"mi-navicon",
+	configurator:[
+		{
+			"type":"select",
+			"name":"linktarget",
+			"label":"Link Target",
+			"options":[
+				"",
+				"_self",
+				"_top",
+				"_blank"
+			]
+		},
+		{
+			"type":"name_value_array",
+			"name":"customlinks",
+			"label":"Links"
+		}
+	]
+  }
