@@ -39,6 +39,7 @@
     "grunt": "^1.5.3",
     "grunt-contrib-handlebars": "^3.0.0",
     "grunt-text-replace": "^0.4.0",
+    "jsdoc": "^4.0.2",
     "jsdoc-to-markdown": "^8.0.0",
     "regenerator-runtime": "^0.13.7",
     "webpack": "^5.36.1",
