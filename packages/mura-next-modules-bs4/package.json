@@ -1,11 +1,10 @@
 {
   "name": "@murasoftware/next-modules-bs4",
-  "version": "1.0.109",
+  "version": "1.0.114",
   "description": "UI Modules for Mura.js and Next.js and Bootstrap4",
   "author": "Mura Software",
   "license": "MIT",
   "repository": "https://github.com/murasoftware/mura-js.git",
-  "type": "module",
   "exports": {
     "require": "./dist/index.cjs",     
     "default": "./dist/index.modern.js"
@@ -24,8 +23,8 @@
     "postcss": "7.0.36"
   },
   "peerDependencies": {
-    "@fortawesome/fontawesome-svg-core": "^1.2.34",
-    "@fortawesome/free-solid-svg-icons": "^5.15.2",
+    "@fortawesome/fontawesome-svg-core": ">=1.2.34",
+    "@fortawesome/free-solid-svg-icons": ">=5.15.2",
     "@murasoftware/next-core": ">=1.0.14",
     "mura.js": "^1.0.379",
     "next": ">=10",
