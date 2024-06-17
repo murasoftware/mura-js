@@ -1,6 +1,6 @@
 {
   "name": "@murasoftware/next-modules-bs4",
-  "version": "1.0.115",
+  "version": "1.0.116",
   "description": "UI Modules for Mura.js and Next.js and Bootstrap4",
   "author": "Mura Software",
   "license": "MIT",
@@ -9,8 +9,8 @@
     "require": "./dist/index.js",     
     "default": "./dist/index.modern.mjs"
   },
-  "main": "dist/index.cjs",
-  "module": "dist/index.modern.js",
+  "main": "dist/index.js",
+  "module": "dist/index.modern.mjs",
   "source": "src/index.js",
   "engines": {
     "node": ">=12"
