@@ -1,13 +1,13 @@
 {
   "name": "@murasoftware/next-modules-bs4",
-  "version": "1.0.114",
+  "version": "1.0.115",
   "description": "UI Modules for Mura.js and Next.js and Bootstrap4",
   "author": "Mura Software",
   "license": "MIT",
   "repository": "https://github.com/murasoftware/mura-js.git",
   "exports": {
-    "require": "./dist/index.cjs",     
-    "default": "./dist/index.modern.js"
+    "require": "./dist/index.js",     
+    "default": "./dist/index.modern.mjs"
   },
   "main": "dist/index.cjs",
   "module": "dist/index.modern.js",
