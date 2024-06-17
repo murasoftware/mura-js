@@ -1,22 +1,18 @@
 {
   "name": "@murasoftware/next-modules-bs4",
-  "version": "1.0.116",
+  "version": "1.0.119",
   "description": "UI Modules for Mura.js and Next.js and Bootstrap4",
   "author": "Mura Software",
   "license": "MIT",
   "repository": "https://github.com/murasoftware/mura-js.git",
-  "exports": {
-    "require": "./dist/index.js",     
-    "default": "./dist/index.modern.mjs"
-  },
+  "type":"commonjs",  
   "main": "dist/index.js",
-  "module": "dist/index.modern.mjs",
   "source": "src/index.js",
   "engines": {
     "node": ">=12"
   },
   "scripts": {
-    "build": "microbundle  --no-compress --jsx React.createElement --jsxFragment React.Fragment --jsxImportSource react --globals react/jsx-runtime=jsx"
+    "build": "microbundle  --format=cjs --no-compress --jsx React.createElement --jsxFragment React.Fragment --jsxImportSource react --globals react/jsx-runtime=jsx"
   },
   "overrides": {
     "nth-check": "2.0.1",
