@@ -1,27 +1,40 @@
-#! /usr/bin/node
+#!/usr/bin/node
 const fs = require('fs');
+const { exec } = require('child_process');
 const pjson = require('./package.json');
-const npm = require('npm');
 
-
-if(process.env.MURA_PACKAGE==='mura.js'){
-    pjson.name='mura.js';
-    pjson.main='src/index.js';
+if (process.env.MURA_PACKAGE === 'mura.js') {
+  pjson.name = 'mura.js';
+  pjson.main = 'src/index.js';
 } else {
-    pjson.name='@murasoftware/mura';
-    pjson.main='src/index-namespaced.js';
+  pjson.name = '@murasoftware/mura';
+  pjson.main = 'src/index-namespaced.js';
 }
 
 fs.writeFileSync('./package.json', JSON.stringify(pjson, null, 2));
 
-async function build(name, main){
-    await npm.run('dev', (err) => { console.log(err) });
-    await npm.run('build', (err) => { console.log(err) });
+function runScript(scriptName) {
+  return new Promise((resolve, reject) => {
+    exec(`npm run ${scriptName}`, (error, stdout, stderr) => {
+      if (error) {
+        console.log(`Error running ${scriptName}:`, error);
+        reject(error);
+      } else {
+        console.log(`Output of ${scriptName}:`, stdout);
+        if (stderr) console.log(`Error output of ${scriptName}:`, stderr);
+        resolve(stdout);
+      }
+    });
+  });
 }
 
-npm.load(async () => {
-    build();
-});
+async function build() {
+  try {
+    await runScript('dev');
+    await runScript('build');
+  } catch (error) {
+    console.error('Build process failed:', error);
+  }
+}
 
-
-
+build();
