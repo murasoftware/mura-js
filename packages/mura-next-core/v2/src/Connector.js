@@ -390,7 +390,9 @@ export const getMuraProps = async function(params) {
       && process 
       && process.env
       && process.env.MURA_SSR_BASICTOKEN){
-        Mura.setRequestHeader("Authorization","Basic " + process.env.MURA_SSR_BASICTOKEN);
+        if (Mura.getRequestHeader('Authorization') == null) {
+          Mura.setRequestHeader("Authorization","Basic " + process.env.MURA_SSR_BASICTOKEN);
+        }        
         Mura.setMode("rest");
         Mura.setAPIEndpoint(Mura.getAPIEndpoint().replace('/json/', '/rest/'));
   }
