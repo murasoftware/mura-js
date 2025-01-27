@@ -390,7 +390,8 @@ export const getMuraProps = async function(params) {
       && process 
       && process.env
       && process.env.MURA_SSR_BASICTOKEN){
-        if (Mura.getRequestHeader('Authorization') == null) {
+        var authHeader = Mura.getRequestHeader('Authorization');
+        if (Object.keys(authHeader).length === 0 && authHeader.constructor == Object) {
           Mura.setRequestHeader("Authorization","Basic " + process.env.MURA_SSR_BASICTOKEN);
         }        
         Mura.setMode("rest");
