@@ -362,40 +362,39 @@ function attach(Mura){
 					}
 				}
 				
-				const parsedConfig=this.parseRequestConfig(config);
-	
-				fetch(parsedConfig.url,parsedConfig).then(
-					function(response){
+				const parsedConfig = this.parseRequestConfig(config);
+				fetch(parsedConfig.url, parsedConfig).then(
+					function(response) {
 						nodeProxyCookies(response);
 						nodeProxyHeaders(response);
 
-						if(parsedConfig.isfetch){
+						if (parsedConfig.isfetch) {
 							return new Promise().resolve(response);
 						} else {
-							response.text().then((body)=>{
-								let result='';
-								try{
-									result=JSON.parse.call(null,body);
-								} catch(e){
-									result=body;
+							response.text().then((body) => {
+								let result = '';
+								try {
+									result = JSON.parse.call(null, body);
+								} catch(e) {
+									result = body;
 								}
-								config.success(result,response);
-							}).catch((error)=>{
+								config.success(result, response);
+							}).catch((error) => {
 								if (response.status >= 500) {
-									console.log(parsedConfig.url,error)
+									console.log(parsedConfig.url, error)
 									config.error(error);
 								} else {
-									config.success('',response);
+									config.success('', response);
 								}
 							})
 						}
 						
 					},
-					function(response){
-						if(parsedConfig.isfetch){
+					function(response) {
+						if (parsedConfig.isfetch) {
 							return new Promise().resolve(response);
 						} else {
-							console.log(parsedConfig.url,response)
+							console.log(parsedConfig.url, response)
 							throw new Error(response.statusText)
 						}
 					}
@@ -612,6 +611,26 @@ function attach(Mura){
 				return query.join('&');
 			},
 			parseRequestConfig(config){
+				// SSRF protection - validate URL
+				if (!config.url) {
+					throw new Error('URL is required');
+				}
+
+				try {
+					const url = new URL(parsedConfig.url, window.location.origin);
+					
+					if (url.hostname !== window.location.hostname) {
+						throw new Error('SSRF Prevention: Only requests to same host are allowed');
+					}
+					
+					const allowedProtocols = ['https:', 'http:'];
+					
+					if (!allowedProtocols.includes(url.protocol)) {
+						throw new Error('Invalid URL protocol');
+					}
+				} catch (err) {
+					throw new Error('Invalid URL: ' + err.message);
+				}
 				const parsedConfig={
 					method: config.type,
 					headers:config.headers,
