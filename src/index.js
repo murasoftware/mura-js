@@ -8,6 +8,8 @@ require('cross-fetch/polyfill')
 
 const Mura=require("./core/factory")();
 
+Mura.indexfileinapi=false;
+Mura.package='@murasoftware/mura.js';
 
 module.exports=Mura;
 	

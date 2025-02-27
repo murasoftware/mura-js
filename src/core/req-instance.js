@@ -617,7 +617,7 @@ function attach(Mura){
 				}
 
 				try {
-					const url = new URL(parsedConfig.url, window.location.origin);
+					const url = new URL(config.url, window.location.origin);
 					
 					if (url.hostname !== window.location.hostname) {
 						throw new Error('SSRF Prevention: Only requests to same host are allowed');

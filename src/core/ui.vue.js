@@ -1,5 +1,5 @@
 import Vue from 'vue'
-var Mura=require('mura.js');
+var Mura=require('@murasoftware/mura.js');
 
 Mura.UI.Vue=Mura.UI.extend(
 

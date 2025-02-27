@@ -3,13 +3,8 @@ const fs = require('fs');
 const { exec } = require('child_process');
 const pjson = require('./package.json');
 
-if (process.env.MURA_PACKAGE === 'mura.js') {
-  pjson.name = 'mura.js';
-  pjson.main = 'src/index.js';
-} else {
-  pjson.name = '@murasoftware/mura';
-  pjson.main = 'src/index-namespaced.js';
-}
+pjson.name = '@murasoftware/mura.js';
+pjson.main = 'src/index.js';
 
 fs.writeFileSync('./package.json', JSON.stringify(pjson, null, 2));
 

@@ -1,6 +1,6 @@
 const React=require('react')
 const ReactDOM=require('react-dom')
-var Mura=require('mura.js');
+var Mura=require('@murasoftware/mura.js');
 const ReactDOMServer = require('react-dom/server');
 
 require('./ui.react')

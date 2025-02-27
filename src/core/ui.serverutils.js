@@ -1,4 +1,4 @@
-var Mura=require('mura.js');
+var Mura=require('@murasoftware/mura.js');
 
 Mura.UI.buildDisplayObject=async function(template, params){
 	params = Mura.extend({},params);

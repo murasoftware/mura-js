@@ -1,8 +1,8 @@
 import Vue from 'vue'
-var Mura=require('mura.js');
+var Mura=require('@murasoftware/mura.js');
 
-require('mura.js/src/core/ui.vue')
-require('mura.js/src/core/ui.serverutils')
+require('@murasoftware/mura.js/src/core/ui.vue')
+require('@murasoftware/mura.js/src/core/ui.serverutils')
 
 
 
