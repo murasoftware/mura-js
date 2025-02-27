@@ -617,10 +617,12 @@ function attach(Mura){
 				}
 
 				try {
-					const url = new URL(config.url, window.location.origin);
-					
-					if (url.hostname !== window.location.hostname) {
-						throw new Error('SSRF Prevention: Only requests to same host are allowed');
+					if (window?.location) {
+						const url = new URL(config.url, window.location.origin);
+						
+						if (url.hostname !== window.location.hostname) {
+							throw new Error('SSRF Prevention: Only requests to same host are allowed');
+						}
 					}
 					
 					const allowedProtocols = ['https:', 'http:'];
