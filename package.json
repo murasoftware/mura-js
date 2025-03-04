@@ -1,7 +1,7 @@
 {
   "name": "mura.js",
   "homepage": "http://www.murasoftware.com",
-  "version": "1.0.411",
+  "version": "1.0.411-rc.1",
   "description": "Utility for interacting with the Mura JSON/REST API",
   "browserslist": "> 0.25%, not dead, ie >= 11",
   "files": [
@@ -22,7 +22,7 @@
     "build:@murasoftware/mura": "SET MURA_PACKAGE=@murasoftware/mura node build-package.js;",
     "publish:mura.js": "npm run build:mura.js && npm publish",
     "publish:@murasoftware/mura": "npm run build:@murasoftware/mura && npm publish",
-    "publish": "npm run publish:mura.js"
+    "publish:mura.js-rc": "npm run build:mura.js && npm publish --tag rc"
   },
   "repository": {
     "type": "git",

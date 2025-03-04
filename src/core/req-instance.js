@@ -611,24 +611,6 @@ function attach(Mura){
 				return query.join('&');
 			},
 			parseRequestConfig(config){
-				// SSRF protection - validate URL
-				if (window?.location) {
-					try {
-						const url = new URL(config.url, window.location.origin);
-						
-						if (url.hostname !== window.location.hostname) {
-							throw new Error('SSRF Prevention: Only requests to same host are allowed');
-						}
-						
-						const allowedProtocols = ['https:', 'http:'];
-						
-						if (!allowedProtocols.includes(url.protocol)) {
-							throw new Error('Invalid URL protocol');
-						}
-					} catch (err) {
-						throw new Error('Invalid URL: ' + err.message);
-					}
-				}
 				const parsedConfig={
 					method: config.type,
 					headers:config.headers,
