@@ -624,6 +624,26 @@ function attach(Mura){
 					redirect: config.redirect || "follow",
 					isfetch: config.isfetch
 				};
+				// SSRF protection - validate URL
+				if (window?.location && parsedConfig.url) {
+				  try {
+					const url = new URL(parsedConfig.url, window.location.origin);
+					
+					if (url.hostname !== window.location.hostname) {
+					  url.hostname = window.location.hostname;
+					  parsedConfig.url = url.toString();
+					}
+					
+					const allowedProtocols = ['https:', 'http:'];
+					
+					if (!allowedProtocols.includes(url.protocol)) {
+					  url.protocol = 'http:';
+					  parsedConfig.url = url.toString();
+					}
+				  } catch (err) {
+					parsedConfig.url = '';
+				  }
+				}
 				
 				if(parsedConfig.method.toLowerCase() != 'get'){
 					delete parsedConfig['cache-control'];
