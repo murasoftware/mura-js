@@ -15,3 +15,14 @@ phases:
   post_build:
     commands:
       - echo Build completed on `date`
+      - echo Publishing to npm...
+      - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+      - |-
+        set -e
+        if [ "$BUILD_ENV" = "rc" ]; then
+          npm run publish:mura.js-rc
+        elif [ "$BUILD_ENV" = "prod" ]; then
+          npm run publish:mura.js
+        else
+          echo NO RC OR PROD PACKAGED PUBLISHED
+        fi
