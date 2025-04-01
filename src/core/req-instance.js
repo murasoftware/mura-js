@@ -362,40 +362,39 @@ function attach(Mura){
 					}
 				}
 				
-				const parsedConfig=this.parseRequestConfig(config);
-	
-				fetch(parsedConfig.url,parsedConfig).then(
-					function(response){
+				const parsedConfig = this.parseRequestConfig(config);
+				fetch(parsedConfig.url, parsedConfig).then(
+					function(response) {
 						nodeProxyCookies(response);
 						nodeProxyHeaders(response);
 
-						if(parsedConfig.isfetch){
+						if (parsedConfig.isfetch) {
 							return new Promise().resolve(response);
 						} else {
-							response.text().then((body)=>{
-								let result='';
-								try{
-									result=JSON.parse.call(null,body);
-								} catch(e){
-									result=body;
+							response.text().then((body) => {
+								let result = '';
+								try {
+									result = JSON.parse.call(null, body);
+								} catch(e) {
+									result = body;
 								}
-								config.success(result,response);
-							}).catch((error)=>{
+								config.success(result, response);
+							}).catch((error) => {
 								if (response.status >= 500) {
-									console.log(parsedConfig.url,error)
+									console.log(parsedConfig.url, error)
 									config.error(error);
 								} else {
-									config.success('',response);
+									config.success('', response);
 								}
 							})
 						}
 						
 					},
-					function(response){
-						if(parsedConfig.isfetch){
+					function(response) {
+						if (parsedConfig.isfetch) {
 							return new Promise().resolve(response);
 						} else {
-							console.log(parsedConfig.url,response)
+							console.log(parsedConfig.url, response)
 							throw new Error(response.statusText)
 						}
 					}
@@ -625,6 +624,26 @@ function attach(Mura){
 					redirect: config.redirect || "follow",
 					isfetch: config.isfetch
 				};
+				// SSRF protection - validate URL
+				if (this.requestObject && parsedConfig.url) {
+					try {
+					  const url = new URL(parsedConfig.url, `${this.requestObject.headers.host}${this.requestObject.url}`);
+					  
+					  if (url.hostname !== this.requestObject.headers.host) {
+						url.hostname = this.requestObject.headers.host;
+						parsedConfig.url = url.toString();
+					  }
+					  
+					  const allowedProtocols = ['https:', 'http:'];
+					  
+					  if (!allowedProtocols.includes(url.protocol)) {
+						url.protocol = 'http:';
+						parsedConfig.url = url.toString();
+					  }
+					} catch (err) {
+					  parsedConfig.url = '';
+					}
+				  }
 				
 				if(parsedConfig.method.toLowerCase() != 'get'){
 					delete parsedConfig['cache-control'];

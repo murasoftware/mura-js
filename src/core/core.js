@@ -2631,7 +2631,9 @@ function attach(Mura){
 				if(obj.data('objecticonclass')){
 					obj.children('.frontEndToolsModal').children('.mura-edit-label').addClass(obj.data('objecticonclass'));
 				}
-
+				if (obj.data('templateid') && obj.data('templatename')){
+					obj.children('.frontEndToolsModal').children('.mura-edit-label').append(' (' + obj.data('templatename') + ')');
+				}
 				MuraInlineEditor.setAnchorSaveChecks(obj.node);
 
 				obj.addClass('mura-active')
@@ -2695,6 +2697,9 @@ function attach(Mura){
 									}
 									if(item.data('objecticonclass')){
 										item.children('.frontEndToolsModal').children('.mura-edit-label').addClass(item.data('objecticonclass'));
+									}
+									if (item.data('templateid') && item.data('templatename')){
+										item.children('.frontEndToolsModal').children('.mura-edit-label').append(' (' + item.data('templatename') + ')');
 									}
 									item.off("click",Mura.handleObjectClick).on("click",Mura.handleObjectClick);
 									item.find("img").each(function(el){MuraInlineEditor.checkforImageCroppers(el);});
