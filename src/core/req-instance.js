@@ -624,26 +624,6 @@ function attach(Mura){
 					redirect: config.redirect || "follow",
 					isfetch: config.isfetch
 				};
-				// SSRF protection - validate URL
-				if (this.requestObject && parsedConfig.url) {
-					try {
-					  const url = new URL(parsedConfig.url, `${this.requestObject.headers.host}${this.requestObject.url}`);
-					  
-					  if (url.hostname !== this.requestObject.headers.host) {
-						url.hostname = this.requestObject.headers.host;
-						parsedConfig.url = url.toString();
-					  }
-					  
-					  const allowedProtocols = ['https:', 'http:'];
-					  
-					  if (!allowedProtocols.includes(url.protocol)) {
-						url.protocol = 'http:';
-						parsedConfig.url = url.toString();
-					  }
-					} catch (err) {
-					  parsedConfig.url = '';
-					}
-				  }
 				
 				if(parsedConfig.method.toLowerCase() != 'get'){
 					delete parsedConfig['cache-control'];
@@ -692,6 +672,29 @@ function attach(Mura){
 							parsedConfig.url += ('?' + queryString);
 						}
 					}
+	
+					// SSRF protection - validate URL
+					if (this.requestObject && parsedConfig.url) {
+						try {
+							const urlContainsBase = parsedConfig.url.includes('http') || parsedConfig.url.includes('www');
+							const baseUrl = urlContainsBase ? undefined : `${this.requestObject.headers.host}${this.requestObject.url}`;
+							const url = new URL(parsedConfig.url, baseUrl);
+							
+							if (url.hostname !== this.requestObject.headers.host) {
+								url.hostname = this.requestObject.headers.host;
+								parsedConfig.url = url.toString();
+							}
+							
+							const allowedProtocols = ['https:', 'http:'];
+							
+							if (!allowedProtocols.includes(url.protocol)) {
+								url.protocol = 'http:';
+								parsedConfig.url = url.toString();
+							}
+						} catch (err) {
+							parsedConfig.url = '';
+						}
+				  	}
 				
 					return parsedConfig;
 				} 
