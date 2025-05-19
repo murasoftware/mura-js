@@ -679,16 +679,10 @@ function attach(Mura){
 							const urlContainsBase = parsedConfig.url.includes('http') || parsedConfig.url.includes('www');
 							const baseUrl = urlContainsBase ? undefined : `${this.requestObject.headers.host}${this.requestObject.url}`;
 							const url = new URL(parsedConfig.url, baseUrl);
-							
-							if (url.hostname !== this.requestObject.headers.host) {
-								url.hostname = this.requestObject.headers.host;
-								parsedConfig.url = url.toString();
-							}
-							
 							const allowedProtocols = ['https:', 'http:'];
 							
 							if (!allowedProtocols.includes(url.protocol)) {
-								url.protocol = 'http:';
+								url.protocol = 'https:';
 								parsedConfig.url = url.toString();
 							}
 						} catch (err) {
