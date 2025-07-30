@@ -7,7 +7,7 @@ if (process.env.MURA_PACKAGE === 'mura.js') {
   pjson.name = 'mura.js';
   pjson.main = 'src/index.js';
 } else {
-  pjson.name = '@murasoftware/mura';
+  pjson.name = '@murasoftware/mura.js';
   pjson.main = 'src/index-namespaced.js';
 }
 
