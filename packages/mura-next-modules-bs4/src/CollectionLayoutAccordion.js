@@ -9,6 +9,7 @@ import ItemCredits from './ItemCredits';
 import ItemTags from './ItemTags';
 import ItemImage from './ItemImage';
 import { getMura, getHref } from '@murasoftware/next-core';
+import './css/CollectionLayoutAccordion.css';
 /*
   The link component throws an error when rerending after being 
   reconfigured in edit mode. Hence CollectionLink
