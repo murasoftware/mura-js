@@ -1,0 +1,69 @@
+.collectionLayoutAccordion .card .collapse .card-body {
+  position: relative;
+}
+.collectionLayoutAccordion .card-header {
+  position: relative;
+  background-color: #fff;
+  cursor: pointer;
+}
+.collectionLayoutAccordion .card-header::before {
+  font-family: "fontawesome";
+  font-weight: 900;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 30px;
+  font-size: 110%;
+}
+.collectionLayoutAccordion .card-header.open:before {
+  content: "\f077";
+}
+.collectionLayoutAccordion .card-header.not-open:before {
+  content: "\f078";
+}
+.collectionLayoutAccordion .card-header:hover {
+  background: rgba(0, 0, 0, 0.05);
+  text-decoration: none;
+  transition: all 0.3s ease;
+  -webkit-transition: all 0.3s ease;
+}
+.collectionLayoutAccordion.left-indicator .card-header {
+  padding-left: calc(3rem + 30px);
+}
+.collectionLayoutAccordion.left-indicator .card-header:before {
+  right: auto;
+  left: calc((3rem + 30px) / 2);
+}
+.collectionLayoutAccordion.left-indicator.tight-spacing .card-header {
+  padding-left: 3rem;
+}
+.collectionLayoutAccordion.left-indicator.tight-spacing .card-header:before {
+  left: calc(1.5rem - 7.5px);
+}
+.collectionLayoutAccordion.left-indicator.normal-spacing .card-header {
+  padding-left: 4rem;
+}
+.collectionLayoutAccordion.left-indicator.normal-spacing .card-header:before {
+  left: calc(2rem - 7.5px);
+}
+.collectionLayoutAccordion.left-indicator.loose-spacing .card-header {
+  padding-left: 6rem;
+}
+.collectionLayoutAccordion.left-indicator.loose-spacing .card-header:before {
+  left: calc(3rem - 7.5px);
+}
+.collectionLayoutAccordion.tight-spacing .card-header {
+  padding: 1rem;
+}
+.collectionLayoutAccordion.normal-spacing .card-header {
+  padding: 2rem;
+}
+.collectionLayoutAccordion.loose-spacing .card-header {
+  padding: 3rem;
+}
+.collectionLayoutAccordion.plus-min .card-header.open:before {
+  content: "\f068";
+}
+.collectionLayoutAccordion.plus-min .card-header.not-open:before {
+  content: "\f067";
+}
