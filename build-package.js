@@ -1,17 +1,12 @@
 #!/usr/bin/node
-const fs = require('fs');
-const { exec } = require('child_process');
-const pjson = require('./package.json');
+const fs = require("fs");
+const { exec } = require("child_process");
+const pjson = require("./package.json");
 
-if (process.env.MURA_PACKAGE === 'mura.js') {
-  pjson.name = 'mura.js';
-  pjson.main = 'src/index.js';
-} else {
-  pjson.name = '@murasoftware/mura.js';
-  pjson.main = 'src/index-namespaced.js';
-}
+pjson.name = "@murasoftware/mura.js";
+pjson.main = "src/index-namespaced.js";
 
-fs.writeFileSync('./package.json', JSON.stringify(pjson, null, 2));
+fs.writeFileSync("./package.json", JSON.stringify(pjson, null, 2));
 
 function runScript(scriptName) {
   return new Promise((resolve, reject) => {
@@ -30,10 +25,10 @@ function runScript(scriptName) {
 
 async function build() {
   try {
-    await runScript('dev');
-    await runScript('build');
+    await runScript("dev");
+    await runScript("build");
   } catch (error) {
-    console.error('Build process failed:', error);
+    console.error("Build process failed:", error);
   }
 }
 
