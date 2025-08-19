@@ -154,7 +154,7 @@ const SliderItem = (props) => {
   if (props.sliderlayout === 'banner') {//swith to props.layout
     return(
       <div key={item.get('contentid')} className="h-100 position-relative">
-        <Link href={getHref(item.get('filename'))} passHref>
+        <Link href={getHref(item.get('filename'))} target={item.get('target')} passHref>
           <img src={props.sliderimage} />
         </Link>
         <div className="mura-item-meta">
@@ -242,6 +242,7 @@ const SliderItem = (props) => {
                           ctatext="Read More"
                           link={Link}
                           key={item.get('contentid')}
+                          target={item.get('target')}
                         />
                       );
                     default:
