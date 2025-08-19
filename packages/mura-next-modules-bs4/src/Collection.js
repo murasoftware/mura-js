@@ -75,18 +75,18 @@ function Collection(props) {
   }
 }
 
-export const RouterlessLink = function({href,children,className}) {
+export const RouterlessLink = function({href,children,className,target=''}) {
   return (
-    <a href={getHref(href)} className={className}>
+    <a href={getHref(href)} className={className} target={target}>
       {children}
     </a>
   );
 }
 
-export const RouterLink = function({href,children,className}) {
+export const RouterLink = function({href,children,className,target=''}) {
   return (
     <Link legacyBehavior href={getHref(href)}>
-      <a className={className}>{children}</a>
+      <a className={className} target={target}>{children}</a>
     </Link>
   );
 }
