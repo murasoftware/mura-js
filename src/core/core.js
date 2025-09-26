@@ -3911,14 +3911,14 @@ function attach(Mura){
 			if(Mura.mode.toLowerCase()=='rest'){
 				Mura.apiEndpoint=Mura.apiEndpoint.replace('/json/', '/rest/');
 			}
-			// Support for internal API environment variable to prefix API endpoint
-			if (typeof Mura.muraInternalApiEndpoint === 'string' &&
-					typeof Mura.apiEndpoint === 'string' &&
-					!Mura.apiEndpoint.startsWith(Mura.muraInternalApiEndpoint)) {
-						const prefix = Mura.muraInternalApiEndpoint.replace(/\/+$/, ''); // Remove trailing slashes
-						const endpoint = Mura.apiEndpoint.replace(/^\/+/, ''); // Remove leading slashes
-						Mura.apiEndpoint = `${prefix}/${endpoint}`;
-			}
+		}
+		// Support for internal API environment variable to prefix API endpoint
+		if (typeof Mura.muraInternalApiEndpoint === 'string' &&
+				typeof Mura.apiEndpoint === 'string' &&
+				!Mura.apiEndpoint.startsWith(Mura.muraInternalApiEndpoint)) {
+					const prefix = Mura.muraInternalApiEndpoint.replace(/\/+$/, ''); // Remove trailing slashes
+					const endpoint = Mura.apiEndpoint.replace(/^\/+/, ''); // Remove leading slashes
+					Mura.apiEndpoint = `${prefix}/${endpoint}`;
 		}
 		return Mura.apiEndpoint;
 	}
