@@ -3913,10 +3913,10 @@ function attach(Mura){
 			}
 		}
 		// Support for internal API environment variable to prefix API endpoint
-		if (typeof Mura.muraInternalApiEndpoint === 'string' &&
+		if (typeof Mura.internalApiDomain === 'string' &&
 				typeof Mura.apiEndpoint === 'string' &&
-				!Mura.apiEndpoint.startsWith(Mura.muraInternalApiEndpoint)) {
-					const prefix = Mura.muraInternalApiEndpoint.replace(/\/+$/, ''); // Remove trailing slashes
+				!Mura.apiEndpoint.startsWith(Mura.internalApiDomain)) {
+					const prefix = Mura.internalApiDomain.replace(/\/+$/, ''); // Remove trailing slashes
 					const endpoint = Mura.apiEndpoint.replace(/^\/+/, ''); // Remove leading slashes
 					Mura.apiEndpoint = `${prefix}/${endpoint}`;
 		}
