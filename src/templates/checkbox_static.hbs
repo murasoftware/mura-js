@@ -7,7 +7,7 @@
 		{{#eachStatic dataset}}
 			<div class="{{{checkboxWrapperClass}}}">
 				<input type="checkbox" name="{{../name}}" class="{{{checkboxClass}}}" id="field-{{datarecordid}}" value="{{value}}" {{#if isselected}} checked='checked'{{/if}}/>
-				<label class="{{{checkboxLabelClass}}}" for="field-{{datarecordid}}">{{label}}</label>
+				<label class="{{{checkboxLabelClass}}} {{#if ../isrequired}}required-option{{/if}}" for="field-{{datarecordid}}">{{label}}</label>
 			</div>
 		{{/eachStatic}}
 	</div>

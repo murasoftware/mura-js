@@ -54,13 +54,17 @@ Mura["templates"]["checkbox_static"] = Mura.Handlebars.template({"1":function(co
     + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"isselected") : depth0),{"name":"if","hash":{},"fn":container.program(10, data, 0, blockParams, depths),"inverse":container.noop,"data":data,"loc":{"start":{"line":9,"column":120},"end":{"line":9,"column":163}}})) != null ? stack1 : "")
     + "/>\r\n				<label class=\""
     + ((stack1 = ((helper = (helper = lookupProperty(helpers,"checkboxLabelClass") || (depth0 != null ? lookupProperty(depth0,"checkboxLabelClass") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"checkboxLabelClass","hash":{},"data":data,"loc":{"start":{"line":10,"column":18},"end":{"line":10,"column":42}}}) : helper))) != null ? stack1 : "")
+    + " "
+    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depths[1] != null ? lookupProperty(depths[1],"isrequired") : depths[1]),{"name":"if","hash":{},"fn":container.program(12, data, 0, blockParams, depths),"inverse":container.noop,"data":data,"loc":{"start":{"line":10,"column":43},"end":{"line":10,"column":86}}})) != null ? stack1 : "")
     + "\" for=\"field-"
-    + alias4(((helper = (helper = lookupProperty(helpers,"datarecordid") || (depth0 != null ? lookupProperty(depth0,"datarecordid") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"datarecordid","hash":{},"data":data,"loc":{"start":{"line":10,"column":55},"end":{"line":10,"column":71}}}) : helper)))
+    + alias4(((helper = (helper = lookupProperty(helpers,"datarecordid") || (depth0 != null ? lookupProperty(depth0,"datarecordid") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"datarecordid","hash":{},"data":data,"loc":{"start":{"line":10,"column":99},"end":{"line":10,"column":115}}}) : helper)))
     + "\">"
-    + alias4(((helper = (helper = lookupProperty(helpers,"label") || (depth0 != null ? lookupProperty(depth0,"label") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"label","hash":{},"data":data,"loc":{"start":{"line":10,"column":73},"end":{"line":10,"column":82}}}) : helper)))
+    + alias4(((helper = (helper = lookupProperty(helpers,"label") || (depth0 != null ? lookupProperty(depth0,"label") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"label","hash":{},"data":data,"loc":{"start":{"line":10,"column":117},"end":{"line":10,"column":126}}}) : helper)))
     + "</label>\r\n			</div>\r\n";
 },"10":function(container,depth0,helpers,partials,data) {
     return " checked='checked'";
+},"12":function(container,depth0,helpers,partials,data) {
+    return "required-option";
 },"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data,blockParams,depths) {
     var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
@@ -140,13 +144,17 @@ Mura["templates"]["checkbox"] = Mura.Handlebars.template({"1":function(container
     + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"isselected") : depth0),{"name":"if","hash":{},"fn":container.program(10, data, 0, blockParams, depths),"inverse":container.noop,"data":data,"loc":{"start":{"line":9,"column":138},"end":{"line":9,"column":180}}})) != null ? stack1 : "")
     + "/>\r\n				<label class=\""
     + ((stack1 = ((helper = (helper = lookupProperty(helpers,"checkboxLabelClass") || (depth0 != null ? lookupProperty(depth0,"checkboxLabelClass") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"checkboxLabelClass","hash":{},"data":data,"loc":{"start":{"line":10,"column":18},"end":{"line":10,"column":42}}}) : helper))) != null ? stack1 : "")
+    + " "
+    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depths[1] != null ? lookupProperty(depths[1],"isrequired") : depths[1]),{"name":"if","hash":{},"fn":container.program(12, data, 0, blockParams, depths),"inverse":container.noop,"data":data,"loc":{"start":{"line":10,"column":43},"end":{"line":10,"column":86}}})) != null ? stack1 : "")
     + "\" for=\"field-"
-    + alias5(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":10,"column":55},"end":{"line":10,"column":61}}}) : helper)))
+    + alias5(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":10,"column":99},"end":{"line":10,"column":105}}}) : helper)))
     + "\">"
-    + alias5(((helper = (helper = lookupProperty(helpers,"label") || (depth0 != null ? lookupProperty(depth0,"label") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"label","hash":{},"data":data,"loc":{"start":{"line":10,"column":63},"end":{"line":10,"column":72}}}) : helper)))
+    + alias5(((helper = (helper = lookupProperty(helpers,"label") || (depth0 != null ? lookupProperty(depth0,"label") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"label","hash":{},"data":data,"loc":{"start":{"line":10,"column":107},"end":{"line":10,"column":116}}}) : helper)))
     + "</label>\r\n			</div>\r\n";
 },"10":function(container,depth0,helpers,partials,data) {
     return "checked='checked'";
+},"12":function(container,depth0,helpers,partials,data) {
+    return "required-option";
 },"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data,blockParams,depths) {
     var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
@@ -568,11 +576,15 @@ Mura["templates"]["radio_static"] = Mura.Handlebars.template({"1":function(conta
     + alias4(((helper = (helper = lookupProperty(helpers,"datarecordid") || (depth0 != null ? lookupProperty(depth0,"datarecordid") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"datarecordid","hash":{},"data":data,"loc":{"start":{"line":10,"column":23},"end":{"line":10,"column":39}}}) : helper)))
     + "\" class=\""
     + ((stack1 = ((helper = (helper = lookupProperty(helpers,"radioLabelClass") || (depth0 != null ? lookupProperty(depth0,"radioLabelClass") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"radioLabelClass","hash":{},"data":data,"loc":{"start":{"line":10,"column":48},"end":{"line":10,"column":69}}}) : helper))) != null ? stack1 : "")
+    + " "
+    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depths[1] != null ? lookupProperty(depths[1],"isrequired") : depths[1]),{"name":"if","hash":{},"fn":container.program(12, data, 0, blockParams, depths),"inverse":container.noop,"data":data,"loc":{"start":{"line":10,"column":70},"end":{"line":10,"column":113}}})) != null ? stack1 : "")
     + "\">"
-    + alias4(((helper = (helper = lookupProperty(helpers,"label") || (depth0 != null ? lookupProperty(depth0,"label") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"label","hash":{},"data":data,"loc":{"start":{"line":10,"column":71},"end":{"line":10,"column":80}}}) : helper)))
+    + alias4(((helper = (helper = lookupProperty(helpers,"label") || (depth0 != null ? lookupProperty(depth0,"label") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"label","hash":{},"data":data,"loc":{"start":{"line":10,"column":115},"end":{"line":10,"column":124}}}) : helper)))
     + "</label>\n				</div>\n";
 },"10":function(container,depth0,helpers,partials,data) {
     return "checked='checked'";
+},"12":function(container,depth0,helpers,partials,data) {
+    return "required-option";
 },"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data,blockParams,depths) {
     var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
@@ -652,11 +664,15 @@ Mura["templates"]["radio"] = Mura.Handlebars.template({"1":function(container,de
     + alias4(((helper = (helper = lookupProperty(helpers,"id") || (depth0 != null ? lookupProperty(depth0,"id") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"id","hash":{},"data":data,"loc":{"start":{"line":10,"column":23},"end":{"line":10,"column":29}}}) : helper)))
     + "\" test1=1 class=\""
     + ((stack1 = ((helper = (helper = lookupProperty(helpers,"radioLabelClass") || (depth0 != null ? lookupProperty(depth0,"radioLabelClass") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"radioLabelClass","hash":{},"data":data,"loc":{"start":{"line":10,"column":46},"end":{"line":10,"column":67}}}) : helper))) != null ? stack1 : "")
+    + " "
+    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depths[1] != null ? lookupProperty(depths[1],"isrequired") : depths[1]),{"name":"if","hash":{},"fn":container.program(12, data, 0, blockParams, depths),"inverse":container.noop,"data":data,"loc":{"start":{"line":10,"column":68},"end":{"line":10,"column":111}}})) != null ? stack1 : "")
     + "\">"
-    + alias4(((helper = (helper = lookupProperty(helpers,"label") || (depth0 != null ? lookupProperty(depth0,"label") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"label","hash":{},"data":data,"loc":{"start":{"line":10,"column":69},"end":{"line":10,"column":78}}}) : helper)))
+    + alias4(((helper = (helper = lookupProperty(helpers,"label") || (depth0 != null ? lookupProperty(depth0,"label") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"label","hash":{},"data":data,"loc":{"start":{"line":10,"column":113},"end":{"line":10,"column":122}}}) : helper)))
     + "</label>\n				</div>\n";
 },"10":function(container,depth0,helpers,partials,data) {
     return "checked='checked'";
+},"12":function(container,depth0,helpers,partials,data) {
+    return "required-option";
 },"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data,blockParams,depths) {
     var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {

@@ -7,7 +7,7 @@
 			{{#eachStatic dataset}}
 				<div class="{{{radioWrapperClass}}}">
 					<input type="radio" name="{{../name}}" class="{{{radioClass}}}" id="field-{{datarecordid}}" value="{{value}}"  {{#if isselected}}checked='checked'{{/if}}/>
-					<label for="field-{{datarecordid}}" class="{{{radioLabelClass}}}">{{label}}</label>
+					<label for="field-{{datarecordid}}" class="{{{radioLabelClass}}} {{#if ../isrequired}}required-option{{/if}}">{{label}}</label>
 				</div>
 			{{/eachStatic}}
 		</div>
