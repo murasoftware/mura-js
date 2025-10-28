@@ -4495,6 +4495,7 @@ function attach(Mura){
 			getBreakpoint:getBreakpoint,
 			getAPIEndpoint:getAPIEndpoint,
 			setAPIEndpoint:setAPIEndpoint,
+			getInternalApiDomain: getInternalApiDomain,
 			getMode:getMode,
 			setMode:setMode,
 			getRenderMode: getRenderMode,
