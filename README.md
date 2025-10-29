@@ -28,7 +28,7 @@ var Mura = require("mura.js");
 
 ### AMD (Asynchronous Module Definition)
 
-AMD is a module format built for the browser. For more information, we recommend require.js' documentation.
+AMD is a module format built for the browser. For more information, we recommend 'require.js' documentation.
 
 ```
 define(["mura.js"], function(Mura) {
