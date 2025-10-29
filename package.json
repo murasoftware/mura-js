@@ -19,7 +19,7 @@
     "build": "WEBPACK_ENV=build npx webpack --mode production --env production",
     "dev": "npx grunt; WEBPACK_ENV=dev npx webpack --mode production --env production",
     "build:package": "npm run dev && npm run build",
-    "publish:prod": "npm version patch --no-git-tag-version && npm run build:package && npm publish",
+    "publish:prod": "node -e \"const pkg=require('./package.json'); const latest=require('child_process').execSync('npm view '+pkg.name+' version 2>/dev/null || echo '+pkg.version, {encoding:'utf8'}).trim(); const parts=latest.split('.'); parts[2]=parseInt(parts[2])+1; pkg.version=parts.join('.'); require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2));\" && npm run build:package && npm publish",
     "publish:rc": "node -e \"const pkg=require('./package.json'); const latest=require('child_process').execSync('npm view '+pkg.name+' version --tag rc 2>/dev/null || echo '+pkg.version, {encoding:'utf8'}).trim(); const match=latest.match(/^(.+)-rc\\.(\\d+)$/); pkg.version = match ? match[1]+'-rc.'+(parseInt(match[2])+1) : latest+'-rc.0'; require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2));\" && npm run build:package && npm publish --tag rc"
   },
   "repository": {
