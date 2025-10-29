@@ -1,28 +1,18 @@
 version: 0.2
 phases:
-  install:
-    runtime-versions:
-      nodejs: 20
   pre_build:
     commands:
-      - echo Prebuild started on `date`
-      - echo Build environment is $BUILD_ENV
+      - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
   build:
     commands:
-      - echo Build started on `date`
       - npm install
-      - npm run build:mura.js
   post_build:
     commands:
-      - echo Build completed on `date`
       - echo Publishing to npm...
-      - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
       - |-
         set -e
-        if [ "$BUILD_ENV" = "rc" ]; then
-          npm run publish:mura.js-rc
+        if [ "$BUILD_ENV" = "dev" ]; then
+          npm run publish:rc
         elif [ "$BUILD_ENV" = "prod" ]; then
-          npm run publish:mura.js
-        else
-          echo NO RC OR PROD PACKAGED PUBLISHED
+          npm run publish:prod
         fi

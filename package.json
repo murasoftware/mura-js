@@ -1,5 +1,5 @@
 {
-  "name": "mura.js",
+  "name": "@murasoftware/mura.js-test",
   "homepage": "http://www.murasoftware.com",
   "version": "1.0.409",
   "description": "Utility for interacting with the Mura JSON/REST API",
@@ -11,18 +11,16 @@
     "src/core/",
     "src/templates/"
   ],
-  "main": "src/index.js",
+  "main": "src/index-namespaced.js",
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "build": "WEBPACK_ENV=build  webpack --mode production --env production",
+    "build": "WEBPACK_ENV=build webpack --mode production --env production",
     "dev": "grunt; WEBPACK_ENV=dev webpack --mode production --env production",
-    "build:mura.js": "MURA_PACKAGE=mura.js node build-package.js;",
-    "build:@murasoftware/mura": "MURA_PACKAGE=@murasoftware/mura node build-package.js;",
-    "publish:mura.js": "npm run build:mura.js && npm publish",
-    "publish:@murasoftware/mura": "npm run build:@murasoftware/mura && npm publish",
-    "publish": "npm run publish:mura.js && npm run publish:@murasoftware/mura"
+    "build:package": "npm run dev && npm run build",
+    "publish:prod": "npm version patch --no-git-tag-version && npm run build:package && npm publish",
+    "publish:rc": "npm version prerelease --preid=rc --no-git-tag-version && npm run build:package && npm publish --tag rc"
   },
   "repository": {
     "type": "git",
