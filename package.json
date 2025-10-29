@@ -1,5 +1,5 @@
 {
-  "name": "@murasoftware/mura.js-test",
+  "name": "@murasoftware/mura.js",
   "homepage": "http://www.murasoftware.com",
   "version": "1.0.409",
   "description": "Utility for interacting with the Mura JSON/REST API",
