@@ -2,7 +2,7 @@
 
 Mura.js is javscript utility to interact with the Mura CMS JSON/REST API
 
-Mura CMS is an open source content management system for CFML, created by [Blue River Interactive Group](http://www.getmura.com). Mura has been designed to be used by marketing departments, web designers and developers.
+Mura is a business enablement and content management system for CFML, owned and maintained by [Goods and Services](https://www.goodsandservices.com/). Mura has been designed to be used by marketing departments, web designers and developers.
 
 ## Installation
 
