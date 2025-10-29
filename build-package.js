@@ -1,12 +1,5 @@
 #!/usr/bin/node
-const fs = require("fs");
-const { exec } = require("child_process");
-const pjson = require("./package.json");
-
-pjson.name = "@murasoftware/mura.js";
-pjson.main = "src/index-namespaced.js";
-
-fs.writeFileSync("./package.json", JSON.stringify(pjson, null, 2));
+const { exec } = require('child_process');
 
 function runScript(scriptName) {
   return new Promise((resolve, reject) => {
