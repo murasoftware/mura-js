@@ -4,7 +4,7 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-    target-branch: "dev"
+    target-branch: "develop"
     open-pull-requests-limit: 10
     commit-message:
       prefix: "npm"
@@ -23,19 +23,19 @@ updates:
     directory: "/packages/mura-next-core/v1"
     schedule:
       interval: "weekly"
-    target-branch: "dev"
+    target-branch: "develop"
     open-pull-requests-limit: 5
     
   - package-ecosystem: "npm"
     directory: "/packages/mura-next-core/v2"
     schedule:
       interval: "weekly"
-    target-branch: "dev"
+    target-branch: "develop"
     open-pull-requests-limit: 5
     
   - package-ecosystem: "npm"
     directory: "/packages/mura-next-modules-bs4"
     schedule:
       interval: "weekly"
-    target-branch: "dev"
+    target-branch: "develop"
     open-pull-requests-limit: 5
