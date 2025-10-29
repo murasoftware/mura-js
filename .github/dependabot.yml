@@ -1,0 +1,41 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    target-branch: "dev"
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "npm"
+      include: "scope"
+    # Group minor and patch updates together to reduce PR noise
+    groups:
+      npm-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+    
+  # If you have packages in subdirectories, add them too
+  - package-ecosystem: "npm"
+    directory: "/packages/mura-next-core/v1"
+    schedule:
+      interval: "weekly"
+    target-branch: "dev"
+    open-pull-requests-limit: 5
+    
+  - package-ecosystem: "npm"
+    directory: "/packages/mura-next-core/v2"
+    schedule:
+      interval: "weekly"
+    target-branch: "dev"
+    open-pull-requests-limit: 5
+    
+  - package-ecosystem: "npm"
+    directory: "/packages/mura-next-modules-bs4"
+    schedule:
+      interval: "weekly"
+    target-branch: "dev"
+    open-pull-requests-limit: 5
