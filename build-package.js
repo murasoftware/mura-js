@@ -18,10 +18,10 @@ function runScript(scriptName) {
 
 async function build() {
   try {
-    await runScript('dev');
-    await runScript('build');
+    await runScript("dev");
+    await runScript("build");
   } catch (error) {
-    console.error('Build process failed:', error);
+    console.error("Build process failed:", error);
   }
 }
 
