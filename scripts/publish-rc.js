@@ -15,6 +15,11 @@ try {
   prodVersion = pkg.version;
 }
 
+// Increment production version to get the next version base
+const parts = prodVersion.split('.');
+parts[2] = parseInt(parts[2]) + 1;
+const nextVersion = parts.join('.');
+
 // Get latest RC version from npm
 let rcVersion;
 try {
@@ -23,15 +28,15 @@ try {
   rcVersion = 'none';
 }
 
-// Parse RC version to see if it matches current production base
+// Parse RC version to see if it matches the next version base
 const rcMatch = rcVersion.match(/^(.+)-rc\.(\d+)$/);
 
-if (rcMatch && rcMatch[1] === prodVersion) {
-  // Increment existing RC series
-  pkg.version = `${prodVersion}-rc.${parseInt(rcMatch[2]) + 1}`;
+if (rcMatch && rcMatch[1] === nextVersion) {
+  // Increment existing RC series for the next version
+  pkg.version = `${nextVersion}-rc.${parseInt(rcMatch[2]) + 1}`;
 } else {
-  // Start new RC series
-  pkg.version = `${prodVersion}-rc.0`;
+  // Start new RC series for the next version
+  pkg.version = `${nextVersion}-rc.0`;
 }
 
 // Write updated package.json
