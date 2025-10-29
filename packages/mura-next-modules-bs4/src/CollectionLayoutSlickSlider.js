@@ -17,7 +17,7 @@ import { getHref } from '@murasoftware/next-core'
 */
 
 const SlickSlider = ({props,collection,link}) => {
-
+  console.log('link: ', link);
   function CustomNextArrow(props) {
     const { className, style, onClick } = props;
     return (
@@ -154,9 +154,9 @@ const SliderItem = (props) => {
   if (props.sliderlayout === 'banner') {//swith to props.layout
     return(
       <div key={item.get('contentid')} className="h-100 position-relative">
-        <Link href={getHref(item.get('filename'))} passHref>
+        <a href={getHref(item.get('filename'))} target={item.get('target')}>
           <img src={props.sliderimage} />
-        </Link>
+        </a>
         <div className="mura-item-meta">
                 {
                 fieldlist.map(field => {
@@ -242,6 +242,7 @@ const SliderItem = (props) => {
                           ctatext="Read More"
                           link={Link}
                           key={item.get('contentid')}
+                          target={item.get('target')}
                         />
                       );
                     default:
