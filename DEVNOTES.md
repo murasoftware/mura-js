@@ -4,16 +4,16 @@ This document outlines the development workflow for the mura.js project.
 
 ## Branch Structure
 
-- **`dev`** - Development branch for ongoing work
-- **`main`** - Production branch for stable releases
+- **`develop`** - Development branch for ongoing work
+- **`master`** - Production branch for stable releases
 - **Feature branches** - Individual development work
 
 ## Development Workflow
 
 ### 1. Creating a Feature Branch
 ```bash
-git checkout dev
-git pull origin dev
+git checkout develop
+git pull origin develop
 git checkout -b feature/your-feature-name
 ```
 
@@ -24,24 +24,23 @@ git checkout -b feature/your-feature-name
 
 ### 3. Opening a Pull Request
 **Pull Requests are REQUIRED for all code merges:**
-- **To `dev` branch**: For feature development and bug fixes
-- **To `main` branch**: For production releases (typically from `dev`)
+- **To `develop` branch**: For feature development and bug fixes
+- **To `master` branch**: For production releases (only from `develop` branch)
 
 **Branch Protection Rules:**
-- Cannot push directly to `dev` or `main`
+- Cannot push directly to `develop` or `master`
 - Must use Pull Requests
 - Requires code review approval
-- Must pass CI/CD status checks
 
 ### 4. CI/CD Pipeline Behavior
 
-**When PR is created targeting `dev`:**
+**When PR is created targeting `develop`:**
 - CodeBuild runs automatically
 - Publishes RC version (e.g., `1.0.416-rc.0`)
 - Comments on PR with published version
 - Uses `npm run publish:rc` script
 
-**When PR is merged to `main`:**
+**When PR is merged to `master`:**
 - CodeBuild runs automatically  
 - Publishes production version (e.g., `1.0.416`)
 - Uses `npm run publish:prod` script
@@ -99,7 +98,7 @@ node scripts/publish-prod.js  # Shows what prod version would be created
 
 ### Dependabot
 - Automatically creates PRs for dependency updates
-- Targets `dev` branch (not `main`)
+- Targets `develop` branch (not `master`)
 - Grouped updates to reduce PR noise
 - Follows same review process as manual PRs
 
