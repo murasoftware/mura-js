@@ -7,7 +7,7 @@
 			{{#each dataset.options}}
 				<div class="{{{radioWrapperClass}}}">
 					<input type="radio" name="{{../name}}id" class="{{{radioClass}}}" id="field-{{id}}" value="{{id}}" {{#if isselected}}checked='checked'{{/if}}/>
-					<label for="field-{{id}}" test1=1 class="{{{radioLabelClass}}}">{{label}}</label>
+					<label for="field-{{id}}" test1=1 class="{{{radioLabelClass}}} {{#if ../isrequired}}required-option{{/if}}">{{label}}</label>
 				</div>
 			{{/each}}
 		</div>

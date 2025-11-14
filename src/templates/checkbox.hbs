@@ -7,7 +7,7 @@
 		{{#eachCheck dataset.options selected}}
 			<div class="{{{checkboxWrapperClass}}}">
 				<input source="{{../dataset.source}}" class="{{{checkboxClass}}}" type="checkbox" name="{{../name}}" id="field-{{id}}" value="{{id}}" {{#if isselected}}checked='checked'{{/if}}/>
-				<label class="{{{checkboxLabelClass}}}" for="field-{{id}}">{{label}}</label>
+				<label class="{{{checkboxLabelClass}}} {{#if ../isrequired}}required-option{{/if}}" for="field-{{id}}">{{label}}</label>
 			</div>
 		{{/eachCheck}}
 	</div>
