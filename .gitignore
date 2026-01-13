@@ -2,5 +2,7 @@ node_modules
 .DS_Store
 dist
 
+/packages
+
 # GitHub Copilot instructions (keep private)
 .github/copilot-instructions.md
