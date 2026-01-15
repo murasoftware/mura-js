@@ -15,13 +15,11 @@
   "publishConfig": {
     "access": "public"
   },
-  "scripts": {
-    "build": "WEBPACK_ENV=build npx webpack --mode production --env production",
-    "dev": "npx grunt; WEBPACK_ENV=dev npx webpack --mode production --env production",
-    "build:package": "npm run dev && npm run build",
-    "publish:prod": "node scripts/publish-prod.js && npm run build:package && npm publish",
-    "publish:rc": "node scripts/publish-rc.js && npm run build:package && npm publish --tag rc"
-  },
+"scripts": {
+  "build": "WEBPACK_ENV=build npx webpack --mode production --env production",
+  "dev": "npx grunt; WEBPACK_ENV=dev npx webpack --mode production --env production",
+  "build:package": "npm run dev && npm run build"
+},
   "repository": {
     "type": "git",
     "url": "https://github.com/murasoftware/mura-js.git"
