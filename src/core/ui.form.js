@@ -45,6 +45,7 @@ function attach(Mura){
 			formtextareaclass:"form-control",
 			formfileclass:"form-control",
 			formtextblockclass:"form-control",
+			formdatepickerclass:"form-control mura-datepicker",
 			formcheckboxclass:"",
 			formcheckboxlabelclass:"checkbox",
 			formcheckboxwrapperclass:"",
@@ -551,7 +552,46 @@ function attach(Mura){
 			Mura(self.context.formEl).find('input[type="file"]').off('change',fileChangeHandler).on('change',fileChangeHandler);
 			
 			Mura(self.context.formEl).find('.mura-form-preview img, .mura-newfile-filename').off('click',fileSelectorHandler).on('click',fileSelectorHandler);
+			var datePickerSelectorHandler = function (e) {
+					// Diagnostic logs to help debug why picker doesn't open
+					var container = Mura(this).closest(".mura-form-datepicker-container");
+					var inputEl = container.find("input.mura-datepicker");
+					var node = inputEl.node;
 
+					if(!node){
+						return;
+					}
+
+					// If native showPicker available, use it
+					if (typeof node.showPicker === 'function') {
+						try {
+							node.showPicker();
+						} catch (e) {
+							inputEl.trigger('focus');
+						}
+						return;
+					}
+
+				};
+
+			// Bind the handler to both the input itself and the surrounding container so clicking either opens the picker
+			Mura(self.context.formEl)
+				.find("input.mura-datepicker")
+				.off("click", datePickerSelectorHandler)
+				.on("click", datePickerSelectorHandler);
+
+				// Also bind the trigger button explicitly to open the picker
+				Mura(self.context.formEl)
+					.find('.mura-datepicker-trigger')
+					.off('click')
+					.on('click', function(e){
+						e.preventDefault();
+						e.stopPropagation();
+						// Call the same handler with the button as context so it finds the container/input
+						datePickerSelectorHandler.call(this, e);
+					});
+
+	
 		},
 
 		setDataValues() {
@@ -1242,6 +1282,8 @@ function attach(Mura){
 					returnString += self.rb.formselectclass;
 				} else if(this.fieldtype=='textblock'){
 					returnString += self.rb.formtextblockclass;
+				} else if (this.fieldtype === 'datepicker' || this.fieldtype.fieldtype === 'datepicker') {
+					returnString += self.rb.formdatepickerclass;
 				} else {
 					returnString += self.rb.forminputclass;
 				}
