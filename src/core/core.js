@@ -3912,32 +3912,12 @@ function attach(Mura){
 				Mura.apiEndpoint=Mura.apiEndpoint.replace('/json/', '/rest/');
 			}
 		}
-		
-		Mura.apiEndpoint = getInternalApiDomain(Mura.apiEndpoint);
 
 		return Mura.apiEndpoint;
 	}
 
 	function setAPIEndpoint(apiEndpoint){
 		Mura.apiEndpoint=apiEndpoint;
-	}
-
-	function getInternalApiDomain(apiEndpoint) {
-		// MCPD-158: Support for internal API environment variable to prefix API endpoint
-		if (
-			typeof Mura.internalApiDomain === "string" &&
-			Mura.internalApiDomain &&
-			typeof apiEndpoint === "string" &&
-			apiEndpoint &&
-			!apiEndpoint.startsWith(Mura.internalApiDomain)
-		) {
-			const endpointPath = apiEndpoint.replace(/^(https?:)?\/\/[^/]+/, ''); // Remove existing domain
-			const prefix = Mura.internalApiDomain.replace(/\/+$/, ''); // Remove trailing slashes
-			const endpoint = endpointPath.replace(/^\/+/, ''); // Remove leading slashes
-			return `${prefix}/${endpoint}`; // Return new api endpoint with internal domain
-		}
-
-		return apiEndpoint; // Return original if no changes needed
 	}
 
 	function setMode(mode){
@@ -4043,6 +4023,13 @@ function attach(Mura){
 
 		if (config.rootpath) {
 			config.context = config.rootpath;
+		}
+
+		// MCPD-158: Support for `internalRootpath` environment variable to prefix API endpoint 
+		// when running in node for server side rendering scenarios
+		if (config.internalRootpath && isInNode()) {
+			config.context = config.internalRootpath;
+			config.rootpath = config.internalRootpath;
 		}
 
 		if (config.endpoint) {
@@ -4495,7 +4482,6 @@ function attach(Mura){
 			getBreakpoint:getBreakpoint,
 			getAPIEndpoint:getAPIEndpoint,
 			setAPIEndpoint:setAPIEndpoint,
-			getInternalApiDomain: getInternalApiDomain,
 			getMode:getMode,
 			setMode:setMode,
 			getRenderMode: getRenderMode,
