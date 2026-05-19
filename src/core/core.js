@@ -4025,11 +4025,10 @@ function attach(Mura){
 			config.context = config.rootpath;
 		}
 
-		// MCPD-158: Support for `internalRootpath` environment variable to prefix API endpoint 
+		// MCPD-158: Support for `internalRootpath` environment variable to prefix API endpoint
 		// when running in node for server side rendering scenarios
 		if (config.internalRootpath && isInNode()) {
 			config.context = config.internalRootpath;
-			config.rootpath = config.internalRootpath;
 		}
 
 		if (config.endpoint) {

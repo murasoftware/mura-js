@@ -152,7 +152,21 @@ function attach(Mura){
 							}
 						}
 					})
-				}	
+				}
+
+				// MCPD-158: When internalRootpath is set, API calls are routed through the internal network (e.g. Cloud Map)
+				// instead of the public domain. Mura relies on host headers to identify the site, 
+				// but in ISR/static contexts there is no incoming request to forward them from.
+				if (Mura.internalRootpath && !config.headers['host']) {
+					try {
+						const { hostname, protocol } = new URL(Mura.rootpath);
+						config.headers['host'] = hostname;
+						config.headers['x-forwarded-host'] = hostname;
+						config.headers['x-forwarded-proto'] = protocol.replace(':', '');
+					} catch(e) {
+						console.log('Error parsing Mura.rootpath for internalRootpath support', e);
+					}
+				}
 				
 				let h;
 	
