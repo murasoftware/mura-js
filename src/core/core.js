@@ -3911,7 +3911,8 @@ function attach(Mura){
 			if(Mura.mode.toLowerCase()=='rest'){
 				Mura.apiEndpoint=Mura.apiEndpoint.replace('/json/', '/rest/');
 			}
-		} 
+		}
+
 		return Mura.apiEndpoint;
 	}
 
@@ -4022,6 +4023,12 @@ function attach(Mura){
 
 		if (config.rootpath) {
 			config.context = config.rootpath;
+		}
+
+		// MCPD-158: Support for `internalRootpath` environment variable to prefix API endpoint
+		// when running in node for server side rendering scenarios
+		if (config.internalRootpath && isInNode()) {
+			config.context = config.internalRootpath;
 		}
 
 		if (config.endpoint) {
