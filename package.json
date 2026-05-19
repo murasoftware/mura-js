@@ -16,11 +16,9 @@
     "access": "public"
   },
   "scripts": {
-    "build": "cross-env WEBPACK_ENV=build  webpack --mode production --env production",
-    "dev": "grunt && cross-env WEBPACK_ENV=dev webpack --mode production --env production",
-    "build:@murasoftware/mura.js": "cross-env MURA_PACKAGE=@murasoftware/mura.js node build-package.js",
-    "publish:@murasoftware/mura.js": "npm run build:@murasoftware/mura.js && npm publish",
-    "publish:@murasoftware/mura.js-rc": "npm run build:@murasoftware/mura.js && npm publish --tag rc"
+    "build": "WEBPACK_ENV=build npx webpack --mode production --env production",
+    "dev": "npx grunt; WEBPACK_ENV=dev npx webpack --mode production --env production",
+    "build:package": "npm run dev && npm run build"
   },
   "repository": {
     "type": "git",
