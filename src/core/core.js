@@ -2480,7 +2480,7 @@ function attach(Mura){
 		//Strip out unwanted attributes
 		var unwanted=['iconclass','objectname','inited','params','stylesupport','cssstyles','metacssstyles','contentcssstyles',
 			'cssclass','cssid','metacssclass','metacssid','contentcssclass','contentcssid','transient','draggable','objectspacing','metaspacing',
-			'contentspacing'];
+			'contentspacing','redirect','apiendpoint'];
 
 		for(var c=0; c<unwanted.length;c++){
 			delete params[unwanted[c]];
@@ -2839,7 +2839,8 @@ function attach(Mura){
 		} : resp;
 
 		if (typeof resp.data.redirect != 'undefined') {
-			if (resp.data.redirect && resp.data.redirect != location.href) {
+			var normalised = resp.data.redirect.replace(/[\t\r\n]/g, '');
+			if (!/^(\/\/|(?!https?:)[a-z][a-z\d+\-.]*:)/i.test(normalised)) {
 				location.href = resp.data.redirect;
 			} else {
 				location.reload(true);
