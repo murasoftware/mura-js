@@ -177,7 +177,13 @@ Mura.RequestContext=Mura.Core.extend(
 				success(resp) {
 					if (resp != null && typeof location != 'undefined' && typeof resp.data != 'undefined' && typeof resp.data.redirect != 'undefined' && typeof resp.data.contentid == 'undefined') {
 						if (resp.data.redirect && resp.data.redirect != location.href) {
-							location.href = resp.data.redirect;
+							// Match how browsers parse a URL before testing the scheme: tab/CR/LF are
+							// ignored anywhere, and leading C0 controls/space are trimmed. Testing the
+							// raw string would let " javascript:..." slip past the allow-list.
+							var normalised = resp.data.redirect.replace(/[\t\r\n]/g, '').replace(/^[\u0000-\u0020]+/, '');
+							if (!/^(\/\/|(?!https?:)[a-z][a-z\d+\-.]*:)/i.test(normalised)) {
+								location.href = normalised;
+							}
 						} else {
 							location.reload(true);
 						}
