@@ -987,31 +987,14 @@ function attach(Mura){
 		return tmp.body.children;
 	};
 
-	function parseStringAsTemplate(stringValue){
-		const errors={};
-		let parsedString=stringValue;
-		let doLoop=true;
-
-		do {
-			const finder=/(\${)(.+?)(})/.exec(parsedString)
-			if(finder){
-				let template;
-				try {
-					template=eval('`${' + finder[2] + '}`');
-				} catch(e){
-					console.log('error parsing string template: ' + '${' + finder[2] + '}',e);
-					template='[error]' + finder[2] + '[/error]';
-				}
-				parsedString=parsedString.replace(finder[0],template);
-			} else {
-				doLoop=false;
-			}
-		} while (doLoop)
-
-		parsedString=parsedString.replace('[error]','${');
-		parsedString=parsedString.replace('[/error]','}');
-
-		return parsedString;
+	function parseStringAsTemplate(stringValue, data){
+		data = data || {};
+		return String(stringValue).replace(/\${([\w.]+)}/g, function(_, key){
+			var value = key.split('.').reduce(function(obj, prop){
+				return obj == null ? obj : obj[prop];
+			}, data);
+			return String(value == null ? '' : value);
+		});
 	}
 
 	function getData(el) {
@@ -2839,9 +2822,14 @@ function attach(Mura){
 		} : resp;
 
 		if (typeof resp.data.redirect != 'undefined') {
-			var normalised = resp.data.redirect.replace(/[\t\r\n]/g, '');
-			if (!/^(\/\/|(?!https?:)[a-z][a-z\d+\-.]*:)/i.test(normalised)) {
-				location.href = resp.data.redirect;
+			if (resp.data.redirect && resp.data.redirect != location.href) {
+				// Match how browsers parse a URL before testing the scheme: tab/CR/LF are
+				// ignored anywhere, and leading C0 controls/space are trimmed. Testing the
+				// raw string would let " javascript:..." slip past the allow-list.
+				var normalised = resp.data.redirect.replace(/[\t\r\n]/g, '').replace(/^[\u0000-\u0020]+/, '');
+				if (!/^(\/\/|(?!https?:)[a-z][a-z\d+\-.]*:)/i.test(normalised)) {
+					location.href = normalised;
+				}
 			} else {
 				location.reload(true);
 			}
@@ -3130,14 +3118,15 @@ function attach(Mura){
 
 		if (hash) {
 			hashparams = getQueryStringParams(hash);
+			delete hashparams.preloadermarkup;
 			if (hashparams.nextnid) {
-				Mura('.mura-async-object[data-nextnid="' + hashparams.nextnid + '"]')
+				Mura('.mura-async-object[data-nextnid="' + CSS.escape(hashparams.nextnid) + '"]')
 					.each(function(el) {
 						Mura(el).data(hashparams);
 						processAsyncObject(el);
 				});
 			} else if (hashparams.objectid) {
-				Mura('.mura-async-object[data-objectid="' + hashparams.objectid + '"]')
+				Mura('.mura-async-object[data-objectid="' + CSS.escape(hashparams.objectid) + '"]')
 				.each(function(el) {
 						Mura(el).data(hashparams);
 						processAsyncObject(el);
@@ -4275,15 +4264,18 @@ function attach(Mura){
 					}
 
 					urlparams = setLowerCaseKeys(getQueryStringParams(location.search));
+					delete urlparams.object;
+					delete urlparams.objectid;
+					delete urlparams.preloadermarkup;
 					
 					if (hashparams.nextnid) {
 						Mura('.mura-async-object[data-nextnid="' +
-							hashparams.nextnid + '"]').each(
+							CSS.escape(hashparams.nextnid) + '"]').each(
 							function(el) {
 								Mura(el).data(hashparams);
 							});
 					} else if (hashparams.objectid) {
-						Mura('.mura-async-object[data-nextnid="' +hashparams.objectid + '"]').each(
+						Mura('.mura-async-object[data-nextnid="' + CSS.escape(hashparams.objectid) + '"]').each(
 						function(el) {
 							Mura(el).data(hashparams);
 						});
