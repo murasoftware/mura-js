@@ -179,6 +179,87 @@ Mura["templates"]["checkbox"] = Mura.Handlebars.template({"1":function(container
     + "	</div>\r\n</div>\r\n";
 },"useData":true,"useDepths":true});
 
+Mura["templates"]["datepicker"] = Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
+    var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
+        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+          return parent[propertyName];
+        }
+        return undefined
+    };
+
+  return container.escapeExpression(((helper = (helper = lookupProperty(helpers,"summary") || (depth0 != null ? lookupProperty(depth0,"summary") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"summary","hash":{},"data":data,"loc":{"start":{"line":3,"column":19},"end":{"line":3,"column":30}}}) : helper)));
+},"3":function(container,depth0,helpers,partials,data) {
+    var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
+        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+          return parent[propertyName];
+        }
+        return undefined
+    };
+
+  return container.escapeExpression(((helper = (helper = lookupProperty(helpers,"label") || (depth0 != null ? lookupProperty(depth0,"label") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"label","hash":{},"data":data,"loc":{"start":{"line":3,"column":38},"end":{"line":3,"column":47}}}) : helper)));
+},"5":function(container,depth0,helpers,partials,data) {
+    var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
+        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+          return parent[propertyName];
+        }
+        return undefined
+    };
+
+  return " <ins>"
+    + container.escapeExpression(((helper = (helper = lookupProperty(helpers,"formRequiredLabel") || (depth0 != null ? lookupProperty(depth0,"formRequiredLabel") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"formRequiredLabel","hash":{},"data":data,"loc":{"start":{"line":4,"column":28},"end":{"line":4,"column":49}}}) : helper)))
+    + "</ins>";
+},"7":function(container,depth0,helpers,partials,data) {
+    return "</br>";
+},"9":function(container,depth0,helpers,partials,data) {
+    return " aria-required=\"true\"";
+},"11":function(container,depth0,helpers,partials,data) {
+    var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
+        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+          return parent[propertyName];
+        }
+        return undefined
+    };
+
+  return " placeholder=\""
+    + container.escapeExpression(((helper = (helper = lookupProperty(helpers,"placeholder") || (depth0 != null ? lookupProperty(depth0,"placeholder") : depth0)) != null ? helper : container.hooks.helperMissing),(typeof helper === "function" ? helper.call(depth0 != null ? depth0 : (container.nullContext || {}),{"name":"placeholder","hash":{},"data":data,"loc":{"start":{"line":15,"column":39},"end":{"line":15,"column":54}}}) : helper)))
+    + "\"";
+},"compiler":[8,">= 4.3.0"],"main":function(container,depth0,helpers,partials,data) {
+    var stack1, helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=container.hooks.helperMissing, alias3="function", alias4=container.escapeExpression, lookupProperty = container.lookupProperty || function(parent, propertyName) {
+        if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
+          return parent[propertyName];
+        }
+        return undefined
+    };
+
+  return "<div class=\""
+    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"inputWrapperClass") || (depth0 != null ? lookupProperty(depth0,"inputWrapperClass") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"inputWrapperClass","hash":{},"data":data,"loc":{"start":{"line":1,"column":12},"end":{"line":1,"column":35}}}) : helper))) != null ? stack1 : "")
+    + " mura-form-datepicker-container\" id=\"field-"
+    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":1,"column":78},"end":{"line":1,"column":86}}}) : helper)))
+    + "-container\">\r\n  <label for=\""
+    + alias4(((helper = (helper = lookupProperty(helpers,"labelForValue") || (depth0 != null ? lookupProperty(depth0,"labelForValue") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"labelForValue","hash":{},"data":data,"loc":{"start":{"line":2,"column":14},"end":{"line":2,"column":31}}}) : helper)))
+    + "\" data-for=\""
+    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":2,"column":43},"end":{"line":2,"column":51}}}) : helper)))
+    + "\">\r\n    "
+    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"summary") : depth0),{"name":"if","hash":{},"fn":container.program(1, data, 0),"inverse":container.program(3, data, 0),"data":data,"loc":{"start":{"line":3,"column":4},"end":{"line":3,"column":54}}})) != null ? stack1 : "")
+    + "\r\n    "
+    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"isrequired") : depth0),{"name":"if","hash":{},"fn":container.program(5, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":4,"column":4},"end":{"line":4,"column":62}}})) != null ? stack1 : "")
+    + "\r\n  </label>\r\n  "
+    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"summary") : depth0),{"name":"if","hash":{},"fn":container.program(7, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":6,"column":2},"end":{"line":6,"column":29}}})) != null ? stack1 : "")
+    + "\r\n  <div class=\"mura-form-datepicker-inputwrap\">\r\n    <input\r\n      id=\""
+    + alias4(((helper = (helper = lookupProperty(helpers,"labelForValue") || (depth0 != null ? lookupProperty(depth0,"labelForValue") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"labelForValue","hash":{},"data":data,"loc":{"start":{"line":9,"column":10},"end":{"line":9,"column":27}}}) : helper)))
+    + "\"\r\n      type=\"date\"\r\n      "
+    + ((stack1 = ((helper = (helper = lookupProperty(helpers,"commonInputAttributes") || (depth0 != null ? lookupProperty(depth0,"commonInputAttributes") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"commonInputAttributes","hash":{},"data":data,"loc":{"start":{"line":11,"column":6},"end":{"line":11,"column":33}}}) : helper))) != null ? stack1 : "")
+    + "\r\n      data-datepicker=\""
+    + alias4(((helper = (helper = lookupProperty(helpers,"name") || (depth0 != null ? lookupProperty(depth0,"name") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"name","hash":{},"data":data,"loc":{"start":{"line":12,"column":23},"end":{"line":12,"column":31}}}) : helper)))
+    + "\"\r\n      value=\""
+    + alias4(((helper = (helper = lookupProperty(helpers,"value") || (depth0 != null ? lookupProperty(depth0,"value") : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"value","hash":{},"data":data,"loc":{"start":{"line":13,"column":13},"end":{"line":13,"column":22}}}) : helper)))
+    + "\"\r\n      "
+    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"isrequired") : depth0),{"name":"if","hash":{},"fn":container.program(9, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":14,"column":6},"end":{"line":14,"column":52}}})) != null ? stack1 : "")
+    + "\r\n      "
+    + ((stack1 = lookupProperty(helpers,"if").call(alias1,(depth0 != null ? lookupProperty(depth0,"placeholder") : depth0),{"name":"if","hash":{},"fn":container.program(11, data, 0),"inverse":container.noop,"data":data,"loc":{"start":{"line":15,"column":6},"end":{"line":15,"column":62}}})) != null ? stack1 : "")
+    + "\r\n      class=\"mura-datepicker form-control\"\r\n      autocomplete=\"off\"\r\n      tabindex=\"0\"\r\n      aria-haspopup=\"dialog\"\r\n    />\r\n  </div>\r\n</div>";
+},"useData":true});
+
 Mura["templates"]["dropdown_static"] = Mura.Handlebars.template({"1":function(container,depth0,helpers,partials,data) {
     var helper, lookupProperty = container.lookupProperty || function(parent, propertyName) {
         if (Object.prototype.hasOwnProperty.call(parent, propertyName)) {
