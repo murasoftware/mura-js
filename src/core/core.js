@@ -2286,6 +2286,21 @@ function attach(Mura){
 					)
 			);
 
+			var fileNames = [];
+			var fileIndex = 0;
+			var fileField;
+
+			if (frm.elements && frm.elements.length) {
+				for (fileIndex = 0; fileIndex < frm.elements.length; fileIndex++) {
+					fileField = frm.elements[fileIndex];
+					if (fileField && fileField.type == 'file' && fileField.name) {
+						fileNames.push(fileField.name);
+					}
+				}
+			}
+
+			keys.murapagekeys = extendMuraPageKeys(extendMuraPageKeys(Object.keys(urlparams).join(','), checkdata), fileNames);
+
 			if(obj.data('siteid')){
 				keys.siteid=obj.data('siteid');
 			}
@@ -2328,6 +2343,8 @@ function attach(Mura){
 						nocache: 1
 					}
 				));
+
+			data.murapagekeys = extendMuraPageKeys(Object.keys(urlparams).join(','), formToObject(frm));
 			
 			if(obj.data('siteid')){
 				data.siteid=obj.data('siteid');
@@ -2470,6 +2487,59 @@ function attach(Mura){
 		}
 
 		return params;
+	}
+
+	function extendMuraPageKeys(existing, names) {
+		var result = [];
+		var seen = Object.create(null);
+		var i = 0;
+		var parts = [];
+		var prop = '';
+
+		function addName(value) {
+			var trimmed;
+			var key;
+
+			if (typeof value != 'string') {
+				return;
+			}
+
+			trimmed = trim(value);
+
+			if (!trimmed.length) {
+				return;
+			}
+
+			key = trimmed.toLowerCase();
+
+			if (seen[key]) {
+				return;
+			}
+
+			seen[key] = true;
+			result.push(trimmed);
+		}
+
+		if (typeof existing == 'string' && existing.length) {
+			parts = existing.split(',');
+			for (i = 0; i < parts.length; i++) {
+				addName(parts[i]);
+			}
+		}
+
+		if (Array.isArray(names)) {
+			for (i = 0; i < names.length; i++) {
+				addName(names[i]);
+			}
+		} else if (names && typeof names == 'object') {
+			for (prop in names) {
+				if (Object.prototype.hasOwnProperty.call(names, prop)) {
+					addName(prop);
+				}
+			}
+		}
+
+		return result.join(',');
 	}
 
 	function destroyDisplayObjects(){
@@ -3010,6 +3080,8 @@ function attach(Mura){
 						contentid: Mura.contentid,
 						contenthistid: Mura.contenthistid
 					});
+
+				data.murapagekeys = Object.keys(urlparams).join(',');
 				
 				if (obj.data('siteid')) {
 					data.siteid = obj.node.getAttribute('data-siteid');
@@ -4385,6 +4457,7 @@ function attach(Mura){
 			processAsyncObject: processAsyncObject,
 			resetAsyncObject: resetAsyncObject,
 			setLowerCaseKeys: setLowerCaseKeys,
+			extendMuraPageKeys: extendMuraPageKeys,
 			throttle:throttle,
 			debounce:debounce,
 			noSpam: noSpam,

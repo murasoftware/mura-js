@@ -8,6 +8,14 @@
 
 function attach(Mura){
 
+	function buildFormPageKeys(payload){
+		var pagekeys=Mura.setLowerCaseKeys(Mura.getQueryStringParams(location.search));
+		delete pagekeys.object;
+		delete pagekeys.objectid;
+		delete pagekeys.preloadermarkup;
+		return Mura.extendMuraPageKeys(Object.keys(pagekeys).join(','),payload);
+	}
+
 	Mura.UI.Form=Mura.UI.extend(
 	/** @lends Mura.DisplayObject.Form.prototype */
 	{
@@ -477,6 +485,7 @@ function attach(Mura){
 					delete data.targetEl;
 					delete data.html;
 
+					data.murapagekeys=buildFormPageKeys(data);
 
 					Mura.ajax({
 						type: 'post',
@@ -489,6 +498,7 @@ function attach(Mura){
 						success(resp) {
 							data['csrf_token_expires']=resp.data['csrf_token_expires'];
 							data['csrf_token']=resp.data['csrf_token'];
+							data.murapagekeys=Mura.extendMuraPageKeys(data.murapagekeys,['csrf_token','csrf_token_expires']);
 
 							Mura.post(
 								Mura.getAPIEndpoint() + '?method=processAsyncObject',
@@ -790,6 +800,8 @@ function attach(Mura){
 				if(polllist.length > 0) {rawdata.polllist=polllist.toString();}
 			}
 
+			rawdata.murapagekeys=buildFormPageKeys(rawdata);
+
 			var data=new FormData();
 
 			for(var p in rawdata){
@@ -811,6 +823,12 @@ function attach(Mura){
 
 					data.append('csrf_token_expires',resp.data['csrf_token_expires']);
 					data.append('csrf_token',resp.data['csrf_token']);
+					rawdata.murapagekeys=Mura.extendMuraPageKeys(rawdata.murapagekeys,['csrf_token','csrf_token_expires']);
+					if(typeof data.set == 'function'){
+						data.set('murapagekeys',rawdata.murapagekeys);
+					} else {
+						data.append('murapagekeys',rawdata.murapagekeys);
+					}
 					
 					Mura.post(
 						Mura.getAPIEndpoint() + '?method=processAsyncObject',
