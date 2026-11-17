@@ -12,6 +12,21 @@
 
 function attach(Mura){
 
+	// Settles the caller's promise when fetch itself rejects (no response at
+	// all), using an API-shaped error so consumers handle one envelope.
+	function settleNetworkError(config, url, response) {
+		console.log(url, response);
+		if (typeof config.error == 'function') {
+			config.error({
+				status: 0,
+				error: {
+					code: 'network_error',
+					message: (response && (response.message || response.statusText)) || 'Network error'
+				}
+			});
+		}
+	}
+
 	Mura.Request=Mura.Core.extend(
 		/** @lends Mura.Request.prototype */
 		{
@@ -408,8 +423,7 @@ function attach(Mura){
 						if (parsedConfig.isfetch) {
 							return new Promise().resolve(response);
 						} else {
-							console.log(parsedConfig.url, response)
-							throw new Error(response.statusText)
+							settleNetworkError(config, parsedConfig.url, response);
 						}
 					}
 				);
@@ -460,8 +474,7 @@ function attach(Mura){
 								})
 							},
 							function(response){
-								console.log(parsedConfig.url,response)
-								throw new Error(response.statusText)
+								settleNetworkError(config, parsedConfig.url, response);
 							}
 						);
 					}
