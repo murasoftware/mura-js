@@ -50,7 +50,7 @@
     "encoding": "^0.1.13",
     "escape-html": "^1.0.3",
     "grunt-contrib-concat": "^2.1.0",
-    "handlebars": "^4.7.7",
+    "handlebars": "^4.7.10",
     "install": "^0.10.4",
     "node-fetch": "^2.6.7",
     "readable-stream": "^3.6.0",
